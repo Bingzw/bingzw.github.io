@@ -473,14 +473,29 @@
     </li>
     <li><a href="#causal-effect-estimation">Causal Effect Estimation</a>
       <ul>
-        <li><a href="#randomized-controlled-trials">Randomized Controlled Trials</a></li>
-        <li><a href="#causal-inference">Causal Inference</a></li>
+        <li><a href="#randomized-controlled-trials-ab-testing">Randomized Controlled Trials (A/B Testing)</a></li>
+        <li><a href="#causal-inference---confounder-adjustments-methods">Causal Inference - Confounder Adjustments Methods</a>
+          <ul>
+            <li><a href="#key-assumptions">Key Assumptions</a></li>
+            <li><a href="#inverse-probability-weighting">Inverse Probability Weighting</a></li>
+            <li><a href="#standardization">Standardization</a></li>
+            <li><a href="#stratification">Stratification</a></li>
+            <li><a href="#propensity-score-matching">Propensity Score Matching</a></li>
+          </ul>
+        </li>
+        <li><a href="#causal-inference---instrumental-variables">Causal Inference - Instrumental Variables</a></li>
+        <li><a href="#difference-in-differences">Difference-In-Differences</a></li>
       </ul>
     </li>
     <li><a href="#root-cause-optimization">Root Cause Optimization</a></li>
     <li><a href="#appendix">Appendix</a>
       <ul>
-        <li><a href="#causal-hierarchy-observation-intervention-counterfactual">Causal Hierarchy: Observation, Intervention, Counterfactual</a></li>
+        <li><a href="#causal-hierarchy-observation-intervention-counterfactual">Causal Hierarchy: Observation, Intervention, Counterfactual</a>
+          <ul>
+            <li><a href="#causation-vs-association">Causation vs Association</a></li>
+            <li><a href="#intervention-vs-counterfactual">Intervention vs Counterfactual</a></li>
+          </ul>
+        </li>
         <li><a href="#do-calculus">Do Calculus</a></li>
       </ul>
     </li>
@@ -543,8 +558,8 @@ age, gender etc</li>
 example, the health status of a patient if he/she received the new drug ($a=1$).</li>
 </ul>
 <p>In practice, the data $(Y_i, A_i, X_i)$ is usually drawn i.i.d from a population and they are formulated into a causal
-graph as shown below.
-<img src="/causality/simple_causal_model_diagram.png" alt="simple_causal_model_diagram">
+graph as shown below.</p>
+<p><img src="/causality/causal_model_diagram.png" alt="causal_model_diagram">
 The mechanism of the causal graph is often reasoning by structural causal models (SCM). It models the underlying data
 generation process with an ordered sequence of functions that map the parent nodes to the child nodes. For example, the
 SCMs of the above causal graph can be written as:
@@ -558,8 +573,16 @@ variables. Now the question is how do we define the effect of the new drug $A$ o
 </div>
 </h3>
 <p>Let&rsquo;s continue with the above drug trail context and notations. Consider a simple case with a binary treatment $A$
-(1: treated, 0: untreated) and a binary outcome $Y$ (1: recovered, 0: not recovered). $Y^{a=1}$ (Y under the treatment
-a = 1) be the outcome</p>
+(1: treated, 0: untreated) and a binary outcome $Y$ (1: recovered, 0: not recovered).</p>
+<ul>
+<li>$Y^{a=1}$ (Y under the treatment
+a = 1) be the outcome variable that would have been observed if the patient had received the treatment.</li>
+<li>$Y^{a=0}$ (Y
+under the treatment a = 0) be the outcome variable that would have been observed if the patient had not received the
+treatment.</li>
+</ul>
+<p>When estimating the causal effect on the <strong>population</strong>, it&rsquo;s usually to consider the average treatment effect (ATE),
+$ATE = E[Y^{a=1}] - E[Y^{a=0}]$, denoting the average causal effect of the treatment on the outcome.</p>
 <h2 id="causal-effect-estimation" >
 <div>
     <a href="#causal-effect-estimation">
@@ -567,20 +590,60 @@ a = 1) be the outcome</p>
     Causal Effect Estimation
 </div>
 </h2>
-<h3 id="randomized-controlled-trials" >
+<p>With the causal formulation and the average treatment effect defined, the next step is to estimate the causal effect
+from the observed data. Multiple methods have been developed for this purpose, each relying on different assumptions
+and is suitable for different scenarios. Some of the most common methods include: <em>randomized controlled trials (A/B
+testing)</em>, <em>confounder adjustments methods</em>, <em>instrumental variables</em>, and <em>difference-in-differences</em> etc.</p>
+<h3 id="randomized-controlled-trials-ab-testing" >
 <div>
-    <a href="#randomized-controlled-trials">
+    <a href="#randomized-controlled-trials-ab-testing">
     </a>
-    Randomized Controlled Trials
+    Randomized Controlled Trials (A/B Testing)
 </div>
 </h3>
-<h3 id="causal-inference" >
+<p>The most common approach to estimate the causal effect is to run an experiment, usually in the following general steps.</p>
+<ol>
+<li>Objective: Define the research question and the hypothesis (usually built with treatment metrics) to be tested.</li>
+<li>Design: Randomly assign the subjects into two groups, the treatment group (A) and the control group (B). The
+treatment group receives the treatment, while the control group does not.</li>
+<li>Randomization: Randomly assign the subjects to the treatment and control groups to ensure the groups are comparable.</li>
+<li>Run test: Implement the A/B test and let it run for a sufficient period to gather an adequate amount of data</li>
+<li>Analysis: Analyze the data and calculate the treatment effect.</li>
+<li>Decisions: Make decisions based on the test results.</li>
+</ol>
+<p>Randomized controlled trials are considered the gold standard for causal inference because they can eliminate the
+confounding bias by randomizing the treatment assignment. However, they are not always feasible due to ethical,
+practical, or financial reasons. Therefore, other methods are developed to estimate the causal effect from observational
+data.</p>
+<h3 id="causal-inference---confounder-adjustments-methods" >
 <div>
-    <a href="#causal-inference">
+    <a href="#causal-inference---confounder-adjustments-methods">
     </a>
-    Causal Inference
+    Causal Inference - Confounder Adjustments Methods
 </div>
 </h3>
+<p>Before diving into the confounder adjustments methods, let&rsquo;s first clarify the confounding bias. Consider the following
+example:
+<img src="/causality/confounder_selection_bias.png" alt="confounder_selection_bias">
+A study is conducted to investigate the effect of a new drug on the health outcome of patients. The study
+finds that patients who received the new drug have a higher recovery rate than those who did not. However, the study
+also finds that the patients who received the new drug are younger and healthier than those who did not. Therefore, the
+observed effect of the new drug on the health outcome may be <strong>confounded</strong> by the age and health status of the patients.
+To estimate the causal effect of the new drug on the health outcome, we need to <em>adjust</em> for the confounding factors,
+such as age and health status.</p>
+<h4 id="key-assumptions" >
+<div>
+    <a href="#key-assumptions">
+    </a>
+    Key Assumptions
+</div>
+</h4>
+<p>All the confounder adjustments methods rely on the following key assumptions:</p>
+<ul>
+<li><strong>Exchangeability</strong>: the treatment assignment is independent of the potential outcomes given the covariates.</li>
+<li><strong>Positivity</strong>: the probability of receiving the treatment is positive for all levels of the covariates.</li>
+<li><strong>Consistency</strong>: the individual&rsquo;s potential outcome is the same as the observed outcome when the treatment is received.</li>
+</ul>
 <h4 id="inverse-probability-weighting" >
 <div>
     <a href="#inverse-probability-weighting">
@@ -588,6 +651,19 @@ a = 1) be the outcome</p>
     Inverse Probability Weighting
 </div>
 </h4>
+<ul>
+<li>Key Idea: Assigning weights to observations in order to create a pseudo-population that approximates the population
+that would have been obtained through random assignment in a randomized control trial (RCT).</li>
+<li>Steps:
+<ol>
+<li>Estimate the propensity score, $pps(x) = P(A = 1 | X = x)$, the probability of receiving the treatment given the
+covariates.</li>
+<li>Calculate the inverse probability weights, $w_i = \frac{P(A_i)}{pps(x_i)}$.</li>
+<li>Fit a marginal structure model $E[Y^a] = \beta_0 + \beta_1 a$ with the inverse probability weights $w_i$.</li>
+<li>Estimate the average treatment effect, $ATE = \hat{\beta_1}$.</li>
+</ol>
+</li>
+</ul>
 <h4 id="standardization" >
 <div>
     <a href="#standardization">
@@ -595,6 +671,18 @@ a = 1) be the outcome</p>
     Standardization
 </div>
 </h4>
+<ul>
+<li>Key Idea: Standardize the outcome under different treatment conditions to estimate the average treatment effect.</li>
+<li>Steps:
+<ol>
+<li>Fit the outcome model with treatment and covariates, $P[Y^a | X=x] = P(Y | A=a, X=x)$. For example, the linear model
+representation is $Y^A = \beta_0 + \beta_1 A + \beta_2 X$.</li>
+<li>Estimate the expectation of the outcome under different treatment conditions:
+$E[Y^a] = \int_x P(Y|A=a, x)*f_X(x)dx$.</li>
+<li>Calculate the average treatment effect, $ATE = E[Y^{a=1}] - E[Y^{a=0}]$.</li>
+</ol>
+</li>
+</ul>
 <h4 id="stratification" >
 <div>
     <a href="#stratification">
@@ -602,6 +690,20 @@ a = 1) be the outcome</p>
     Stratification
 </div>
 </h4>
+<ul>
+<li>Key Idea: Stratify the data into different strata based on the covariates and estimate the average treatment effect.</li>
+<li>Steps:
+<ol>
+<li>Estimate the propensity score, $pps(x) = P(A = 1 | X = x)$, the probability of receiving the treatment given the
+covariates.</li>
+<li>Fit the outcome model with treatment and propensity score as the covariates,
+$P[Y^a | X=x] = P(Y | A=a, pps(x))$. A simple linear representation is $Y^A = \beta_0 + \beta_1 A + \beta_2 * pps(X)$.</li>
+<li>Estimate the expectation of the outcome under different treatment conditions:
+$E[Y^a] = \int_x P(Y|A=a, pps(x))*f_X(x)dx$</li>
+<li>Calculate the average treatment effect, $ATE = E[Y^{a=1}] - E[Y^{a=0}]$.</li>
+</ol>
+</li>
+</ul>
 <h4 id="propensity-score-matching" >
 <div>
     <a href="#propensity-score-matching">
@@ -609,20 +711,31 @@ a = 1) be the outcome</p>
     Propensity Score Matching
 </div>
 </h4>
-<h4 id="instrumental-variables" >
+<ul>
+<li>Key Idea: Match the treated and control units based on the propensity score to estimate the average treatment effect.</li>
+<li>Steps:
+<ol>
+<li>Estimate the propensity score, $pps(x) = P(A = 1 | X = x)$, the probability of receiving the treatment given the
+covariates.</li>
+<li>Match the treated and control units based on the propensity score. (Nearest Neighbour, Kernel Matching, etc)</li>
+<li>Estimate the average treatment effect, $ATE = E[Y^{a=1}] - E[Y^{a=0}]$.</li>
+</ol>
+</li>
+</ul>
+<h3 id="causal-inference---instrumental-variables" >
 <div>
-    <a href="#instrumental-variables">
+    <a href="#causal-inference---instrumental-variables">
     </a>
-    Instrumental Variables
+    Causal Inference - Instrumental Variables
 </div>
-</h4>
-<h4 id="difference-in-differences" >
+</h3>
+<h3 id="difference-in-differences" >
 <div>
     <a href="#difference-in-differences">
     </a>
     Difference-In-Differences
 </div>
-</h4>
+</h3>
 <h2 id="root-cause-optimization" >
 <div>
     <a href="#root-cause-optimization">
@@ -672,6 +785,7 @@ a = 1) be the outcome</p>
     Reference
 </div>
 </h2>
+<p><a href="https://www.youtube.com/watch?v=Od6oAz1Op2k">https://www.youtube.com/watch?v=Od6oAz1Op2k</a></p>
         </div>
 
     </article>
