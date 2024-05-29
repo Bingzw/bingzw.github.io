@@ -39,6 +39,16 @@ toc = true # true | false; Showing table of contents in the post; default: true
 math = true # true | false; Enable MathJax; default: false; You can enable MathJax in the post by adding math: true in a post's metadata section.
 copyCodeButton = true
 
+# Graphcomment support
+graphcommentId = ""
+
+GiscusRepo = "Bingzw/bingzw.github.io"
+GiscusRepoId = "R_kgDOMB8LQg"
+GiscusCategory = "General"
+GiscusCategoryId = "DIC_kwDOMB8LQs4CfrMr"
+GiscusLazyLoad = false
+GiscusDataMapping = "pathname"
+
 # check more social icons at https://github.com/Junyi-99/hugo-theme-anubis2/wiki/Social-Icons
 social = [
     { id="github", name="bingzw" },

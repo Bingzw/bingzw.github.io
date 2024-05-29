@@ -2,7 +2,7 @@
 
 
 <html lang="en-us" data-theme="">
-<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=58210&amp;path=livereload" data-no-instant defer></script>
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=59324&amp;path=livereload" data-no-instant defer></script>
     
         
 <meta charset="utf-8">
@@ -12,14 +12,17 @@
 
 <title>Causality - Bingz Learning Blog</title>
 
-<meta name="description" content="">
+<meta name="description" content="This is a test post for the causality section.
+# Heading 1 Content under heading 1.
+## Subheading 1 Content under subheading 1.
+## Haeading 2 Contcs ent under heading 2.">
 
 
 
 
 
-<link rel="icon" type="image/x-icon" href="http://localhost:58210/favicon.ico">
-<link rel="apple-touch-icon-precomposed" href="http://localhost:58210/favicon.png">
+<link rel="icon" type="image/x-icon" href="http://localhost:59324/favicon.ico">
+<link rel="apple-touch-icon-precomposed" href="http://localhost:59324/favicon.png">
 
 
 
@@ -356,13 +359,13 @@
     <nav class="noselect">
         
         
-        <a class="" href="http://localhost:58210/" title="">Home</a>
+        <a class="" href="http://localhost:59324/" title="">Home</a>
         
-        <a class="" href="http://localhost:58210/about/" title="">About</a>
+        <a class="" href="http://localhost:59324/about/" title="">About</a>
         
-        <a class="" href="http://localhost:58210/tags/" title="">Tags</a>
+        <a class="" href="http://localhost:59324/tags/" title="">Tags</a>
         
-        <a class="" href="http://localhost:58210/posts/" title="">Archive</a>
+        <a class="" href="http://localhost:59324/posts/" title="">Archive</a>
         
     </nav>
 
@@ -421,7 +424,7 @@
     
 
     <a class="post-hidden-url u-url" href="/posts/causality/">/posts/causality/</a>
-    <a href="http://localhost:58210/" class="p-name p-author post-hidden-author h-card" rel="me"></a>
+    <a href="http://localhost:59324/" class="p-name p-author post-hidden-author h-card" rel="me"></a>
 
 
     <div class="post-taxonomies">
@@ -449,6 +452,21 @@
 
   
   
+  
+  <details class="toc noselect">
+    <summary>Table of Contents</summary>
+    <div class="inner"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#heading-1">Heading 1</a>
+      <ul>
+        <li><a href="#subheading-1">Subheading 1</a></li>
+        <li><a href="#haeading-2">Haeading 2</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav></div>
+  </details>
+  
 
 
 
@@ -471,7 +489,35 @@
 </script>
 
         <div class="content e-content">
-            
+            <p>This is a test post for the causality section.</p>
+<h2 id="heading-1" >
+<div>
+    <a href="#heading-1">
+        #
+    </a>
+    Heading 1
+</div>
+</h2>
+<p>Content under heading 1.</p>
+<h3 id="subheading-1" >
+<div>
+    <a href="#subheading-1">
+        ##
+    </a>
+    Subheading 1
+</div>
+</h3>
+<p>Content under subheading 1.</p>
+<h3 id="haeading-2" >
+<div>
+    <a href="#haeading-2">
+        ##
+    </a>
+    Haeading 2
+</div>
+</h3>
+<p>Contcs ent under heading 2.</p>
+
         </div>
 
     </article>
@@ -495,6 +541,46 @@
 
 
 
+
+
+
+            
+
+<script>
+        function detectCurrentScheme2() {
+                const defaultTheme = "auto";
+                if (localStorage !== null && localStorage.getItem("user-color-scheme")) {
+                        return localStorage.getItem("user-color-scheme");
+                }
+                if (defaultTheme === "dark" || defaultTheme === "light") {
+                        return defaultTheme;
+                }
+                return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        }
+
+        let giscusTheme = detectCurrentScheme2();
+        let giscusAttributes = {
+                src: "https://giscus.app/client.js",
+                "data-repo": "Bingzw\/bingzw.github.io",
+                "data-repo-id": "R_kgDOMB8LQg",
+                "data-category": "Announcements",
+                "data-category-id": "DIC_kwDOMB8LQs4CfrMr",
+                "data-mapping": "pathname",
+                "data-strict": "0",
+                "data-reactions-enabled": "1",
+                "data-emit-metadata": "0",
+                "data-input-position": "bottom",
+                "data-theme": giscusTheme,
+                "data-lang": "en",
+                crossorigin: "anonymous",
+                lazyload: "false",
+                async: true,
+        };
+        let main = document.querySelector("main");
+        let giscusScript = document.createElement("script");
+        Object.entries(giscusAttributes).forEach(([key, value]) => giscusScript.setAttribute(key, value));
+        main.appendChild(giscusScript);
+</script>
 
 
 
@@ -535,7 +621,7 @@
 
     <p class="h-card vcard">
 
-    <a href=http://localhost:58210/ class="p-name u-url url fn" rel="me"></a>
+    <a href=http://localhost:59324/ class="p-name u-url url fn" rel="me"></a>
 
     
 
