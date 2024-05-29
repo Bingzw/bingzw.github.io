@@ -30,31 +30,166 @@
       <author>bingwang8878@gamil.com (Bing Wang)</author>
       <guid>/posts/causality/</guid>
       <description>&lt;p&gt;This is a test post for the causality section.&lt;/p&gt;
-&lt;h2 id=&#34;heading-1&#34; &gt;
+&lt;h2 id=&#34;what-is-causality&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#heading-1&#34;&gt;
+    &lt;a href=&#34;#what-is-causality&#34;&gt;
     &lt;/a&gt;
-    Heading 1
+    What Is Causality?
 &lt;/div&gt;
 &lt;/h2&gt;
-&lt;p&gt;Content under heading 1.&lt;/p&gt;
-&lt;h3 id=&#34;subheading-1&#34; &gt;
+&lt;p&gt;Different from common ML tasks that focus on summarizing the patterns in the data, expecting to make predictions on
+similar unseen data. Causality, on the other hand, is about understanding the underlying mechanisms that drive the data.
+It is about to predict how the people/agent/system would react if it were intervened in a certain way. Think about the
+example of having two parallel universes with different light, temperature, and humidity conditions. What would happen
+to a plant if it were moved from one universe to another? This is a causal question.&lt;/p&gt;
+&lt;h3 id=&#34;causal-formulation&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#subheading-1&#34;&gt;
+    &lt;a href=&#34;#causal-formulation&#34;&gt;
     &lt;/a&gt;
-    Subheading 1
+    Causal Formulation
 &lt;/div&gt;
 &lt;/h3&gt;
-&lt;p&gt;Content under subheading 1.&lt;/p&gt;
-&lt;h3 id=&#34;haeading-2&#34; &gt;
+&lt;p&gt;To understand how the outcome would change in different conditions, we need to define the following notations to
+describe the causal relations.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;$Y_i$: the outcome of interest for individual $i$. For example, the health status of a patient.&lt;/li&gt;
+&lt;li&gt;$A_i$: an indicator of whether the individual $i$ received the treatment. For example, a new drug.&lt;/li&gt;
+&lt;li&gt;$X_i$: a set of covariates that may affect both the treatment assignment and the outcome. For example, health status,
+age, gender etc&lt;/li&gt;
+&lt;li&gt;$U_i$: unobserved factors that may affect both the treatment assignment and the outcome. For example, genetic factors.&lt;/li&gt;
+&lt;li&gt;$Y_i^{a}$: the potential outcome of individual $i$ if he/she received the treatment $A = a, a \in \{0, 1\}$. For
+example, the health status of a patient if he/she received the new drug ($a=1$).&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;In practice, the data $(Y_i, A_i, X_i)$ is usually drawn i.i.d from a population and they are formulated into a causal
+graph as shown below.
+&lt;img src=&#34;http://localhost:63480/causality/simple_causal_model_diagram.png&#34; alt=&#34;simple_causal_model_diagram&#34;&gt;
+The mechanism of the causal graph is often reasoning by structural causal models (SCM). It models the underlying data
+generation process with an ordered sequence of functions that map the parent nodes to the child nodes. For example, the
+SCMs of the above causal graph can be written as:
+$P(Y, A, X) = P(Y | A, X) P(X | A) P(A)$. This equation describes the probabilistic dependencies between the observed
+variables. Now the question is how do we define the effect of the new drug $A$ on health outcome $Y$?&lt;/p&gt;
+&lt;h3 id=&#34;average-treatment-effect&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#haeading-2&#34;&gt;
+    &lt;a href=&#34;#average-treatment-effect&#34;&gt;
     &lt;/a&gt;
-    Haeading 2
+    Average Treatment Effect
 &lt;/div&gt;
 &lt;/h3&gt;
-&lt;p&gt;Contcs ent under heading 2.&lt;/p&gt;
-</description>
+&lt;p&gt;Let&amp;rsquo;s continue with the above drug trail context and notations. Consider a simple case with a binary treatment $A$
+(1: treated, 0: untreated) and a binary outcome $Y$ (1: recovered, 0: not recovered). $Y^{a=1}$ (Y under the treatment
+a = 1) be the outcome&lt;/p&gt;
+&lt;h2 id=&#34;causal-effect-estimation&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#causal-effect-estimation&#34;&gt;
+    &lt;/a&gt;
+    Causal Effect Estimation
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;h3 id=&#34;randomized-controlled-trials&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#randomized-controlled-trials&#34;&gt;
+    &lt;/a&gt;
+    Randomized Controlled Trials
+&lt;/div&gt;
+&lt;/h3&gt;
+&lt;h3 id=&#34;causal-inference&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#causal-inference&#34;&gt;
+    &lt;/a&gt;
+    Causal Inference
+&lt;/div&gt;
+&lt;/h3&gt;
+&lt;h4 id=&#34;inverse-probability-weighting&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#inverse-probability-weighting&#34;&gt;
+    &lt;/a&gt;
+    Inverse Probability Weighting
+&lt;/div&gt;
+&lt;/h4&gt;
+&lt;h4 id=&#34;standardization&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#standardization&#34;&gt;
+    &lt;/a&gt;
+    Standardization
+&lt;/div&gt;
+&lt;/h4&gt;
+&lt;h4 id=&#34;stratification&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#stratification&#34;&gt;
+    &lt;/a&gt;
+    Stratification
+&lt;/div&gt;
+&lt;/h4&gt;
+&lt;h4 id=&#34;propensity-score-matching&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#propensity-score-matching&#34;&gt;
+    &lt;/a&gt;
+    Propensity Score Matching
+&lt;/div&gt;
+&lt;/h4&gt;
+&lt;h4 id=&#34;instrumental-variables&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#instrumental-variables&#34;&gt;
+    &lt;/a&gt;
+    Instrumental Variables
+&lt;/div&gt;
+&lt;/h4&gt;
+&lt;h4 id=&#34;difference-in-differences&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#difference-in-differences&#34;&gt;
+    &lt;/a&gt;
+    Difference-In-Differences
+&lt;/div&gt;
+&lt;/h4&gt;
+&lt;h2 id=&#34;root-cause-optimization&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#root-cause-optimization&#34;&gt;
+    &lt;/a&gt;
+    Root Cause Optimization
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;h2 id=&#34;appendix&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#appendix&#34;&gt;
+    &lt;/a&gt;
+    Appendix
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;h3 id=&#34;causal-hierarchy-observation-intervention-counterfactual&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#causal-hierarchy-observation-intervention-counterfactual&#34;&gt;
+    &lt;/a&gt;
+    Causal Hierarchy: Observation, Intervention, Counterfactual
+&lt;/div&gt;
+&lt;/h3&gt;
+&lt;h4 id=&#34;causation-vs-association&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#causation-vs-association&#34;&gt;
+    &lt;/a&gt;
+    Causation vs Association
+&lt;/div&gt;
+&lt;/h4&gt;
+&lt;h4 id=&#34;intervention-vs-counterfactual&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#intervention-vs-counterfactual&#34;&gt;
+    &lt;/a&gt;
+    Intervention vs Counterfactual
+&lt;/div&gt;
+&lt;/h4&gt;
+&lt;h3 id=&#34;do-calculus&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#do-calculus&#34;&gt;
+    &lt;/a&gt;
+    Do Calculus
+&lt;/div&gt;
+&lt;/h3&gt;
+&lt;h2 id=&#34;reference&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#reference&#34;&gt;
+    &lt;/a&gt;
+    Reference
+&lt;/div&gt;
+&lt;/h2&gt;</description>
     </item>
     
   </channel>

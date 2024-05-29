@@ -2,7 +2,7 @@
 
 
 <html lang="en-us" data-theme="">
-<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=63480&amp;path=livereload" data-no-instant defer></script>
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=63420&amp;path=livereload" data-no-instant defer></script>
     
         
 <meta charset="utf-8">
@@ -10,17 +10,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="referrer" content="no-referrer-when-downgrade">
 
-<title>Causal Inference - Bingz Learning Blog</title>
+<title>Causality - Bingz Learning Blog</title>
 
-<meta name="description" content="">
-
-
+<meta name="description" content="An introduction to causality inference">
 
 
 
-<link rel="alternate" type="application/rss+xml" href="/tags/causal-inference/index.xml" title="Bingz Learning Blog" />
-<link rel="icon" type="image/x-icon" href="http://localhost:63480/favicon.ico">
-<link rel="apple-touch-icon-precomposed" href="http://localhost:63480/favicon.png">
+
+
+<link rel="icon" type="image/x-icon" href="http://localhost:63420/favicon.ico">
+<link rel="apple-touch-icon-precomposed" href="http://localhost:63420/favicon.png">
 
 
 
@@ -357,13 +356,13 @@
     <nav class="noselect">
         
         
-        <a class="" href="http://localhost:63480/" title="">Home</a>
+        <a class="" href="http://localhost:63420/" title="">Home</a>
         
-        <a class="" href="http://localhost:63480/about/" title="">About</a>
+        <a class="" href="http://localhost:63420/about/" title="">About</a>
         
-        <a class="" href="http://localhost:63480/tags/" title="">Tags</a>
+        <a class="" href="http://localhost:63420/tags/" title="">Tags</a>
         
-        <a class="" href="http://localhost:63480/posts/" title="">Archive</a>
+        <a class="" href="http://localhost:63420/posts/" title="">Archive</a>
         
     </nav>
 
@@ -400,33 +399,16 @@
         </header>
         <main id="main" tabindex="-1">
             
-    <h1>Tag: Causal Inference</h1>
-    <div class="post-info">
-        <a href="/tags/">To all tags</a>
-    </div>
-    
-    
-        <article class="post-list h-feed post-card">
-    <div class="post-header">
-        <header>
-            <h1 class="p-name post-title"><a class="u-url" href="/posts/causality/">Causality</a></h1>
-        </header>
-        
-
-    </div>
-
-    
-        <div class="content post-summary p-summary">
-            <p>This is a test post for the causality section.</p>
-        </div>
-    
-    
-        <div class="read-more">
-            <a class="u-url" href="/posts/causality/">Read more</a>
-        </div>
     
 
-    
+    <article class="post h-entry">
+        <div class="post-header">
+            <header>
+                <h1 class="p-name post-title">Causality</h1>
+                
+
+            </header>
+            
 
 
 
@@ -438,8 +420,8 @@
         </div>
     
 
-    <a class="post-hidden-url u-url" href="/posts/causality/">/posts/causality/</a>
-    <a href="http://localhost:63480/" class="p-name p-author post-hidden-author h-card" rel="me"></a>
+    <a class="post-hidden-url u-url" href="/posts/20240528_causality/causality/">/posts/20240528_causality/causality/</a>
+    <a href="http://localhost:63420/" class="p-name p-author post-hidden-author h-card" rel="me"></a>
 
 
     <div class="post-taxonomies">
@@ -459,12 +441,268 @@
     </div>
 </div>
 
-</article>
+        </div>
+        
+
+  
+  
+
+
+
+
+  
+  
+  
+  <details class="toc noselect">
+    <summary>Table of Contents</summary>
+    <div class="inner"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#what-is-causality">What Is Causality?</a>
+      <ul>
+        <li><a href="#causal-formulation">Causal Formulation</a></li>
+        <li><a href="#causal-hierarchy-observation-intervention-counterfactual">Causal Hierarchy: Observation, Intervention, Counterfactual</a></li>
+        <li><a href="#average-treatment-effect">Average Treatment Effect</a></li>
+      </ul>
+    </li>
+    <li><a href="#causal-effect-estimation">Causal Effect Estimation</a>
+      <ul>
+        <li><a href="#randomized-controlled-trials">Randomized Controlled Trials</a></li>
+        <li><a href="#causal-inference">Causal Inference</a></li>
+      </ul>
+    </li>
+    <li><a href="#root-cause-optimization">Root Cause Optimization</a></li>
+  </ul>
+</nav></div>
+  </details>
+  
+
+
+
+<script>
+  var toc = document.querySelector(".toc");
+  if (toc) {
+    toc.addEventListener("click", function () {
+      if (event.target.tagName !== "A") {
+        event.preventDefault();
+        if (this.open) {
+          this.open = false;
+          this.classList.remove("expanded");
+        } else {
+          this.open = true;
+          this.classList.add("expanded");
+        }
+      }
+    });
+  }
+</script>
+
+        <div class="content e-content">
+            <p>This is a test post for the causality section.</p>
+<h2 id="what-is-causality" >
+<div>
+    <a href="#what-is-causality">
+    </a>
+    What Is Causality?
+</div>
+</h2>
+<p>Different from common ML tasks that focus on summarizing the patterns in the data, expecting to make predictions on similar unseen data.
+Causality, on the other hand, is about understanding the underlying mechanisms that drive the data. It is about to predict how the people/agent/system
+would react if it were intervened in a certain way. Think about the example of having two parallel universes with different light, temperature, and humidity conditions.
+What would happen to a plant if it were moved from one universe to another? This is a causal question.</p>
+<h3 id="causal-formulation" >
+<div>
+    <a href="#causal-formulation">
+    </a>
+    Causal Formulation
+</div>
+</h3>
+<p>To understand how the outcome would change in different conditions, we need to define the following notations to describle the causal relations.</p>
+<ul>
+<li>$Y_i$: the outcome of interest for individual $i$. For example, the health status of a patient.</li>
+<li>$A_i$: an indicator of whether the individual $i$ received the treatment. For example, a new drug.</li>
+<li>$X_i$: a set of covariates that may affect both the treatment assignment and the outcome. For example, health status, age, gender etc</li>
+<li>$U_i$: unobserved factors that may affect both the treatment assignment and the outcome. For example, genetic factors.</li>
+<li>$Y_i^{a}$: the potential outcome of individual $i$ if he/she received the treatment $A = a, a \in \{0, 1\}$. For example, the health status of a patient if he/she received the new drug ($a=1$).</li>
+</ul>
+<p>In practice, the data $(Y_i, A_i, X_i)$ is usually drawn i.i.d from a population and they are formulated into a causal graph as shown below.</p>
+<p><img src="/causal_model_diagram.png" alt="your picture"></p>
+<h3 id="causal-hierarchy-observation-intervention-counterfactual" >
+<div>
+    <a href="#causal-hierarchy-observation-intervention-counterfactual">
+    </a>
+    Causal Hierarchy: Observation, Intervention, Counterfactual
+</div>
+</h3>
+<h4 id="causation-vs-association" >
+<div>
+    <a href="#causation-vs-association">
+    </a>
+    Causation vs Association
+</div>
+</h4>
+<h4 id="intervention" >
+<div>
+    <a href="#intervention">
+    </a>
+    Intervention
+</div>
+</h4>
+<h4 id="counterfactual" >
+<div>
+    <a href="#counterfactual">
+    </a>
+    Counterfactual
+</div>
+</h4>
+<h3 id="average-treatment-effect" >
+<div>
+    <a href="#average-treatment-effect">
+    </a>
+    Average Treatment Effect
+</div>
+</h3>
+<h2 id="causal-effect-estimation" >
+<div>
+    <a href="#causal-effect-estimation">
+    </a>
+    Causal Effect Estimation
+</div>
+</h2>
+<h3 id="randomized-controlled-trials" >
+<div>
+    <a href="#randomized-controlled-trials">
+    </a>
+    Randomized Controlled Trials
+</div>
+</h3>
+<h3 id="causal-inference" >
+<div>
+    <a href="#causal-inference">
+    </a>
+    Causal Inference
+</div>
+</h3>
+<h4 id="inverse-probability-weighting" >
+<div>
+    <a href="#inverse-probability-weighting">
+    </a>
+    Inverse Probability Weighting
+</div>
+</h4>
+<h4 id="standardization" >
+<div>
+    <a href="#standardization">
+    </a>
+    Standardization
+</div>
+</h4>
+<h4 id="stratification" >
+<div>
+    <a href="#stratification">
+    </a>
+    Stratification
+</div>
+</h4>
+<h4 id="propensity-score-matching" >
+<div>
+    <a href="#propensity-score-matching">
+    </a>
+    Propensity Score Matching
+</div>
+</h4>
+<h4 id="instrumental-variables" >
+<div>
+    <a href="#instrumental-variables">
+    </a>
+    Instrumental Variables
+</div>
+</h4>
+<h4 id="difference-in-differences" >
+<div>
+    <a href="#difference-in-differences">
+    </a>
+    Difference-In-Differences
+</div>
+</h4>
+<h2 id="root-cause-optimization" >
+<div>
+    <a href="#root-cause-optimization">
+    </a>
+    Root Cause Optimization
+</div>
+</h2>
+        </div>
+
+    </article>
 
     
     
+        
+    
+
+    
+        
+        
+    
+
+    
+
+    
+        
 
 
+
+
+
+
+
+
+            
+
+<script>
+        function detectCurrentScheme2() {
+                const defaultTheme = "auto";
+                if (localStorage !== null && localStorage.getItem("user-color-scheme")) {
+                        return localStorage.getItem("user-color-scheme");
+                }
+                if (defaultTheme === "dark" || defaultTheme === "light") {
+                        return defaultTheme;
+                }
+                return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        }
+
+        let giscusTheme = detectCurrentScheme2();
+        let giscusAttributes = {
+                src: "https://giscus.app/client.js",
+                "data-repo": "Bingzw\/bingzw.github.io",
+                "data-repo-id": "R_kgDOMB8LQg",
+                "data-category": "Announcements",
+                "data-category-id": "DIC_kwDOMB8LQs4CfrMr",
+                "data-mapping": "pathname",
+                "data-strict": "0",
+                "data-reactions-enabled": "1",
+                "data-emit-metadata": "0",
+                "data-input-position": "bottom",
+                "data-theme": giscusTheme,
+                "data-lang": "en",
+                crossorigin: "anonymous",
+                lazyload: "false",
+                async: true,
+        };
+        let main = document.querySelector("main");
+        let giscusScript = document.createElement("script");
+        Object.entries(giscusAttributes).forEach(([key, value]) => giscusScript.setAttribute(key, value));
+        main.appendChild(giscusScript);
+</script>
+
+
+
+
+    
+
+    
+
+    
 
         </main>
         
@@ -496,7 +734,7 @@
 
     <p class="h-card vcard">
 
-    <a href=http://localhost:63480/ class="p-name u-url url fn" rel="me"></a>
+    <a href=http://localhost:63420/ class="p-name u-url url fn" rel="me"></a>
 
     
 

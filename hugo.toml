@@ -75,3 +75,6 @@ tabWidth = 4
 
 [params.googleAnalytics]
 id = "G-3P52NT65ZQ"
+
+[security]
+enableInlineShortcodes = true
