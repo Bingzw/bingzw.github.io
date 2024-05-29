@@ -62,7 +62,7 @@ example, the health status of a patient if he/she received the new drug ($a=1$).
 &lt;/ul&gt;
 &lt;p&gt;In practice, the data $(Y_i, A_i, X_i)$ is usually drawn i.i.d from a population and they are formulated into a causal
 graph as shown below.
-&lt;img src=&#34;http://localhost:63480/causality/simple_causal_model_diagram.png&#34; alt=&#34;simple_causal_model_diagram&#34;&gt;
+&lt;img src=&#34;https://bingzw.github.io/causality/simple_causal_model_diagram.png&#34; alt=&#34;simple_causal_model_diagram&#34;&gt;
 The mechanism of the causal graph is often reasoning by structural causal models (SCM). It models the underlying data
 generation process with an ordered sequence of functions that map the parent nodes to the child nodes. For example, the
 SCMs of the above causal graph can be written as:
