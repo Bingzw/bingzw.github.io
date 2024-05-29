@@ -31,12 +31,13 @@ url = "/posts/"
 weight = 4
 
 [params]
-readMore = false # true | false; Showing readmore link in the list of posts; default: false
+readMore = true # true | false; Showing readmore link in the list of posts; default: false
 readNextPosts = 3 # Number of posts to show in the "Read Next" section; default: 3
 colorTheme = "auto" # "auto" | "light" | "dark"; default: "auto"
 colorThemeSwitcher = true # true | false; Showing color theme switcher in top of the site; default: false
 toc = true # true | false; Showing table of contents in the post; default: true
 math = true # true | false; Enable MathJax; default: false; You can enable MathJax in the post by adding math: true in a post's metadata section.
+copyCodeButton = true
 
 # check more social icons at https://github.com/Junyi-99/hugo-theme-anubis2/wiki/Social-Icons
 social = [
@@ -49,8 +50,18 @@ social = [
 [taxonomies]
 tag = "tags" # This allows you to use the "tags" in your markdown metadata
 
+[markup]
+defaultMarkdownHandler = 'goldmark'
+
 [markup.goldmark.renderer]
 unsafe = true # true | false; Enable unsafe mode to have a better experience
 
 [markup.highlight]
-style = 'base16-snazzy' # Highlight.js style
+anchorLineNos = false
+codeFences = true # tested with true and false. Both work.
+noClasses = true # If you run with markup.highlight.noClasses=false in your site configuration, you need a style sheet.
+style = 'base16-snazzy'
+tabWidth = 4
+
+[params.googleAnalytics]
+id = "G-3P52NT65ZQ"
