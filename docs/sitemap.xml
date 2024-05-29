@@ -2,21 +2,21 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-        <loc>http://localhost:59324/about/</loc>
+        <loc>https://bingzw.github.io/about/</loc>
       </url><url>
-        <loc>http://localhost:59324/</loc>
+        <loc>https://bingzw.github.io/</loc>
         <lastmod>2024-05-28T16:19:16-07:00</lastmod>
       </url><url>
-        <loc>http://localhost:59324/tags/causal-inference/</loc>
+        <loc>https://bingzw.github.io/tags/causal-inference/</loc>
         <lastmod>2024-05-28T16:19:16-07:00</lastmod>
       </url><url>
-        <loc>http://localhost:59324/posts/causality/</loc>
+        <loc>https://bingzw.github.io/posts/causality/</loc>
         <lastmod>2024-05-28T16:19:16-07:00</lastmod>
       </url><url>
-        <loc>http://localhost:59324/posts/</loc>
+        <loc>https://bingzw.github.io/posts/</loc>
         <lastmod>2024-05-28T16:19:16-07:00</lastmod>
       </url><url>
-        <loc>http://localhost:59324/tags/</loc>
+        <loc>https://bingzw.github.io/tags/</loc>
         <lastmod>2024-05-28T16:19:16-07:00</lastmod>
       </url>
 </urlset>
