@@ -33,7 +33,6 @@
 &lt;h2 id=&#34;heading-1&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#heading-1&#34;&gt;
-        #
     &lt;/a&gt;
     Heading 1
 &lt;/div&gt;
@@ -42,7 +41,6 @@
 &lt;h3 id=&#34;subheading-1&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#subheading-1&#34;&gt;
-        ##
     &lt;/a&gt;
     Subheading 1
 &lt;/div&gt;
@@ -51,7 +49,6 @@
 &lt;h3 id=&#34;haeading-2&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#haeading-2&#34;&gt;
-        ##
     &lt;/a&gt;
     Haeading 2
 &lt;/div&gt;
