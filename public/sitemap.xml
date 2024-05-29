@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+        <loc>http://localhost:55953/about/</loc>
+      </url><url>
+        <loc>http://localhost:55953/</loc>
+        <lastmod>2024-05-28T16:19:16-07:00</lastmod>
+      </url><url>
+        <loc>http://localhost:55953/tags/causal-inference/</loc>
+        <lastmod>2024-05-28T16:19:16-07:00</lastmod>
+      </url><url>
+        <loc>http://localhost:55953/posts/causality/</loc>
+        <lastmod>2024-05-28T16:19:16-07:00</lastmod>
+      </url><url>
+        <loc>http://localhost:55953/posts/</loc>
+        <lastmod>2024-05-28T16:19:16-07:00</lastmod>
+      </url><url>
+        <loc>http://localhost:55953/tags/</loc>
+        <lastmod>2024-05-28T16:19:16-07:00</lastmod>
+      </url>
+</urlset>
