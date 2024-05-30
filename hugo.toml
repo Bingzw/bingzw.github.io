@@ -3,6 +3,7 @@ languageCode = 'en-us'
 theme = 'anubis2'
 title = 'Bingz Learning Blog'
 publishDir = "docs"
+GoogleAnalytics = "G-3P52NT65ZQ"
 
 [author]
 name = "Bing Wang"
@@ -54,8 +55,6 @@ social = [
     { id="github", name="bingzw" },
     { id="linkedin", url="https://www.linkedin.com/in/bingzw/" },
 ]
-
-GoogleAnalytics = "G-3P52NT65ZQ"
 # rssIcon = true # true | false; Showing RSS icon; default: true
 
 [taxonomies]
