@@ -62,6 +62,8 @@ tag = "tags" # This allows you to use the "tags" in your markdown metadata
 
 [markup]
 defaultMarkdownHandler = 'goldmark'
+[markup.tableOfContents]
+endLevel = 4
 
 [markup.goldmark.renderer]
 unsafe = true # true | false; Enable unsafe mode to have a better experience
