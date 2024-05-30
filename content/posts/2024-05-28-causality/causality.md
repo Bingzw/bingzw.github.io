@@ -1,5 +1,5 @@
 ---
-title: "Causality"
+title: "Causality Introduction"
 date: 2024-05-28T16:19:16-07:00
 draft: false
 description: "An introduction to causality inference"
@@ -223,10 +223,29 @@ $ATE = E[Y^{a=1}] - E[Y^{a=0}] = E[Y|do(A=1)] - E[Y|do(A=0)]$
 
 Please refer to the do-calculus literature[^2] for more details.
 
+## Citation
+If you find this post helpful, please consider citing it as:
+```bibtex
+@article{wang2024causality,
+  author = "Bing Wang",
+  title = "Causality Introduction",
+  journal = "bingzw.github.io",
+  year = "2024",
+  month = "May",
+  url = "https://bingzw.github.io/posts/2024-05-28-causality/causality/"
+}
+```
+or 
+```markdown
+Bing Wang. (2024, May). Causality Introduction. 
+https://bingzw.github.io/posts/2024-05-28-causality/causality
+```
+
 ## Reference
 [^1]: [Causal Inference: Explained](https://www.youtube.com/watch?v=Od6oAz1Op2k)
 [^2]: Pearl, Judea (2000). Causality: Models, Reasoning, and Inference.
 [^3]: [Hernán MA, Robins JM (2020). Causal Inference: What If. Boca Raton: Chapman & Hall/CRC.](https://www.hsph.harvard.edu/miguel-hernan/causal-inference-book/)
+
 
 
 
