@@ -55,6 +55,7 @@ social = [
     { id="linkedin", url="https://www.linkedin.com/in/bingzw/" },
 ]
 
+googleAnalytics = "G-3P52NT65ZQ"
 # rssIcon = true # true | false; Showing RSS icon; default: true
 
 [taxonomies]
@@ -75,8 +76,7 @@ noClasses = true # If you run with markup.highlight.noClasses=false in your site
 style = 'base16-snazzy'
 tabWidth = 4
 
-[params.googleAnalytics]
-id = "G-3P52NT65ZQ"
+
 
 [security]
 enableInlineShortcodes = true
