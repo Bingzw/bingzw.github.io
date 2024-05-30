@@ -232,13 +232,13 @@ If you find this post helpful, please consider citing it as:
   journal = "bingzw.github.io",
   year = "2024",
   month = "May",
-  url = "https://bingzw.github.io/posts/2024-05-28-causality/causality/"
+  url = "https://bingzw.github.io/posts/2024-05-28-causality/"
 }
 ```
 or 
 ```markdown
 Bing Wang. (2024, May). Causality Introduction. 
-https://bingzw.github.io/posts/2024-05-28-causality/causality
+https://bingzw.github.io/posts/2024-05-28-causality/
 ```
 
 ## Reference
