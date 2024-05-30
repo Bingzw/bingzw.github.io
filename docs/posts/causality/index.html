@@ -477,25 +477,20 @@
         <li><a href="#causal-inference---confounder-adjustments-methods">Causal Inference - Confounder Adjustments Methods</a>
           <ul>
             <li><a href="#key-assumptions">Key Assumptions</a></li>
+            <li><a href="#general-flow-of-causal-inference">General Flow of Causal Inference</a></li>
             <li><a href="#inverse-probability-weighting">Inverse Probability Weighting</a></li>
             <li><a href="#standardization">Standardization</a></li>
             <li><a href="#stratification">Stratification</a></li>
             <li><a href="#propensity-score-matching">Propensity Score Matching</a></li>
+            <li><a href="#double-machine-learning-dml">Double Machine Learning (DML)</a></li>
           </ul>
         </li>
         <li><a href="#causal-inference---instrumental-variables">Causal Inference - Instrumental Variables</a></li>
-        <li><a href="#difference-in-differences">Difference-In-Differences</a></li>
       </ul>
     </li>
     <li><a href="#root-cause-optimization">Root Cause Optimization</a></li>
     <li><a href="#appendix">Appendix</a>
       <ul>
-        <li><a href="#causal-hierarchy-observation-intervention-counterfactual">Causal Hierarchy: Observation, Intervention, Counterfactual</a>
-          <ul>
-            <li><a href="#causation-vs-association">Causation vs Association</a></li>
-            <li><a href="#intervention-vs-counterfactual">Intervention vs Counterfactual</a></li>
-          </ul>
-        </li>
         <li><a href="#do-calculus">Do Calculus</a></li>
       </ul>
     </li>
@@ -526,7 +521,7 @@
 </script>
 
         <div class="content e-content">
-            <p>This is a test post for the causality section.</p>
+            <p><img src="/causality/causality_icon.png" alt="causality_icon"></p>
 <h2 id="what-is-causality" >
 <div>
     <a href="#what-is-causality">
@@ -558,9 +553,12 @@ age, gender etc</li>
 example, the health status of a patient if he/she received the new drug ($a=1$).</li>
 </ul>
 <p>In practice, the data $(Y_i, A_i, X_i)$ is usually drawn i.i.d from a population and they are formulated into a causal
-graph as shown below.</p>
-<p><img src="/causality/causal_model_diagram.png" alt="causal_model_diagram">
-The mechanism of the causal graph is often reasoning by structural causal models (SCM). It models the underlying data
+graph as shown below<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>.</p>
+<p align="center">
+    <img src="/causality/causal_model_diagram.png" width="600" height="400"><br>
+    <em>Figure 1: causal inference elements</em>
+</p>
+<p>The mechanism of the causal graph is often reasoning by structural causal models (SCM). It models the underlying data
 generation process with an ordered sequence of functions that map the parent nodes to the child nodes. For example, the
 SCMs of the above causal graph can be written as:
 $P(Y, A, X) = P(Y | A, X) P(X | A) P(A)$. This equation describes the probabilistic dependencies between the observed
@@ -623,9 +621,12 @@ data.</p>
 </div>
 </h3>
 <p>Before diving into the confounder adjustments methods, let&rsquo;s first clarify the confounding bias. Consider the following
-example:
-<img src="/causality/confounder_selection_bias.png" alt="confounder_selection_bias">
-A study is conducted to investigate the effect of a new drug on the health outcome of patients. The study
+example:</p>
+<p align="center">
+    <img src="/causality/confounder_selection_bias.png"><br>
+    <em>Figure 2: confounder example</em>
+</p>
+<p>A study is conducted to investigate the effect of a new drug on the health outcome of patients. The study
 finds that patients who received the new drug have a higher recovery rate than those who did not. However, the study
 also finds that the patients who received the new drug are younger and healthier than those who did not. Therefore, the
 observed effect of the new drug on the health outcome may be <strong>confounded</strong> by the age and health status of the patients.
@@ -644,6 +645,32 @@ such as age and health status.</p>
 <li><strong>Positivity</strong>: the probability of receiving the treatment is positive for all levels of the covariates.</li>
 <li><strong>Consistency</strong>: the individual&rsquo;s potential outcome is the same as the observed outcome when the treatment is received.</li>
 </ul>
+<h4 id="general-flow-of-causal-inference" >
+<div>
+    <a href="#general-flow-of-causal-inference">
+    </a>
+    General Flow of Causal Inference
+</div>
+</h4>
+<p>In general, causal inference is to build a pseudo-population that mimics the randomized experimentation from the observed
+data. The assumptions taken and the modeling approaches applied are to ensure the pseudo-population is unbiased and
+consistent with the true population. The general flow of causal inference can be summarized as follows:</p>
+<ol>
+<li><strong>Define the Problem</strong>: What are the causal effect of interest? What are the treatment and outcome variables?</li>
+<li><strong>Acquire Data</strong>: Collect the data that contains the treatment, outcome, and covariates.</li>
+<li><strong>Build the Causal Model</strong>: Fit the causal model that describes the causal relationship</li>
+<li><strong>Estimate the Causal Effect</strong>: Estimate the counterfactual causal effect using the trained model</li>
+</ol>
+<p align="center">
+    <img src="/causality/causal_inference_flow.png" width="800" height="500"><br>
+    <em>Figure 3: Causal Inference Modeling Flow</em>
+</p>
+We follow the same modeling process in figure 3. First defining the outcome, treatment, and covariates, then building the
+causal model using the sample data. Next to estimate the counterfactual performance for both treated and untreated in the
+treatment and control groups. The dashed figure in the above graph represents the unobserved counterfactuals that are 
+estimated from the counterfactual model. Finally, the causal effect is then estimated by comparing the observed outcome 
+with the estimated counterfactual outcome.
+<p>Let&rsquo;s dive deep into how the causal model<sup id="fnref:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">2</a></sup> can be trained from the observed data.</p>
 <h4 id="inverse-probability-weighting" >
 <div>
     <a href="#inverse-probability-weighting">
@@ -656,9 +683,9 @@ such as age and health status.</p>
 that would have been obtained through random assignment in a randomized control trial (RCT).</li>
 <li>Steps:
 <ol>
-<li>Estimate the propensity score, $pps(x) = P(A = 1 | X = x)$, the probability of receiving the treatment given the
+<li>Estimate the propensity score, $g(x) = P(A = 1 | X = x)$, the probability of receiving the treatment given the
 covariates.</li>
-<li>Calculate the inverse probability weights, $w_i = \frac{P(A_i)}{pps(x_i)}$.</li>
+<li>Calculate the inverse probability weights, $w_i = \frac{P(A_i)}{g(x_i)}$.</li>
 <li>Fit a marginal structure model $E[Y^a] = \beta_0 + \beta_1 a$ with the inverse probability weights $w_i$.</li>
 <li>Estimate the average treatment effect, $ATE = \hat{\beta_1}$.</li>
 </ol>
@@ -676,7 +703,7 @@ covariates.</li>
 <li>Steps:
 <ol>
 <li>Fit the outcome model with treatment and covariates, $P[Y^a | X=x] = P(Y | A=a, X=x)$. For example, the linear model
-representation is $Y^A = \beta_0 + \beta_1 A + \beta_2 X$.</li>
+representation is $Y^A = \beta_0 + \beta_1 A + \beta_2 X + \epsilon$.</li>
 <li>Estimate the expectation of the outcome under different treatment conditions:
 $E[Y^a] = \int_x P(Y|A=a, x)*f_X(x)dx$.</li>
 <li>Calculate the average treatment effect, $ATE = E[Y^{a=1}] - E[Y^{a=0}]$.</li>
@@ -694,12 +721,12 @@ $E[Y^a] = \int_x P(Y|A=a, x)*f_X(x)dx$.</li>
 <li>Key Idea: Stratify the data into different strata based on the covariates and estimate the average treatment effect.</li>
 <li>Steps:
 <ol>
-<li>Estimate the propensity score, $pps(x) = P(A = 1 | X = x)$, the probability of receiving the treatment given the
+<li>Estimate the propensity score, $g(x) = P(A = 1 | X = x)$, the probability of receiving the treatment given the
 covariates.</li>
 <li>Fit the outcome model with treatment and propensity score as the covariates,
-$P[Y^a | X=x] = P(Y | A=a, pps(x))$. A simple linear representation is $Y^A = \beta_0 + \beta_1 A + \beta_2 * pps(X)$.</li>
+$P[Y^a | X=x] = P(Y | A=a, g(x))$. A simple linear representation is $Y^A = \beta_0 + \beta_1 A + \beta_2 * g(X) + \epsilon$.</li>
 <li>Estimate the expectation of the outcome under different treatment conditions:
-$E[Y^a] = \int_x P(Y|A=a, pps(x))*f_X(x)dx$</li>
+$E[Y^a] = \int_x P(Y|A=a, g(x))*f_X(x)dx$</li>
 <li>Calculate the average treatment effect, $ATE = E[Y^{a=1}] - E[Y^{a=0}]$.</li>
 </ol>
 </li>
@@ -715,10 +742,34 @@ $E[Y^a] = \int_x P(Y|A=a, pps(x))*f_X(x)dx$</li>
 <li>Key Idea: Match the treated and control units based on the propensity score to estimate the average treatment effect.</li>
 <li>Steps:
 <ol>
-<li>Estimate the propensity score, $pps(x) = P(A = 1 | X = x)$, the probability of receiving the treatment given the
+<li>Estimate the propensity score, $g(x) = P(A = 1 | X = x)$, the probability of receiving the treatment given the
 covariates.</li>
 <li>Match the treated and control units based on the propensity score. (Nearest Neighbour, Kernel Matching, etc)</li>
 <li>Estimate the average treatment effect, $ATE = E[Y^{a=1}] - E[Y^{a=0}]$.</li>
+</ol>
+</li>
+</ul>
+<h4 id="double-machine-learning-dml" >
+<div>
+    <a href="#double-machine-learning-dml">
+    </a>
+    Double Machine Learning (DML)
+</div>
+</h4>
+<p>In all above methods, we have observed that two components are needed to estimate the causal effect: the propensity score
+$g(x) = P(A = 1 | X = x)$ and the outcome model $P[Y^a | X=x] = P(Y | A=a, X=x)$. However, the estimation of these
+components may be biased, leading to biased estimates of the causal effect. To address this issue, double machine learning
+(DML) is proposed.</p>
+<ul>
+<li>Key Idea: Use machine learning algorithms to estimate the nuisance functions and statistical estimation techniques to
+estimate the causal effect.</li>
+<li>Steps:
+<ol>
+<li>Divide the data into K-folds (cross fitting). For each fold $i$, train the propensity score model and the outcome model on
+folds other than $i$, i.e. $g^{-i}(x)$ and $P^{-i}(Y^a | X)$.</li>
+<li>Estimating the augmented inverse probability of treatment weighted estimator (AIPTW) for fold $i$:
+$\hat{\tau_i} = \frac{1}{n_i} \sum_{i} \hat{P}^{-i}(Y^{a=1} | x_i) - \hat{P}^{-i}(Y^{a=0} | x_i) + A_i\frac{Y_i - \hat{P}^{-i}(Y^{a=1} | x_i)}{\hat{g}^{-i}(x_i)} - (1-A_i)\frac{Y_i - \hat{P}^{-i}(Y^{a=0} | x_i)}{1-\hat{g}^{-i}(x_i)}$</li>
+<li>Aggreagate the estimates from all folds to get the final estimate of the causal effect, $\hat{\tau} = \frac{1}{N} \sum_{i} n_i \hat{\tau_i}$.</li>
 </ol>
 </li>
 </ul>
@@ -729,13 +780,32 @@ covariates.</li>
     Causal Inference - Instrumental Variables
 </div>
 </h3>
-<h3 id="difference-in-differences" >
-<div>
-    <a href="#difference-in-differences">
-    </a>
-    Difference-In-Differences
-</div>
-</h3>
+<p>All above approaches rely on the assumption of no unobserved confounding, which may not be satisfied in practice. When
+there is potential endogeneity or unobserved confounding in observational data, instrumental variables can be used to
+estimate the causal effect.</p>
+<ul>
+<li>Key Idea: Estimating the causal effect of a treatment or intervention when there is potential endogeneity or
+unobserved confounding in observational data. It relies on the use of an instrumental variable, which is a variable
+that is correlated with the treatment but not directly with the outcome, except through its influence on the treatment.</li>
+<li>Assumptions:
+<ol>
+<li><strong>Relevance</strong>: the instrumental variable is correlated with the treatment.</li>
+<li><strong>Exogeneity</strong>: the instrumental variable is independent of the unobserved confounders.</li>
+<li><strong>Exclusion Restriction</strong>: the instrumental variable affects the outcome only through the treatment.</li>
+</ol>
+</li>
+<li>Steps:
+<ol>
+<li>Estimate the first-stage regression: $A = \alpha_0 + \alpha_1 Z + \epsilon_1$.</li>
+<li>Estimate the second-stage regression: $Y = \beta_0 + \beta_1 \hat{A} + \epsilon_2$.</li>
+<li>Calculate the average treatment effect, $ATE = \hat{\beta_1}$.</li>
+</ol>
+</li>
+</ul>
+<p>So far, we have discussed the major methods for estimating the causal effect from observational data. Each method has its
+own assumptions and limitations, there is no clear winner and the choice of method depends on the specific context and
+data characteristics. In practice, it is often recommended to use multiple methods to estimate the causal effect and
+compare the results to ensure the robustness of the conclusions.</p>
 <h2 id="root-cause-optimization" >
 <div>
     <a href="#root-cause-optimization">
@@ -743,6 +813,21 @@ covariates.</li>
     Root Cause Optimization
 </div>
 </h2>
+<p>In the above sections, we designed a hypothetical causality problem of estimating the effect of taking a new drug. The
+treatment variable $A$ can be defined as $A_i = 1$ if the patient takes the new drug and $A_i = 0$ if the patient does not.
+More generally, the treatment variable can be formulated in this way $A = 1_{{f(\theta) &lt; \mu}}$, where $f(\theta)$ is
+the function that maps the treatment parameters $\theta$ to the treatment assignment, and $\mu$ is the threshold that
+determines the treatment assignment. $f(\theta)$ is often a known metric since causal inference usually starts with some
+suspected causal mechanisms. However, the threshold $\mu$ is often unknown and needs to be optimized to maximize the
+causal effect. Therefore, the root cause optimization is to find the optimal threshold $\mu$ that maximizes the causal
+effect.</p>
+<p align="center">
+$argmax_{\mu} E[Y^{A=1}] - E[Y^{A=0}]$, 
+where $A = 1_{\{f(\theta) < \mu\}}$ with given $f(\theta)$
+<p>
+<p>To solve the optimization problem, we can use the causal inference methods discussed above to estimate the causal effect
+under different thresholds and find the optimal threshold that maximizes the causal effect. Popular optimization algorithms
+such as grid search, random search and bayesian optimization can be used to find the optimal threshold.</p>
 <h2 id="appendix" >
 <div>
     <a href="#appendix">
@@ -750,27 +835,6 @@ covariates.</li>
     Appendix
 </div>
 </h2>
-<h3 id="causal-hierarchy-observation-intervention-counterfactual" >
-<div>
-    <a href="#causal-hierarchy-observation-intervention-counterfactual">
-    </a>
-    Causal Hierarchy: Observation, Intervention, Counterfactual
-</div>
-</h3>
-<h4 id="causation-vs-association" >
-<div>
-    <a href="#causation-vs-association">
-    </a>
-    Causation vs Association
-</div>
-</h4>
-<h4 id="intervention-vs-counterfactual" >
-<div>
-    <a href="#intervention-vs-counterfactual">
-    </a>
-    Intervention vs Counterfactual
-</div>
-</h4>
 <h3 id="do-calculus" >
 <div>
     <a href="#do-calculus">
@@ -778,6 +842,14 @@ covariates.</li>
     Do Calculus
 </div>
 </h3>
+<p>While we formulate the causal effect from the counterfactual perspective, there is another powerful tool that called
+do-calculus that estimates the causal effect by setting interventions on the treatment variable. In particular, it&rsquo;s
+trying to apply interventions $A=a$ to the causal graph that deletes the edges pointing to $A$, and then conditioning on
+the observed variables to estimate the causal effect. The average treatment effect can be written as:</p>
+<p align="center">
+$ATE = E[Y^{a=1}] - E[Y^{a=0}] = E[Y|do(A=1)] - E[Y|do(A=0)]$
+<p>
+<p>Please refer to the do-calculus literature<sup id="fnref:3"><a href="#fn:3" class="footnote-ref" role="doc-noteref">3</a></sup> for more details.</p>
 <h2 id="reference" >
 <div>
     <a href="#reference">
@@ -785,7 +857,20 @@ covariates.</li>
     Reference
 </div>
 </h2>
-<p><a href="https://www.youtube.com/watch?v=Od6oAz1Op2k">https://www.youtube.com/watch?v=Od6oAz1Op2k</a></p>
+<div class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1">
+<p><a href="https://www.youtube.com/watch?v=Od6oAz1Op2k">Causal Inference: Explained</a>&#160;<a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:2">
+<p><a href="https://www.hsph.harvard.edu/miguel-hernan/causal-inference-book/">Hernán MA, Robins JM (2020). Causal Inference: What If. Boca Raton: Chapman &amp; Hall/CRC.</a>&#160;<a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:3">
+<p>Pearl, Judea (2000). Causality: Models, Reasoning, and Inference.&#160;<a href="#fnref:3" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+</ol>
+</div>
         </div>
 
     </article>
