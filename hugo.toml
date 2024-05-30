@@ -3,7 +3,7 @@ languageCode = 'en-us'
 theme = 'anubis2'
 title = 'Bingz Learning Blog'
 publishDir = "docs"
-GoogleAnalytics = "G-3P52NT65ZQ"
+#googleAnalytics = "G-3P52NT65ZQ"
 
 [author]
 name = "Bing Wang"
@@ -75,7 +75,10 @@ noClasses = true # If you run with markup.highlight.noClasses=false in your site
 style = 'base16-snazzy'
 tabWidth = 4
 
-
-
 [security]
 enableInlineShortcodes = true
+
+
+[services]
+  [services.googleAnalytics]
+    ID = 'G-3P52NT65ZQ'
