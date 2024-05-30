@@ -55,7 +55,7 @@ social = [
     { id="linkedin", url="https://www.linkedin.com/in/bingzw/" },
 ]
 
-googleAnalytics = "G-3P52NT65ZQ"
+GoogleAnalytics = "G-3P52NT65ZQ"
 # rssIcon = true # true | false; Showing RSS icon; default: true
 
 [taxonomies]
