@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Recommendation on Bingz Learning Blog</title>
+    <link>/tags/recommendation/</link>
+    <description>Bingz Learning Blog (Recommendation)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <managingEditor>bingwang8878@gamil.com (Bing Wang)</managingEditor>
+    <webMaster>bingwang8878@gamil.com (Bing Wang)</webMaster>
+    <lastBuildDate>Thu, 06 Jun 2024 22:04:53 -0700</lastBuildDate>
+    
+    <atom:link href="/tags/recommendation/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Recommendation Model</title>
+      <link>/posts/2024-06-06-recommendation-model/</link>
+      <pubDate>Thu, 06 Jun 2024 22:04:53 -0700</pubDate>
+      <author>bingwang8878@gamil.com (Bing Wang)</author>
+      <guid>/posts/2024-06-06-recommendation-model/</guid>
+      <description>&lt;h2 id=&#34;introduction-to-recommendation-models&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#introduction-to-recommendation-models&#34;&gt;
+        
+    &lt;/a&gt;
+    Introduction to Recommendation Models
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;p&gt;In the digital age, the sheer volume of available content and products can be overwhelming for users. Recommendation systems play a crucial role in helping users discover relevant items by filtering through vast amounts of data. These systems are integral to various industries, including e-commerce, streaming services, social media, and online advertising.&lt;/p&gt;
+&lt;p&gt;Recommendation models are algorithms designed to suggest items to users based on various factors such as past behavior, preferences, and item characteristics. The goal is to enhance user experience by providing personalized recommendations, thereby increasing engagement and satisfaction.&lt;/p&gt;
+&lt;p&gt;In most cases, the recommendation model is trying to find the most appealing product/item for the user given all his/her demographic, behavior and interest information. Common frameworks involving formulating the problem include:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Finding similar users/items&lt;/li&gt;
+&lt;li&gt;Prioritizing the most appealing items&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;A well-designed recommendation system usually results in better personalization, user engagement, and revenue generation in most business cases. Below lists the most popular recommendation/ranking modeling approaches. Note that the design of these models is beyond the scope of this blog post.&lt;/p&gt;
+&lt;h2 id=&#34;early-models&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#early-models&#34;&gt;
+        
+    &lt;/a&gt;
+    Early Models
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;h3 id=&#34;collaborative-filtering-cf&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#collaborative-filtering-cf&#34;&gt;
+        
+    &lt;/a&gt;
+    Collaborative Filtering (CF)
+&lt;/div&gt;
+&lt;/h3&gt;
+&lt;h4 id=&#34;memory-based-cf&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#memory-based-cf&#34;&gt;
+        
+    &lt;/a&gt;
+    Memory Based CF
+&lt;/div&gt;
+&lt;/h4&gt;
+&lt;h4 id=&#34;model-based-cf&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#model-based-cf&#34;&gt;
+        
+    &lt;/a&gt;
+    Model Based CF
+&lt;/div&gt;
+&lt;/h4&gt;
+&lt;h4 id=&#34;hybrid&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#hybrid&#34;&gt;
+        
+    &lt;/a&gt;
+    Hybrid
+&lt;/div&gt;
+&lt;/h4&gt;
+&lt;h2 id=&#34;modern-recommendation-models&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#modern-recommendation-models&#34;&gt;
+        
+    &lt;/a&gt;
+    Modern Recommendation Models
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;h3 id=&#34;wide--deep&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#wide--deep&#34;&gt;
+        
+    &lt;/a&gt;
+    Wide &amp;amp; Deep
+&lt;/div&gt;
+&lt;/h3&gt;
+&lt;h3 id=&#34;deepfm&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#deepfm&#34;&gt;
+        
+    &lt;/a&gt;
+    DeepFM
+&lt;/div&gt;
+&lt;/h3&gt;
+&lt;h3 id=&#34;deep--cross-network-dcn&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#deep--cross-network-dcn&#34;&gt;
+        
+    &lt;/a&gt;
+    Deep &amp;amp; Cross Network (DCN)
+&lt;/div&gt;
+&lt;/h3&gt;
+&lt;h3 id=&#34;attention-factorization-machine-afm&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#attention-factorization-machine-afm&#34;&gt;
+        
+    &lt;/a&gt;
+    Attention Factorization Machine (AFM)
+&lt;/div&gt;
+&lt;/h3&gt;
+&lt;h3 id=&#34;deep-interest-network-din&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#deep-interest-network-din&#34;&gt;
+        
+    &lt;/a&gt;
+    Deep Interest Network (DIN)
+&lt;/div&gt;
+&lt;/h3&gt;
+&lt;h3 id=&#34;deep-learning-recommendation-model-dlrm&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#deep-learning-recommendation-model-dlrm&#34;&gt;
+        
+    &lt;/a&gt;
+    Deep Learning Recommendation Model (DLRM)
+&lt;/div&gt;
+&lt;/h3&gt;
+&lt;h3 id=&#34;entire-space-multi-task-model-esmm&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#entire-space-multi-task-model-esmm&#34;&gt;
+        
+    &lt;/a&gt;
+    Entire Space Multi-Task Model (ESMM)
+&lt;/div&gt;
+&lt;/h3&gt;
+&lt;h3 id=&#34;multi-gate-mixture-of-experts-mmoe&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#multi-gate-mixture-of-experts-mmoe&#34;&gt;
+        
+    &lt;/a&gt;
+    Multi-gate Mixture of Experts (MMOE)
+&lt;/div&gt;
+&lt;/h3&gt;
+&lt;h3 id=&#34;progressive-layered-extraction-ple&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#progressive-layered-extraction-ple&#34;&gt;
+        
+    &lt;/a&gt;
+    Progressive Layered Extraction (PLE)
+&lt;/div&gt;
+&lt;/h3&gt;
+&lt;h3 id=&#34;behavior-sequence-transformer-bst&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#behavior-sequence-transformer-bst&#34;&gt;
+        
+    &lt;/a&gt;
+    Behavior Sequence Transformer (BST)
+&lt;/div&gt;
+&lt;/h3&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

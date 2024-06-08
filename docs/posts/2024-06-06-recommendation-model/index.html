@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+
+
+<html lang="en-us" data-theme="">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    
+        
+<meta charset="utf-8">
+<meta name="HandheldFriendly" content="True">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="referrer" content="no-referrer-when-downgrade">
+
+<title>Recommendation Model - Bingz Learning Blog</title>
+
+<meta name="description" content="An introduction to recommendation models">
+
+
+
+
+
+<link rel="icon" type="image/x-icon" href="http://localhost:1313/favicon.ico">
+<link rel="apple-touch-icon-precomposed" href="http://localhost:1313/favicon.png">
+
+
+
+
+
+
+    
+
+
+
+    
+
+
+
+<style>
+  body {
+    visibility: hidden;
+    opacity: 0;
+  }
+</style>
+
+<noscript>
+  <style>
+    body {
+      visibility: visible;
+      opacity: 1;
+    }
+  </style>
+</noscript>
+
+
+
+
+    
+
+
+
+
+
+    
+    
+    
+
+    
+        <link rel="stylesheet" href="/css/style.03df79c682b91915c7cd261ecd1a6ec4d0fe668c98fa46310d0fbade319b11bd.css" integrity="sha256-A995xoK5GRXHzSYezRpuxND&#43;ZoyY&#43;kYxDQ&#43;63jGbEb0=">
+    
+
+
+
+
+
+    
+
+
+
+
+
+    
+    
+    
+
+    
+        <link rel="stylesheet" href="/css/style.9c1888ebff42c0224ce04dac10cb2c401f1b77f54f78e8d87d73c3bed781c263.css" integrity="sha256-nBiI6/9CwCJM4E2sEMssQB8bd/VPeOjYfXPDvteBwmM=">
+    
+
+
+
+
+
+    
+
+
+
+
+
+    
+    
+    
+
+    
+        <link rel="stylesheet" href="/css/style.acd606c0fce58853afe0248d37bb41acbbcdd8b1aca2412b6c0fa760da0137f3.css" integrity="sha256-rNYGwPzliFOv4CSNN7tBrLvN2LGsokErbA&#43;nYNoBN/M=">
+    
+
+
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+
+
+
+
+
+    
+    
+    
+
+    
+        <script src="/js/script.672e2309c296e07c18bcd08b28d797a56222ff941d65f308fba3158c44885b14.js" type="text/javascript" charset="utf-8" integrity="sha256-Zy4jCcKW4HwYvNCLKNeXpWIi/5QdZfMI&#43;6MVjESIWxQ="></script>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+</head>
+<body>
+    <a class="skip-main" href="#main">Skip to main content</a>
+    <div class="container">
+        <header class="common-header">
+            
+                <div class="header-top">
+    <div class="header-top-left">
+        <h1 class="site-title noselect">
+    <a href="/">Bingz Learning Blog</a>
+</h1>
+
+        
+
+
+
+    
+
+
+
+    
+
+
+
+    
+        <div class="theme-switcher">
+            <span class="inline-svg">
+
+    
+
+
+    
+    
+    
+    
+    
+
+    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-sun-high"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14.828 14.828a4 4 0 1 0 -5.656 -5.656a4 4 0 0 0 5.656 5.656z" /><path d="M6.343 17.657l-1.414 1.414" /><path d="M6.343 6.343l-1.414 -1.414" /><path d="M17.657 6.343l1.414 -1.414" /><path d="M17.657 17.657l1.414 1.414" /><path d="M4 12h-2" /><path d="M12 4v-2" /><path d="M20 12h2" /><path d="M12 20v2" /></svg>
+
+
+</span>
+
+        </div>
+    
+
+    <script>
+        const STORAGE_KEY = 'user-color-scheme'
+        const defaultTheme = "auto"
+
+        let currentTheme
+        let switchButton
+        let autoDefinedScheme = window.matchMedia('(prefers-color-scheme: dark)')
+
+        function switchTheme(e) {
+            currentTheme = (currentTheme === 'dark') ? 'light' : 'dark';
+            if (localStorage) localStorage.setItem(STORAGE_KEY, currentTheme);
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            changeGiscusTheme(currentTheme);
+            document.body.dispatchEvent(new CustomEvent(currentTheme + "-theme-set"));
+        }
+
+        const autoChangeScheme = e => {
+            currentTheme = e.matches ? 'dark' : 'light'
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            changeGiscusTheme(currentTheme);
+            document.body.dispatchEvent(new CustomEvent(currentTheme + "-theme-set"));
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            switchButton = document.querySelector('.theme-switcher')
+            currentTheme = detectCurrentScheme()
+
+            if (currentTheme === 'auto') {
+                autoChangeScheme(autoDefinedScheme);
+                autoDefinedScheme.addListener(autoChangeScheme);
+            } else {
+                document.documentElement.setAttribute('data-theme', currentTheme)
+            }
+
+            if (switchButton) {
+                switchButton.addEventListener('click', switchTheme, false)
+            }
+
+            showContent();
+        })
+
+        function detectCurrentScheme() {
+            if (localStorage !== null && localStorage.getItem(STORAGE_KEY)) {
+                return localStorage.getItem(STORAGE_KEY)
+            }
+            if (defaultTheme) {
+                return defaultTheme
+            }
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+
+        function showContent() {
+            document.body.style.visibility = 'visible';
+            document.body.style.opacity = 1;
+        }
+
+        function changeGiscusTheme (theme) {
+            function sendMessage(message) {
+              const iframe = document.querySelector('iframe.giscus-frame');
+              if (!iframe) return;
+              iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+            }
+
+            sendMessage({
+              setConfig: {
+                theme: theme
+              }
+            });
+        }
+    </script>
+
+
+        <ul class="social-icons noselect">
+
+
+    
+        
+        
+        <li>
+            <a href="https://github.com/bingzw" title="Github" rel="me">
+            <span class="inline-svg">
+
+    
+
+
+    
+    
+    
+    
+    
+
+    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-brand-github"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" /></svg>
+
+
+</span>
+
+            </a>
+        </li>
+    
+
+    
+        <li>
+            <a href="https://www.linkedin.com/in/bingzw/" title="Linkedin" rel="me">
+            <span class="inline-svg">
+
+    
+
+
+    
+    
+    
+    
+    
+
+    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-brand-linkedin"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 4m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z" /><path d="M8 11l0 5" /><path d="M8 8l0 .01" /><path d="M12 16l0 -5" /><path d="M16 16v-3a2 2 0 0 0 -4 0" /></svg>
+
+
+</span>
+
+            </a>
+        </li>
+    
+
+
+
+
+
+
+    <li>
+            <a href="/index.xml" title="RSS" rel="me">
+            <span class="inline-svg">
+
+    
+
+
+    
+    
+    
+    
+    
+
+    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-rss"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 19m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /><path d="M4 4a16 16 0 0 1 16 16" /><path d="M4 11a9 9 0 0 1 9 9" /></svg>
+
+
+</span>
+
+            </a>
+        </li>
+    
+
+</ul>
+
+    </div>
+    <div class="header-top-right">
+
+    </div>
+</div>
+
+
+    <nav class="noselect">
+        
+        
+        <a class="" href="http://localhost:1313/" title="">Home</a>
+        
+        <a class="" href="http://localhost:1313/about/" title="">About</a>
+        
+        <a class="" href="http://localhost:1313/tags/" title="">Tags</a>
+        
+        <a class="" href="http://localhost:1313/posts/" title="">Archive</a>
+        
+    </nav>
+
+
+
+<script>
+  MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$','$$'], ['\\[', '\\]']],
+      processEscapes: true,
+      processEnvironments: true
+    },
+    options: {
+      skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+    }
+  };
+
+  window.addEventListener('load', (event) => {
+      document.querySelectorAll("mjx-container").forEach(function(x){
+        x.parentElement.classList += 'has-jax'})
+    });
+
+</script>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script type="text/javascript" id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+
+
+
+
+            
+        </header>
+        <main id="main" tabindex="-1">
+            
+    
+
+    <article class="post h-entry">
+        <div class="post-header">
+            <header>
+                <h1 class="p-name post-title">Recommendation Model</h1>
+                
+
+            </header>
+            
+
+
+
+<div class="post-info noselect">
+    
+        <div class="post-date dt-published">
+            <time datetime="2024-06-06">2024-06-06</time>
+            
+        </div>
+    
+
+    <a class="post-hidden-url u-url" href="/posts/2024-06-06-recommendation-model/">/posts/2024-06-06-recommendation-model/</a>
+    <a href="http://localhost:1313/" class="p-name p-author post-hidden-author h-card" rel="me"></a>
+
+
+    <div class="post-taxonomies">
+        
+        
+            <ul class="post-tags">
+                
+                    
+                    <li><a href="/tags/machine-learning/">#Machine Learning</a></li>
+                
+                    
+                    <li><a href="/tags/deep-learning/">#Deep Learning</a></li>
+                
+                    
+                    <li><a href="/tags/recommendation/">#Recommendation</a></li>
+                
+            </ul>
+        
+        
+    </div>
+</div>
+
+        </div>
+        
+
+  
+  
+
+
+
+
+  
+  
+  
+  <details class="toc noselect">
+    <summary>Table of Contents</summary>
+    <div class="inner"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#introduction-to-recommendation-models">Introduction to Recommendation Models</a></li>
+    <li><a href="#early-models">Early Models</a>
+      <ul>
+        <li><a href="#collaborative-filtering-cf">Collaborative Filtering (CF)</a>
+          <ul>
+            <li><a href="#memory-based-cf">Memory Based CF</a></li>
+            <li><a href="#model-based-cf">Model Based CF</a></li>
+            <li><a href="#hybrid">Hybrid</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li><a href="#modern-recommendation-models">Modern Recommendation Models</a>
+      <ul>
+        <li><a href="#wide--deep">Wide &amp; Deep</a></li>
+        <li><a href="#deepfm">DeepFM</a></li>
+        <li><a href="#deep--cross-network-dcn">Deep &amp; Cross Network (DCN)</a></li>
+        <li><a href="#attention-factorization-machine-afm">Attention Factorization Machine (AFM)</a></li>
+        <li><a href="#deep-interest-network-din">Deep Interest Network (DIN)</a></li>
+        <li><a href="#deep-learning-recommendation-model-dlrm">Deep Learning Recommendation Model (DLRM)</a></li>
+        <li><a href="#entire-space-multi-task-model-esmm">Entire Space Multi-Task Model (ESMM)</a></li>
+        <li><a href="#multi-gate-mixture-of-experts-mmoe">Multi-gate Mixture of Experts (MMOE)</a></li>
+        <li><a href="#progressive-layered-extraction-ple">Progressive Layered Extraction (PLE)</a></li>
+        <li><a href="#behavior-sequence-transformer-bst">Behavior Sequence Transformer (BST)</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav></div>
+  </details>
+  
+
+
+
+<script>
+  var toc = document.querySelector(".toc");
+  if (toc) {
+    toc.addEventListener("click", function () {
+      if (event.target.tagName !== "A") {
+        event.preventDefault();
+        if (this.open) {
+          this.open = false;
+          this.classList.remove("expanded");
+        } else {
+          this.open = true;
+          this.classList.add("expanded");
+        }
+      }
+    });
+  }
+</script>
+
+        <div class="content e-content">
+            <h2 id="introduction-to-recommendation-models" >
+<div>
+    <a href="#introduction-to-recommendation-models">
+        
+    </a>
+    Introduction to Recommendation Models
+</div>
+</h2>
+<p>In the digital age, the sheer volume of available content and products can be overwhelming for users. Recommendation systems play a crucial role in helping users discover relevant items by filtering through vast amounts of data. These systems are integral to various industries, including e-commerce, streaming services, social media, and online advertising.</p>
+<p>Recommendation models are algorithms designed to suggest items to users based on various factors such as past behavior, preferences, and item characteristics. The goal is to enhance user experience by providing personalized recommendations, thereby increasing engagement and satisfaction.</p>
+<p>In most cases, the goal is trying to find the most appealing item for the user given all user demographic, behavior and interest information. A well-designed recommendation system usually results in better personalization, user engagement, and revenue generation. Let&rsquo;s take a look at the most popular modeling approaches.</p>
+<h2 id="early-models" >
+<div>
+    <a href="#early-models">
+        
+    </a>
+    Early Models
+</div>
+</h2>
+<h3 id="collaborative-filtering-cf" >
+<div>
+    <a href="#collaborative-filtering-cf">
+        
+    </a>
+    Collaborative Filtering (CF)
+</div>
+</h3>
+<p>Collaborative Filtering is one of the most famous recommendation mdoels so far. It&rsquo;s about to guess the user&rsquo;s interest based on the behaviors and preferences of other users with similar tastes/characteristics.</p>
+<h4 id="memory-based-cf" >
+<div>
+    <a href="#memory-based-cf">
+        
+    </a>
+    Memory Based CF
+</div>
+</h4>
+<p>Suppose the recommendation is purely derived from historical records and it does not involve any predictive modelings. Let&rsquo;s assume a table of all ratings of users on items. Let $r_{u,i}$ dentoes the missing rating of user $u$ on item $i$. $S_u$ be a set of users that share similar characteristics with user $u$. The goal is to guess the missing rating $r_{u,i}$. In particular, it can be derived from either user-user filtering or item-item filtering.</p>
+<h5 id="user-based-cf" >
+<div>
+    <a href="#user-based-cf">
+        
+    </a>
+    User Based CF
+</div>
+</h5>
+<p>We are predicting the missing rating as the weighted average from ratings of similar users:</p>
+<p align="center">
+$r_{u,i} = \bar{r}_u + \frac{\sum_{u'\in S_u}sim(u, u') * (r_{u',i} - \bar{r}_{u'})}{\sum_{u'\in S_u}sim(u, u')}$
+<p>
+where $\bar{r}_u$ is the average rating of user $u$ and $sim(u, u')$ represents the similarity score between user $u$ and $u'$. A common choice is to calculate the cosine simialrity between two user rating vectors.
+<h4 id="model-based-cf" >
+<div>
+    <a href="#model-based-cf">
+        
+    </a>
+    Model Based CF
+</div>
+</h4>
+<h4 id="hybrid" >
+<div>
+    <a href="#hybrid">
+        
+    </a>
+    Hybrid
+</div>
+</h4>
+<h2 id="modern-recommendation-models" >
+<div>
+    <a href="#modern-recommendation-models">
+        
+    </a>
+    Modern Recommendation Models
+</div>
+</h2>
+<h3 id="wide--deep" >
+<div>
+    <a href="#wide--deep">
+        
+    </a>
+    Wide &amp; Deep
+</div>
+</h3>
+<h3 id="deepfm" >
+<div>
+    <a href="#deepfm">
+        
+    </a>
+    DeepFM
+</div>
+</h3>
+<h3 id="deep--cross-network-dcn" >
+<div>
+    <a href="#deep--cross-network-dcn">
+        
+    </a>
+    Deep &amp; Cross Network (DCN)
+</div>
+</h3>
+<h3 id="attention-factorization-machine-afm" >
+<div>
+    <a href="#attention-factorization-machine-afm">
+        
+    </a>
+    Attention Factorization Machine (AFM)
+</div>
+</h3>
+<h3 id="deep-interest-network-din" >
+<div>
+    <a href="#deep-interest-network-din">
+        
+    </a>
+    Deep Interest Network (DIN)
+</div>
+</h3>
+<h3 id="deep-learning-recommendation-model-dlrm" >
+<div>
+    <a href="#deep-learning-recommendation-model-dlrm">
+        
+    </a>
+    Deep Learning Recommendation Model (DLRM)
+</div>
+</h3>
+<h3 id="entire-space-multi-task-model-esmm" >
+<div>
+    <a href="#entire-space-multi-task-model-esmm">
+        
+    </a>
+    Entire Space Multi-Task Model (ESMM)
+</div>
+</h3>
+<h3 id="multi-gate-mixture-of-experts-mmoe" >
+<div>
+    <a href="#multi-gate-mixture-of-experts-mmoe">
+        
+    </a>
+    Multi-gate Mixture of Experts (MMOE)
+</div>
+</h3>
+<h3 id="progressive-layered-extraction-ple" >
+<div>
+    <a href="#progressive-layered-extraction-ple">
+        
+    </a>
+    Progressive Layered Extraction (PLE)
+</div>
+</h3>
+<h3 id="behavior-sequence-transformer-bst" >
+<div>
+    <a href="#behavior-sequence-transformer-bst">
+        
+    </a>
+    Behavior Sequence Transformer (BST)
+</div>
+</h3>
+        </div>
+
+    </article>
+
+    
+    
+        
+    
+
+    
+        
+        
+    
+
+    
+
+    
+        
+
+
+
+
+
+
+
+
+            
+
+<script>
+        function detectCurrentScheme2() {
+                const defaultTheme = "auto";
+                if (localStorage !== null && localStorage.getItem("user-color-scheme")) {
+                        return localStorage.getItem("user-color-scheme");
+                }
+                if (defaultTheme === "dark" || defaultTheme === "light") {
+                        return defaultTheme;
+                }
+                return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        }
+
+        let giscusTheme = detectCurrentScheme2();
+        let giscusAttributes = {
+                src: "https://giscus.app/client.js",
+                "data-repo": "Bingzw\/bingzw.github.io",
+                "data-repo-id": "R_kgDOMB8LQg",
+                "data-category": "Announcements",
+                "data-category-id": "DIC_kwDOMB8LQs4CfrMr",
+                "data-mapping": "pathname",
+                "data-strict": "0",
+                "data-reactions-enabled": "1",
+                "data-emit-metadata": "0",
+                "data-input-position": "bottom",
+                "data-theme": giscusTheme,
+                "data-lang": "en",
+                crossorigin: "anonymous",
+                lazyload: "false",
+                async: true,
+        };
+        let main = document.querySelector("main");
+        let giscusScript = document.createElement("script");
+        Object.entries(giscusAttributes).forEach(([key, value]) => giscusScript.setAttribute(key, value));
+        main.appendChild(giscusScript);
+</script>
+
+
+
+
+    
+
+    
+
+    
+
+        </main>
+        
+            <footer class="common-footer noselect">
+    
+    
+
+    <div class="common-footer-bottom">
+        
+
+        <div style="display: flex; align-items: center; gap:8px">
+            © Bing Wang, 2024
+            
+        </div>
+        <div style="display:flex;align-items: center">
+            
+            
+            
+            
+            
+            
+        </div>
+        <div>
+            Powered by <a target="_blank" rel="noopener noreferrer" href="https://gohugo.io/">Hugo</a>, theme <a target="_blank" rel="noopener noreferrer" href="https://github.com/Junyi-99/hugo-theme-anubis2">Anubis2</a>.<br>
+            
+
+        </div>
+    </div>
+
+    <p class="h-card vcard">
+
+    <a href=http://localhost:1313/ class="p-name u-url url fn" rel="me"></a>
+
+    
+
+    
+</p>
+
+</footer>
+
+        
+    </div>
+</body>
+</html>
