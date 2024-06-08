@@ -31,6 +31,7 @@ $r_{u,i} = \bar{r}_u + \frac{\sum_{u'\in S_u}sim(u, u') * (r_{u',i} - \bar{r}_{u
 <p>
 where $\bar{r}_u$ is the average rating of user $u$ and $sim(u, u')$ represents the similarity score between user $u$ and $u'$. A common choice is to calculate the cosine simialrity between two user rating vectors.
 
+
 #### Model Based CF
 
 #### Hybrid
