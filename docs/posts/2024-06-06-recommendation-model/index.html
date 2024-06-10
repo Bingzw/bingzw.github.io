@@ -10,7 +10,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="referrer" content="no-referrer-when-downgrade">
 
-<title>Recommendation Model - Bingz Learning Blog</title>
+<title>Recommendation Models - Bingz Learning Blog</title>
 
 <meta name="description" content="An introduction to recommendation models">
 
@@ -404,7 +404,7 @@
     <article class="post h-entry">
         <div class="post-header">
             <header>
-                <h1 class="p-name post-title">Recommendation Model</h1>
+                <h1 class="p-name post-title">Recommendation Models</h1>
                 
 
             </header>
@@ -461,20 +461,22 @@
     <div class="inner"><nav id="TableOfContents">
   <ul>
     <li><a href="#introduction-to-recommendation-models">Introduction to Recommendation Models</a></li>
-    <li><a href="#early-models">Early Models</a>
+    <li><a href="#collaborative-filtering-cf">Collaborative Filtering (CF)</a>
       <ul>
-        <li><a href="#collaborative-filtering-cf">Collaborative Filtering (CF)</a>
+        <li><a href="#memory-based-cf">Memory Based CF</a>
           <ul>
-            <li><a href="#memory-based-cf">Memory Based CF</a></li>
-            <li><a href="#model-based-cf">Model Based CF</a></li>
-            <li><a href="#hybrid">Hybrid</a></li>
+            <li><a href="#user-user-filtering">User User Filtering</a></li>
+            <li><a href="#item-item-filtering">Item Item Filtering</a></li>
           </ul>
         </li>
+        <li><a href="#model-based-cf">Model Based CF</a></li>
+        <li><a href="#hybrid">Hybrid</a></li>
       </ul>
     </li>
-    <li><a href="#modern-recommendation-models">Modern Recommendation Models</a>
+    <li><a href="#content-based-recommendation">Content Based Recommendation</a></li>
+    <li><a href="#ranking-as-recommendations">Ranking As Recommendations</a>
       <ul>
-        <li><a href="#wide--deep">Wide &amp; Deep</a></li>
+        <li><a href="#wide--deep-a3">Wide &amp; Deep a3</a></li>
         <li><a href="#deepfm">DeepFM</a></li>
         <li><a href="#deep--cross-network-dcn">Deep &amp; Cross Network (DCN)</a></li>
         <li><a href="#attention-factorization-machine-afm">Attention Factorization Machine (AFM)</a></li>
@@ -520,78 +522,110 @@
     Introduction to Recommendation Models
 </div>
 </h2>
-<p>In the digital age, the sheer volume of available content and products can be overwhelming for users. Recommendation systems play a crucial role in helping users discover relevant items by filtering through vast amounts of data. These systems are integral to various industries, including e-commerce, streaming services, social media, and online advertising.</p>
-<p>Recommendation models are algorithms designed to suggest items to users based on various factors such as past behavior, preferences, and item characteristics. The goal is to enhance user experience by providing personalized recommendations, thereby increasing engagement and satisfaction.</p>
-<p>In most cases, the goal is trying to find the most appealing item for the user given all user demographic, behavior and interest information. A well-designed recommendation system usually results in better personalization, user engagement, and revenue generation. Let&rsquo;s take a look at the most popular modeling approaches.</p>
-<h2 id="early-models" >
-<div>
-    <a href="#early-models">
-        
-    </a>
-    Early Models
-</div>
-</h2>
-<h3 id="collaborative-filtering-cf" >
+<p>In the digital age, the sheer volume of available content and products can be overwhelming for users. Recommendation
+systems play a crucial role in helping users discover relevant items by filtering through vast amounts of data. These
+systems are integral to various industries, including e-commerce, streaming services, social media, and online
+advertising.</p>
+<p>Recommendation models are algorithms designed to suggest items to users based on various factors such as past behavior,
+preferences, and item characteristics. The goal is to enhance user experience by providing personalized recommendations,
+thereby increasing engagement and satisfaction.</p>
+<p>In most cases, the goal is trying to find the most appealing item for the user given all user demographic, behavior and
+interest information. A well-designed recommendation system usually results in better personalization, user engagement,
+and revenue generation. Let&rsquo;s take a look at the most popular modeling approaches.</p>
+<h2 id="collaborative-filtering-cf" >
 <div>
     <a href="#collaborative-filtering-cf">
         
     </a>
     Collaborative Filtering (CF)
 </div>
-</h3>
-<p>Collaborative Filtering is one of the most famous recommendation mdoels so far. It&rsquo;s about to guess the user&rsquo;s interest based on the behaviors and preferences of other users with similar tastes/characteristics.</p>
-<h4 id="memory-based-cf" >
+</h2>
+<p>Collaborative Filtering is one of the most famous recommendation models so far. It&rsquo;s about to guess the user&rsquo;s interest
+based on the behaviors and preferences of other users with similar tastes/characteristics. This basic approach is
+straightforward and only requires user-item interaction history.</p>
+<h3 id="memory-based-cf" >
 <div>
     <a href="#memory-based-cf">
         
     </a>
     Memory Based CF
 </div>
-</h4>
-<p>Suppose the recommendation is purely derived from historical records and it does not involve any predictive modelings. Let&rsquo;s assume a table of all ratings of users on items. Let $r_{u,i}$ dentoes the missing rating of user $u$ on item $i$. $S_u$ be a set of users that share similar characteristics with user $u$. The goal is to guess the missing rating $r_{u,i}$. In particular, it can be derived from either user-user filtering or item-item filtering.</p>
-<h5 id="user-based-cf" >
+</h3>
+<p>Suppose the recommendation is purely derived from historical records and it does not involve any predictive modelings.
+Let&rsquo;s assume a table of all ratings of users on items. Let $r_{u,i}$ denotes the missing rating of user $u$ on item $i$.
+$S_u$ be a set of users that share similar characteristics with user $u$. $P_j$ denotes a set of items that are close to
+item $j$. The goal is to guess the missing rating $r_{u,i}$. In particular, it can be derived from either user-user
+filtering or item-item filtering.</p>
+<h4 id="user-user-filtering" >
 <div>
-    <a href="#user-based-cf">
+    <a href="#user-user-filtering">
         
     </a>
-    User Based CF
+    User User Filtering
 </div>
-</h5>
-<p>We are predicting the missing rating as the weighted average from ratings of similar users:</p>
+</h4>
+<p>Assume that users with a similar profile share a similar taste. We are predicting the missing rating as the weighted
+average from ratings of similar users:</p>
 <p align="center">
 $r_{u,i} = \bar{r}_u + \frac{\sum_{u'\in S_u}sim(u, u') * (r_{u',i} - \bar{r}_{u'})}{\sum_{u'\in S_u}sim(u, u')}$
 <p>
-where $\bar{r}_u$ is the average rating of user $u$ and $sim(u, u')$ represents the similarity score between user $u$ and $u'$. A common choice is to calculate the cosine simialrity between two user rating vectors.
-<h4 id="model-based-cf" >
+where $\bar{r}_u$ is the average rating of user $u$ and $sim(u, u')$ represents the similarity score between user $u$ 
+and $u'$. A common choice is to calculate the cosine similarity between two user rating vectors.
+<h4 id="item-item-filtering" >
+<div>
+    <a href="#item-item-filtering">
+        
+    </a>
+    Item Item Filtering
+</div>
+</h4>
+<p>Assume that the customers will prefer products that share a high similarity with those already well appreciated. The
+missing rating is thus predicted as the weighted average of a set of similar products:</p>
+<p align="center">
+$r_{u,i} = \frac{\sum_{j \in P_i}sim(j, i) * r_{u,j}}{\sum_{j \in P_i}sim(j, i)}$
+<p>
+<p>It&rsquo;s straightforward to observe that user-based filtering is to check what other users think of the same product, while
+item-based filtering is aggregating what the user thinks of other items. Essentially, both are weighted linear
+combination of observed ratings. Can we do better than weighted average?</p>
+<h3 id="model-based-cf" >
 <div>
     <a href="#model-based-cf">
         
     </a>
     Model Based CF
 </div>
-</h4>
-<h4 id="hybrid" >
+</h3>
+<p>The memo</p>
+<h3 id="hybrid" >
 <div>
     <a href="#hybrid">
         
     </a>
     Hybrid
 </div>
-</h4>
-<h2 id="modern-recommendation-models" >
+</h3>
+<h2 id="content-based-recommendation" >
 <div>
-    <a href="#modern-recommendation-models">
+    <a href="#content-based-recommendation">
         
     </a>
-    Modern Recommendation Models
+    Content Based Recommendation
 </div>
 </h2>
-<h3 id="wide--deep" >
+<h2 id="ranking-as-recommendations" >
 <div>
-    <a href="#wide--deep">
+    <a href="#ranking-as-recommendations">
         
     </a>
-    Wide &amp; Deep
+    Ranking As Recommendations
+</div>
+</h2>
+<h3 id="wide--deep-a3" >
+<div>
+    <a href="#wide--deep-a3">
+        
+    </a>
+    Wide &amp; Deep a3
 </div>
 </h3>
 <h3 id="deepfm" >

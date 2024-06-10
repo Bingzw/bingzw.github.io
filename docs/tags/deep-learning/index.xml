@@ -29,18 +29,13 @@
 &lt;/h2&gt;
 &lt;p&gt;In the digital age, the sheer volume of available content and products can be overwhelming for users. Recommendation systems play a crucial role in helping users discover relevant items by filtering through vast amounts of data. These systems are integral to various industries, including e-commerce, streaming services, social media, and online advertising.&lt;/p&gt;
 &lt;p&gt;Recommendation models are algorithms designed to suggest items to users based on various factors such as past behavior, preferences, and item characteristics. The goal is to enhance user experience by providing personalized recommendations, thereby increasing engagement and satisfaction.&lt;/p&gt;
-&lt;p&gt;In most cases, the recommendation model is trying to find the most appealing product/item for the user given all his/her demographic, behavior and interest information. Common frameworks involving formulating the problem include:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;Finding similar users/items&lt;/li&gt;
-&lt;li&gt;Prioritizing the most appealing items&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;A well-designed recommendation system usually results in better personalization, user engagement, and revenue generation in most business cases. Below lists the most popular recommendation/ranking modeling approaches. Note that the design of these models is beyond the scope of this blog post.&lt;/p&gt;
-&lt;h2 id=&#34;early-models&#34; &gt;
+&lt;p&gt;In most cases, the goal is trying to find the most appealing item for the user given all user demographic, behavior and interest information. A well-designed recommendation system usually results in better personalization, user engagement, and revenue generation. Let&amp;rsquo;s take a look at the most popular modeling approaches.&lt;/p&gt;
+&lt;h2 id=&#34;common-recommendation-modeling-approaches&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#early-models&#34;&gt;
+    &lt;a href=&#34;#common-recommendation-modeling-approaches&#34;&gt;
         
     &lt;/a&gt;
-    Early Models
+    Common Recommendation Modeling Approaches
 &lt;/div&gt;
 &lt;/h2&gt;
 &lt;h3 id=&#34;collaborative-filtering-cf&#34; &gt;
@@ -51,6 +46,7 @@
     Collaborative Filtering (CF)
 &lt;/div&gt;
 &lt;/h3&gt;
+&lt;p&gt;Collaborative Filtering is one of the most famous recommendation mdoels so far. It&amp;rsquo;s about to guess the user&amp;rsquo;s interest based on the behaviors and preferences of other users with similar tastes/characteristics.&lt;/p&gt;
 &lt;h4 id=&#34;memory-based-cf&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#memory-based-cf&#34;&gt;
@@ -59,6 +55,28 @@
     Memory Based CF
 &lt;/div&gt;
 &lt;/h4&gt;
+&lt;p&gt;Suppose the recommendation is purely derived from historical records and it does not involve any predictive modelings. Let&amp;rsquo;s assume a table of all ratings of users on items. Let $r_{u,i}$ dentoes the missing rating of user $u$ on item $i$. $S_u$ be a set of users that share similar characteristics with user $u$. The goal is to guess the missing rating $r_{u,i}$. In particular, it can be derived from either user-user filtering or item-item filtering.&lt;/p&gt;
+&lt;h5 id=&#34;user-user-filtering&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#user-user-filtering&#34;&gt;
+        
+    &lt;/a&gt;
+    User User Filtering
+&lt;/div&gt;
+&lt;/h5&gt;
+&lt;p&gt;We are predicting the missing rating as the weighted average from ratings of similar users:&lt;/p&gt;
+&lt;p align=&#34;center&#34;&gt;
+$r_{u,i} = \bar{r}_u + \frac{\sum_{u&#39;\in S_u}sim(u, u&#39;) * (r_{u&#39;,i} - \bar{r}_{u&#39;})}{\sum_{u&#39;\in S_u}sim(u, u&#39;)}$
+&lt;p&gt;
+where $\bar{r}_u$ is the average rating of user $u$ and $sim(u, u&#39;)$ represents the similarity score between user $u$ and $u&#39;$. A common choice is to calculate the cosine simialrity between two user rating vectors.
+&lt;h5 id=&#34;item-item-filtering&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#item-item-filtering&#34;&gt;
+        
+    &lt;/a&gt;
+    Item Item Filtering
+&lt;/div&gt;
+&lt;/h5&gt;
 &lt;h4 id=&#34;model-based-cf&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#model-based-cf&#34;&gt;
@@ -75,94 +93,102 @@
     Hybrid
 &lt;/div&gt;
 &lt;/h4&gt;
-&lt;h2 id=&#34;modern-recommendation-models&#34; &gt;
+&lt;h3 id=&#34;content-based-recommendation&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#modern-recommendation-models&#34;&gt;
+    &lt;a href=&#34;#content-based-recommendation&#34;&gt;
         
     &lt;/a&gt;
-    Modern Recommendation Models
-&lt;/div&gt;
-&lt;/h2&gt;
-&lt;h3 id=&#34;wide--deep&#34; &gt;
-&lt;div&gt;
-    &lt;a href=&#34;#wide--deep&#34;&gt;
-        
-    &lt;/a&gt;
-    Wide &amp;amp; Deep
+    Content Based Recommendation
 &lt;/div&gt;
 &lt;/h3&gt;
-&lt;h3 id=&#34;deepfm&#34; &gt;
+&lt;h3 id=&#34;ranking-as-recommendations&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#ranking-as-recommendations&#34;&gt;
+        
+    &lt;/a&gt;
+    Ranking As Recommendations
+&lt;/div&gt;
+&lt;/h3&gt;
+&lt;h4 id=&#34;wide--deep-a3&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#wide--deep-a3&#34;&gt;
+        
+    &lt;/a&gt;
+    Wide &amp;amp; Deep a3
+&lt;/div&gt;
+&lt;/h4&gt;
+&lt;h4 id=&#34;deepfm&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#deepfm&#34;&gt;
         
     &lt;/a&gt;
     DeepFM
 &lt;/div&gt;
-&lt;/h3&gt;
-&lt;h3 id=&#34;deep--cross-network-dcn&#34; &gt;
+&lt;/h4&gt;
+&lt;h4 id=&#34;deep--cross-network-dcn&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#deep--cross-network-dcn&#34;&gt;
         
     &lt;/a&gt;
     Deep &amp;amp; Cross Network (DCN)
 &lt;/div&gt;
-&lt;/h3&gt;
-&lt;h3 id=&#34;attention-factorization-machine-afm&#34; &gt;
+&lt;/h4&gt;
+&lt;h4 id=&#34;attention-factorization-machine-afm&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#attention-factorization-machine-afm&#34;&gt;
         
     &lt;/a&gt;
     Attention Factorization Machine (AFM)
 &lt;/div&gt;
-&lt;/h3&gt;
-&lt;h3 id=&#34;deep-interest-network-din&#34; &gt;
+&lt;/h4&gt;
+&lt;h4 id=&#34;deep-interest-network-din&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#deep-interest-network-din&#34;&gt;
         
     &lt;/a&gt;
     Deep Interest Network (DIN)
 &lt;/div&gt;
-&lt;/h3&gt;
-&lt;h3 id=&#34;deep-learning-recommendation-model-dlrm&#34; &gt;
+&lt;/h4&gt;
+&lt;h4 id=&#34;deep-learning-recommendation-model-dlrm&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#deep-learning-recommendation-model-dlrm&#34;&gt;
         
     &lt;/a&gt;
     Deep Learning Recommendation Model (DLRM)
 &lt;/div&gt;
-&lt;/h3&gt;
-&lt;h3 id=&#34;entire-space-multi-task-model-esmm&#34; &gt;
+&lt;/h4&gt;
+&lt;h4 id=&#34;entire-space-multi-task-model-esmm&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#entire-space-multi-task-model-esmm&#34;&gt;
         
     &lt;/a&gt;
     Entire Space Multi-Task Model (ESMM)
 &lt;/div&gt;
-&lt;/h3&gt;
-&lt;h3 id=&#34;multi-gate-mixture-of-experts-mmoe&#34; &gt;
+&lt;/h4&gt;
+&lt;h4 id=&#34;multi-gate-mixture-of-experts-mmoe&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#multi-gate-mixture-of-experts-mmoe&#34;&gt;
         
     &lt;/a&gt;
     Multi-gate Mixture of Experts (MMOE)
 &lt;/div&gt;
-&lt;/h3&gt;
-&lt;h3 id=&#34;progressive-layered-extraction-ple&#34; &gt;
+&lt;/h4&gt;
+&lt;h4 id=&#34;progressive-layered-extraction-ple&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#progressive-layered-extraction-ple&#34;&gt;
         
     &lt;/a&gt;
     Progressive Layered Extraction (PLE)
 &lt;/div&gt;
-&lt;/h3&gt;
-&lt;h3 id=&#34;behavior-sequence-transformer-bst&#34; &gt;
+&lt;/h4&gt;
+&lt;h4 id=&#34;behavior-sequence-transformer-bst&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#behavior-sequence-transformer-bst&#34;&gt;
         
     &lt;/a&gt;
     Behavior Sequence Transformer (BST)
 &lt;/div&gt;
-&lt;/h3&gt;</description>
+&lt;/h4&gt;</description>
     </item>
     
   </channel>
