@@ -5,8 +5,11 @@ draft: false
 description: "An introduction to causality inference"
 tags: ['causal inference', 'statistics']
 ---
-![causality_icon](/causality/causality_icon.png)
+<p align="center">
+<img src="/causality/causality.jpeg" width="600" height="400"><br>
+<p>
 <!--more-->
+*Image cited from [depositphotos](https://depositphotos.com/vectors/causality.html)*
 
 ## What Is Causality?
 Different from common ML tasks that focus on summarizing the patterns in the data, expecting to make predictions on 
