@@ -119,6 +119,13 @@ features, such as user demographics or item attributes, into the model. Refer to
 </p>
 
 ## Content Based Recommendation
+Unlike the collaborative filtering that purely relies on user-item interaction data. Content-based recommendation models 
+focus on the attributes of items to suggest similar items to users based on their past interactions. These models analyze 
+the content (such as text, keywords, categories, or features) associated with the items and create a profile for each 
+user based on the features of the items they have shown interest in. Compared with collaborative filtering, tt is easier 
+to handle the cold start issue when item features are known. However, its recommendation may strictly adheres to the 
+user's profile, potentially limiting diversity. There are quite a few popular model frameworks in this area and we would 
+focus on the advanced models leveraging deep neural architecture.
 
 ## Ranking As Recommendations
 
