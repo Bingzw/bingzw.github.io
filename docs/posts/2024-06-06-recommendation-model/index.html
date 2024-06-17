@@ -468,6 +468,12 @@
                     
                     <li><a href="/tags/recommendation/">#Recommendation</a></li>
                 
+                    
+                    <li><a href="/tags/ranking/">#Ranking</a></li>
+                
+                    
+                    <li><a href="/tags/personalization/">#Personalization</a></li>
+                
             </ul>
         
         
@@ -507,13 +513,11 @@
         </li>
       </ul>
     </li>
-    <li><a href="#content-based-recommendation">Content Based Recommendation</a></li>
-    <li><a href="#ranking-as-recommendations">Ranking As Recommendations</a>
+    <li><a href="#content-based-models-ranking-as-recommendation">Content Based Models (Ranking As Recommendation)</a>
       <ul>
-        <li><a href="#wide--deep-a3">Wide &amp; Deep a3</a></li>
-        <li><a href="#deepfm">DeepFM</a></li>
-        <li><a href="#deep--cross-network-dcn">Deep &amp; Cross Network (DCN)</a></li>
-        <li><a href="#attention-factorization-machine-afm">Attention Factorization Machine (AFM)</a></li>
+        <li><a href="#wide--deep4">Wide &amp; Deep</a></li>
+        <li><a href="#deepfm5">DeepFM</a></li>
+        <li><a href="#deep--cross-network-v2-dcn-v26">Deep &amp; Cross Network v2 (DCN v2)</a></li>
         <li><a href="#deep-interest-network-din">Deep Interest Network (DIN)</a></li>
         <li><a href="#deep-learning-recommendation-model-dlrm">Deep Learning Recommendation Model (DLRM)</a></li>
         <li><a href="#entire-space-multi-task-model-esmm">Entire Space Multi-Task Model (ESMM)</a></li>
@@ -608,8 +612,8 @@ average from ratings of similar users:</p>
 <p align="center">
 $r_{u,i} = \bar{r}_u + \frac{\sum_{u'\in S_u}sim(u, u') * (r_{u',i} - \bar{r}_{u'})}{\sum_{u'\in S_u}sim(u, u')}$
 <p>
-where $\bar{r}_u$ is the average rating of user $u$ and $sim(u, u')$ represents the similarity score between user $u$ 
-and $u'$. A common choice is to calculate the cosine similarity between two user rating vectors.
+<p>where $\bar{r}_u$ is the average rating of user $u$ and $sim(u, u&rsquo;)$ represents the similarity score between user $u$
+and $u&rsquo;$. A common choice is to calculate the cosine similarity between two user rating vectors.</p>
 <h4 id="item-item-filtering" >
 <div>
     <a href="#item-item-filtering">
@@ -620,9 +624,7 @@ and $u'$. A common choice is to calculate the cosine similarity between two user
 </h4>
 <p>Assume that the customers will prefer products that share a high similarity with those already well appreciated. The
 missing rating is thus predicted as the weighted average of a set of similar products:</p>
-<p align="center">
-$r_{u,i} = \frac{\sum_{j \in P_i}sim(j, i) * r_{u,j}}{\sum_{j \in P_i}sim(j, i)}$
-<p>
+<p>$$r_{u,i} = \frac{\sum_{j \in P_i}sim(j, i) * r_{u,j}}{\sum_{j \in P_i}sim(j, i)}$$</p>
 <p>It&rsquo;s straightforward to observe that user-based filtering is to check what other users think of the same product, while
 item-based filtering is aggregating what the user thinks of other items. Essentially, both are weighted linear
 combination of observed ratings. Can we do better than weighted average?</p>
@@ -666,12 +668,10 @@ of the latent space.</li>
 </ul>
 <p>The interaction matrix $R$ is approximated as the product of these two matrices: $R \approx U \cdot V^T$. In practice, we
 are usually optimizing for a weighted matrix factorization objective<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup></p>
-<p align="center">
-$$L(\theta) = \sum_{(i, j)\in obs} \omega_{i, j} (R_{i, j} - U_i \cdot V_{j}^{T})^2 + \omega_{0} \sum_{(i, j) \notin obs}
-(U_i \cdot V_{j}^{T})^2$$
-<p>
-where $\omega_0$ is a hyper-parameter that weights the two terms so that the objective is not 
-dominated by one or the other, and $\omega_{i, j}$ is a function of the frequency of user $i$ and item $j$.
+<p>$$L(\theta) = \sum_{(i, j)\in obs} \omega_{i, j} (R_{i, j} - U_i \cdot V_{j}^{T})^2 + \omega_{0} \sum_{(i, j) \notin obs}
+(U_i \cdot V_{j}^{T})^2$$</p>
+<p>where $\omega_0$ is a hyper-parameter that weights the two terms so that the objective is not
+dominated by one or the other, and $\omega_{i, j}$ is a function of the frequency of user $i$ and item $j$.</p>
 <p>Common optimization algorithms to minimize the above objective function includes <strong>stochastic gradient descent</strong> and
 <strong>weighted alternating least squares (WALS)</strong>.</p>
 <p>Recently, a few efforts on deep learning have also been proposed on matrix factorization. For example,</p>
@@ -711,61 +711,142 @@ features, such as user demographics or item attributes, into the model. Refer to
     <img src="/recommendation_model/ncf_mf.png"><br>
     <em>Figure 2: neural collaborative filtering</em>
 </p>
-<h2 id="content-based-recommendation" >
+<h2 id="content-based-models-ranking-as-recommendation" >
 <div>
-    <a href="#content-based-recommendation">
+    <a href="#content-based-models-ranking-as-recommendation">
         
     </a>
-    Content Based Recommendation
+    Content Based Models (Ranking As Recommendation)
 </div>
 </h2>
 <p>Unlike the collaborative filtering that purely relies on user-item interaction data. Content-based recommendation models
 focus on the attributes of items to suggest similar items to users based on their past interactions. These models analyze
 the content (such as text, keywords, categories, or features) associated with the items and create a profile for each
-user based on the features of the items they have shown interest in. Compared with collaborative filtering, tt is easier
+user based on the features of the items they have shown interest in. Compared with collaborative filtering, it&rsquo;s easier
 to handle the cold start issue when item features are known. However, its recommendation may strictly adheres to the
 user&rsquo;s profile, potentially limiting diversity. There are quite a few popular model frameworks in this area and we would
-focus on the advanced models leveraging deep neural architecture.</p>
-<h2 id="ranking-as-recommendations" >
+focus on the models based on deep neural architecture.</p>
+<h3 id="wide--deep4" >
 <div>
-    <a href="#ranking-as-recommendations">
+    <a href="#wide--deep4">
         
     </a>
-    Ranking As Recommendations
-</div>
-</h2>
-<h3 id="wide--deep-a3" >
-<div>
-    <a href="#wide--deep-a3">
-        
-    </a>
-    Wide &amp; Deep a3
+    Wide &amp; Deep<sup id="fnref:4"><a href="#fn:4" class="footnote-ref" role="doc-noteref">4</a></sup>
 </div>
 </h3>
-<h3 id="deepfm" >
+<p>Wide &amp; Deep learning combined wide linear models and deep neural networks to achieve both memorization and generalization.
+The model consists of two components:</p>
+<ol>
+<li>
+<p><strong>Wide Component</strong>: This part is a generalized linear model (GLM) that excels at memorization by capturing feature
+interactions using cross-product feature transformations. The wide component is effective at handling sparse features
+and explicitly memorizing frequent co-occurrence patterns. It can be represented as:</p>
+<p>$$y_{\text{wide}} = \mathbf{w}^T \mathbf{x} + b $$</p>
+<p>where $\mathbf{x}$ represents the input features, $\mathbf{w}$ represents the learned weights, and $b$ is
+the bias term.</p>
+</li>
+<li>
+<p><strong>Deep Component</strong>: This part is a feed-forward neural network that excels at generalization by capturing high-level
+and non-linear feature interactions. The deep component uses dense embeddings to represent categorical features, and it
+learns implicit interactions through multiple hidden layers. The output of the deep component can be represented as:</p>
+<p>$$\mathbf{h}^L = f^L(\mathbf{W}^L \mathbf{h}^{L-1} + \mathbf{b}^L)$$</p>
+<p>where $\mathbf{h}^L$ is the activation of the $L$-th layer, $\mathbf{W}^L$ and $\mathbf{b}^L$ are the weights and biases
+of the $L$-th layer, respectively, and $f^L$ is the activation function.
+The final output of the deep component, $ y_{\text{deep}} $, is the output of the last layer of the deep neural network. It is given by:</p>
+<p>$$
+y_{\text{deep}} = \mathbf{W}^O \mathbf{h}^{L} + \mathbf{b}^O
+$$</p>
+<p>where $ \mathbf{W}^O $ and $ \mathbf{b}^O $ are the weights and bias of the output layer, and $ \mathbf{h}^L $ is the activation of the last hidden layer.</p>
+<p>The final prediction is a weighted sum of the outputs from the wide and deep components:</p>
+<p>$$\hat{y} = \sigma(y_{\text{wide}} + y_{\text{deep}})$$</p>
+<p>where $\sigma$ is the sigmoid function used to squash the output to a probability score.</p>
+</li>
+</ol>
+<p align="center">
+   <img src="/recommendation_model/wide_deep.png" width="800" height="600"><br>
+   <em>Figure 3: wide & deep model</em>
+</p>
+<h3 id="deepfm5" >
 <div>
-    <a href="#deepfm">
+    <a href="#deepfm5">
         
     </a>
-    DeepFM
+    DeepFM<sup id="fnref:5"><a href="#fn:5" class="footnote-ref" role="doc-noteref">5</a></sup>
 </div>
 </h3>
-<h3 id="deep--cross-network-dcn" >
+<p>DeepFM addresses the challenge of capturing both low-order and high-order feature interactions in recommendation systems.
+The model consists of two interconnected components:</p>
+<ol>
+<li>
+<p><strong>FM Component</strong>: This part captures low-order feature interactions using Factorization Machines, which are effective
+for handling sparse data and modeling pairwise feature interactions without manual feature engineering. The FM component
+can be represented as:</p>
+<p>$$
+y_{\text{FM}} = w_0 + \sum_{i=1}^n w_i x_i + \sum_{i=1}^n \sum_{j=i+1}^n \langle \mathbf{v}_i, \mathbf{v}_j \rangle x_i x_j
+$$</p>
+<p>where $w_0$ is the global bias, $w_i$ is the weight of the $i$-th feature, $\mathbf{v}_i$ and $\mathbf{v}_j$ are
+latent vectors for the $i$-th and $j$-th features, respectively, and $x_i$ and $x_j$ are input feature values.</p>
+</li>
+<li>
+<p><strong>Deep Component</strong>: This part captures high-order feature interactions through a deep neural network. The deep
+component uses embeddings to represent input features and learns complex interactions through multiple hidden layers.
+The output of the deep component can be represented as:</p>
+<p>$$\mathbf{h}^L = f^L(\mathbf{W}^L \mathbf{h}^{L-1} + \mathbf{b}^L)$$</p>
+<p>where $\mathbf{h}^L$ is the activation of the $L$-th layer, $\mathbf{W}^L$ and $\mathbf{b}^L$ are the weights and
+biases of the $L$-th layer, respectively, and $f^L$ is the activation function.
+The final output of the deep component, $ y_{\text{deep}} $, is the output of the last layer of the deep neural network. It is given by:</p>
+<p>$$
+y_{\text{deep}} = \mathbf{W}^O \mathbf{h}^{L} + \mathbf{b}^O
+$$</p>
+<p>where $ \mathbf{W}^O $ and $ \mathbf{b}^O $ are the weights and bias of the output layer, and $ \mathbf{h}^L $ is the
+activation of the last hidden layer.</p>
+</li>
+</ol>
+<p>The final prediction is a combination of the outputs from the FM and deep components:</p>
+<p>$$\hat{y} = \sigma(y_{\text{FM}} + y_{\text{deep}})$$</p>
+<p>where $\sigma$ is the sigmoid function used to squash the output to a probability score.</p>
+<p align="center">
+   <img src="/recommendation_model/deepfm.png" width="600" height="400"><br>
+   <em>Figure 4: deepfm model</em>
+</p>
+<h3 id="deep--cross-network-v2-dcn-v26" >
 <div>
-    <a href="#deep--cross-network-dcn">
+    <a href="#deep--cross-network-v2-dcn-v26">
         
     </a>
-    Deep &amp; Cross Network (DCN)
+    Deep &amp; Cross Network v2 (DCN v2)<sup id="fnref:6"><a href="#fn:6" class="footnote-ref" role="doc-noteref">6</a></sup>
 </div>
 </h3>
-<h3 id="attention-factorization-machine-afm" >
-<div>
-    <a href="#attention-factorization-machine-afm">
-        
-    </a>
-    Attention Factorization Machine (AFM)
-</div>
-</h3>
+<p>DCN-V2 starts with an embedding layer, followed by a cross network containing multiple cross layers that models explicit
+feature interactions, and then combines with a deep network that models implicit feature interactions. The function class
+modeled by DCN-V2 is a strict superset of that modeled by DCN. The overall model architecture is depicted in Fig. 5, with
+two ways to combine the cross network with the deep network: (1) stacked and (2) parallel.</p>
+<ol>
+<li>
+<p><strong>Cross Component</strong>: The Cross Network V2 enhances the original cross network by introducing a more flexible mechanism
+to capture feature interactions. The cross layer in DCN V2 can be represented as:</p>
+<p>$$
+x_{l+1} = x_0 \odot (W_l \cdot x_l + b_l) + x_l
+$$</p>
+<p>where $x_l$ is the input to the l-th cross layer. $W_l$ and $b_l$ are the weight matrix and bias vector of the l-th
+cross layer. $x_{l+1}$ is the output of the $l+1$-th cross layer. $\odot$ is the Hadamard product.</p>
+</li>
+<li>
+<p><strong>Deep Component</strong>: The deep network in DCN V2 captures high-order feature interactions through a series of dense layers.
+This part of the network learns abstract representations of the input features, enabling the model to generalize well.</p>
+<p>$$
+h_{l} = f_{l}(W_{l} h_{l-1} + b_{l})
+$$</p>
+<p>where $h_{l}$ is the activation of the $l$-th layer, $W_{l}$ and $b_{l}$ are the weights and
+biases of the $l$-th layer, respectively, and $f_{l}$ is the activation function.</p>
+</li>
+</ol>
+<p>The final prediction is a combination of the outputs from either the hidden layer (stacked structure) or the  concatenation
+of cross and deep network outputs.</p>
+<p align="center">
+   <img src="/recommendation_model/dcn_v2.png" width="600" height="400"><br>
+   <em>Figure 5: deep cross network v2</em>
+</p>
 <h3 id="deep-interest-network-din" >
 <div>
     <a href="#deep-interest-network-din">
@@ -833,6 +914,15 @@ focus on the advanced models leveraging deep neural architecture.</p>
 </li>
 <li id="fn:3">
 <p><a href="https://arxiv.org/pdf/1708.05031">He, Xiangnan, et al. &ldquo;Neural collaborative filtering.&rdquo; Proceedings of the 26th international conference on world wide web. 2017</a>&#160;<a href="#fnref:3" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:4">
+<p><a href="https://arxiv.org/pdf/1606.07792">Cheng, Heng-Tze, et al. &ldquo;Wide &amp; deep learning for recommender systems.&rdquo; Proceedings of the 1st workshop on deep learning for recommender systems. 2016</a>&#160;<a href="#fnref:4" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:5">
+<p><a href="https://arxiv.org/pdf/1703.04247">Guo, Huifeng, et al. &ldquo;DeepFM: a factorization-machine based neural network for CTR prediction.&rdquo; arXiv preprint arXiv:1703.04247 (2017)</a>&#160;<a href="#fnref:5" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:6">
+<p><a href="https://arxiv.org/pdf/2008.13535">Wang, Ruoxi, et al. &ldquo;Dcn v2: Improved deep &amp; cross network and practical lessons for web-scale learning to rank systems.&rdquo; Proceedings of the web conference 2021. 2021</a>&#160;<a href="#fnref:6" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 </ol>
 </div>
