@@ -288,12 +288,67 @@ activation of the last hidden layer.&lt;/p&gt;
    &lt;img src=&#34;https://bingzw.github.io/recommendation_model/deepfm.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
    &lt;em&gt;Figure 4: deepfm model&lt;/em&gt;
 &lt;/p&gt;
-&lt;h3 id=&#34;deep--cross-network-v2-dcn-v26&#34; &gt;
+&lt;h3 id=&#34;deep-learning-recommendation-model-dlrm6&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#deep--cross-network-v2-dcn-v26&#34;&gt;
+    &lt;a href=&#34;#deep-learning-recommendation-model-dlrm6&#34;&gt;
         
     &lt;/a&gt;
-    Deep &amp;amp; Cross Network v2 (DCN v2)&lt;sup id=&#34;fnref:6&#34;&gt;&lt;a href=&#34;#fn:6&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;6&lt;/a&gt;&lt;/sup&gt;
+    Deep Learning Recommendation Model (DLRM)&lt;sup id=&#34;fnref:6&#34;&gt;&lt;a href=&#34;#fn:6&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;6&lt;/a&gt;&lt;/sup&gt;
+&lt;/div&gt;
+&lt;/h3&gt;
+&lt;p&gt;Deep Learning Recommendation Model (DLRM) is an advanced machine learning framework designed by Facebook AI to tackle
+the complex challenge of personalized recommendations at scale. It is particularly suited for large-scale recommendation
+systems in environments such as social media platforms, e-commerce, and online advertising. The DLRM combines the
+strengths of collaborative filtering and content-based methods by utilizing both dense and sparse features to provide
+highly accurate and scalable recommendations.&lt;/p&gt;
+&lt;p align=&#34;center&#34;&gt;
+   &lt;img src=&#34;https://bingzw.github.io/recommendation_model/dlrm.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+   &lt;em&gt;Figure 5: deep learning recommendation model&lt;/em&gt;
+&lt;/p&gt;
+&lt;p&gt;Key components of DLRM includes&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Sparse Features&lt;/strong&gt;: These are categorical variables (e.g., user ID, item ID) which are typically represented using
+embeddings. Embeddings transform sparse categorical data into dense vectors of continuous numbers, making them suitable
+for neural network processing, denoted as $\mathbf{x}_s[i]$.
+The raw sparse features are transformed to sparse embeddings as follows. Let
+$$
+\mathbf{e}_i = \text{Embedding}(\mathbf{x}_s[i])
+$$
+where $\mathbf{e}_i$ is the embedding vector for the $i$-th sparse feature, $\text{Embedding}$ denotes an embedding lookup table&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Dense Features&lt;/strong&gt;: These are numerical variables (e.g., user age, item price) that are used directly in their raw
+form or normalized form, denoted as $\mathbf{x}_d$.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Bottom MLP (Multilayer Perceptron)&lt;/strong&gt;: Processes the dense features to capture high-level representations.
+$$
+\mathbf{h}_d = \text{BottomMLP}(\mathbf{x}_d)
+$$&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Interaction Layer&lt;/strong&gt;: This layer captures the interactions between different features (both sparse and dense). It
+uses a dot product to compute the pairwise interactions among features.
+$$
+\mathbf{z} = \left[ \mathbf{h}_d, \mathbf{e}_1, \mathbf{e}_2, \ldots, \mathbf{e}_n \right]
+$$
+where $\mathbf{z}$ is the concatenated vector of dense feature representation and embeddings.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Top MLP&lt;/strong&gt;: Combines the processed dense features and interactions from the interaction layer to make the final prediction.
+$$
+\hat{y} = \sigma(\text{TopMLP}(\mathbf{z}))
+$$
+where $\sigma$ is an activation function, typically a sigmoid function for binary classification tasks.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;deep--cross-network-v2-dcn-v27&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#deep--cross-network-v2-dcn-v27&#34;&gt;
+        
+    &lt;/a&gt;
+    Deep &amp;amp; Cross Network v2 (DCN v2)&lt;sup id=&#34;fnref:7&#34;&gt;&lt;a href=&#34;#fn:7&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;7&lt;/a&gt;&lt;/sup&gt;
 &lt;/div&gt;
 &lt;/h3&gt;
 &lt;p&gt;DCN-V2 starts with an embedding layer, followed by a cross network containing multiple cross layers that models explicit
@@ -324,57 +379,198 @@ biases of the $l$-th layer, respectively, and $f_{l}$ is the activation function
 of cross and deep network outputs.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
    &lt;img src=&#34;https://bingzw.github.io/recommendation_model/dcn_v2.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
-   &lt;em&gt;Figure 5: deep cross network v2&lt;/em&gt;
+   &lt;em&gt;Figure 6: deep cross network v2&lt;/em&gt;
 &lt;/p&gt;
-&lt;h3 id=&#34;deep-interest-network-din&#34; &gt;
+&lt;h3 id=&#34;deep-interest-network-din8&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#deep-interest-network-din&#34;&gt;
+    &lt;a href=&#34;#deep-interest-network-din8&#34;&gt;
         
     &lt;/a&gt;
-    Deep Interest Network (DIN)
+    Deep Interest Network (DIN)&lt;sup id=&#34;fnref:8&#34;&gt;&lt;a href=&#34;#fn:8&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;8&lt;/a&gt;&lt;/sup&gt;
 &lt;/div&gt;
 &lt;/h3&gt;
-&lt;h3 id=&#34;deep-learning-recommendation-model-dlrm&#34; &gt;
+&lt;p&gt;Deep Interest Network (DIN) is a neural network-based model designed for personalized recommendation systems, particularly
+in the context of e-commerce and advertising. Unlike traditional recommendation models that primarily focus on user-item interactions,
+DIN leverages a user&amp;rsquo;s historical behavior to make more accurate and contextually relevant recommendations. The key
+innovation in DIN is its ability to capture user interests dynamically and use this information to influence the recommendation
+process.&lt;/p&gt;
+&lt;p align=&#34;center&#34;&gt;
+   &lt;img src=&#34;https://bingzw.github.io/recommendation_model/din.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
+   &lt;em&gt;Figure 7: deep interest network&lt;/em&gt;
+&lt;/p&gt;
+&lt;p&gt;In particular, the DIN contains the following key components:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Embedding Layer&lt;/strong&gt;: User behaviors and items are represented as dense vectors through an embedding layer. Let
+$({e_{1}, e_{2}, \ldots, e_{n}})$ be the sequence of embeddings for user behaviors, and $e_{target}$ be the embedding of the target item.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Local Activation Unit&lt;/strong&gt;: This unit applies the attention mechanism to compute the relevance of each user behavior
+in the sequence with respect to the target item.
+Let
+$$
+\alpha_{i} = \frac{\exp(\text{score}(e_{i}, e_{target}))}{\sum_{j=1}^{n} \exp(\text{score}(e_{j}, e_{target}))}
+$$
+where $\text{score}(e_{i}, e_{target})$ is the activation weight output from a feed-forward
+network measuring the relevance of behavior $e_{i}$ to the target item.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Interest Extractor Layer&lt;/strong&gt;: Combines the weighted behavior embeddings to form a user interest representation.
+$$
+u = \sum_{i=1}^{n} \alpha_{i} e_{i}
+$$&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Prediction Layer&lt;/strong&gt;: The user interest representation is concatenated with the target item embedding and fed into a neural network to predict the user&amp;rsquo;s interaction with the target item.
+$$
+\hat{y} = \sigma(W[u, e_{target}, e_{profile}, e_{context}] + b)
+$$
+where $[u, e_{target}, e_{profile}, e_{context}]$ denotes the concatenation of the user interest representation, profile
+embedding, context embedding and the target item embedding, $W$ is a weight matrix, $b$ is a bias term, and $\sigma$ is an activation function (e.g., sigmoid).&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;multi-gate-mixture-of-experts-mmoe9&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#deep-learning-recommendation-model-dlrm&#34;&gt;
+    &lt;a href=&#34;#multi-gate-mixture-of-experts-mmoe9&#34;&gt;
         
     &lt;/a&gt;
-    Deep Learning Recommendation Model (DLRM)
+    Multi-gate Mixture of Experts (MMOE)&lt;sup id=&#34;fnref:9&#34;&gt;&lt;a href=&#34;#fn:9&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;9&lt;/a&gt;&lt;/sup&gt;
 &lt;/div&gt;
 &lt;/h3&gt;
-&lt;h3 id=&#34;entire-space-multi-task-model-esmm&#34; &gt;
+&lt;p&gt;Multi-gate Mixture-of-Experts (MMoE) is an advanced multi-task learning (MTL) framework designed to model and leverage
+task relationships for improved performance across multiple tasks. The MMoE architecture combines the benefits of
+mixture-of-experts models with the flexibility of multi-gate mechanisms, allowing the model to dynamically allocate
+computational resources based on the specific needs of each task. This approach is particularly useful in scenarios
+where tasks are interrelated and can benefit from shared learning while maintaining task-specific adaptations.&lt;/p&gt;
+&lt;p align=&#34;center&#34;&gt;
+   &lt;img src=&#34;https://bingzw.github.io/recommendation_model/mmoe.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
+   &lt;em&gt;Figure 8: multi-gate mixture of experts&lt;/em&gt;
+&lt;/p&gt;
+&lt;p&gt;Key components of the model architecture are:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Experts&lt;/strong&gt;: A set of neural network sub-models that serve as specialized units for feature extraction. Each expert
+is trained to capture different aspects of the input data. Let $\mathbf{x}$ represent the input data, $E$ represent
+the number of experts, and $T$ represent the number of tasks. The output from expert is represented as
+$$
+\mathbf{h}^i = f_e^i(\mathbf{x}), \quad \text{for } i = 1, 2, \ldots, E
+$$
+where $f_e^i$ is the function of the $i$-th expert, and $\mathbf{h}^i$ is the output of the $i$-th expert.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Multi-gate Mechanism&lt;/strong&gt;: Separate gating networks for each task that dynamically select and weight the contributions
+of different experts based on the input data and task requirements.
+$$
+\mathbf{g}^j = \sigma(\mathbf{W}^j \mathbf{x}), \quad \text{for } j = 1, 2, \ldots, T
+$$
+where $\mathbf{W}^j$ are the parameters of the gating network for task $j$, and $g^j$ is the gating output distribution
+of gating weights to each expert assigned by task $j$. To combine the experts output and gating weights, we have
+$$\mathbf{t}^j = \sum_{i=1}^{E} g_i^j \cdot \mathbf{h}^i$$
+where $\mathbf{t}^j$ is the combined output for task $j$, and $g_i^j$ is the weight for the $i$-th expert assigned by
+the gating network of task $j$.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Task-specific Layers&lt;/strong&gt;: Layers that process the combined outputs from the experts, tailored to the specific requirements of each task.
+$$
+\hat{y}^j = f_o^j(\mathbf{t}^j)
+$$
+where $f_o^j$ is the task-specific output layer for task $j$, and $\hat{y}^j$ is the predicted output for task $j$.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;behavior-sequence-transformer-bst10&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#entire-space-multi-task-model-esmm&#34;&gt;
+    &lt;a href=&#34;#behavior-sequence-transformer-bst10&#34;&gt;
         
     &lt;/a&gt;
-    Entire Space Multi-Task Model (ESMM)
+    Behavior Sequence Transformer (BST)&lt;sup id=&#34;fnref:10&#34;&gt;&lt;a href=&#34;#fn:10&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;10&lt;/a&gt;&lt;/sup&gt;
 &lt;/div&gt;
 &lt;/h3&gt;
-&lt;h3 id=&#34;multi-gate-mixture-of-experts-mmoe&#34; &gt;
+&lt;p&gt;The Behavior Sequence Transformer (BST) is a novel neural network architecture designed for modeling user behavior
+sequences in recommendation systems. BST leverages the power of Transformer models, which have achieved significant
+success in natural language processing (NLP), to capture the sequential patterns and contextual dependencies in user
+interactions over time. This approach enhances the ability to predict user preferences and improve recommendation accuracy.&lt;/p&gt;
+&lt;p align=&#34;center&#34;&gt;
+   &lt;img src=&#34;https://bingzw.github.io/recommendation_model/bst.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
+   &lt;em&gt;Figure 9: behavior sequence transformer&lt;/em&gt;
+&lt;/p&gt;
+&lt;p&gt;Key components of BST include:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;Input Layer&lt;/strong&gt;:&lt;/li&gt;
+&lt;/ol&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;User Behavior Sequence&lt;/strong&gt;: A sequence of items or actions representing user interactions over time.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Contextual Features&lt;/strong&gt;: Additional information such as timestamps, device types, and other relevant context.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;ol start=&#34;2&#34;&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Embedding Layer&lt;/strong&gt;:
+$$
+\mathbf{E}_x = \mathbf{W}_e \cdot \mathbf{x}
+$$
+where $\mathbf{W}_e$ is the embedding matrix and $\mathbf{x}$ is the input feature vector.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Positional Encoding&lt;/strong&gt;:
+$$
+\mathbf{E}_p = \text{PE}(pos)
+$$
+where $\text{PE}(pos)$ is the positional encoding function that adds position-specific information to the embeddings.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Transformer Encoder&lt;/strong&gt;:
+$$
+\mathbf{H}_i = \text{LayerNorm}(\text{MultiHeadAttention}(\mathbf{Q}, \mathbf{K}, \mathbf{V}) + \mathbf{E}_i)
+$$
+where $\mathbf{Q}$, $\mathbf{K}$, and $\mathbf{V}$ are the query, key, and value matrices, and $\mathbf{E}_i$ is the
+input embedding at layer $i$. A Feed-Forward Networks ($\text{FFN}$) is added on top of the self attention layer to further enhance the
+model with non-linearity.
+$$
+\mathbf{O}_i = \text{LayerNorm}(\text{FFN}(\mathbf{H}_i) + \mathbf{H}_i)
+$$
+In practice, we usually stack multiple transformer layers. So the output of last layer is thus fed as the input of the
+next layer.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Output Layer&lt;/strong&gt;:
+$$
+\hat{y} = \sigma(\mathbf{W}_o \cdot \mathbf{O}_L)
+$$
+where $\mathbf{W}_o$ is the weight matrix of the output layer, $\mathbf{O}_L$ is the output of the last Transformer encoder layer, and $\sigma$ is the activation function.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;summary&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#multi-gate-mixture-of-experts-mmoe&#34;&gt;
+    &lt;a href=&#34;#summary&#34;&gt;
         
     &lt;/a&gt;
-    Multi-gate Mixture of Experts (MMOE)
+    Summary
 &lt;/div&gt;
-&lt;/h3&gt;
-&lt;h3 id=&#34;progressive-layered-extraction-ple&#34; &gt;
+&lt;/h2&gt;
+&lt;p&gt;So far, we have summarized the main popular recommendation models. These summaries highlight the unique strengths and
+specific applications of each recommendation model, reflecting their advancements and contributions to the field. The
+modern recommendation systems usually are built with multiple stages and are composed with both simple and complex models.
+Users may choose the best model depending on the business requirements and system architecture design.&lt;/p&gt;
+&lt;h2 id=&#34;citation&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#progressive-layered-extraction-ple&#34;&gt;
+    &lt;a href=&#34;#citation&#34;&gt;
         
     &lt;/a&gt;
-    Progressive Layered Extraction (PLE)
+    Citation
 &lt;/div&gt;
-&lt;/h3&gt;
-&lt;h3 id=&#34;behavior-sequence-transformer-bst&#34; &gt;
-&lt;div&gt;
-    &lt;a href=&#34;#behavior-sequence-transformer-bst&#34;&gt;
-        
-    &lt;/a&gt;
-    Behavior Sequence Transformer (BST)
-&lt;/div&gt;
-&lt;/h3&gt;
-&lt;h2 id=&#34;reference&#34; &gt;
+&lt;/h2&gt;
+&lt;p&gt;If you find this post helpful, please consider citing it as:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bibtex&#34; data-lang=&#34;bibtex&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f3f99d&#34;&gt;@article&lt;/span&gt;{&lt;span style=&#34;color:#ff5c57&#34;&gt;wang2024recommendationmodel&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;author&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;Bing Wang&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;title&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;Recommendation Models&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;journal&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;bingzw.github.io&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;year&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;2024&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;month&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;June&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;url&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;https://bingzw.github.io/posts/2024-06-06-recommendation-model/&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;or&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-markdown&#34; data-lang=&#34;markdown&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Bing Wang. (2024, June). Recommendation Models. 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;https://bingzw.github.io/posts/2024-06-06-recommendation-model/
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;reference&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#reference&#34;&gt;
         
@@ -401,7 +597,19 @@ of cross and deep network outputs.&lt;/p&gt;
 &lt;p&gt;&lt;a href=&#34;https://arxiv.org/pdf/1703.04247&#34;&gt;Guo, Huifeng, et al. &amp;ldquo;DeepFM: a factorization-machine based neural network for CTR prediction.&amp;rdquo; arXiv preprint arXiv:1703.04247 (2017)&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:5&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id=&#34;fn:6&#34;&gt;
-&lt;p&gt;&lt;a href=&#34;https://arxiv.org/pdf/2008.13535&#34;&gt;Wang, Ruoxi, et al. &amp;ldquo;Dcn v2: Improved deep &amp;amp; cross network and practical lessons for web-scale learning to rank systems.&amp;rdquo; Proceedings of the web conference 2021. 2021&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:6&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://arxiv.org/pdf/1906.00091&#34;&gt;Naumov, Maxim, et al. &amp;ldquo;Deep learning recommendation model for personalization and recommendation systems.&amp;rdquo; arXiv preprint arXiv:1906.00091 (2019)&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:6&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:7&#34;&gt;
+&lt;p&gt;&lt;a href=&#34;https://arxiv.org/pdf/2008.13535&#34;&gt;Wang, Ruoxi, et al. &amp;ldquo;Dcn v2: Improved deep &amp;amp; cross network and practical lessons for web-scale learning to rank systems.&amp;rdquo; Proceedings of the web conference 2021. 2021&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:7&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:8&#34;&gt;
+&lt;p&gt;&lt;a href=&#34;https://arxiv.org/pdf/1706.06978&#34;&gt;Zhou, Guorui, et al. &amp;ldquo;Deep interest network for click-through rate prediction.&amp;rdquo; Proceedings of the 24th ACM SIGKDD international conference on knowledge discovery &amp;amp; data mining. 2018&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:8&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:9&#34;&gt;
+&lt;p&gt;&lt;a href=&#34;https://dl.acm.org/doi/pdf/10.1145/3219819.3220007&#34;&gt;Ma, Jiaqi, et al. &amp;ldquo;Modeling task relationships in multi-task learning with multi-gate mixture-of-experts.&amp;rdquo; Proceedings of the 24th ACM SIGKDD international conference on knowledge discovery &amp;amp; data mining. 2018&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:9&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:10&#34;&gt;
+&lt;p&gt;&lt;a href=&#34;https://arxiv.org/pdf/1905.06874&#34;&gt;Chen, Qiwei, et al. &amp;ldquo;Behavior sequence transformer for e-commerce recommendation in alibaba.&amp;rdquo; Proceedings of the 1st international workshop on deep learning practice for high-dimensional sparse data. 2019&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:10&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
 &lt;/div&gt;</description>
