@@ -19,10 +19,14 @@
       <pubDate>Tue, 28 May 2024 16:19:16 -0700</pubDate>
       <author>bingwang8878@gamil.com (Bing Wang)</author>
       <guid>/posts/2024-05-28-causality/</guid>
-      <description>&lt;p&gt;&lt;img src=&#34;https://bingzw.github.io/causality/causality_icon.png&#34; alt=&#34;causality_icon&#34;&gt;&lt;/p&gt;
+      <description>&lt;p align=&#34;center&#34;&gt;
+&lt;img src=&#34;https://bingzw.github.io/causality/causality.jpeg&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+&lt;p&gt;
+&lt;p&gt;&lt;em&gt;Image cited from &lt;a href=&#34;https://depositphotos.com/vectors/causality.html&#34;&gt;depositphotos&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
 &lt;h2 id=&#34;what-is-causality&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#what-is-causality&#34;&gt;
+        
     &lt;/a&gt;
     What Is Causality?
 &lt;/div&gt;
@@ -35,6 +39,7 @@ to a plant if it were moved from one universe to another? This is a causal quest
 &lt;h3 id=&#34;causal-formulation&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#causal-formulation&#34;&gt;
+        
     &lt;/a&gt;
     Causal Formulation
 &lt;/div&gt;
@@ -64,6 +69,7 @@ variables. Now the question is how do we define the effect of the new drug $A$ o
 &lt;h3 id=&#34;average-treatment-effect&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#average-treatment-effect&#34;&gt;
+        
     &lt;/a&gt;
     Average Treatment Effect
 &lt;/div&gt;
@@ -82,6 +88,7 @@ $ATE = E[Y^{a=1}] - E[Y^{a=0}]$, denoting the average causal effect of the treat
 &lt;h2 id=&#34;causal-effect-estimation&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#causal-effect-estimation&#34;&gt;
+        
     &lt;/a&gt;
     Causal Effect Estimation
 &lt;/div&gt;
@@ -93,6 +100,7 @@ testing)&lt;/em&gt;, &lt;em&gt;confounder adjustments methods&lt;/em&gt;, &lt;em
 &lt;h3 id=&#34;randomized-controlled-trials-ab-testing&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#randomized-controlled-trials-ab-testing&#34;&gt;
+        
     &lt;/a&gt;
     Randomized Controlled Trials (A/B Testing)
 &lt;/div&gt;
@@ -114,6 +122,7 @@ data.&lt;/p&gt;
 &lt;h3 id=&#34;causal-inference---confounder-adjustments-methods&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#causal-inference---confounder-adjustments-methods&#34;&gt;
+        
     &lt;/a&gt;
     Causal Inference - Confounder Adjustments Methods
 &lt;/div&gt;
@@ -133,6 +142,7 @@ such as age and health status.&lt;/p&gt;
 &lt;h4 id=&#34;key-assumptions&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#key-assumptions&#34;&gt;
+        
     &lt;/a&gt;
     Key Assumptions
 &lt;/div&gt;
@@ -146,6 +156,7 @@ such as age and health status.&lt;/p&gt;
 &lt;h4 id=&#34;general-flow-of-causal-inference&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#general-flow-of-causal-inference&#34;&gt;
+        
     &lt;/a&gt;
     General Flow of Causal Inference
 &lt;/div&gt;
@@ -172,6 +183,7 @@ with the estimated counterfactual outcome.
 &lt;h4 id=&#34;inverse-probability-weighting&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#inverse-probability-weighting&#34;&gt;
+        
     &lt;/a&gt;
     Inverse Probability Weighting
 &lt;/div&gt;
@@ -192,6 +204,7 @@ covariates.&lt;/li&gt;
 &lt;h4 id=&#34;standardization&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#standardization&#34;&gt;
+        
     &lt;/a&gt;
     Standardization
 &lt;/div&gt;
@@ -211,6 +224,7 @@ $E[Y^a] = \int_x P(Y|A=a, x)*f_X(x)dx$.&lt;/li&gt;
 &lt;h4 id=&#34;stratification&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#stratification&#34;&gt;
+        
     &lt;/a&gt;
     Stratification
 &lt;/div&gt;
@@ -232,6 +246,7 @@ $E[Y^a] = \int_x P(Y|A=a, g(x))*f_X(x)dx$&lt;/li&gt;
 &lt;h4 id=&#34;propensity-score-matching&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#propensity-score-matching&#34;&gt;
+        
     &lt;/a&gt;
     Propensity Score Matching
 &lt;/div&gt;
@@ -250,6 +265,7 @@ covariates.&lt;/li&gt;
 &lt;h4 id=&#34;double-machine-learning-dml&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#double-machine-learning-dml&#34;&gt;
+        
     &lt;/a&gt;
     Double Machine Learning (DML)
 &lt;/div&gt;
@@ -274,6 +290,7 @@ $\hat{\tau_i} = \frac{1}{n_i} \sum_{i} \hat{P}^{-i}(Y^{a=1} | x_i) - \hat{P}^{-i
 &lt;h3 id=&#34;causal-inference---instrumental-variables&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#causal-inference---instrumental-variables&#34;&gt;
+        
     &lt;/a&gt;
     Causal Inference - Instrumental Variables
 &lt;/div&gt;
@@ -307,6 +324,7 @@ compare the results to ensure the robustness of the conclusions.&lt;/p&gt;
 &lt;h2 id=&#34;root-cause-optimization&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#root-cause-optimization&#34;&gt;
+        
     &lt;/a&gt;
     Root Cause Optimization
 &lt;/div&gt;
@@ -329,6 +347,7 @@ such as grid search, random search and bayesian optimization can be used to find
 &lt;h2 id=&#34;appendix&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#appendix&#34;&gt;
+        
     &lt;/a&gt;
     Appendix
 &lt;/div&gt;
@@ -336,6 +355,7 @@ such as grid search, random search and bayesian optimization can be used to find
 &lt;h3 id=&#34;do-calculus&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#do-calculus&#34;&gt;
+        
     &lt;/a&gt;
     Do Calculus
 &lt;/div&gt;
@@ -351,6 +371,7 @@ $ATE = E[Y^{a=1}] - E[Y^{a=0}] = E[Y|do(A=1)] - E[Y|do(A=0)]$
 &lt;h2 id=&#34;citation&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#citation&#34;&gt;
+        
     &lt;/a&gt;
     Citation
 &lt;/div&gt;
@@ -370,6 +391,7 @@ $ATE = E[Y^{a=1}] - E[Y^{a=0}] = E[Y|do(A=1)] - E[Y|do(A=0)]$
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;reference&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#reference&#34;&gt;
+        
     &lt;/a&gt;
     Reference
 &lt;/div&gt;
