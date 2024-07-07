@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Deep Reinforcement Learning on Bingz Learning Blog</title>
+    <link>/tags/deep-reinforcement-learning/</link>
+    <description>Bingz Learning Blog (Deep Reinforcement Learning)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <managingEditor>bingwang8878@gamil.com (Bing Wang)</managingEditor>
+    <webMaster>bingwang8878@gamil.com (Bing Wang)</webMaster>
+    <lastBuildDate>Fri, 05 Jul 2024 20:59:39 -0700</lastBuildDate>
+    
+    <atom:link href="/tags/deep-reinforcement-learning/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>A Journey to Reinforcement Learning</title>
+      <link>/posts/2024-07-05-rf-learning/</link>
+      <pubDate>Fri, 05 Jul 2024 20:59:39 -0700</pubDate>
+      <author>bingwang8878@gamil.com (Bing Wang)</author>
+      <guid>/posts/2024-07-05-rf-learning/</guid>
+      <description>&lt;h2 id=&#34;basic-problem-statement-of-reinforcement-learning&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#basic-problem-statement-of-reinforcement-learning&#34;&gt;
+        
+    &lt;/a&gt;
+    Basic Problem Statement of Reinforcement Learning
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;h2 id=&#34;model-based---when-the-environment-is-given&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#model-based---when-the-environment-is-given&#34;&gt;
+        
+    &lt;/a&gt;
+    Model Based - When the environment is given
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;h3 id=&#34;dynamic-programming&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#dynamic-programming&#34;&gt;
+        
+    &lt;/a&gt;
+    Dynamic Programming
+&lt;/div&gt;
+&lt;/h3&gt;
+&lt;h2 id=&#34;model-free---when-the-environment-is-unknown&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#model-free---when-the-environment-is-unknown&#34;&gt;
+        
+    &lt;/a&gt;
+    Model Free - When the environment is unknown
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;h2 id=&#34;value-based&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#value-based&#34;&gt;
+        
+    &lt;/a&gt;
+    Value Based
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;h3 id=&#34;on-policy&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#on-policy&#34;&gt;
+        
+    &lt;/a&gt;
+    On-Policy
+&lt;/div&gt;
+&lt;/h3&gt;
+&lt;h4 id=&#34;sarsa&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#sarsa&#34;&gt;
+        
+    &lt;/a&gt;
+    SARSA
+&lt;/div&gt;
+&lt;/h4&gt;
+&lt;h3 id=&#34;off-policy&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#off-policy&#34;&gt;
+        
+    &lt;/a&gt;
+    Off-Policy
+&lt;/div&gt;
+&lt;/h3&gt;
+&lt;h4 id=&#34;q-learning&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#q-learning&#34;&gt;
+        
+    &lt;/a&gt;
+    Q-Learning
+&lt;/div&gt;
+&lt;/h4&gt;
+&lt;h4 id=&#34;deep-q-network-dqn&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#deep-q-network-dqn&#34;&gt;
+        
+    &lt;/a&gt;
+    Deep Q Network (DQN)
+&lt;/div&gt;
+&lt;/h4&gt;
+&lt;h2 id=&#34;policy-based&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#policy-based&#34;&gt;
+        
+    &lt;/a&gt;
+    Policy Based
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;h3 id=&#34;gradient-based&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#gradient-based&#34;&gt;
+        
+    &lt;/a&gt;
+    Gradient Based
+&lt;/div&gt;
+&lt;/h3&gt;
+&lt;h4 id=&#34;policy-gradient&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#policy-gradient&#34;&gt;
+        
+    &lt;/a&gt;
+    Policy Gradient
+&lt;/div&gt;
+&lt;/h4&gt;
+&lt;h4 id=&#34;trpoppo&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#trpoppo&#34;&gt;
+        
+    &lt;/a&gt;
+    TRPO/PPO
+&lt;/div&gt;
+&lt;/h4&gt;
+&lt;h4 id=&#34;actor-critic-ac&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#actor-critic-ac&#34;&gt;
+        
+    &lt;/a&gt;
+    Actor Critic (AC)
+&lt;/div&gt;
+&lt;/h4&gt;
+&lt;h3 id=&#34;gradient-free&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#gradient-free&#34;&gt;
+        
+    &lt;/a&gt;
+    Gradient Free
+&lt;/div&gt;
+&lt;/h3&gt;
+&lt;h4 id=&#34;cross-entropy-method&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#cross-entropy-method&#34;&gt;
+        
+    &lt;/a&gt;
+    Cross-Entropy Method
+&lt;/div&gt;
+&lt;/h4&gt;
+&lt;h4 id=&#34;evolution-strategy&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#evolution-strategy&#34;&gt;
+        
+    &lt;/a&gt;
+    Evolution Strategy
+&lt;/div&gt;
+&lt;/h4&gt;
+&lt;h2 id=&#34;summary&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#summary&#34;&gt;
+        
+    &lt;/a&gt;
+    Summary
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;h2 id=&#34;citation&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#citation&#34;&gt;
+        
+    &lt;/a&gt;
+    Citation
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;h2 id=&#34;reference&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#reference&#34;&gt;
+        
+    &lt;/a&gt;
+    Reference
+&lt;/div&gt;
+&lt;/h2&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

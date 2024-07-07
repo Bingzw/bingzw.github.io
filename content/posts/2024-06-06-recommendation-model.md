@@ -3,7 +3,7 @@ title: "Recommendation Models"
 date: 2024-06-06T22:04:53-07:00
 draft: false
 description: "An introduction to recommendation models"
-tags: ['Machine learning', 'Deep Learning', 'Recommendation', 'Ranking', 'Personalization']
+tags: ['Machine learning', 'Deep Learning', 'Recommendation', 'Ranking', 'Personalization', 'Neural Network']
 ---
 <p align="center">
 <img src="/recommendation_model/reco.jpeg" width="600" height="400"><br>

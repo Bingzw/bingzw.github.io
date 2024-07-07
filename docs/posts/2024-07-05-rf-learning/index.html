@@ -10,12 +10,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="referrer" content="no-referrer-when-downgrade">
 
-<title>About - Bingz Learning Blog</title>
+<title>A Journey to Reinforcement Learning - Bingz Learning Blog</title>
 
-<meta name="description" content="Welcome to Bingz Blog! 👋
-This is a space where we share our knowledge and experiences about Machine Learning and Artificial Intelligence. 💡
-We hope you enjoy reading our posts and find them helpful and informative. 📖 We&rsquo;d Love to Hear From You! 📫
-If you have any questions or comments, please feel free to reach out to us. We would love to hear from you!">
+<meta name="description" content="An summary of reinforcement learning algorithms">
 
 
 
@@ -407,7 +404,7 @@ If you have any questions or comments, please feel free to reach out to us. We w
     <article class="post h-entry">
         <div class="post-header">
             <header>
-                <h1 class="p-name post-title">About</h1>
+                <h1 class="p-name post-title">A Journey to Reinforcement Learning</h1>
                 
 
             </header>
@@ -417,13 +414,31 @@ If you have any questions or comments, please feel free to reach out to us. We w
 
 <div class="post-info noselect">
     
+        <div class="post-date dt-published">
+            <time datetime="2024-07-05">2024-07-05</time>
+            
+        </div>
+    
 
-    <a class="post-hidden-url u-url" href="/about/">/about/</a>
+    <a class="post-hidden-url u-url" href="/posts/2024-07-05-rf-learning/">/posts/2024-07-05-rf-learning/</a>
     <a href="http://localhost:1313/" class="p-name p-author post-hidden-author h-card" rel="me"></a>
 
 
     <div class="post-taxonomies">
         
+        
+            <ul class="post-tags">
+                
+                    
+                    <li><a href="/tags/machine-learning/">#Machine Learning</a></li>
+                
+                    
+                    <li><a href="/tags/deep-reinforcement-learning/">#Deep Reinforcement Learning</a></li>
+                
+                    
+                    <li><a href="/tags/reinforcement-learning/">#Reinforcement Learning</a></li>
+                
+            </ul>
         
         
     </div>
@@ -439,6 +454,57 @@ If you have any questions or comments, please feel free to reach out to us. We w
 
 
   
+  
+  
+  <details class="toc noselect">
+    <summary>Table of Contents</summary>
+    <div class="inner"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#basic-problem-statement-of-reinforcement-learning">Basic Problem Statement of Reinforcement Learning</a></li>
+    <li><a href="#model-based---when-the-environment-is-given">Model Based - When the environment is given</a>
+      <ul>
+        <li><a href="#dynamic-programming">Dynamic Programming</a></li>
+      </ul>
+    </li>
+    <li><a href="#model-free---when-the-environment-is-unknown">Model Free - When the environment is unknown</a></li>
+    <li><a href="#value-based">Value Based</a>
+      <ul>
+        <li><a href="#on-policy">On-Policy</a>
+          <ul>
+            <li><a href="#sarsa">SARSA</a></li>
+          </ul>
+        </li>
+        <li><a href="#off-policy">Off-Policy</a>
+          <ul>
+            <li><a href="#q-learning">Q-Learning</a></li>
+            <li><a href="#deep-q-network-dqn">Deep Q Network (DQN)</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li><a href="#policy-based">Policy Based</a>
+      <ul>
+        <li><a href="#gradient-based">Gradient Based</a>
+          <ul>
+            <li><a href="#policy-gradient">Policy Gradient</a></li>
+            <li><a href="#trpoppo">TRPO/PPO</a></li>
+            <li><a href="#actor-critic-ac">Actor Critic (AC)</a></li>
+          </ul>
+        </li>
+        <li><a href="#gradient-free">Gradient Free</a>
+          <ul>
+            <li><a href="#cross-entropy-method">Cross-Entropy Method</a></li>
+            <li><a href="#evolution-strategy">Evolution Strategy</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li><a href="#summary">Summary</a></li>
+    <li><a href="#citation">Citation</a></li>
+    <li><a href="#reference">Reference</a></li>
+  </ul>
+</nav></div>
+  </details>
   
 
 
@@ -462,11 +528,221 @@ If you have any questions or comments, please feel free to reach out to us. We w
 </script>
 
         <div class="content e-content">
-            <p><strong>Welcome to Bingz Blog! 👋</strong></p>
-<p>This is a space where we share our knowledge and experiences about <strong>Machine Learning</strong> and <strong>Artificial Intelligence</strong>. 💡</p>
-<p>We hope you enjoy reading our posts and find them helpful and informative. 📖 We&rsquo;d Love to Hear From You! 📫</p>
-<p>If you have any questions or comments, please feel free to reach out to us. We would love to hear from you!</p>
-
+            <p align="center">
+<img src="/rf/rf.png" width="600" height="400"><br>
+<em>Figure 1: basic RL model</em>
+<p>
+<p><em>Image cited from <sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup></em></p>
+<h2 id="basic-problem-statement-of-reinforcement-learning" >
+<div>
+    <a href="#basic-problem-statement-of-reinforcement-learning">
+        
+    </a>
+    Basic Problem Statement of Reinforcement Learning
+</div>
+</h2>
+<p>Reinforcement Learning (RL) is a type of machine learning where an agent learns to make decisions by taking actions in
+an environment to maximize cumulative reward. Unlike supervised learning, where the model is trained on a fixed dataset,
+RL involves learning through interaction with the environment. Let&rsquo;s define some basic elements in RL domain.</p>
+<ul>
+<li><strong>Agent</strong>: The learner or decision maker.</li>
+<li><strong>Environment</strong>: The external system the agent interacts with.</li>
+<li><strong>State</strong> $S$: A representation of the current situation of the agent.</li>
+<li><strong>Action</strong> $A$: The set of all possible moves the agent can make.</li>
+<li><strong>Reward</strong> $R$: A feedback signal from the environment to evaluate the agent&rsquo;s action.</li>
+<li><strong>Policy $\pi$</strong>: A strategy used by the agent to determine the next action based on the current state. It&rsquo;s usually
+a probability function $\pi: S\times A$ -&gt; $[0, 1]$</li>
+<li><strong>Value Function $V(s)$</strong>: A function that estimates the expected cumulative reward from a given state.</li>
+<li><strong>Q-Function $Q(s, a)$</strong>: A function that estimates the expected cumulative reward from a given state-action pair.</li>
+</ul>
+<p>As it can be seen in <em>Figure 1</em>, the general workflow of RL involves</p>
+<ol>
+<li>Observe the state $s_t$ (and reward $r_t$), the state can be any representation of the current situation or context in which the agent operates.
+Note that the state space $S$ can be either <strong>finite</strong> or <strong>infinite</strong>.</li>
+<li>Based on the current policy $\pi$, the agent selects an action $a_t \in A$ to perform. The selection can be <strong>deterministic</strong>
+or <strong>stochastic</strong> depending on the policy.</li>
+<li>The agent performs the selected action $a_t$ in the environment (can also be either <strong>known</strong> or <strong>unknown</strong>).</li>
+<li>After performing the action, the agent receives a reward $r_{t+1}$ from the environment and observes the next state $s_{t+1}$.</li>
+<li>The agent updates its <strong>policy</strong> $\pi(a_t|s_t)$ and <strong>value functions</strong> $V(s_t)$ or $Q(s_t, a_t)$ based on the observed reward $r_t$
+and next state $s_{t+1}$. The update rule varies depending on the RL algorithm used. (Note that the policy learned in step 5
+can be either the <strong>same (on policy)</strong> or <strong>different (off policy)</strong> with the ones in step 2)</li>
+<li>The agent repeats again from step 1 and continues this iterative process until the policy converges, meaning it has
+learned an optimal or near-optimal policy that maximizes cumulative rewards over time.</li>
+</ol>
+<p>Reinforcement Learning (RL) derives its name from the concept of &ldquo;reinforcement&rdquo; in behavioral psychology, where learning
+occurs through rewards and punishments. The agent learns to make decisions by receiving feedback in the form of rewards or
+penalties. Positive outcomes reinforce the actions that led to them, strengthening the behavior. The learning process is kind
+of a process of <strong>&ldquo;Trial and Error&rdquo;</strong>, where the agent explores different actions to discover which ones yield the highest rewards.
+Long-term beneficial actions are reinforced through repeated positive outcomes.</p>
+<p>Now let&rsquo;s start with the most influential and fundamental RL model - Markov Decision Process (MDP). Our fantastic journey begins here.</p>
+<h2 id="model-based---when-the-environment-is-given" >
+<div>
+    <a href="#model-based---when-the-environment-is-given">
+        
+    </a>
+    Model Based - When the environment is given
+</div>
+</h2>
+<h3 id="dynamic-programming" >
+<div>
+    <a href="#dynamic-programming">
+        
+    </a>
+    Dynamic Programming
+</div>
+</h3>
+<h2 id="model-free---when-the-environment-is-unknown" >
+<div>
+    <a href="#model-free---when-the-environment-is-unknown">
+        
+    </a>
+    Model Free - When the environment is unknown
+</div>
+</h2>
+<h2 id="value-based" >
+<div>
+    <a href="#value-based">
+        
+    </a>
+    Value Based
+</div>
+</h2>
+<h3 id="on-policy" >
+<div>
+    <a href="#on-policy">
+        
+    </a>
+    On-Policy
+</div>
+</h3>
+<h4 id="sarsa" >
+<div>
+    <a href="#sarsa">
+        
+    </a>
+    SARSA
+</div>
+</h4>
+<h3 id="off-policy" >
+<div>
+    <a href="#off-policy">
+        
+    </a>
+    Off-Policy
+</div>
+</h3>
+<h4 id="q-learning" >
+<div>
+    <a href="#q-learning">
+        
+    </a>
+    Q-Learning
+</div>
+</h4>
+<h4 id="deep-q-network-dqn" >
+<div>
+    <a href="#deep-q-network-dqn">
+        
+    </a>
+    Deep Q Network (DQN)
+</div>
+</h4>
+<h2 id="policy-based" >
+<div>
+    <a href="#policy-based">
+        
+    </a>
+    Policy Based
+</div>
+</h2>
+<h3 id="gradient-based" >
+<div>
+    <a href="#gradient-based">
+        
+    </a>
+    Gradient Based
+</div>
+</h3>
+<h4 id="policy-gradient" >
+<div>
+    <a href="#policy-gradient">
+        
+    </a>
+    Policy Gradient
+</div>
+</h4>
+<h4 id="trpoppo" >
+<div>
+    <a href="#trpoppo">
+        
+    </a>
+    TRPO/PPO
+</div>
+</h4>
+<h4 id="actor-critic-ac" >
+<div>
+    <a href="#actor-critic-ac">
+        
+    </a>
+    Actor Critic (AC)
+</div>
+</h4>
+<h3 id="gradient-free" >
+<div>
+    <a href="#gradient-free">
+        
+    </a>
+    Gradient Free
+</div>
+</h3>
+<h4 id="cross-entropy-method" >
+<div>
+    <a href="#cross-entropy-method">
+        
+    </a>
+    Cross-Entropy Method
+</div>
+</h4>
+<h4 id="evolution-strategy" >
+<div>
+    <a href="#evolution-strategy">
+        
+    </a>
+    Evolution Strategy
+</div>
+</h4>
+<h2 id="summary" >
+<div>
+    <a href="#summary">
+        
+    </a>
+    Summary
+</div>
+</h2>
+<h2 id="citation" >
+<div>
+    <a href="#citation">
+        
+    </a>
+    Citation
+</div>
+</h2>
+<h2 id="reference" >
+<div>
+    <a href="#reference">
+        
+    </a>
+    Reference
+</div>
+</h2>
+<div class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1">
+<p><a href="https://www.mdpi.com/2076-3417/13/4/2443">Souchleris, Konstantinos, George K. Sidiropoulos, and George A. Papakostas. &ldquo;Reinforcement learning in game industry—review, prospects and challenges.&rdquo; Applied Sciences 13.4 (2023): 2443</a>&#160;<a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+</ol>
+</div>
         </div>
 
     </article>
@@ -478,6 +754,13 @@ If you have any questions or comments, please feel free to reach out to us. We w
 
     
         
+        
+            <h3 class="read-next-title noselect">Read next</h3>
+            <ul class="read-next-posts noselect">
+                
+                <li><a href="/posts/2024-06-06-recommendation-model/">Recommendation Models</a></li>
+                
+            </ul>
         
     
 
