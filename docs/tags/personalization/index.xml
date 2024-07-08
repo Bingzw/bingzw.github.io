@@ -20,7 +20,7 @@
       <author>bingwang8878@gamil.com (Bing Wang)</author>
       <guid>/posts/2024-06-06-recommendation-model/</guid>
       <description>&lt;p align=&#34;center&#34;&gt;
-&lt;img src=&#34;https://bingzw.github.io/recommendation_model/reco.jpeg&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+&lt;img src=&#34;http://localhost:1313/recommendation_model/reco.jpeg&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
 &lt;p&gt;
 &lt;p&gt;&lt;em&gt;Image cited from &lt;a href=&#34;https://www.vecteezy.com/&#34;&gt;vecteezy&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
 &lt;h2 id=&#34;introduction-to-recommendation-models&#34; &gt;
@@ -154,7 +154,7 @@ architecture to the collaborative filtering domain. CDAE is designed to handle i
 are inferred from user behavior rather than explicit ratings. The model incorporates both user-specific and item-specific
 factors, leveraging the rich user interaction data to learn better representations for recommendation tasks.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-    &lt;img src=&#34;https://bingzw.github.io/recommendation_model/autoencoder_mf.png&#34;&gt;&lt;br&gt;
+    &lt;img src=&#34;http://localhost:1313/recommendation_model/autoencoder_mf.png&#34;&gt;&lt;br&gt;
     &lt;em&gt;Figure 1: deep auto-encoder&lt;/em&gt;
 &lt;/p&gt;
 &lt;h5 id=&#34;neural-collaborative-filtering3&#34; &gt;
@@ -174,7 +174,7 @@ that learn the interaction between these embeddings. The final output layer pred
 item. This approach not only improves the accuracy of recommendations but also enables the integration of additional
 features, such as user demographics or item attributes, into the model. Refer to the DLRM or DeepFM for more details.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-    &lt;img src=&#34;https://bingzw.github.io/recommendation_model/ncf_mf.png&#34;&gt;&lt;br&gt;
+    &lt;img src=&#34;http://localhost:1313/recommendation_model/ncf_mf.png&#34;&gt;&lt;br&gt;
     &lt;em&gt;Figure 2: neural collaborative filtering&lt;/em&gt;
 &lt;/p&gt;
 &lt;h2 id=&#34;content-based-models-ranking-as-recommendation&#34; &gt;
@@ -229,7 +229,7 @@ $$&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
 &lt;p align=&#34;center&#34;&gt;
-   &lt;img src=&#34;https://bingzw.github.io/recommendation_model/wide_deep.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
+   &lt;img src=&#34;http://localhost:1313/recommendation_model/wide_deep.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
    &lt;em&gt;Figure 3: wide &amp; deep model&lt;/em&gt;
 &lt;/p&gt;
 &lt;h3 id=&#34;deepfm5&#34; &gt;
@@ -272,7 +272,7 @@ activation of the last hidden layer.&lt;/p&gt;
 &lt;p&gt;$$\hat{y} = \sigma(y_{\text{FM}} + y_{\text{deep}})$$&lt;/p&gt;
 &lt;p&gt;where $\sigma$ is the sigmoid function used to squash the output to a probability score.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-   &lt;img src=&#34;https://bingzw.github.io/recommendation_model/deepfm.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+   &lt;img src=&#34;http://localhost:1313/recommendation_model/deepfm.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
    &lt;em&gt;Figure 4: deepfm model&lt;/em&gt;
 &lt;/p&gt;
 &lt;h3 id=&#34;deep-learning-recommendation-model-dlrm6&#34; &gt;
@@ -289,7 +289,7 @@ systems in environments such as social media platforms, e-commerce, and online a
 strengths of collaborative filtering and content-based methods by utilizing both dense and sparse features to provide
 highly accurate and scalable recommendations.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-   &lt;img src=&#34;https://bingzw.github.io/recommendation_model/dlrm.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+   &lt;img src=&#34;http://localhost:1313/recommendation_model/dlrm.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
    &lt;em&gt;Figure 5: deep learning recommendation model&lt;/em&gt;
 &lt;/p&gt;
 &lt;p&gt;Key components of DLRM includes&lt;/p&gt;
@@ -365,7 +365,7 @@ biases of the $l$-th layer, respectively, and $f_{l}$ is the activation function
 &lt;p&gt;The final prediction is a combination of the outputs from either the hidden layer (stacked structure) or the  concatenation
 of cross and deep network outputs.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-   &lt;img src=&#34;https://bingzw.github.io/recommendation_model/dcn_v2.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+   &lt;img src=&#34;http://localhost:1313/recommendation_model/dcn_v2.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
    &lt;em&gt;Figure 6: deep cross network v2&lt;/em&gt;
 &lt;/p&gt;
 &lt;h3 id=&#34;deep-interest-network-din8&#34; &gt;
@@ -382,7 +382,7 @@ DIN leverages a user&amp;rsquo;s historical behavior to make more accurate and c
 innovation in DIN is its ability to capture user interests dynamically and use this information to influence the recommendation
 process.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-   &lt;img src=&#34;https://bingzw.github.io/recommendation_model/din.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
+   &lt;img src=&#34;http://localhost:1313/recommendation_model/din.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
    &lt;em&gt;Figure 7: deep interest network&lt;/em&gt;
 &lt;/p&gt;
 &lt;p&gt;In particular, the DIN contains the following key components:&lt;/p&gt;
@@ -430,7 +430,7 @@ mixture-of-experts models with the flexibility of multi-gate mechanisms, allowin
 computational resources based on the specific needs of each task. This approach is particularly useful in scenarios
 where tasks are interrelated and can benefit from shared learning while maintaining task-specific adaptations.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-   &lt;img src=&#34;https://bingzw.github.io/recommendation_model/mmoe.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
+   &lt;img src=&#34;http://localhost:1313/recommendation_model/mmoe.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
    &lt;em&gt;Figure 8: multi-gate mixture of experts&lt;/em&gt;
 &lt;/p&gt;
 &lt;p&gt;Key components of the model architecture are:&lt;/p&gt;
@@ -477,7 +477,7 @@ sequences in recommendation systems. BST leverages the power of Transformer mode
 success in natural language processing (NLP), to capture the sequential patterns and contextual dependencies in user
 interactions over time. This approach enhances the ability to predict user preferences and improve recommendation accuracy.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-   &lt;img src=&#34;https://bingzw.github.io/recommendation_model/bst.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
+   &lt;img src=&#34;http://localhost:1313/recommendation_model/bst.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
    &lt;em&gt;Figure 9: behavior sequence transformer&lt;/em&gt;
 &lt;/p&gt;
 &lt;p&gt;Key components of BST include:&lt;/p&gt;
