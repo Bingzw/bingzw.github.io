@@ -20,7 +20,7 @@
       <author>bingwang8878@gamil.com (Bing Wang)</author>
       <guid>/posts/2024-07-05-rf-learning/</guid>
       <description>&lt;p align=&#34;center&#34;&gt;
-&lt;img src=&#34;http://localhost:1313/rf/rf.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+&lt;img src=&#34;https://bingzw.github.io/rf/rf.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
 &lt;em&gt;Figure 1: basic RL model&lt;/em&gt;
 &lt;p&gt;
 &lt;p&gt;&lt;em&gt;Image cited from &lt;sup id=&#34;fnref:1&#34;&gt;&lt;a href=&#34;#fn:1&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;1&lt;/a&gt;&lt;/sup&gt;&lt;/em&gt;&lt;/p&gt;
@@ -40,11 +40,16 @@ RL involves learning through interaction with the environment. Let&amp;rsquo;s d
 &lt;li&gt;&lt;strong&gt;Environment&lt;/strong&gt;: The external system the agent interacts with.&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;State&lt;/strong&gt; $S$: A representation of the current situation of the agent.&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;Action&lt;/strong&gt; $A$: The set of all possible moves the agent can make.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Reward&lt;/strong&gt; $R$: A feedback signal from the environment to evaluate the agent&amp;rsquo;s action.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Reward&lt;/strong&gt; $R$: A feedback signal from the environment to evaluate the agent&amp;rsquo;s action.
+&lt;ul&gt;
+&lt;li&gt;A factor $\gamma$ between 0 and 1 that represents the difference in importance between future rewards and immediate rewards is
+usually used to prioritize short-term rewards over long-term rewards&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;Policy $\pi$&lt;/strong&gt;: A strategy used by the agent to determine the next action based on the current state. It&amp;rsquo;s usually
 a probability function $\pi: S\times A$ -&amp;gt; $[0, 1]$&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Value Function $V(s)$&lt;/strong&gt;: A function that estimates the expected cumulative reward from a given state.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Q-Function $Q(s, a)$&lt;/strong&gt;: A function that estimates the expected cumulative reward from a given state-action pair.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Value Function $V_{\pi}(s)$&lt;/strong&gt;: A function that estimates the expected cumulative reward from a given state with the policy $\pi$.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Q-Function $Q_{\pi}(s, a)$&lt;/strong&gt;: A function that estimates the expected cumulative reward from a given state-action pair with the policy $\pi$.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;As it can be seen in &lt;em&gt;Figure 1&lt;/em&gt;, the general workflow of RL involves&lt;/p&gt;
 &lt;ol&gt;
@@ -53,8 +58,9 @@ Note that the state space $S$ can be either &lt;strong&gt;finite&lt;/strong&gt; 
 &lt;li&gt;Based on the current policy $\pi$, the agent selects an action $a_t \in A$ to perform. The selection can be &lt;strong&gt;deterministic&lt;/strong&gt;
 or &lt;strong&gt;stochastic&lt;/strong&gt; depending on the policy.&lt;/li&gt;
 &lt;li&gt;The agent performs the selected action $a_t$ in the environment (can also be either &lt;strong&gt;known&lt;/strong&gt; or &lt;strong&gt;unknown&lt;/strong&gt;).&lt;/li&gt;
-&lt;li&gt;After performing the action, the agent receives a reward $r_{t+1}$ from the environment and observes the next state $s_{t+1}$.&lt;/li&gt;
-&lt;li&gt;The agent updates its &lt;strong&gt;policy&lt;/strong&gt; $\pi(a_t|s_t)$ and &lt;strong&gt;value functions&lt;/strong&gt; $V(s_t)$ or $Q(s_t, a_t)$ based on the observed reward $r_t$
+&lt;li&gt;After performing the action, the agent receives a reward $r_{t+1}$ from the environment and observes the next state $s_{t+1}$.
+The mechanism of moving from one state to another given a specific action is modeled by a probability function, denoted as $P(s_{t+1} \mid s_t, a_t)$.&lt;/li&gt;
+&lt;li&gt;The agent updates its &lt;strong&gt;policy&lt;/strong&gt; $\pi(a_t \mid s_t)$ and &lt;strong&gt;value functions&lt;/strong&gt; $V(s_t)$ or $Q(s_t, a_t)$ based on the observed reward $r_t$
 and next state $s_{t+1}$. The update rule varies depending on the RL algorithm used. (Note that the policy learned in step 5
 can be either the &lt;strong&gt;same (on policy)&lt;/strong&gt; or &lt;strong&gt;different (off policy)&lt;/strong&gt; with the ones in step 2)&lt;/li&gt;
 &lt;li&gt;The agent repeats again from step 1 and continues this iterative process until the policy converges, meaning it has
@@ -66,6 +72,111 @@ penalties. Positive outcomes reinforce the actions that led to them, strengtheni
 of a process of &lt;strong&gt;&amp;ldquo;Trial and Error&amp;rdquo;&lt;/strong&gt;, where the agent explores different actions to discover which ones yield the highest rewards.
 Long-term beneficial actions are reinforced through repeated positive outcomes.&lt;/p&gt;
 &lt;p&gt;Now let&amp;rsquo;s start with the most influential and fundamental RL model - Markov Decision Process (MDP). Our fantastic journey begins here.&lt;/p&gt;
+&lt;h3 id=&#34;markov-decision-process-mdp&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#markov-decision-process-mdp&#34;&gt;
+        
+    &lt;/a&gt;
+    Markov Decision Process (MDP)
+&lt;/div&gt;
+&lt;/h3&gt;
+&lt;p&gt;Let&amp;rsquo;s be more specific about the above settings to realize the MDP. Assume the state space $S$ and action space $A$ are finite,
+the process is equipped with the markov property, that is, $P(s_{t+1} \mid h_t) = P(s_{t+1} \mid s_t, a_t)$, where $h_t = \{ s_1, a_1, &amp;hellip; , s_t, a_t \}$
+denotes the history of states and actions.&lt;/p&gt;
+&lt;p&gt;Suppose the agent is interacting with the environment for a total $T$ steps (horizon). Let&amp;rsquo;s define the total reward after time $t$ as
+$$
+G_t = r_{t+1} + \gamma r_{t+2} + \gamma^2 r_{t+3} + &amp;hellip; + \gamma^{T-t-1} r_T \tag{1.1}
+$$
+The value function is defined as
+$$
+V_{\pi}(s) = \mathbb{E}_{\pi}[G_t \mid s_t=s] \tag{1.2}
+$$&lt;/p&gt;
+&lt;p&gt;The value action function $Q$ is defined as&lt;/p&gt;
+&lt;p&gt;$$
+Q_{\pi}(s, a) = \mathbb{E}_{\pi}[G_t \mid s_t=s, a_t=a] \tag{1.3}
+$$&lt;/p&gt;
+&lt;p&gt;From the above definition, it&amp;rsquo;s easy to derive the connection between $V$ and $Q$. In particular, when marginalizing the action,
+we are able to convert $Q$ function to $V$ value function.&lt;/p&gt;
+&lt;p&gt;$$
+V_{\pi}(s) = \sum_{a \in A} \pi(a \mid s)Q_{\pi}(s, a) \tag{1.4}
+$$&lt;/p&gt;
+&lt;p&gt;when converting $V$ to $Q$, we can see that&lt;/p&gt;
+&lt;p align=&#34;center&#34;&gt;
+\begin{aligned}
+Q_{\pi}(s, a) &amp;= \mathbb{E}_{\pi}[G_t \mid s_t=s, a_t=a] \\
+&amp;= \mathbb{E}_{\pi}[r_{t+1} + \gamma r_{t+2} + \gamma^2 r_{t+3} + ... \mid s_t=s, a_t=a] \\
+&amp;= \mathbb{E}_{\pi}[r_{t+1} \mid s_t=s, a_t=a] + \gamma \mathbb{E}_{\pi}[r_{t+2} + \gamma r_{t+3} + ... \mid s_t=s, a_t=a] \\
+&amp;= R(s, a) + \gamma \mathbb{E}_{\pi}[G_{t+1} \mid s_t=s, a_t=a] \\
+&amp;= R(s, a) + \gamma \mathbb{E}_{\pi}[V_{\pi}(s_{t+1}) \mid s_t=s, a_t=a] \\
+&amp;= R(s, a) + \gamma \sum_{s&#39; \in S} p(s&#39; \mid s, a) V_{\pi}(s&#39;) \hspace{15.5em} \text{(1.5)}
+\end{aligned}
+&lt;/p&gt;
+&lt;h4 id=&#34;bellman-expectation-equation&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#bellman-expectation-equation&#34;&gt;
+        
+    &lt;/a&gt;
+    Bellman Expectation Equation
+&lt;/div&gt;
+&lt;/h4&gt;
+&lt;p&gt;From (1.2), we can express the value function in an recursive way.
+$$
+V_{\pi}(s) = E_{\pi}[r_{t+1} + \gamma V_{\pi}(s_{t+1})|s_t=s] \tag{1.6}
+$$
+Similarly, the state action function can also be written recursively
+$$
+Q_{\pi}(s, a) = E_{\pi}[r_{t+1} + \gamma Q_{\pi}(s_{t+1}, a_{t+1})|s_t=s, a_t=a] \tag{1.7}
+$$
+Furthermore, equation (1.5) also expressed the current-future connection between $V$ and $Q$. So if we plug equation
+(1.5) in (1.4), then we would get
+$$
+V_{\pi}(s) = \sum_{a \in A} \pi(a \mid s)(R(s, a) + \gamma \sum_{s&amp;rsquo; \in S} p(s&amp;rsquo; \mid s, a) V_{\pi}(s&amp;rsquo;)) \tag{1.8}
+$$
+which denotes the connection of value function at current state and future state.
+On the other hand, if (1.4) is plugged in (1.5), we can see
+$$
+Q_{\pi}(s, a) = R(s, a) + \gamma \sum_{s&amp;rsquo; \in S} p(s&amp;rsquo; \mid s, a) \sum_{a&amp;rsquo; \in A} \pi(a&amp;rsquo; \mid s&amp;rsquo;)Q_{\pi}(s&amp;rsquo;, a&amp;rsquo;) \tag{1.9}
+$$
+which builds the connection of the action value function between the current and future state action pairs. By comparing
+(1.6) and (1.8), (1.7) and (1.9), it&amp;rsquo;s easy to observe that (1.8) and (1.9) actually implements the expectation expression explicitly.&lt;/p&gt;
+&lt;p&gt;A visualized interpretation of (1.8) and (1.9) is backup diagram.&lt;/p&gt;
+&lt;p align=&#34;center&#34;&gt;
+    &lt;img src=&#34;https://bingzw.github.io/rf/backup.png&#34;&gt;&lt;br&gt;
+    &lt;em&gt;Figure 2: Backup Diagram&lt;/em&gt;
+&lt;/p&gt;
+&lt;h4 id=&#34;bellman-optimal-equation&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#bellman-optimal-equation&#34;&gt;
+        
+    &lt;/a&gt;
+    Bellman Optimal Equation
+&lt;/div&gt;
+&lt;/h4&gt;
+&lt;p&gt;The goal of reinforcement learning is to find the optimal policy $\pi^*$ such that the value function is maximized.&lt;/p&gt;
+&lt;p&gt;$$
+\pi^*(s) = \arg \max_{\pi} V_{\pi}(s)
+$$&lt;/p&gt;
+&lt;p&gt;when this is achieved, the optimal value function is $V^*(s) = max_{\pi}V_{\pi}(s), \forall s \in S$. At this time,
+the optimal value function can also be achieved by selecting the best action under the optimal policy&lt;/p&gt;
+&lt;p&gt;$$
+V^* (s) = \max_{a} Q^* (s, a) \tag{1.10}
+$$&lt;/p&gt;
+&lt;p&gt;where $Q^* (s, a) = \arg \max_{\pi} Q_{\pi}(s, a)$, $\forall s \in S, a \in A$.&lt;/p&gt;
+&lt;p&gt;Let&amp;rsquo;s apply the optimal policy in (1.5) and we have&lt;/p&gt;
+&lt;p&gt;$$
+Q^* (s, a) = R(s, a) + \gamma \sum_{s&amp;rsquo; \in S} p(s&amp;rsquo; \mid s, a) V^*(s&amp;rsquo;) \tag{1.11}
+$$&lt;/p&gt;
+&lt;p&gt;When plugging (1.10) in (1.11), we get &lt;strong&gt;Bellman optimal equation&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;$$
+Q^* (s, a) = R(s, a) + \gamma \sum_{s&amp;rsquo; \in S} p(s&amp;rsquo; \mid s, a) \max_{a&amp;rsquo;} Q^* (s&amp;rsquo;, a&amp;rsquo;) \tag{1.12}
+$$&lt;/p&gt;
+&lt;p&gt;Similarly, plugging (1.11) in (1.10), the Bellman optimal value equation is&lt;/p&gt;
+&lt;p&gt;$$
+V^* (s) = \max_{a} \left( R(s, a) + \gamma \sum_{s&amp;rsquo; \in S} p(s&amp;rsquo; \mid s, a) V^* (s&amp;rsquo;) \right) \tag{1.13}
+$$&lt;/p&gt;
+&lt;p&gt;So far, we have introduced the main math modeling framework in RL. How shall we fit the real-life cases into this framework
+and get the best policy? What trade offs to make in each scenario? These are the main topics to cover in implementing the RL
+solutions.&lt;/p&gt;
 &lt;h2 id=&#34;model-based---when-the-environment-is-given&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#model-based---when-the-environment-is-given&#34;&gt;
@@ -98,46 +209,30 @@ Long-term beneficial actions are reinforced through repeated positive outcomes.&
     Value Based
 &lt;/div&gt;
 &lt;/h2&gt;
-&lt;h3 id=&#34;on-policy&#34; &gt;
+&lt;h3 id=&#34;on-policy-sarsa&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#on-policy&#34;&gt;
+    &lt;a href=&#34;#on-policy-sarsa&#34;&gt;
         
     &lt;/a&gt;
-    On-Policy
+    On-Policy: SARSA
 &lt;/div&gt;
 &lt;/h3&gt;
-&lt;h4 id=&#34;sarsa&#34; &gt;
+&lt;h3 id=&#34;off-policy-q-learning&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#sarsa&#34;&gt;
+    &lt;a href=&#34;#off-policy-q-learning&#34;&gt;
         
     &lt;/a&gt;
-    SARSA
-&lt;/div&gt;
-&lt;/h4&gt;
-&lt;h3 id=&#34;off-policy&#34; &gt;
-&lt;div&gt;
-    &lt;a href=&#34;#off-policy&#34;&gt;
-        
-    &lt;/a&gt;
-    Off-Policy
+    Off-Policy: Q-Learning
 &lt;/div&gt;
 &lt;/h3&gt;
-&lt;h4 id=&#34;q-learning&#34; &gt;
+&lt;h3 id=&#34;off-policy-deep-q-network-dqn&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#q-learning&#34;&gt;
+    &lt;a href=&#34;#off-policy-deep-q-network-dqn&#34;&gt;
         
     &lt;/a&gt;
-    Q-Learning
+    Off-Policy: Deep Q Network (DQN)
 &lt;/div&gt;
-&lt;/h4&gt;
-&lt;h4 id=&#34;deep-q-network-dqn&#34; &gt;
-&lt;div&gt;
-    &lt;a href=&#34;#deep-q-network-dqn&#34;&gt;
-        
-    &lt;/a&gt;
-    Deep Q Network (DQN)
-&lt;/div&gt;
-&lt;/h4&gt;
+&lt;/h3&gt;
 &lt;h2 id=&#34;policy-based&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#policy-based&#34;&gt;

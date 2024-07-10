@@ -87,17 +87,75 @@ Q_{\pi}(s, a) &= \mathbb{E}_{\pi}[G_t \mid s_t=s, a_t=a] \\
 &= \mathbb{E}_{\pi}[r_{t+1} \mid s_t=s, a_t=a] + \gamma \mathbb{E}_{\pi}[r_{t+2} + \gamma r_{t+3} + ... \mid s_t=s, a_t=a] \\
 &= R(s, a) + \gamma \mathbb{E}_{\pi}[G_{t+1} \mid s_t=s, a_t=a] \\
 &= R(s, a) + \gamma \mathbb{E}_{\pi}[V_{\pi}(s_{t+1}) \mid s_t=s, a_t=a] \\
-&= R(s, a) + \gamma \sum_{s' \in S} p(s' \mid s, a) V(s') \hspace{15.5em} \text{(1.5)}
+&= R(s, a) + \gamma \sum_{s' \in S} p(s' \mid s, a) V_{\pi}(s') \hspace{15.5em} \text{(1.5)}
 \end{aligned}
 </p>
 
 #### Bellman Expectation Equation
+From (1.2), we can express the value function in an recursive way.
+$$
+V_{\pi}(s) = E_{\pi}[r_{t+1} + \gamma V_{\pi}(s_{t+1})|s_t=s] \tag{1.6}
+$$
+Similarly, the state action function can also be written recursively
+$$
+Q_{\pi}(s, a) = E_{\pi}[r_{t+1} + \gamma Q_{\pi}(s_{t+1}, a_{t+1})|s_t=s, a_t=a] \tag{1.7}
+$$
+Furthermore, equation (1.5) also expressed the current-future connection between $V$ and $Q$. So if we plug equation 
+(1.5) in (1.4), then we would get 
+$$
+V_{\pi}(s) = \sum_{a \in A} \pi(a \mid s)(R(s, a) + \gamma \sum_{s' \in S} p(s' \mid s, a) V_{\pi}(s')) \tag{1.8}
+$$
+which denotes the connection of value function at current state and future state.
+On the other hand, if (1.4) is plugged in (1.5), we can see
+$$
+Q_{\pi}(s, a) = R(s, a) + \gamma \sum_{s' \in S} p(s' \mid s, a) \sum_{a' \in A} \pi(a' \mid s')Q_{\pi}(s', a') \tag{1.9}
+$$
+which builds the connection of the action value function between the current and future state action pairs. By comparing
+(1.6) and (1.8), (1.7) and (1.9), it's easy to observe that (1.8) and (1.9) actually implements the expectation expression explicitly. 
+
+A visualized interpretation of (1.8) and (1.9) is backup diagram. 
+<p align="center">
+    <img src="/rf/backup.png"><br>
+    <em>Figure 2: Backup Diagram</em>
+</p>
 
 #### Bellman Optimal Equation
+The goal of reinforcement learning is to find the optimal policy $\pi^*$ such that the value function is maximized.
 
+$$
+\pi^*(s) = \arg \max_{\pi} V_{\pi}(s)
+$$
 
+when this is achieved, the optimal value function is $V^*(s) = max_{\pi}V_{\pi}(s), \forall s \in S$. At this time, 
+the optimal value function can also be achieved by selecting the best action under the optimal policy
 
+$$
+V^* (s) = \max_{a} Q^* (s, a) \tag{1.10}
+$$
 
+where $Q^* (s, a) = \arg \max_{\pi} Q_{\pi}(s, a)$, $\forall s \in S, a \in A$.
+
+Let's apply the optimal policy in (1.5) and we have
+
+$$
+Q^* (s, a) = R(s, a) + \gamma \sum_{s' \in S} p(s' \mid s, a) V^*(s') \tag{1.11}
+$$
+
+When plugging (1.10) in (1.11), we get **Bellman optimal equation**
+
+$$
+Q^* (s, a) = R(s, a) + \gamma \sum_{s' \in S} p(s' \mid s, a) \max_{a'} Q^* (s', a') \tag{1.12}
+$$
+
+Similarly, plugging (1.11) in (1.10), the Bellman optimal value equation is
+
+$$
+V^* (s) = \max_{a} \left( R(s, a) + \gamma \sum_{s' \in S} p(s' \mid s, a) V^* (s') \right) \tag{1.13}
+$$
+
+So far, we have introduced the main math modeling framework in RL. How shall we fit the real-life cases into this framework 
+and get the best policy? What trade offs to make in each scenario? These are the main topics to cover in implementing the RL 
+solutions.
 
 ## Model Based - When the environment is given
 ### Dynamic Programming
