@@ -154,12 +154,34 @@ V^* (s) = \max_{a} \left( R(s, a) + \gamma \sum_{s' \in S} p(s' \mid s, a) V^* (
 $$
 
 So far, we have introduced the main math modeling framework in RL. How shall we fit the real-life cases into this framework 
-and get the best policy? What trade offs to make in each scenario? These are the main topics to cover in implementing the RL 
-solutions.
-
-## Model Based - When the environment is given
+and get the best policy? What trade-offs have to be made in each scenario? Let's take a deep dive.
+## Model Based - when the environment is given
+Our journey begins with a typical MDP where the transition mechanism and the reward function are fully known. As seen in 
+the above Bellman expectation and optimal equations, the problem can be resolved by tackling a similar subproblem recursively.
+This is usually known as dynamic programming.
 ### Dynamic Programming
-## Model Free - When the environment is unknown
+#### policy iteration
+The key idea is to iteratively process two alternative steps: policy evaluation and policy improvement. Policy evaluation 
+computes the value function $V^\pi$ for the current policy $\pi$. While policy improvement updates the policy $\pi$ using 
+the greedy approach.
+
+- initialize the policy $\pi(s)$ and value function $V(s)$
+- while not stop
+  - while $\delta > \theta$, do 
+    - $\delta \leftarrow 0$
+    - for each $s \in S$
+      - $v \leftarrow V(s)$
+      - $V(s) \leftarrow \sum_{a \in A} \pi(a \mid s)(R(s, a) + \gamma \sum_{s' \in S} p(s' \mid s, a) V_{\pi}(s')) $ **(policy evaluation)**
+      - $\delta \leftarrow \max(\delta, |v - V(s)|)$
+  - end while
+  - $\pi_{old} \leftarrow \pi$
+  - for each $s \in S$
+    - $\pi(s) \leftarrow \arg \max_{a} R(s, a) + \gamma \sum_{s'} p(s' \mid s, a)V(s')$ **(policy improvement)**
+  - if $\pi_{old} = \pi$
+    - stop and return $\pi$ and $V$
+
+#### value iteration
+## Model Free - when the environment is unknown
 ## Value Based
 ### On-Policy: SARSA
 ### Off-Policy: Q-Learning

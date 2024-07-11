@@ -500,12 +500,17 @@
         </li>
       </ul>
     </li>
-    <li><a href="#model-based---when-the-environment-is-given">Model Based - When the environment is given</a>
+    <li><a href="#model-based---when-the-environment-is-given">Model Based - when the environment is given</a>
       <ul>
-        <li><a href="#dynamic-programming">Dynamic Programming</a></li>
+        <li><a href="#dynamic-programming">Dynamic Programming</a>
+          <ul>
+            <li><a href="#policy-iteration">policy iteration</a></li>
+            <li><a href="#value-iteration">value iteration</a></li>
+          </ul>
+        </li>
       </ul>
     </li>
-    <li><a href="#model-free---when-the-environment-is-unknown">Model Free - When the environment is unknown</a></li>
+    <li><a href="#model-free---when-the-environment-is-unknown">Model Free - when the environment is unknown</a></li>
     <li><a href="#value-based">Value Based</a>
       <ul>
         <li><a href="#on-policy-sarsa">On-Policy: SARSA</a></li>
@@ -715,16 +720,18 @@ $$</p>
 V^* (s) = \max_{a} \left( R(s, a) + \gamma \sum_{s&rsquo; \in S} p(s&rsquo; \mid s, a) V^* (s&rsquo;) \right) \tag{1.13}
 $$</p>
 <p>So far, we have introduced the main math modeling framework in RL. How shall we fit the real-life cases into this framework
-and get the best policy? What trade offs to make in each scenario? These are the main topics to cover in implementing the RL
-solutions.</p>
+and get the best policy? What trade-offs have to be made in each scenario? Let&rsquo;s take a deep dive.</p>
 <h2 id="model-based---when-the-environment-is-given" >
 <div>
     <a href="#model-based---when-the-environment-is-given">
         
     </a>
-    Model Based - When the environment is given
+    Model Based - when the environment is given
 </div>
 </h2>
+<p>Our journey begins with a typical MDP where the transition mechanism and the reward function are fully known. As seen in
+the above Bellman expectation and optimal equations, the problem can be resolved by tackling a similar subproblem recursively.
+This is usually known as dynamic programming.</p>
 <h3 id="dynamic-programming" >
 <div>
     <a href="#dynamic-programming">
@@ -733,12 +740,62 @@ solutions.</p>
     Dynamic Programming
 </div>
 </h3>
+<h4 id="policy-iteration" >
+<div>
+    <a href="#policy-iteration">
+        
+    </a>
+    policy iteration
+</div>
+</h4>
+<p>The key idea is to iteratively process two alternative steps: policy evaluation and policy improvement. Policy evaluation
+computes the value function $V^\pi$ for the current policy $\pi$. While policy improvement updates the policy $\pi$ using
+the greedy approach.</p>
+<ul>
+<li>initialize the policy $\pi(s)$ and value function $V(s)$</li>
+<li>while not stop
+<ul>
+<li>while $\delta &gt; \theta$, do
+<ul>
+<li>$\delta \leftarrow 0$</li>
+<li>for each $s \in S$
+<ul>
+<li>$v \leftarrow V(s)$</li>
+<li>$V(s) \leftarrow \sum_{a \in A} \pi(a \mid s)(R(s, a) + \gamma \sum_{s&rsquo; \in S} p(s&rsquo; \mid s, a) V_{\pi}(s&rsquo;)) $ <strong>(policy evaluation)</strong></li>
+<li>$\delta \leftarrow \max(\delta, |v - V(s)|)$</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>end while</li>
+<li>$\pi_{old} \leftarrow \pi$</li>
+<li>for each $s \in S$
+<ul>
+<li>$\pi(s) \leftarrow \arg \max_{a} R(s, a) + \gamma \sum_{s&rsquo;} p(s&rsquo; \mid s, a)V(s&rsquo;)$ <strong>(policy improvement)</strong></li>
+</ul>
+</li>
+<li>if $\pi_{old} = \pi$
+<ul>
+<li>stop and return $\pi$ and $V$</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="value-iteration" >
+<div>
+    <a href="#value-iteration">
+        
+    </a>
+    value iteration
+</div>
+</h4>
 <h2 id="model-free---when-the-environment-is-unknown" >
 <div>
     <a href="#model-free---when-the-environment-is-unknown">
         
     </a>
-    Model Free - When the environment is unknown
+    Model Free - when the environment is unknown
 </div>
 </h2>
 <h2 id="value-based" >

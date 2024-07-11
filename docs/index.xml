@@ -188,16 +188,18 @@ $$&lt;/p&gt;
 V^* (s) = \max_{a} \left( R(s, a) + \gamma \sum_{s&amp;rsquo; \in S} p(s&amp;rsquo; \mid s, a) V^* (s&amp;rsquo;) \right) \tag{1.13}
 $$&lt;/p&gt;
 &lt;p&gt;So far, we have introduced the main math modeling framework in RL. How shall we fit the real-life cases into this framework
-and get the best policy? What trade offs to make in each scenario? These are the main topics to cover in implementing the RL
-solutions.&lt;/p&gt;
+and get the best policy? What trade-offs have to be made in each scenario? Let&amp;rsquo;s take a deep dive.&lt;/p&gt;
 &lt;h2 id=&#34;model-based---when-the-environment-is-given&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#model-based---when-the-environment-is-given&#34;&gt;
         
     &lt;/a&gt;
-    Model Based - When the environment is given
+    Model Based - when the environment is given
 &lt;/div&gt;
 &lt;/h2&gt;
+&lt;p&gt;Our journey begins with a typical MDP where the transition mechanism and the reward function are fully known. As seen in
+the above Bellman expectation and optimal equations, the problem can be resolved by tackling a similar subproblem recursively.
+This is usually known as dynamic programming.&lt;/p&gt;
 &lt;h3 id=&#34;dynamic-programming&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#dynamic-programming&#34;&gt;
@@ -206,12 +208,62 @@ solutions.&lt;/p&gt;
     Dynamic Programming
 &lt;/div&gt;
 &lt;/h3&gt;
+&lt;h4 id=&#34;policy-iteration&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#policy-iteration&#34;&gt;
+        
+    &lt;/a&gt;
+    policy iteration
+&lt;/div&gt;
+&lt;/h4&gt;
+&lt;p&gt;The key idea is to iteratively process two alternative steps: policy evaluation and policy improvement. Policy evaluation
+computes the value function $V^\pi$ for the current policy $\pi$. While policy improvement updates the policy $\pi$ using
+the greedy approach.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;initialize the policy $\pi(s)$ and value function $V(s)$&lt;/li&gt;
+&lt;li&gt;while not stop
+&lt;ul&gt;
+&lt;li&gt;while $\delta &amp;gt; \theta$, do
+&lt;ul&gt;
+&lt;li&gt;$\delta \leftarrow 0$&lt;/li&gt;
+&lt;li&gt;for each $s \in S$
+&lt;ul&gt;
+&lt;li&gt;$v \leftarrow V(s)$&lt;/li&gt;
+&lt;li&gt;$V(s) \leftarrow \sum_{a \in A} \pi(a \mid s)(R(s, a) + \gamma \sum_{s&amp;rsquo; \in S} p(s&amp;rsquo; \mid s, a) V_{\pi}(s&amp;rsquo;)) $ &lt;strong&gt;(policy evaluation)&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;$\delta \leftarrow \max(\delta, |v - V(s)|)$&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;end while&lt;/li&gt;
+&lt;li&gt;$\pi_{old} \leftarrow \pi$&lt;/li&gt;
+&lt;li&gt;for each $s \in S$
+&lt;ul&gt;
+&lt;li&gt;$\pi(s) \leftarrow \arg \max_{a} R(s, a) + \gamma \sum_{s&amp;rsquo;} p(s&amp;rsquo; \mid s, a)V(s&amp;rsquo;)$ &lt;strong&gt;(policy improvement)&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;if $\pi_{old} = \pi$
+&lt;ul&gt;
+&lt;li&gt;stop and return $\pi$ and $V$&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4 id=&#34;value-iteration&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#value-iteration&#34;&gt;
+        
+    &lt;/a&gt;
+    value iteration
+&lt;/div&gt;
+&lt;/h4&gt;
 &lt;h2 id=&#34;model-free---when-the-environment-is-unknown&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#model-free---when-the-environment-is-unknown&#34;&gt;
         
     &lt;/a&gt;
-    Model Free - When the environment is unknown
+    Model Free - when the environment is unknown
 &lt;/div&gt;
 &lt;/h2&gt;
 &lt;h2 id=&#34;value-based&#34; &gt;
