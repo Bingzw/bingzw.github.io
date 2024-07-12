@@ -113,7 +113,7 @@ $$
 which builds the connection of the action value function between the current and future state action pairs. By comparing
 (1.6) and (1.8), (1.7) and (1.9), it's easy to observe that (1.8) and (1.9) actually implements the expectation expression explicitly. 
 
-A visualized interpretation of (1.8) and (1.9) is backup diagram. 
+A visualized interpretation of (1.8) and (1.9) are shown in the following backup diagram. 
 <p align="center">
     <img src="/rf/backup.png"><br>
     <em>Figure 2: Backup Diagram</em>
@@ -181,19 +181,46 @@ the greedy approach.
     - stop and return $\pi$ and $V$
 
 #### value iteration
+It usually takes quite a significant amount of time to run policy evaluation, especially when the state and action space are
+large enough. Is there a way to avoid too many policy evaluation process? The answer is value iteration. It's an iterative process
+to update the Bellman optimal equation (1.13).
+
+- initialize the value function $V(s)$
+- while $\delta > \theta$, do 
+  - $\delta \leftarrow 0$
+  - for each $s \in S$
+    - $v \leftarrow V(s)$
+    - $V(s) \leftarrow \max_{a \in A} (R(s, a) + \gamma \sum_{s' \in S} p(s' \mid s, a) V_{\pi}(s')) $
+    - $\delta \leftarrow \max(\delta, |v - V(s)|)$
+- end while
+- $\pi(s) \leftarrow \arg \max_{a} R(s, a) + \gamma \sum_{s'} p(s' \mid s, a)V(s')$
+- return $V$ and $\pi$
+
+It can be seen that value iteration doesn't own policy updates, it generates the optimal policy when the value function converges.
+
 ## Model Free - when the environment is unknown
-## Value Based
-### On-Policy: SARSA
-### Off-Policy: Q-Learning
-### Off-Policy: Deep Q Network (DQN)
-## Policy Based
-### Gradient Based
+In practical, the environment is hardly fully known or it's simply a blackbox most of the time. Thus dynamic programming (policy 
+iteration & value iteration) might not helpful. In this section, we will introduce solutions originated from various kinds ideas.
+### Value Based
+This collection of algorithms aims optimizing the the value function $V$ or $Q$, which can then be used to derive the optimal 
+policy. The policy is typically derived indirectly by selecting actions that maximize the estimated value. Value based methods
+are usually simple to implement and understand. They are effective in environments with discrete and finite action spaces. 
+Deriving optimal policies is clear and straightforward. However, they are usually struggling with high-dimensional or continuous 
+action spaces. Trying function approximation (e.g., neural networks) may not work well due to unstable and divergence. Besides,
+value based methods usually require extensive exploration to accurately estimate value functions.
+#### Policy Evaluation 101: Monte Carlo & TD
+#### SARSA
+#### Q-Learning
+#### Deep Q Network (DQN)
+### Policy Based
 #### Policy Gradient
 #### TRPO/PPO
+#### Cross-Entropy Method [Gradient Free]
+#### Evolution Strategy [Gradient Free]
+### Hybrid
+#### DDPQ
 #### Actor Critic (AC)
-### Gradient Free
-#### Cross-Entropy Method
-#### Evolution Strategy
+#### SAC
 ## Summary
 ## Citation
 ## Reference

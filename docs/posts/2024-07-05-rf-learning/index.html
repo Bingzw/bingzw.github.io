@@ -510,27 +510,29 @@
         </li>
       </ul>
     </li>
-    <li><a href="#model-free---when-the-environment-is-unknown">Model Free - when the environment is unknown</a></li>
-    <li><a href="#value-based">Value Based</a>
+    <li><a href="#model-free---when-the-environment-is-unknown">Model Free - when the environment is unknown</a>
       <ul>
-        <li><a href="#on-policy-sarsa">On-Policy: SARSA</a></li>
-        <li><a href="#off-policy-q-learning">Off-Policy: Q-Learning</a></li>
-        <li><a href="#off-policy-deep-q-network-dqn">Off-Policy: Deep Q Network (DQN)</a></li>
-      </ul>
-    </li>
-    <li><a href="#policy-based">Policy Based</a>
-      <ul>
-        <li><a href="#gradient-based">Gradient Based</a>
+        <li><a href="#value-based">Value Based</a>
+          <ul>
+            <li><a href="#policy-evaluation-101-monte-carlo--td">Policy Evaluation 101: Monte Carlo &amp; TD</a></li>
+            <li><a href="#sarsa">SARSA</a></li>
+            <li><a href="#q-learning">Q-Learning</a></li>
+            <li><a href="#deep-q-network-dqn">Deep Q Network (DQN)</a></li>
+          </ul>
+        </li>
+        <li><a href="#policy-based">Policy Based</a>
           <ul>
             <li><a href="#policy-gradient">Policy Gradient</a></li>
             <li><a href="#trpoppo">TRPO/PPO</a></li>
-            <li><a href="#actor-critic-ac">Actor Critic (AC)</a></li>
+            <li><a href="#cross-entropy-method-gradient-free">Cross-Entropy Method [Gradient Free]</a></li>
+            <li><a href="#evolution-strategy-gradient-free">Evolution Strategy [Gradient Free]</a></li>
           </ul>
         </li>
-        <li><a href="#gradient-free">Gradient Free</a>
+        <li><a href="#hybrid">Hybrid</a>
           <ul>
-            <li><a href="#cross-entropy-method">Cross-Entropy Method</a></li>
-            <li><a href="#evolution-strategy">Evolution Strategy</a></li>
+            <li><a href="#ddpq">DDPQ</a></li>
+            <li><a href="#actor-critic-ac">Actor Critic (AC)</a></li>
+            <li><a href="#sac">SAC</a></li>
           </ul>
         </li>
       </ul>
@@ -684,7 +686,7 @@ Q_{\pi}(s, a) = R(s, a) + \gamma \sum_{s&rsquo; \in S} p(s&rsquo; \mid s, a) \su
 $$
 which builds the connection of the action value function between the current and future state action pairs. By comparing
 (1.6) and (1.8), (1.7) and (1.9), it&rsquo;s easy to observe that (1.8) and (1.9) actually implements the expectation expression explicitly.</p>
-<p>A visualized interpretation of (1.8) and (1.9) is backup diagram.</p>
+<p>A visualized interpretation of (1.8) and (1.9) are shown in the following backup diagram.</p>
 <p align="center">
     <img src="/rf/backup.png"><br>
     <em>Figure 2: Backup Diagram</em>
@@ -790,6 +792,28 @@ the greedy approach.</p>
     value iteration
 </div>
 </h4>
+<p>It usually takes quite a significant amount of time to run policy evaluation, especially when the state and action space are
+large enough. Is there a way to avoid too many policy evaluation process? The answer is value iteration. It&rsquo;s an iterative process
+to update the Bellman optimal equation (1.13).</p>
+<ul>
+<li>initialize the value function $V(s)$</li>
+<li>while $\delta &gt; \theta$, do
+<ul>
+<li>$\delta \leftarrow 0$</li>
+<li>for each $s \in S$
+<ul>
+<li>$v \leftarrow V(s)$</li>
+<li>$V(s) \leftarrow \max_{a \in A} (R(s, a) + \gamma \sum_{s&rsquo; \in S} p(s&rsquo; \mid s, a) V_{\pi}(s&rsquo;)) $</li>
+<li>$\delta \leftarrow \max(\delta, |v - V(s)|)$</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>end while</li>
+<li>$\pi(s) \leftarrow \arg \max_{a} R(s, a) + \gamma \sum_{s&rsquo;} p(s&rsquo; \mid s, a)V(s&rsquo;)$</li>
+<li>return $V$ and $\pi$</li>
+</ul>
+<p>It can be seen that value iteration doesn&rsquo;t own policy updates, it generates the optimal policy when the value function converges.</p>
 <h2 id="model-free---when-the-environment-is-unknown" >
 <div>
     <a href="#model-free---when-the-environment-is-unknown">
@@ -798,52 +822,60 @@ the greedy approach.</p>
     Model Free - when the environment is unknown
 </div>
 </h2>
-<h2 id="value-based" >
+<p>In practical, the environment is hardly fully known or it&rsquo;s simply a blackbox most of the time. Thus dynamic programming (policy
+iteration &amp; value iteration) might not helpful. In this section, we will introduce solutions originated from various kinds ideas.</p>
+<h3 id="value-based" >
 <div>
     <a href="#value-based">
         
     </a>
     Value Based
 </div>
-</h2>
-<h3 id="on-policy-sarsa" >
+</h3>
+<p>This collection of algorithms aims optimizing the the value function $V$ or $Q$, which can then be used to derive the optimal
+policy. The policy is typically derived indirectly by selecting actions that maximize the estimated value. Value based methods
+are usually simple to implement and understand. They are effective in environments with discrete and finite action spaces.
+Deriving optimal policies is clear and straightforward. However, they are usually struggling with high-dimensional or continuous
+action spaces. Trying function approximation (e.g., neural networks) may not work well due to unstable and divergence. Besides,
+value based methods usually require extensive exploration to accurately estimate value functions.</p>
+<h4 id="policy-evaluation-101-monte-carlo--td" >
 <div>
-    <a href="#on-policy-sarsa">
+    <a href="#policy-evaluation-101-monte-carlo--td">
         
     </a>
-    On-Policy: SARSA
+    Policy Evaluation 101: Monte Carlo &amp; TD
 </div>
-</h3>
-<h3 id="off-policy-q-learning" >
+</h4>
+<h4 id="sarsa" >
 <div>
-    <a href="#off-policy-q-learning">
+    <a href="#sarsa">
         
     </a>
-    Off-Policy: Q-Learning
+    SARSA
 </div>
-</h3>
-<h3 id="off-policy-deep-q-network-dqn" >
+</h4>
+<h4 id="q-learning" >
 <div>
-    <a href="#off-policy-deep-q-network-dqn">
+    <a href="#q-learning">
         
     </a>
-    Off-Policy: Deep Q Network (DQN)
+    Q-Learning
 </div>
-</h3>
-<h2 id="policy-based" >
+</h4>
+<h4 id="deep-q-network-dqn" >
+<div>
+    <a href="#deep-q-network-dqn">
+        
+    </a>
+    Deep Q Network (DQN)
+</div>
+</h4>
+<h3 id="policy-based" >
 <div>
     <a href="#policy-based">
         
     </a>
     Policy Based
-</div>
-</h2>
-<h3 id="gradient-based" >
-<div>
-    <a href="#gradient-based">
-        
-    </a>
-    Gradient Based
 </div>
 </h3>
 <h4 id="policy-gradient" >
@@ -862,6 +894,38 @@ the greedy approach.</p>
     TRPO/PPO
 </div>
 </h4>
+<h4 id="cross-entropy-method-gradient-free" >
+<div>
+    <a href="#cross-entropy-method-gradient-free">
+        
+    </a>
+    Cross-Entropy Method [Gradient Free]
+</div>
+</h4>
+<h4 id="evolution-strategy-gradient-free" >
+<div>
+    <a href="#evolution-strategy-gradient-free">
+        
+    </a>
+    Evolution Strategy [Gradient Free]
+</div>
+</h4>
+<h3 id="hybrid" >
+<div>
+    <a href="#hybrid">
+        
+    </a>
+    Hybrid
+</div>
+</h3>
+<h4 id="ddpq" >
+<div>
+    <a href="#ddpq">
+        
+    </a>
+    DDPQ
+</div>
+</h4>
 <h4 id="actor-critic-ac" >
 <div>
     <a href="#actor-critic-ac">
@@ -870,28 +934,12 @@ the greedy approach.</p>
     Actor Critic (AC)
 </div>
 </h4>
-<h3 id="gradient-free" >
+<h4 id="sac" >
 <div>
-    <a href="#gradient-free">
+    <a href="#sac">
         
     </a>
-    Gradient Free
-</div>
-</h3>
-<h4 id="cross-entropy-method" >
-<div>
-    <a href="#cross-entropy-method">
-        
-    </a>
-    Cross-Entropy Method
-</div>
-</h4>
-<h4 id="evolution-strategy" >
-<div>
-    <a href="#evolution-strategy">
-        
-    </a>
-    Evolution Strategy
+    SAC
 </div>
 </h4>
 <h2 id="summary" >
