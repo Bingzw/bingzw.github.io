@@ -1,8 +1,8 @@
 ---
-title: "A Journey to Reinforcement Learning"
+title: "A Journey to Reinforcement Learning - Part I"
 date: 2024-07-05T20:59:39-07:00
 draft: False
-description: "An summary of reinforcement learning algorithms"
+description: "An summary of reinforcement learning algorithms basics, including mdp, dp, td, sarsa, q-learning"
 tags: ['Machine learning', 'Deep Reinforcement Learning', 'Reinforcement Learning']
 ---
 <p align="center">
@@ -58,7 +58,7 @@ denotes the history of states and actions.
 
 Suppose the agent is interacting with the environment for a total $T$ steps (horizon). Let's define the total reward after time $t$ as
 $$
-G_t = r_{t+1} + \gamma r_{t+2} + \gamma^2 r_{t+3} + ... + \gamma^{T-t-1} r_T \tag{1.1}
+G_t = r_{t+1} + \gamma r_{t+2} + ... + \gamma^{T-t-1} r_T \tag{1.1}
 $$
 The value function is defined as 
 $$
@@ -83,9 +83,10 @@ when converting $V$ to $Q$, we can see that
 <p align="center">
 \begin{aligned}
 Q_{\pi}(s, a) &= \mathbb{E}_{\pi}[G_t \mid s_t=s, a_t=a] \\
-&= \mathbb{E}_{\pi}[r_{t+1} + \gamma r_{t+2} + \gamma^2 r_{t+3} + ... \mid s_t=s, a_t=a] \\
+&= \mathbb{E}_{\pi}[r_{t+1} + \gamma r_{t+2} + \gamma^2 r_{t+3}+ ... \mid s_t=s, a_t=a] \\
 &= \mathbb{E}_{\pi}[r_{t+1} \mid s_t=s, a_t=a] + \gamma \mathbb{E}_{\pi}[r_{t+2} + \gamma r_{t+3} + ... \mid s_t=s, a_t=a] \\
 &= R(s, a) + \gamma \mathbb{E}_{\pi}[G_{t+1} \mid s_t=s, a_t=a] \\
+&= R(s, a) + \gamma \mathbb{E}_{\pi}[\mathbb{E}_{\pi}[G_{t+1} \mid s_{t+1}] \mid s_t=s, a_t=a] \\
 &= R(s, a) + \gamma \mathbb{E}_{\pi}[V_{\pi}(s_{t+1}) \mid s_t=s, a_t=a] \\
 &= R(s, a) + \gamma \sum_{s' \in S} p(s' \mid s, a) V_{\pi}(s') \hspace{15.5em} \text{(1.5)}
 \end{aligned}
@@ -93,12 +94,20 @@ Q_{\pi}(s, a) &= \mathbb{E}_{\pi}[G_t \mid s_t=s, a_t=a] \\
 
 #### Bellman Expectation Equation
 From (1.2), we can express the value function in an recursive way.
-$$
-V_{\pi}(s) = E_{\pi}[r_{t+1} + \gamma V_{\pi}(s_{t+1})|s_t=s] \tag{1.6}
-$$
+<p align="center">
+\begin{aligned}
+V_{\pi}(s) &= \mathbb{E}_{\pi}[G_t \mid s_t=s] \\
+&= \mathbb{E}_{\pi}[r_{t+1} + \gamma r_{t+2} + \gamma^2 r_{t+3} + ... \mid s_t=s] \\
+&= \mathbb{E}_{\pi}[r_{t+1} \mid s_t=s] + \gamma\mathbb{E}_{\pi}[r_{t+2} + \gamma r_{t+3} + ... \mid s_t=s] \\
+&= \mathbb{E}_{\pi}[r_{t+1} \mid s_t=s] + \gamma\mathbb{E}_{\pi}[G_{t+1} \mid s_t=s] \\
+&= \mathbb{E}_{\pi}[r_{t+1} \mid s_t=s] + \gamma\mathbb{E}_{\pi}[\mathbb{E}_{\pi}[G_{t+1} \mid s_{t+1}] \mid s_t=s] \\
+&= \mathbb{E}_{\pi}[r_{t+1} \mid s_t=s] + \gamma\mathbb{E}_{\pi}[V_{\pi}(s_{t+1}) \mid s_t=s] \\
+&= \mathbb{E}_{\pi}[r_{t+1} + \gamma V_{\pi}(s_{t+1}) \mid s_t=s] \hspace{19em} \text{(1.6)}
+\end{aligned}
+</p>
 Similarly, the state action function can also be written recursively
 $$
-Q_{\pi}(s, a) = E_{\pi}[r_{t+1} + \gamma Q_{\pi}(s_{t+1}, a_{t+1})|s_t=s, a_t=a] \tag{1.7}
+Q_{\pi}(s, a) = \mathbb{E}_{\pi}[r_{t+1} + \gamma Q_{\pi}(s_{t+1}, a_{t+1}) \mid s_t=s, a_t=a] \tag{1.7}
 $$
 Furthermore, equation (1.5) also expressed the current-future connection between $V$ and $Q$. So if we plug equation 
 (1.5) in (1.4), then we would get 
@@ -208,7 +217,66 @@ are usually simple to implement and understand. They are effective in environmen
 Deriving optimal policies is clear and straightforward. However, they are usually struggling with high-dimensional or continuous 
 action spaces. Trying function approximation (e.g., neural networks) may not work well due to unstable and divergence. Besides,
 value based methods usually require extensive exploration to accurately estimate value functions.
-#### Policy Evaluation 101: Monte Carlo & TD
+#### Model Free Policy Evaluation: Monte Carlo & Temporal Difference (TD)
+Value based approaches inherits the idea from dynamic programming. The difference now is that the environment is unknown such that
+both policy iteration and value iteration are not feasible (transition probably unavailable now). Let's start with a simple question:
+**how can we estimate the value function given a policy when the environment is unknown**. The idea is to **interact with the environment** 
+and update the value function/policy based on the returned rewards. Depending on how heavily we rely on interacting with the 
+environment, we have the Monte Carlo and Temporal difference method.
+##### Monte Carlo
+Monte Carlo methods rely on averaging returns of sampled episodes to estimate the expected value of states or state-action pairs. 
+Unlike temporal difference (TD) methods, Monte Carlo methods do not bootstrap and instead use complete episodes to update value estimates.
+
+- Initialize $V_{\pi}(s)$ arbitrarily for all states $s \in S$. 
+- Initialize the total reward $S(s)$ and total visits $N(s)$
+- for each episode in $[1, N]$:
+   - Generate an episode trajectory $(s_0, a_0, r_1, s_1, a_1, r_2, \ldots, s_T)$ following policy $\pi$.
+   - For each state $s$ that first appearing in the episode trajectory:
+     - Compute the return $G_t$  from state $s$: $G_t = r_{t+1} + \gamma r_{t+2} + \dots + \gamma^{T-t-1} r_T$
+     - total reward at $s$ is $S(s) \leftarrow S(s) + G_t$
+     - total count visiting $s$ is $N(s) \leftarrow N(s) + 1$
+     - Update the value estimate $V_{\pi}(s)$ as the average of all observed returns for state $s$: $V_{\pi}(s) \leftarrow \frac{S(s)} {N(s)}$.
+
+It's worth noting that the monte carlo update can also be reformated in an incremental way, that is, 
+$$
+V_{\pi}(s) \leftarrow V_{\pi}(s) + \frac{1}{N(s)} (G_t - V_{\pi}(s)) \tag{3.1}
+$$
+So it's updating the value function based on the delta of newly generated reward and current knowledge of value at $s$, with a 
+learning rate proportion to the inverse of total visits. (3.1) is a typical formula of stochastic approximation. It is approximating
+the actual reward $G_t$ by updating $v_{\pi}$. However, the updates does not start until the entire episode completes. This may not 
+feasible in some cases where the interactive game never ends or more frequent updates are expected. To tackle this, we are happy 
+to introduce temporal difference.
+##### Temporal Difference
+From (1.2), we can see that the Monte Carlo is approximating the target $G_t$ using (3.1). If we only interact with the environment
+one step instead of completing the full episode trajectory. It's equivalent to reformat the (1.2) as (1.6), where the target is 
+thus $r_{t} + \gamma V_{\pi}(s_{t+1})$. So the stochastic approximation updates (3.1) can be written as
+$$
+V_{\pi}(s) \leftarrow V_{\pi}(s) + \alpha (r_{t+1} + \gamma V_{\pi}(s_{t+1}) - V_{\pi}(s)) \tag{3.2}
+$$
+where the $r_{t+1} + \gamma V_{\pi}(s_{t+1}) - V_{\pi}(s)$ is called temporal difference error. Since only one step reward is retrieved
+from the system interaction, it's also noted as 1-step temporal difference, i.e. TD(1). What if we interact a few more steps with the environment?
+The target $G_t$ would include more future steps rewards. A general representation of TD(k) is shown below.
+<p align="center">
+\begin{aligned}
+&TD(1) \hspace{1em} \rightarrow \hspace{1em} G^{1}_t = r_{t+1} + \gamma V(s_{t+1}) \\
+&TD(2) \hspace{1em} \rightarrow \hspace{1em} G^{2}_t = r_{t+1} + \gamma r_{t+2} + \gamma^2 V(s_{t+2}) \\
+&TD(k) \hspace{1em} \rightarrow \hspace{1em} G^{k}_t = r_{t+1} + \gamma r_{t+2} + \dots + \gamma^{k-1} r_{t+k} + \gamma^k V(s_{t+k}) \\
+&TD(\infty) / MC \hspace{1em} \rightarrow \hspace{1em} G^{\infty}_t = r_{t+1} + \gamma r_{t+2}+ \dots + \gamma^{T-t-1} r_{T})
+\end{aligned}
+</p>
+
+Compared with Monte Carlo, it's possible to updating the value function in an online fashion, meaning that update happens after 
+every step of interaction. It's more efficient than updating after completing an episode. This also indicates that TD learning can be
+applied to any piece of episode, which is more flexible. The estimation variance is lower but bias can be higher due to bootstrapping 
+(updates based on estimated value of next state)
+
+<p align="center">
+<img src="/rf/rf_dp_mc_td.png" width="900" height="600"><br>
+<em>Figure 3: Visual Interpretation of DP, TD and MC</em>
+<p>
+
+*Image cited from [^2]*
+
 #### SARSA
 #### Q-Learning
 #### Deep Q Network (DQN)
@@ -223,10 +291,9 @@ value based methods usually require extensive exploration to accurately estimate
 #### SAC
 ## Summary
 ## Citation
+
 ## Reference
 [^1]: [Souchleris, Konstantinos, George K. Sidiropoulos, and George A. Papakostas. "Reinforcement learning in game industry—review, prospects and challenges." Applied Sciences 13.4 (2023): 2443](https://www.mdpi.com/2076-3417/13/4/2443)
-
-
-
+[^2]: [An intuitive guide to reinforcement learning](https://roboticseabass.com/2020/08/02/an-intuitive-guide-to-reinforcement-learning/)
 
 
