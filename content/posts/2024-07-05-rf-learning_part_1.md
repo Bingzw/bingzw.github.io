@@ -229,13 +229,16 @@ Unlike temporal difference (TD) methods, Monte Carlo methods do not bootstrap an
 
 - Initialize $V_{\pi}(s)$ arbitrarily for all states $s \in S$. 
 - Initialize the total reward $S(s)$ and total visits $N(s)$
-- for each episode in $[1, N]$:
+- for episode from 1 to $N$, do:
    - Generate an episode trajectory $(s_0, a_0, r_1, s_1, a_1, r_2, \ldots, s_T)$ following policy $\pi$.
    - For each state $s$ that first appearing in the episode trajectory:
      - Compute the return $G_t$  from state $s$: $G_t = r_{t+1} + \gamma r_{t+2} + \dots + \gamma^{T-t-1} r_T$
      - total reward at $s$ is $S(s) \leftarrow S(s) + G_t$
      - total count visiting $s$ is $N(s) \leftarrow N(s) + 1$
      - Update the value estimate $V_{\pi}(s)$ as the average of all observed returns for state $s$: $V_{\pi}(s) \leftarrow \frac{S(s)} {N(s)}$.
+   - end for
+- end for
+- return the value function under policy $\pi$
 
 It's worth noting that the monte carlo update can also be reformated in an incremental way, that is, 
 $$
@@ -268,7 +271,11 @@ The target $G_t$ would include more future steps rewards. A general representati
 Compared with Monte Carlo, it's possible to updating the value function in an online fashion, meaning that update happens after 
 every step of interaction. It's more efficient than updating after completing an episode. This also indicates that TD learning can be
 applied to any piece of episode, which is more flexible. The estimation variance is lower but bias can be higher due to bootstrapping 
-(updates based on estimated value of next state)
+(updates based on estimated value of next state) 
+
+Below compares the computation graph among MC, TD and DP. In MC, only the states on the episode trajectory are updated. On the
+other hand, DP computes all the related next states when updating. TD compromise both MC and DP, it sampled only one or finite steps 
+for updating.
 
 <p align="center">
 <img src="/rf/rf_dp_mc_td.png" width="900" height="600"><br>
@@ -278,6 +285,52 @@ applied to any piece of episode, which is more flexible. The estimation variance
 *Image cited from [^2]*
 
 #### SARSA
+Now given a policy $\pi$, we have learned TD and MC can help evaluate the value function when the environment is unknown. 
+The next natural question is How can we find the optimal policy? We can borrow the policy improvement idea from policy 
+iteration in DP. Get the next policy by using the greedy search, i.e. $\pi_{i+1}(s) = \arg \max_a Q_{\pi_i}(s, a)$. 
+Combining the generalized policy evaluation and the greedy policy improvement would allow us to build the generalized policy 
+iteration.
+
+<p align="center">
+<img src="/rf/policy_iteration.png" width="250" height="150"><br>
+<em>Figure 4: Generalized Policy Iteration</em>
+<p>
+
+Another difference from the policy iteration in DP is that we may never update some state-action pairs using the pure greedy 
+policy improvement strategy. This is because we are now interacting with the environment instead of updating all the states action
+explicitly with known transition probabilities. So we may need to allow some extent of exploration to mitigate such issue. One 
+solution is to apply the $\epsilon$-greedy strategy. 
+
+<p align="center">
+\begin{aligned}
+\pi(a \mid s) &= 
+\begin{cases} 
+      1 - \epsilon & \text{if } a = \arg \max_a Q(s, a) \\
+      \epsilon &  \text{other actions in A}
+\end{cases}
+\end{aligned}
+</p>
+
+Thus the complete algorithm (TD policy evaluation on $Q$ + $\epsilon$-greedy policy improvement) is:
+
+- Initialize the $Q(s, a)$
+- for iteration from 1 to $N$, do:
+  - get initial state $s$
+  - apply the $\epsilon$-greedy strategy to choose the action $a$ based on $s$
+  - for $t$ from 1 to $T$, do:
+    - interact with the environment and get reward $r$ and $s'$
+    - apply the $\epsilon$-greedy strategy to choose the next action $a'$ based on $s'$
+    - $Q(s, a) \leftarrow Q(s, a) + \alpha [r + \gamma Q(s', a') - Q(s, a)]$ **(TD policy evaluation)**
+    - $s \leftarrow s', a \leftarrow a'$ **($\epsilon$-greedy policy improvement)**
+  - end for
+- end for
+- return the policy $\pi(a \mid s)$ and the value action $Q$
+
+It's worth noting that once the state, action, reward, next state, next action $(s, a, r, s', a')$ is generated, the update is 
+conducted once and then repeats the iterations. Therefore, is called **SARSA**. In a more general case, if we interact more steps
+and update the $Q$ value using $Q(s_t, a_t) \leftarrow Q(s_t, a_t) + \alpha [r_t + \gamma r_{t+1} + \dots + \gamma^n Q(s_{t+n}, a_{t+n}) - Q(s_t, a_t)]$,
+then it's **$n$ step SARSA**.
+
 #### Q-Learning
 #### Deep Q Network (DQN)
 ### Policy Based
