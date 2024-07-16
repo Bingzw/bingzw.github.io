@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+
+
+<html lang="en-us" data-theme="">
+<head>
+    
+        
+<meta charset="utf-8">
+<meta name="HandheldFriendly" content="True">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="referrer" content="no-referrer-when-downgrade">
+
+<title>A Journey to Reinforcement Learning - Tabular Methods - Bingz Learning Blog</title>
+
+<meta name="description" content="An summary of reinforcement learning algorithms basics, including mdp, dp, td, sarsa, q-learning">
+
+
+
+
+
+<link rel="icon" type="image/x-icon" href="https://bingzw.github.io/favicon.ico">
+<link rel="apple-touch-icon-precomposed" href="https://bingzw.github.io/favicon.png">
+
+
+
+
+
+
+    
+
+
+
+    
+
+
+
+<style>
+  body {
+    visibility: hidden;
+    opacity: 0;
+  }
+</style>
+
+<noscript>
+  <style>
+    body {
+      visibility: visible;
+      opacity: 1;
+    }
+  </style>
+</noscript>
+
+
+
+
+    
+
+
+
+
+
+    
+    
+        
+    
+    
+
+    
+        <link rel="stylesheet" href="/css/style.min.184a655c5ad8596648622468e6696abf0cf0a2cf8266df17b4f7a36fe9c97551.css" integrity="sha256-GEplXFrYWWZIYiRo5mlqvwzwos&#43;CZt8XtPejb&#43;nJdVE=">
+    
+
+
+
+
+
+    
+
+
+
+
+
+    
+    
+        
+    
+    
+
+    
+        <link rel="stylesheet" href="/css/style.min.c4c04b3ef88e3d619ad4c7ee5e03048422bc55c4fefdc1f07657c1133670aa22.css" integrity="sha256-xMBLPviOPWGa1MfuXgMEhCK8VcT&#43;/cHwdlfBEzZwqiI=">
+    
+
+
+
+
+
+    
+
+
+
+
+
+    
+    
+        
+    
+    
+
+    
+        <link rel="stylesheet" href="/css/style.min.21c5d8fe0a79d623b0adc1ce4bd4f6dd2c05cd939c9aaaa966ba7186b1464f4d.css" integrity="sha256-IcXY/gp51iOwrcHOS9T23SwFzZOcmqqpZrpxhrFGT00=">
+    
+
+
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+
+
+
+
+
+    
+    
+        
+    
+    
+
+    
+        <script src="/js/script.min.08f04d96386c73c9bf4d160333f8f448c05a6e01c06770542ee0e013954ce930.js" type="text/javascript" charset="utf-8" integrity="sha256-CPBNljhsc8m/TRYDM/j0SMBabgHAZ3BULuDgE5VM6TA="></script>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+  
+    
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-3P52NT65ZQ"></script>
+      <script>
+        var doNotTrack = false;
+        if ( false ) {
+          var dnt = (navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack);
+          var doNotTrack = (dnt == "1" || dnt == "yes");
+        }
+        if (!doNotTrack) {
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-3P52NT65ZQ');
+        }
+      </script>
+    
+  
+
+
+
+
+
+
+
+
+
+    
+</head>
+<body>
+    <a class="skip-main" href="#main">Skip to main content</a>
+    <div class="container">
+        <header class="common-header">
+            
+                <div class="header-top">
+    <div class="header-top-left">
+        <h1 class="site-title noselect">
+    <a href="/">Bingz Learning Blog</a>
+</h1>
+
+        
+
+
+
+    
+
+
+
+    
+
+
+
+    
+        <div class="theme-switcher">
+            <span class="inline-svg">
+
+    
+
+
+    
+    
+    
+    
+    
+
+    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-sun-high"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14.828 14.828a4 4 0 1 0 -5.656 -5.656a4 4 0 0 0 5.656 5.656z" /><path d="M6.343 17.657l-1.414 1.414" /><path d="M6.343 6.343l-1.414 -1.414" /><path d="M17.657 6.343l1.414 -1.414" /><path d="M17.657 17.657l1.414 1.414" /><path d="M4 12h-2" /><path d="M12 4v-2" /><path d="M20 12h2" /><path d="M12 20v2" /></svg>
+
+
+</span>
+
+        </div>
+    
+
+    <script>
+        const STORAGE_KEY = 'user-color-scheme'
+        const defaultTheme = "auto"
+
+        let currentTheme
+        let switchButton
+        let autoDefinedScheme = window.matchMedia('(prefers-color-scheme: dark)')
+
+        function switchTheme(e) {
+            currentTheme = (currentTheme === 'dark') ? 'light' : 'dark';
+            if (localStorage) localStorage.setItem(STORAGE_KEY, currentTheme);
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            changeGiscusTheme(currentTheme);
+            document.body.dispatchEvent(new CustomEvent(currentTheme + "-theme-set"));
+        }
+
+        const autoChangeScheme = e => {
+            currentTheme = e.matches ? 'dark' : 'light'
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            changeGiscusTheme(currentTheme);
+            document.body.dispatchEvent(new CustomEvent(currentTheme + "-theme-set"));
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            switchButton = document.querySelector('.theme-switcher')
+            currentTheme = detectCurrentScheme()
+
+            if (currentTheme === 'auto') {
+                autoChangeScheme(autoDefinedScheme);
+                autoDefinedScheme.addListener(autoChangeScheme);
+            } else {
+                document.documentElement.setAttribute('data-theme', currentTheme)
+            }
+
+            if (switchButton) {
+                switchButton.addEventListener('click', switchTheme, false)
+            }
+
+            showContent();
+        })
+
+        function detectCurrentScheme() {
+            if (localStorage !== null && localStorage.getItem(STORAGE_KEY)) {
+                return localStorage.getItem(STORAGE_KEY)
+            }
+            if (defaultTheme) {
+                return defaultTheme
+            }
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+
+        function showContent() {
+            document.body.style.visibility = 'visible';
+            document.body.style.opacity = 1;
+        }
+
+        function changeGiscusTheme (theme) {
+            function sendMessage(message) {
+              const iframe = document.querySelector('iframe.giscus-frame');
+              if (!iframe) return;
+              iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+            }
+
+            sendMessage({
+              setConfig: {
+                theme: theme
+              }
+            });
+        }
+    </script>
+
+
+        <ul class="social-icons noselect">
+
+
+    
+        
+        
+        <li>
+            <a href="https://github.com/bingzw" title="Github" rel="me">
+            <span class="inline-svg">
+
+    
+
+
+    
+    
+    
+    
+    
+
+    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-brand-github"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" /></svg>
+
+
+</span>
+
+            </a>
+        </li>
+    
+
+    
+        <li>
+            <a href="https://www.linkedin.com/in/bingzw/" title="Linkedin" rel="me">
+            <span class="inline-svg">
+
+    
+
+
+    
+    
+    
+    
+    
+
+    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-brand-linkedin"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 4m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z" /><path d="M8 11l0 5" /><path d="M8 8l0 .01" /><path d="M12 16l0 -5" /><path d="M16 16v-3a2 2 0 0 0 -4 0" /></svg>
+
+
+</span>
+
+            </a>
+        </li>
+    
+
+
+
+
+
+
+    <li>
+            <a href="/index.xml" title="RSS" rel="me">
+            <span class="inline-svg">
+
+    
+
+
+    
+    
+    
+    
+    
+
+    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-rss"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 19m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /><path d="M4 4a16 16 0 0 1 16 16" /><path d="M4 11a9 9 0 0 1 9 9" /></svg>
+
+
+</span>
+
+            </a>
+        </li>
+    
+
+</ul>
+
+    </div>
+    <div class="header-top-right">
+
+    </div>
+</div>
+
+
+    <nav class="noselect">
+        
+        
+        <a class="" href="https://bingzw.github.io/" title="">Home</a>
+        
+        <a class="" href="https://bingzw.github.io/about/" title="">About</a>
+        
+        <a class="" href="https://bingzw.github.io/tags/" title="">Tags</a>
+        
+        <a class="" href="https://bingzw.github.io/posts/" title="">Archive</a>
+        
+    </nav>
+
+
+
+<script>
+  MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$','$$'], ['\\[', '\\]']],
+      processEscapes: true,
+      processEnvironments: true
+    },
+    options: {
+      skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+    }
+  };
+
+  window.addEventListener('load', (event) => {
+      document.querySelectorAll("mjx-container").forEach(function(x){
+        x.parentElement.classList += 'has-jax'})
+    });
+
+</script>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script type="text/javascript" id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+
+
+
+
+            
+        </header>
+        <main id="main" tabindex="-1">
+            
+    
+
+    <article class="post h-entry">
+        <div class="post-header">
+            <header>
+                <h1 class="p-name post-title">A Journey to Reinforcement Learning - Tabular Methods</h1>
+                
+
+            </header>
+            
+
+
+
+<div class="post-info noselect">
+    
+        <div class="post-date dt-published">
+            <time datetime="2024-07-05">2024-07-05</time>
+            
+        </div>
+    
+
+    <a class="post-hidden-url u-url" href="/posts/2024-07-05-rf-learning-tabular/">/posts/2024-07-05-rf-learning-tabular/</a>
+    <a href="https://bingzw.github.io/" class="p-name p-author post-hidden-author h-card" rel="me"></a>
+
+
+    <div class="post-taxonomies">
+        
+        
+            <ul class="post-tags">
+                
+                    
+                    <li><a href="/tags/machine-learning/">#Machine Learning</a></li>
+                
+                    
+                    <li><a href="/tags/reinforcement-learning/">#Reinforcement Learning</a></li>
+                
+            </ul>
+        
+        
+    </div>
+</div>
+
+        </div>
+        
+
+  
+  
+
+
+
+
+  
+  
+  
+  <details class="toc noselect">
+    <summary>Table of Contents</summary>
+    <div class="inner"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#basic-problem-statement-of-reinforcement-learning">Basic Problem Statement of Reinforcement Learning</a>
+      <ul>
+        <li><a href="#markov-decision-process-mdp">Markov Decision Process (MDP)</a>
+          <ul>
+            <li><a href="#bellman-expectation-equation">Bellman Expectation Equation</a></li>
+            <li><a href="#bellman-optimal-equation">Bellman Optimal Equation</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li><a href="#model-based---when-the-environment-is-given">Model Based - when the environment is given</a>
+      <ul>
+        <li><a href="#dynamic-programming">Dynamic Programming</a>
+          <ul>
+            <li><a href="#policy-iteration">policy iteration</a></li>
+            <li><a href="#value-iteration">value iteration</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li><a href="#model-free---when-the-environment-is-unknown">Model Free - when the environment is unknown</a>
+      <ul>
+        <li><a href="#value-based">Value Based</a>
+          <ul>
+            <li><a href="#model-free-policy-evaluation-monte-carlo--temporal-difference-td">Model Free Policy Evaluation: Monte Carlo &amp; Temporal Difference (TD)</a></li>
+            <li><a href="#sarsa">SARSA</a></li>
+            <li><a href="#q-learning">Q-Learning</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li><a href="#summary">Summary</a></li>
+    <li><a href="#citation">Citation</a></li>
+    <li><a href="#reference">Reference</a></li>
+  </ul>
+</nav></div>
+  </details>
+  
+
+
+
+<script>
+  var toc = document.querySelector(".toc");
+  if (toc) {
+    toc.addEventListener("click", function () {
+      if (event.target.tagName !== "A") {
+        event.preventDefault();
+        if (this.open) {
+          this.open = false;
+          this.classList.remove("expanded");
+        } else {
+          this.open = true;
+          this.classList.add("expanded");
+        }
+      }
+    });
+  }
+</script>
+
+        <div class="content e-content">
+            <p align="center">
+<img src="/rf/rf.png" width="600" height="400"><br>
+<em>Figure 1: basic RL model</em>
+<p>
+<p><em>Image cited from <sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup></em></p>
+<h2 id="basic-problem-statement-of-reinforcement-learning" >
+<div>
+    <a href="#basic-problem-statement-of-reinforcement-learning">
+        
+    </a>
+    Basic Problem Statement of Reinforcement Learning
+</div>
+</h2>
+<p>Reinforcement Learning (RL) is a type of machine learning where an agent learns to make decisions by taking actions in
+an environment to maximize cumulative reward. Unlike supervised learning, where the model is trained on a fixed dataset,
+RL involves learning through interaction with the environment. Let&rsquo;s define some basic elements in RL domain.</p>
+<ul>
+<li><strong>Agent</strong>: The learner or decision maker.</li>
+<li><strong>Environment</strong>: The external system the agent interacts with.</li>
+<li><strong>State</strong> $S$: A representation of the current situation of the agent.</li>
+<li><strong>Action</strong> $A$: The set of all possible moves the agent can make.</li>
+<li><strong>Reward</strong> $R$: A feedback signal from the environment to evaluate the agent&rsquo;s action.
+<ul>
+<li>A factor $\gamma$ between 0 and 1 that represents the difference in importance between future rewards and immediate rewards is
+usually used to prioritize short-term rewards over long-term rewards</li>
+</ul>
+</li>
+<li><strong>Policy $\pi$</strong>: A strategy used by the agent to determine the next action based on the current state. It&rsquo;s usually
+a probability function $\pi: S\times A$ -&gt; $[0, 1]$</li>
+<li><strong>Value Function $V_{\pi}(s)$</strong>: A function that estimates the expected cumulative reward from a given state with the policy $\pi$.</li>
+<li><strong>Q-Function $Q_{\pi}(s, a)$</strong>: A function that estimates the expected cumulative reward from a given state-action pair with the policy $\pi$.</li>
+</ul>
+<p>As it can be seen in <em>Figure 1</em>, the general workflow of RL involves</p>
+<ol>
+<li>Observe the state $s_t$ (and reward $r_t$), the state can be any representation of the current situation or context in which the agent operates.
+Note that the state space $S$ can be either <strong>finite</strong> or <strong>infinite</strong>.</li>
+<li>Based on the current policy $\pi$, the agent selects an action $a_t \in A$ to perform. The selection can be <strong>deterministic</strong>
+or <strong>stochastic</strong> depending on the policy.</li>
+<li>The agent performs the selected action $a_t$ in the environment (can also be either <strong>known</strong> or <strong>unknown</strong>).</li>
+<li>After performing the action, the agent receives a reward $r_{t+1}$ from the environment and observes the next state $s_{t+1}$.
+The mechanism of moving from one state to another given a specific action is modeled by a probability function, denoted as $P(s_{t+1} \mid s_t, a_t)$.</li>
+<li>The agent updates its <strong>policy</strong> $\pi(a_t \mid s_t)$ and <strong>value functions</strong> $V(s_t)$ or $Q(s_t, a_t)$ based on the observed reward $r_t$
+and next state $s_{t+1}$. The update rule varies depending on the RL algorithm used. (Note that the policy learned in step 5
+can be either the <strong>same (on policy)</strong> or <strong>different (off policy)</strong> with the ones in step 2)</li>
+<li>The agent repeats again from step 1 and continues this iterative process until the policy converges, meaning it has
+learned an optimal or near-optimal policy that maximizes cumulative rewards over time.</li>
+</ol>
+<p>Reinforcement Learning (RL) derives its name from the concept of &ldquo;reinforcement&rdquo; in behavioral psychology, where learning
+occurs through rewards and punishments. The agent learns to make decisions by receiving feedback in the form of rewards or
+penalties. Positive outcomes reinforce the actions that led to them, strengthening the behavior. The learning process is kind
+of a process of <strong>&ldquo;Trial and Error&rdquo;</strong>, where the agent explores different actions to discover which ones yield the highest rewards.
+Long-term beneficial actions are reinforced through repeated positive outcomes.</p>
+<p>Now let&rsquo;s start with the most influential and fundamental RL model - Markov Decision Process (MDP). Our fantastic journey begins here.
+Note that the below algorithms and equations are cited from <sup id="fnref:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">2</a></sup>, <sup id="fnref:3"><a href="#fn:3" class="footnote-ref" role="doc-noteref">3</a></sup> and <sup id="fnref:4"><a href="#fn:4" class="footnote-ref" role="doc-noteref">4</a></sup>.</p>
+<h3 id="markov-decision-process-mdp" >
+<div>
+    <a href="#markov-decision-process-mdp">
+        
+    </a>
+    Markov Decision Process (MDP)
+</div>
+</h3>
+<p>Let&rsquo;s be more specific about the above settings to realize the MDP. Assume the state space $S$ and action space $A$ are finite,
+the process is equipped with the markov property, that is, $P(s_{t+1} \mid h_t) = P(s_{t+1} \mid s_t, a_t)$, where $h_t = \{ s_1, a_1, &hellip; , s_t, a_t \}$
+denotes the history of states and actions.</p>
+<p>Suppose the agent is interacting with the environment for a total $T$ steps (horizon). Let&rsquo;s define the total reward after time $t$ as
+$$
+G_t = r_{t+1} + \gamma r_{t+2} + &hellip; + \gamma^{T-t-1} r_T \tag{1.1}
+$$
+The value function is defined as
+$$
+V_{\pi}(s) = \mathbb{E}_{\pi}[G_t \mid s_t=s] \tag{1.2}
+$$</p>
+<p>The value action function $Q$ is defined as</p>
+<p>$$
+Q_{\pi}(s, a) = \mathbb{E}_{\pi}[G_t \mid s_t=s, a_t=a] \tag{1.3}
+$$</p>
+<p>From the above definition, it&rsquo;s easy to derive the connection between $V$ and $Q$. In particular, when marginalizing the action,
+we are able to convert $Q$ function to $V$ value function.</p>
+<p>$$
+V_{\pi}(s) = \sum_{a \in A} \pi(a \mid s)Q_{\pi}(s, a) \tag{1.4}
+$$</p>
+<p>when converting $V$ to $Q$, we can see that</p>
+<p align="center">
+\begin{aligned}
+Q_{\pi}(s, a) &= \mathbb{E}_{\pi}[G_t \mid s_t=s, a_t=a] \\
+&= \mathbb{E}_{\pi}[r_{t+1} + \gamma r_{t+2} + \gamma^2 r_{t+3}+ ... \mid s_t=s, a_t=a] \\
+&= \mathbb{E}_{\pi}[r_{t+1} \mid s_t=s, a_t=a] + \gamma \mathbb{E}_{\pi}[r_{t+2} + \gamma r_{t+3} + ... \mid s_t=s, a_t=a] \\
+&= R(s, a) + \gamma \mathbb{E}_{\pi}[G_{t+1} \mid s_t=s, a_t=a] \\
+&= R(s, a) + \gamma \mathbb{E}_{\pi}[\mathbb{E}_{\pi}[G_{t+1} \mid s_{t+1}] \mid s_t=s, a_t=a] \\
+&= R(s, a) + \gamma \mathbb{E}_{\pi}[V_{\pi}(s_{t+1}) \mid s_t=s, a_t=a] \\
+&= R(s, a) + \gamma \sum_{s' \in S} p(s' \mid s, a) V_{\pi}(s') \hspace{15.5em} \text{(1.5)}
+\end{aligned}
+</p>
+<h4 id="bellman-expectation-equation" >
+<div>
+    <a href="#bellman-expectation-equation">
+        
+    </a>
+    Bellman Expectation Equation
+</div>
+</h4>
+<p>From (1.2), we can express the value function in an recursive way.</p>
+<p align="center">
+\begin{aligned}
+V_{\pi}(s) &= \mathbb{E}_{\pi}[G_t \mid s_t=s] \\
+&= \mathbb{E}_{\pi}[r_{t+1} + \gamma r_{t+2} + \gamma^2 r_{t+3} + ... \mid s_t=s] \\
+&= \mathbb{E}_{\pi}[r_{t+1} \mid s_t=s] + \gamma\mathbb{E}_{\pi}[r_{t+2} + \gamma r_{t+3} + ... \mid s_t=s] \\
+&= \mathbb{E}_{\pi}[r_{t+1} \mid s_t=s] + \gamma\mathbb{E}_{\pi}[G_{t+1} \mid s_t=s] \\
+&= \mathbb{E}_{\pi}[r_{t+1} \mid s_t=s] + \gamma\mathbb{E}_{\pi}[\mathbb{E}_{\pi}[G_{t+1} \mid s_{t+1}] \mid s_t=s] \\
+&= \mathbb{E}_{\pi}[r_{t+1} \mid s_t=s] + \gamma\mathbb{E}_{\pi}[V_{\pi}(s_{t+1}) \mid s_t=s] \\
+&= \mathbb{E}_{\pi}[r_{t+1} + \gamma V_{\pi}(s_{t+1}) \mid s_t=s] \hspace{19em} \text{(1.6)}
+\end{aligned}
+</p>
+Similarly, the state action function can also be written recursively
+$$
+Q_{\pi}(s, a) = \mathbb{E}_{\pi}[r_{t+1} + \gamma Q_{\pi}(s_{t+1}, a_{t+1}) \mid s_t=s, a_t=a] \tag{1.7}
+$$
+Furthermore, equation (1.5) also expressed the current-future connection between $V$ and $Q$. So if we plug equation 
+(1.5) in (1.4), then we would get 
+$$
+V_{\pi}(s) = \sum_{a \in A} \pi(a \mid s)(R(s, a) + \gamma \sum_{s' \in S} p(s' \mid s, a) V_{\pi}(s')) \tag{1.8}
+$$
+which denotes the connection of value function at current state and future state.
+On the other hand, if (1.4) is plugged in (1.5), we can see
+$$
+Q_{\pi}(s, a) = R(s, a) + \gamma \sum_{s' \in S} p(s' \mid s, a) \sum_{a' \in A} \pi(a' \mid s')Q_{\pi}(s', a') \tag{1.9}
+$$
+which builds the connection of the action value function between the current and future state action pairs. By comparing
+(1.6) and (1.8), (1.7) and (1.9), it's easy to observe that (1.8) and (1.9) actually implements the expectation expression explicitly. 
+<p>A visualized interpretation of (1.8) and (1.9) are shown in the following backup diagram.</p>
+<p align="center">
+    <img src="/rf/backup.png"><br>
+    <em>Figure 2: Backup Diagram</em>
+</p>
+<h4 id="bellman-optimal-equation" >
+<div>
+    <a href="#bellman-optimal-equation">
+        
+    </a>
+    Bellman Optimal Equation
+</div>
+</h4>
+<p>The goal of reinforcement learning is to find the optimal policy $\pi^*$ such that the value function is maximized.</p>
+<p>$$
+\pi^*(s) = \arg \max_{\pi} V_{\pi}(s)
+$$</p>
+<p>when this is achieved, the optimal value function is $V^*(s) = max_{\pi}V_{\pi}(s), \forall s \in S$. At this time,
+the optimal value function can also be achieved by selecting the best action under the optimal policy</p>
+<p>$$
+V^* (s) = \max_{a} Q^* (s, a) \tag{1.10}
+$$</p>
+<p>where $Q^* (s, a) = \arg \max_{\pi} Q_{\pi}(s, a)$, $\forall s \in S, a \in A$.</p>
+<p>Let&rsquo;s apply the optimal policy in (1.5) and we have</p>
+<p>$$
+Q^* (s, a) = R(s, a) + \gamma \sum_{s&rsquo; \in S} p(s&rsquo; \mid s, a) V^*(s&rsquo;) \tag{1.11}
+$$</p>
+<p>When plugging (1.10) in (1.11), we get <strong>Bellman optimal equation</strong></p>
+<p>$$
+Q^* (s, a) = R(s, a) + \gamma \sum_{s&rsquo; \in S} p(s&rsquo; \mid s, a) \max_{a&rsquo;} Q^* (s&rsquo;, a&rsquo;) \tag{1.12}
+$$</p>
+<p>Similarly, plugging (1.11) in (1.10), the Bellman optimal value equation is</p>
+<p>$$
+V^* (s) = \max_{a} \left( R(s, a) + \gamma \sum_{s&rsquo; \in S} p(s&rsquo; \mid s, a) V^* (s&rsquo;) \right) \tag{1.13}
+$$</p>
+<p>So far, we have introduced the main math modeling framework in RL. How shall we fit the real-life cases into this framework
+and get the best policy? What trade-offs have to be made in each scenario? Let&rsquo;s take a deep dive.</p>
+<h2 id="model-based---when-the-environment-is-given" >
+<div>
+    <a href="#model-based---when-the-environment-is-given">
+        
+    </a>
+    Model Based - when the environment is given
+</div>
+</h2>
+<p>Our journey begins with a typical MDP where the transition mechanism and the reward function are fully known. As seen in
+the above Bellman expectation and optimal equations, the problem can be resolved by tackling a similar subproblem recursively.
+This is usually known as dynamic programming.</p>
+<h3 id="dynamic-programming" >
+<div>
+    <a href="#dynamic-programming">
+        
+    </a>
+    Dynamic Programming
+</div>
+</h3>
+<h4 id="policy-iteration" >
+<div>
+    <a href="#policy-iteration">
+        
+    </a>
+    policy iteration
+</div>
+</h4>
+<p>The key idea is to iteratively process two alternative steps: policy evaluation and policy improvement. Policy evaluation
+computes the value function $V^\pi$ for the current policy $\pi$. While policy improvement updates the policy $\pi$ using
+the greedy approach.</p>
+<ul>
+<li>initialize the policy $\pi(s)$ and value function $V(s)$</li>
+<li>while not stop
+<ul>
+<li>while $\delta &gt; \theta$, do
+<ul>
+<li>$\delta \leftarrow 0$</li>
+<li>for each $s \in S$
+<ul>
+<li>$v \leftarrow V(s)$</li>
+<li>$V(s) \leftarrow \sum_{a \in A} \pi(a \mid s)(R(s, a) + \gamma \sum_{s&rsquo; \in S} p(s&rsquo; \mid s, a) V_{\pi}(s&rsquo;)) $ <strong>(policy evaluation)</strong></li>
+<li>$\delta \leftarrow \max(\delta, |v - V(s)|)$</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>end while</li>
+<li>$\pi_{old} \leftarrow \pi$</li>
+<li>for each $s \in S$
+<ul>
+<li>$\pi(s) \leftarrow \arg \max_{a} R(s, a) + \gamma \sum_{s&rsquo;} p(s&rsquo; \mid s, a)V(s&rsquo;)$ <strong>(policy improvement)</strong></li>
+</ul>
+</li>
+<li>if $\pi_{old} = \pi$
+<ul>
+<li>stop and return $\pi$ and $V$</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="value-iteration" >
+<div>
+    <a href="#value-iteration">
+        
+    </a>
+    value iteration
+</div>
+</h4>
+<p>It usually takes quite a significant amount of time to run policy evaluation, especially when the state and action space are
+large enough. Is there a way to avoid too many policy evaluation process? The answer is value iteration. It&rsquo;s an iterative process
+to update the Bellman optimal equation (1.13).</p>
+<ul>
+<li>initialize the value function $V(s)$</li>
+<li>while $\delta &gt; \theta$, do
+<ul>
+<li>$\delta \leftarrow 0$</li>
+<li>for each $s \in S$
+<ul>
+<li>$v \leftarrow V(s)$</li>
+<li>$V(s) \leftarrow \max_{a \in A} (R(s, a) + \gamma \sum_{s&rsquo; \in S} p(s&rsquo; \mid s, a) V_{\pi}(s&rsquo;)) $</li>
+<li>$\delta \leftarrow \max(\delta, |v - V(s)|)$</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>end while</li>
+<li>$\pi(s) \leftarrow \arg \max_{a} R(s, a) + \gamma \sum_{s&rsquo;} p(s&rsquo; \mid s, a)V(s&rsquo;)$</li>
+<li>return $V$ and $\pi$</li>
+</ul>
+<p>It can be seen that value iteration doesn&rsquo;t own policy updates, it generates the optimal policy when the value function converges.</p>
+<h2 id="model-free---when-the-environment-is-unknown" >
+<div>
+    <a href="#model-free---when-the-environment-is-unknown">
+        
+    </a>
+    Model Free - when the environment is unknown
+</div>
+</h2>
+<p>In practical, the environment is hardly fully known or it&rsquo;s simply a blackbox most of the time. Thus dynamic programming (policy
+iteration &amp; value iteration) might not helpful. In this section, we will introduce solutions originated from various kinds ideas.</p>
+<h3 id="value-based" >
+<div>
+    <a href="#value-based">
+        
+    </a>
+    Value Based
+</div>
+</h3>
+<p>This collection of algorithms aims optimizing the the value function $V$ or $Q$, which can then be used to derive the optimal
+policy. The policy is typically derived indirectly by selecting actions that maximize the estimated value. Value based methods
+are usually simple to implement and understand. They are effective in environments with discrete and finite action spaces.
+Deriving optimal policies is clear and straightforward. However, they are usually struggling with high-dimensional or continuous
+action spaces. Trying function approximation (e.g., neural networks) may not work well due to unstable and divergence. Besides,
+value based methods usually require extensive exploration to accurately estimate value functions.</p>
+<h4 id="model-free-policy-evaluation-monte-carlo--temporal-difference-td" >
+<div>
+    <a href="#model-free-policy-evaluation-monte-carlo--temporal-difference-td">
+        
+    </a>
+    Model Free Policy Evaluation: Monte Carlo &amp; Temporal Difference (TD)
+</div>
+</h4>
+<p>Value based approaches inherits the idea from dynamic programming. The difference now is that the environment is unknown such that
+both policy iteration and value iteration are not feasible (transition probably unavailable now). Let&rsquo;s start with a simple question:
+<strong>how can we estimate the value function given a policy when the environment is unknown</strong>. The idea is to <strong>interact with the environment</strong>
+and update the value function/policy based on the returned rewards. Depending on how heavily we rely on interacting with the
+environment, we have the Monte Carlo and Temporal difference method.</p>
+<h5 id="monte-carlo" >
+<div>
+    <a href="#monte-carlo">
+        
+    </a>
+    Monte Carlo
+</div>
+</h5>
+<p>Monte Carlo methods rely on averaging returns of sampled episodes to estimate the expected value of states or state-action pairs.
+Unlike temporal difference (TD) methods, Monte Carlo methods do not bootstrap and instead use complete episodes to update value estimates.</p>
+<ul>
+<li>Initialize $V_{\pi}(s)$ arbitrarily for all states $s \in S$.</li>
+<li>Initialize the total reward $S(s)$ and total visits $N(s)$</li>
+<li>for episode from 1 to $N$, do:
+<ul>
+<li>Generate an episode trajectory $(s_0, a_0, r_1, s_1, a_1, r_2, \ldots, s_T)$ following policy $\pi$.</li>
+<li>For each state $s$ that first appearing in the episode trajectory:
+<ul>
+<li>Compute the return $G_t$  from state $s$: $G_t = r_{t+1} + \gamma r_{t+2} + \dots + \gamma^{T-t-1} r_T$</li>
+<li>total reward at $s$ is $S(s) \leftarrow S(s) + G_t$</li>
+<li>total count visiting $s$ is $N(s) \leftarrow N(s) + 1$</li>
+<li>Update the value estimate $V_{\pi}(s)$ as the average of all observed returns for state $s$: $V_{\pi}(s) \leftarrow \frac{S(s)} {N(s)}$.</li>
+</ul>
+</li>
+<li>end for</li>
+</ul>
+</li>
+<li>end for</li>
+<li>return the value function under policy $\pi$</li>
+</ul>
+<p>It&rsquo;s worth noting that the monte carlo update can also be reformated in an incremental way, that is,
+$$
+V_{\pi}(s) \leftarrow V_{\pi}(s) + \frac{1}{N(s)} (G_t - V_{\pi}(s)) \tag{3.1}
+$$
+So it&rsquo;s updating the value function based on the delta of newly generated reward and current knowledge of value at $s$, with a
+learning rate proportion to the inverse of total visits. (3.1) is a typical formula of stochastic approximation. It is approximating
+the actual reward $G_t$ by updating $v_{\pi}$. However, the updates does not start until the entire episode completes. This may not
+feasible in some cases where the interactive game never ends or more frequent updates are expected. To tackle this, we are happy
+to introduce temporal difference.</p>
+<h5 id="temporal-difference" >
+<div>
+    <a href="#temporal-difference">
+        
+    </a>
+    Temporal Difference
+</div>
+</h5>
+<p>From (1.2), we can see that the Monte Carlo is approximating the target $G_t$ using (3.1). If we only interact with the environment
+one step instead of completing the full episode trajectory. It&rsquo;s equivalent to reformat the (1.2) as (1.6), where the target is
+thus $r_{t} + \gamma V_{\pi}(s_{t+1})$. So the stochastic approximation updates (3.1) can be written as
+$$
+V_{\pi}(s) \leftarrow V_{\pi}(s) + \alpha (r_{t+1} + \gamma V_{\pi}(s_{t+1}) - V_{\pi}(s)) \tag{3.2}
+$$
+where the $r_{t+1} + \gamma V_{\pi}(s_{t+1}) - V_{\pi}(s)$ is called temporal difference error. Since only one step reward is retrieved
+from the system interaction, it&rsquo;s also noted as 1-step temporal difference, i.e. TD(1). What if we interact a few more steps with the environment?
+The target $G_t$ would include more future steps rewards. A general representation of TD(k) is shown below.</p>
+<p align="center">
+\begin{aligned}
+&TD(1) \hspace{1em} \rightarrow \hspace{1em} G^{1}_t = r_{t+1} + \gamma V(s_{t+1}) \\
+&TD(2) \hspace{1em} \rightarrow \hspace{1em} G^{2}_t = r_{t+1} + \gamma r_{t+2} + \gamma^2 V(s_{t+2}) \\
+&TD(k) \hspace{1em} \rightarrow \hspace{1em} G^{k}_t = r_{t+1} + \gamma r_{t+2} + \dots + \gamma^{k-1} r_{t+k} + \gamma^k V(s_{t+k}) \\
+&TD(\infty) / MC \hspace{1em} \rightarrow \hspace{1em} G^{\infty}_t = r_{t+1} + \gamma r_{t+2}+ \dots + \gamma^{T-t-1} r_{T})
+\end{aligned}
+</p>
+<p>Compared with Monte Carlo, it&rsquo;s possible to updating the value function in an online fashion, meaning that update happens after
+every step of interaction. It&rsquo;s more efficient than updating after completing an episode. This also indicates that TD learning can be
+applied to any piece of episode, which is more flexible. The estimation variance is lower but bias can be higher due to bootstrapping
+(updates based on estimated value of next state)</p>
+<p>Below compares the computation graph among MC, TD and DP. In MC, only the states on the episode trajectory are updated. On the
+other hand, DP computes all the related next states when updating. TD compromise both MC and DP, it sampled only one or finite steps
+for updating.</p>
+<p align="center">
+<img src="/rf/rf_dp_mc_td.png" width="900" height="600"><br>
+<em>Figure 3: Visual Interpretation of DP, TD and MC</em>
+<p>
+<p><em>Image cited from <sup id="fnref:5"><a href="#fn:5" class="footnote-ref" role="doc-noteref">5</a></sup></em></p>
+<h4 id="sarsa" >
+<div>
+    <a href="#sarsa">
+        
+    </a>
+    SARSA
+</div>
+</h4>
+<p>Now given a policy $\pi$, we have learned TD and MC can help evaluate the value function when the environment is unknown.
+The next natural question is How can we find the optimal policy? We can borrow the policy improvement idea from policy
+iteration in DP. Get the next policy by using the greedy search, i.e. $\pi_{i+1}(s) = \arg \max_a Q_{\pi_i}(s, a)$.
+Combining the generalized policy evaluation and the greedy policy improvement would allow us to build the generalized policy
+iteration.</p>
+<p align="center">
+<img src="/rf/policy_iteration.png" width="250" height="150"><br>
+<em>Figure 4: Generalized Policy Iteration</em>
+<p>
+<p>Another difference from the policy iteration in DP is that we may never update some state-action pairs using the pure greedy
+policy improvement strategy. This is because we are now interacting with the environment instead of updating all the states action
+explicitly with known transition probabilities. So we may need to allow some extent of exploration to mitigate such issue. One
+solution is to apply the $\epsilon$-greedy strategy.</p>
+<p align="center">
+\begin{aligned}
+\pi(a \mid s) &= 
+\begin{cases} 
+      1 - \epsilon & \text{if } a = \arg \max_a Q(s, a) \\
+      \epsilon &  \text{other actions in A}
+\end{cases}
+\end{aligned}
+</p>
+<p>Thus the complete algorithm (TD policy evaluation on $Q$ + $\epsilon$-greedy policy improvement) is:</p>
+<ul>
+<li>Initialize the $Q(s, a)$</li>
+<li>for iteration from 1 to $N$, do:
+<ul>
+<li>get initial state $s$</li>
+<li>apply the $\epsilon$-greedy strategy to choose the action $a$ based on $s$</li>
+<li>for $t$ from 1 to $T$, do:
+<ul>
+<li>interact with the environment and get reward $r$ and $s'$</li>
+<li>apply the $\epsilon$-greedy strategy to choose the next action $a&rsquo;$ based on $s'$</li>
+<li>$Q(s, a) \leftarrow Q(s, a) + \alpha [r + \gamma Q(s&rsquo;, a&rsquo;) - Q(s, a)]$ <strong>(TD policy evaluation)</strong></li>
+<li>$s \leftarrow s&rsquo;, a \leftarrow a&rsquo;$ <strong>($\epsilon$-greedy policy improvement)</strong></li>
+</ul>
+</li>
+<li>end for</li>
+</ul>
+</li>
+<li>end for</li>
+<li>return the value action $Q$</li>
+</ul>
+<p>It&rsquo;s worth noting that once the state, action, reward, next state, next action $(s, a, r, s&rsquo;, a&rsquo;)$ is generated, the update is
+conducted once and then repeats the iterations. Therefore, is called <strong>SARSA</strong>. In a more general case, if we interact more steps
+and update the $Q$ value using $Q(s_t, a_t) \leftarrow Q(s_t, a_t) + \alpha [r_t + \gamma r_{t+1} + \dots + \gamma^n Q(s_{t+n}, a_{t+n}) - Q(s_t, a_t)]$,
+then it&rsquo;s <strong>$n$ step SARSA</strong>.</p>
+<h4 id="q-learning" >
+<div>
+    <a href="#q-learning">
+        
+    </a>
+    Q-Learning
+</div>
+</h4>
+<p>If the way of updating the TD policy evaluation in SARSA is changed to
+$$
+Q(s, a) \leftarrow Q(s, a) + \alpha [r + \gamma \max_{a&rsquo;}Q(s&rsquo;, a&rsquo;) - Q(s, a)] \tag{3.3}
+$$
+Then we would get the Q learning algorithm.</p>
+<ul>
+<li>Initialize the $Q(s, a)$</li>
+<li>for iteration from 1 to $N$, do:
+<ul>
+<li>get initial state $s$</li>
+<li>for $t$ from 1 to $T$, do:
+<ul>
+<li>apply the $\epsilon$-greedy strategy to choose the action $a$ based on $s$</li>
+<li>interact with the environment and get reward $r$ and $s'$</li>
+<li>$Q(s, a) \leftarrow Q(s, a) + \alpha [r + \gamma \max_{a&rsquo;}Q(s&rsquo;, a&rsquo;) - Q(s, a)]$</li>
+<li>$s \leftarrow s'$</li>
+</ul>
+</li>
+<li>end for</li>
+</ul>
+</li>
+<li>end for</li>
+<li>return the value action $Q$</li>
+</ul>
+<p>The major difference between Q learning and SARSA is about the way to update the $Q$ value. In (3.3), we are actually
+approximating the target value $r + \gamma \max_{a&rsquo;}Q(s&rsquo;, a&rsquo;)$. So the goal here is to learn
+the optimal policy $\pi(a \mid s) = \max_{a&rsquo;}Q(s, a&rsquo;)$. Let&rsquo;s call the policy used in (3.3) as the target policy.
+The data used to learn the target policy $(s, a, r, s&rsquo;)$ is however generated from another policy that interacts with the
+environment, called the behavior policy ($\epsilon$-greedy). It&rsquo;s easy to see that the target policy is different from the
+behavior policy. This is also called <strong>off-policy</strong> learning.</p>
+<p>On the other hand, the behavior policy fully aligns with the target policy in SARSA, which means $a&rsquo;$ and $a$ are generated
+from the same policy. This kind of learning is called <strong>on-policy</strong> learning.</p>
+<p>One interesting common area among DP, SARSA, Q-learning is that they all assume finite or discrete state and action space.
+Optimizing such problem can be seen as updating a table with an entry for each possible state or state-action pair. Thus,
+these algorithms are also called <strong>tabular methods</strong>.</p>
+<p><strong>To be continued &hellip;</strong></p>
+<h2 id="summary" >
+<div>
+    <a href="#summary">
+        
+    </a>
+    Summary
+</div>
+</h2>
+<p>So far, we have introduced the basic RL setting and basic tabular methods that are suitable to simple cases. However, most
+real problems involve large quantity or infinite state or action space. More powerful tools are thus needed. In next blog,
+we will start the journey to deep reinforcement learning, an area that utilize the fancy deep learning techniques to tackle
+more complicated problems.</p>
+<h2 id="citation" >
+<div>
+    <a href="#citation">
+        
+    </a>
+    Citation
+</div>
+</h2>
+<p>If you find this post helpful, please consider citing it as:</p>
+<div class="highlight"><pre tabindex="0" style="color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bibtex" data-lang="bibtex"><span style="display:flex;"><span><span style="color:#f3f99d">@article</span>{<span style="color:#ff5c57">wang2024rflearningtabular</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#57c7ff">author</span> = <span style="color:#5af78e">&#34;Bing Wang&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#57c7ff">title</span> = <span style="color:#5af78e">&#34;A Journey to Reinforcement Learning - Tabular Methods&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#57c7ff">journal</span> = <span style="color:#5af78e">&#34;bingzw.github.io&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#57c7ff">year</span> = <span style="color:#5af78e">&#34;2024&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#57c7ff">month</span> = <span style="color:#5af78e">&#34;July&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#57c7ff">url</span> = <span style="color:#5af78e">&#34;https://bingzw.github.io/posts/2024-07-05-rf-learning-tabular/&#34;</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>or</p>
+<div class="highlight"><pre tabindex="0" style="color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-markdown" data-lang="markdown"><span style="display:flex;"><span>Bing Wang. (2024, June). A Journey to Reinforcement Learning - Tabular Methods. 
+</span></span><span style="display:flex;"><span>https://bingzw.github.io/posts/2024-07-05-rf-learning-tabular/
+</span></span></code></pre></div><h2 id="reference" >
+<div>
+    <a href="#reference">
+        
+    </a>
+    Reference
+</div>
+</h2>
+<div class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1">
+<p><a href="https://www.mdpi.com/2076-3417/13/4/2443">Souchleris, Konstantinos, George K. Sidiropoulos, and George A. Papakostas. &ldquo;Reinforcement learning in game industry—review, prospects and challenges.&rdquo; Applied Sciences 13.4 (2023): 2443</a>&#160;<a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:2">
+<p><a href="https://datawhalechina.github.io/easy-rl/">Easy RL</a>&#160;<a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:3">
+<p><a href="https://hrl.boyuai.com/">Hands On RL</a>&#160;<a href="#fnref:3" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:4">
+<p><a href="https://www.andrew.cmu.edu/course/10-703/textbook/BartoSutton.pdf">Reinforcement Learning: An Introduction</a>&#160;<a href="#fnref:4" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:5">
+<p><a href="https://roboticseabass.com/2020/08/02/an-intuitive-guide-to-reinforcement-learning/">An intuitive guide to reinforcement learning</a>&#160;<a href="#fnref:5" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+</ol>
+</div>
+        </div>
+
+    </article>
+
+    
+    
+        
+    
+
+    
+        
+        
+            <h3 class="read-next-title noselect">Read next</h3>
+            <ul class="read-next-posts noselect">
+                
+                <li><a href="/posts/2024-06-06-recommendation-model/">Recommendation Models</a></li>
+                
+            </ul>
+        
+    
+
+    
+
+    
+        
+
+
+
+
+
+
+
+
+            
+
+<script>
+        function detectCurrentScheme2() {
+                const defaultTheme = "auto";
+                if (localStorage !== null && localStorage.getItem("user-color-scheme")) {
+                        return localStorage.getItem("user-color-scheme");
+                }
+                if (defaultTheme === "dark" || defaultTheme === "light") {
+                        return defaultTheme;
+                }
+                return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        }
+
+        let giscusTheme = detectCurrentScheme2();
+        let giscusAttributes = {
+                src: "https://giscus.app/client.js",
+                "data-repo": "Bingzw\/bingzw.github.io",
+                "data-repo-id": "R_kgDOMB8LQg",
+                "data-category": "Announcements",
+                "data-category-id": "DIC_kwDOMB8LQs4CfrMr",
+                "data-mapping": "pathname",
+                "data-strict": "0",
+                "data-reactions-enabled": "1",
+                "data-emit-metadata": "0",
+                "data-input-position": "bottom",
+                "data-theme": giscusTheme,
+                "data-lang": "en",
+                crossorigin: "anonymous",
+                lazyload: "false",
+                async: true,
+        };
+        let main = document.querySelector("main");
+        let giscusScript = document.createElement("script");
+        Object.entries(giscusAttributes).forEach(([key, value]) => giscusScript.setAttribute(key, value));
+        main.appendChild(giscusScript);
+</script>
+
+
+
+
+    
+
+    
+
+    
+
+        </main>
+        
+            <footer class="common-footer noselect">
+    
+    
+
+    <div class="common-footer-bottom">
+        
+
+        <div style="display: flex; align-items: center; gap:8px">
+            © Bing Wang, 2024
+            
+        </div>
+        <div style="display:flex;align-items: center">
+            
+            
+            
+            
+            
+            
+        </div>
+        <div>
+            Powered by <a target="_blank" rel="noopener noreferrer" href="https://gohugo.io/">Hugo</a>, theme <a target="_blank" rel="noopener noreferrer" href="https://github.com/Junyi-99/hugo-theme-anubis2">Anubis2</a>.<br>
+            
+
+        </div>
+    </div>
+
+    <p class="h-card vcard">
+
+    <a href=https://bingzw.github.io/ class="p-name u-url url fn" rel="me"></a>
+
+    
+
+    
+</p>
+
+</footer>
+
+        
+    </div>
+</body>
+</html>
