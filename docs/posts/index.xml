@@ -8,10 +8,548 @@
     <language>en-us</language>
     <managingEditor>bingwang8878@gamil.com (Bing Wang)</managingEditor>
     <webMaster>bingwang8878@gamil.com (Bing Wang)</webMaster>
-    <lastBuildDate>Thu, 06 Jun 2024 22:04:53 -0700</lastBuildDate>
+    <lastBuildDate>Mon, 15 Jul 2024 21:40:55 -0700</lastBuildDate>
     
     <atom:link href="/posts/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>A Journey to Reinforcement Learning - Tabular Methods</title>
+      <link>/posts/2024-07-05-rf-learning-tabular/</link>
+      <pubDate>Fri, 05 Jul 2024 20:59:39 -0700</pubDate>
+      <author>bingwang8878@gamil.com (Bing Wang)</author>
+      <guid>/posts/2024-07-05-rf-learning-tabular/</guid>
+      <description>&lt;p align=&#34;center&#34;&gt;
+&lt;img src=&#34;https://bingzw.github.io/rf/rf.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+&lt;em&gt;Figure 1: basic RL model&lt;/em&gt;
+&lt;p&gt;
+&lt;p&gt;&lt;em&gt;Image cited from &lt;sup id=&#34;fnref:1&#34;&gt;&lt;a href=&#34;#fn:1&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;1&lt;/a&gt;&lt;/sup&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;h2 id=&#34;basic-problem-statement-of-reinforcement-learning&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#basic-problem-statement-of-reinforcement-learning&#34;&gt;
+        
+    &lt;/a&gt;
+    Basic Problem Statement of Reinforcement Learning
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;p&gt;Reinforcement Learning (RL) is a type of machine learning where an agent learns to make decisions by taking actions in
+an environment to maximize cumulative reward. Unlike supervised learning, where the model is trained on a fixed dataset,
+RL involves learning through interaction with the environment. Let&amp;rsquo;s define some basic elements in RL domain.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Agent&lt;/strong&gt;: The learner or decision maker.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Environment&lt;/strong&gt;: The external system the agent interacts with.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;State&lt;/strong&gt; $S$: A representation of the current situation of the agent.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Action&lt;/strong&gt; $A$: The set of all possible moves the agent can make.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Reward&lt;/strong&gt; $R$: A feedback signal from the environment to evaluate the agent&amp;rsquo;s action.
+&lt;ul&gt;
+&lt;li&gt;A factor $\gamma$ between 0 and 1 that represents the difference in importance between future rewards and immediate rewards is
+usually used to prioritize short-term rewards over long-term rewards&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Policy $\pi$&lt;/strong&gt;: A strategy used by the agent to determine the next action based on the current state. It&amp;rsquo;s usually
+a probability function $\pi: S\times A$ -&amp;gt; $[0, 1]$&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Value Function $V_{\pi}(s)$&lt;/strong&gt;: A function that estimates the expected cumulative reward from a given state with the policy $\pi$.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Q-Function $Q_{\pi}(s, a)$&lt;/strong&gt;: A function that estimates the expected cumulative reward from a given state-action pair with the policy $\pi$.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;As it can be seen in &lt;em&gt;Figure 1&lt;/em&gt;, the general workflow of RL involves&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Observe the state $s_t$ (and reward $r_t$), the state can be any representation of the current situation or context in which the agent operates.
+Note that the state space $S$ can be either &lt;strong&gt;finite&lt;/strong&gt; or &lt;strong&gt;infinite&lt;/strong&gt;.&lt;/li&gt;
+&lt;li&gt;Based on the current policy $\pi$, the agent selects an action $a_t \in A$ to perform. The selection can be &lt;strong&gt;deterministic&lt;/strong&gt;
+or &lt;strong&gt;stochastic&lt;/strong&gt; depending on the policy.&lt;/li&gt;
+&lt;li&gt;The agent performs the selected action $a_t$ in the environment (can also be either &lt;strong&gt;known&lt;/strong&gt; or &lt;strong&gt;unknown&lt;/strong&gt;).&lt;/li&gt;
+&lt;li&gt;After performing the action, the agent receives a reward $r_{t+1}$ from the environment and observes the next state $s_{t+1}$.
+The mechanism of moving from one state to another given a specific action is modeled by a probability function, denoted as $P(s_{t+1} \mid s_t, a_t)$.&lt;/li&gt;
+&lt;li&gt;The agent updates its &lt;strong&gt;policy&lt;/strong&gt; $\pi(a_t \mid s_t)$ and &lt;strong&gt;value functions&lt;/strong&gt; $V(s_t)$ or $Q(s_t, a_t)$ based on the observed reward $r_t$
+and next state $s_{t+1}$. The update rule varies depending on the RL algorithm used. (Note that the policy learned in step 5
+can be either the &lt;strong&gt;same (on policy)&lt;/strong&gt; or &lt;strong&gt;different (off policy)&lt;/strong&gt; with the ones in step 2)&lt;/li&gt;
+&lt;li&gt;The agent repeats again from step 1 and continues this iterative process until the policy converges, meaning it has
+learned an optimal or near-optimal policy that maximizes cumulative rewards over time.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Reinforcement Learning (RL) derives its name from the concept of &amp;ldquo;reinforcement&amp;rdquo; in behavioral psychology, where learning
+occurs through rewards and punishments. The agent learns to make decisions by receiving feedback in the form of rewards or
+penalties. Positive outcomes reinforce the actions that led to them, strengthening the behavior. The learning process is kind
+of a process of &lt;strong&gt;&amp;ldquo;Trial and Error&amp;rdquo;&lt;/strong&gt;, where the agent explores different actions to discover which ones yield the highest rewards.
+Long-term beneficial actions are reinforced through repeated positive outcomes.&lt;/p&gt;
+&lt;p&gt;Now let&amp;rsquo;s start with the most influential and fundamental RL model - Markov Decision Process (MDP). Our fantastic journey begins here.
+Note that the below algorithms and equations are cited from &lt;sup id=&#34;fnref:2&#34;&gt;&lt;a href=&#34;#fn:2&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;2&lt;/a&gt;&lt;/sup&gt;, &lt;sup id=&#34;fnref:3&#34;&gt;&lt;a href=&#34;#fn:3&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;3&lt;/a&gt;&lt;/sup&gt; and &lt;sup id=&#34;fnref:4&#34;&gt;&lt;a href=&#34;#fn:4&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;4&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
+&lt;h3 id=&#34;markov-decision-process-mdp&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#markov-decision-process-mdp&#34;&gt;
+        
+    &lt;/a&gt;
+    Markov Decision Process (MDP)
+&lt;/div&gt;
+&lt;/h3&gt;
+&lt;p&gt;Let&amp;rsquo;s be more specific about the above settings to realize the MDP. Assume the state space $S$ and action space $A$ are finite,
+the process is equipped with the markov property, that is, $P(s_{t+1} \mid h_t) = P(s_{t+1} \mid s_t, a_t)$, where $h_t = \{ s_1, a_1, &amp;hellip; , s_t, a_t \}$
+denotes the history of states and actions.&lt;/p&gt;
+&lt;p&gt;Suppose the agent is interacting with the environment for a total $T$ steps (horizon). Let&amp;rsquo;s define the total reward after time $t$ as
+$$
+G_t = r_{t+1} + \gamma r_{t+2} + &amp;hellip; + \gamma^{T-t-1} r_T \tag{1.1}
+$$
+The value function is defined as
+$$
+V_{\pi}(s) = \mathbb{E}_{\pi}[G_t \mid s_t=s] \tag{1.2}
+$$&lt;/p&gt;
+&lt;p&gt;The value action function $Q$ is defined as&lt;/p&gt;
+&lt;p&gt;$$
+Q_{\pi}(s, a) = \mathbb{E}_{\pi}[G_t \mid s_t=s, a_t=a] \tag{1.3}
+$$&lt;/p&gt;
+&lt;p&gt;From the above definition, it&amp;rsquo;s easy to derive the connection between $V$ and $Q$. In particular, when marginalizing the action,
+we are able to convert $Q$ function to $V$ value function.&lt;/p&gt;
+&lt;p&gt;$$
+V_{\pi}(s) = \sum_{a \in A} \pi(a \mid s)Q_{\pi}(s, a) \tag{1.4}
+$$&lt;/p&gt;
+&lt;p&gt;when converting $V$ to $Q$, we can see that&lt;/p&gt;
+&lt;p align=&#34;center&#34;&gt;
+\begin{aligned}
+Q_{\pi}(s, a) &amp;= \mathbb{E}_{\pi}[G_t \mid s_t=s, a_t=a] \\
+&amp;= \mathbb{E}_{\pi}[r_{t+1} + \gamma r_{t+2} + \gamma^2 r_{t+3}+ ... \mid s_t=s, a_t=a] \\
+&amp;= \mathbb{E}_{\pi}[r_{t+1} \mid s_t=s, a_t=a] + \gamma \mathbb{E}_{\pi}[r_{t+2} + \gamma r_{t+3} + ... \mid s_t=s, a_t=a] \\
+&amp;= R(s, a) + \gamma \mathbb{E}_{\pi}[G_{t+1} \mid s_t=s, a_t=a] \\
+&amp;= R(s, a) + \gamma \mathbb{E}_{\pi}[\mathbb{E}_{\pi}[G_{t+1} \mid s_{t+1}] \mid s_t=s, a_t=a] \\
+&amp;= R(s, a) + \gamma \mathbb{E}_{\pi}[V_{\pi}(s_{t+1}) \mid s_t=s, a_t=a] \\
+&amp;= R(s, a) + \gamma \sum_{s&#39; \in S} p(s&#39; \mid s, a) V_{\pi}(s&#39;) \hspace{15.5em} \text{(1.5)}
+\end{aligned}
+&lt;/p&gt;
+&lt;h4 id=&#34;bellman-expectation-equation&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#bellman-expectation-equation&#34;&gt;
+        
+    &lt;/a&gt;
+    Bellman Expectation Equation
+&lt;/div&gt;
+&lt;/h4&gt;
+&lt;p&gt;From (1.2), we can express the value function in an recursive way.&lt;/p&gt;
+&lt;p align=&#34;center&#34;&gt;
+\begin{aligned}
+V_{\pi}(s) &amp;= \mathbb{E}_{\pi}[G_t \mid s_t=s] \\
+&amp;= \mathbb{E}_{\pi}[r_{t+1} + \gamma r_{t+2} + \gamma^2 r_{t+3} + ... \mid s_t=s] \\
+&amp;= \mathbb{E}_{\pi}[r_{t+1} \mid s_t=s] + \gamma\mathbb{E}_{\pi}[r_{t+2} + \gamma r_{t+3} + ... \mid s_t=s] \\
+&amp;= \mathbb{E}_{\pi}[r_{t+1} \mid s_t=s] + \gamma\mathbb{E}_{\pi}[G_{t+1} \mid s_t=s] \\
+&amp;= \mathbb{E}_{\pi}[r_{t+1} \mid s_t=s] + \gamma\mathbb{E}_{\pi}[\mathbb{E}_{\pi}[G_{t+1} \mid s_{t+1}] \mid s_t=s] \\
+&amp;= \mathbb{E}_{\pi}[r_{t+1} \mid s_t=s] + \gamma\mathbb{E}_{\pi}[V_{\pi}(s_{t+1}) \mid s_t=s] \\
+&amp;= \mathbb{E}_{\pi}[r_{t+1} + \gamma V_{\pi}(s_{t+1}) \mid s_t=s] \hspace{19em} \text{(1.6)}
+\end{aligned}
+&lt;/p&gt;
+Similarly, the state action function can also be written recursively
+$$
+Q_{\pi}(s, a) = \mathbb{E}_{\pi}[r_{t+1} + \gamma Q_{\pi}(s_{t+1}, a_{t+1}) \mid s_t=s, a_t=a] \tag{1.7}
+$$
+Furthermore, equation (1.5) also expressed the current-future connection between $V$ and $Q$. So if we plug equation 
+(1.5) in (1.4), then we would get 
+$$
+V_{\pi}(s) = \sum_{a \in A} \pi(a \mid s)(R(s, a) + \gamma \sum_{s&#39; \in S} p(s&#39; \mid s, a) V_{\pi}(s&#39;)) \tag{1.8}
+$$
+which denotes the connection of value function at current state and future state.
+On the other hand, if (1.4) is plugged in (1.5), we can see
+$$
+Q_{\pi}(s, a) = R(s, a) + \gamma \sum_{s&#39; \in S} p(s&#39; \mid s, a) \sum_{a&#39; \in A} \pi(a&#39; \mid s&#39;)Q_{\pi}(s&#39;, a&#39;) \tag{1.9}
+$$
+which builds the connection of the action value function between the current and future state action pairs. By comparing
+(1.6) and (1.8), (1.7) and (1.9), it&#39;s easy to observe that (1.8) and (1.9) actually implements the expectation expression explicitly. 
+&lt;p&gt;A visualized interpretation of (1.8) and (1.9) are shown in the following backup diagram.&lt;/p&gt;
+&lt;p align=&#34;center&#34;&gt;
+    &lt;img src=&#34;https://bingzw.github.io/rf/backup.png&#34;&gt;&lt;br&gt;
+    &lt;em&gt;Figure 2: Backup Diagram&lt;/em&gt;
+&lt;/p&gt;
+&lt;h4 id=&#34;bellman-optimal-equation&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#bellman-optimal-equation&#34;&gt;
+        
+    &lt;/a&gt;
+    Bellman Optimal Equation
+&lt;/div&gt;
+&lt;/h4&gt;
+&lt;p&gt;The goal of reinforcement learning is to find the optimal policy $\pi^*$ such that the value function is maximized.&lt;/p&gt;
+&lt;p&gt;$$
+\pi^*(s) = \arg \max_{\pi} V_{\pi}(s)
+$$&lt;/p&gt;
+&lt;p&gt;when this is achieved, the optimal value function is $V^*(s) = max_{\pi}V_{\pi}(s), \forall s \in S$. At this time,
+the optimal value function can also be achieved by selecting the best action under the optimal policy&lt;/p&gt;
+&lt;p&gt;$$
+V^* (s) = \max_{a} Q^* (s, a) \tag{1.10}
+$$&lt;/p&gt;
+&lt;p&gt;where $Q^* (s, a) = \arg \max_{\pi} Q_{\pi}(s, a)$, $\forall s \in S, a \in A$.&lt;/p&gt;
+&lt;p&gt;Let&amp;rsquo;s apply the optimal policy in (1.5) and we have&lt;/p&gt;
+&lt;p&gt;$$
+Q^* (s, a) = R(s, a) + \gamma \sum_{s&amp;rsquo; \in S} p(s&amp;rsquo; \mid s, a) V^*(s&amp;rsquo;) \tag{1.11}
+$$&lt;/p&gt;
+&lt;p&gt;When plugging (1.10) in (1.11), we get &lt;strong&gt;Bellman optimal equation&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;$$
+Q^* (s, a) = R(s, a) + \gamma \sum_{s&amp;rsquo; \in S} p(s&amp;rsquo; \mid s, a) \max_{a&amp;rsquo;} Q^* (s&amp;rsquo;, a&amp;rsquo;) \tag{1.12}
+$$&lt;/p&gt;
+&lt;p&gt;Similarly, plugging (1.11) in (1.10), the Bellman optimal value equation is&lt;/p&gt;
+&lt;p&gt;$$
+V^* (s) = \max_{a} \left( R(s, a) + \gamma \sum_{s&amp;rsquo; \in S} p(s&amp;rsquo; \mid s, a) V^* (s&amp;rsquo;) \right) \tag{1.13}
+$$&lt;/p&gt;
+&lt;p&gt;So far, we have introduced the main math modeling framework in RL. How shall we fit the real-life cases into this framework
+and get the best policy? What trade-offs have to be made in each scenario? Let&amp;rsquo;s take a deep dive.&lt;/p&gt;
+&lt;h2 id=&#34;model-based---when-the-environment-is-given&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#model-based---when-the-environment-is-given&#34;&gt;
+        
+    &lt;/a&gt;
+    Model Based - when the environment is given
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;p&gt;Our journey begins with a typical MDP where the transition mechanism and the reward function are fully known. As seen in
+the above Bellman expectation and optimal equations, the problem can be resolved by tackling a similar subproblem recursively.
+This is usually known as dynamic programming.&lt;/p&gt;
+&lt;h3 id=&#34;dynamic-programming&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#dynamic-programming&#34;&gt;
+        
+    &lt;/a&gt;
+    Dynamic Programming
+&lt;/div&gt;
+&lt;/h3&gt;
+&lt;h4 id=&#34;policy-iteration&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#policy-iteration&#34;&gt;
+        
+    &lt;/a&gt;
+    policy iteration
+&lt;/div&gt;
+&lt;/h4&gt;
+&lt;p&gt;The key idea is to iteratively process two alternative steps: policy evaluation and policy improvement. Policy evaluation
+computes the value function $V^\pi$ for the current policy $\pi$. While policy improvement updates the policy $\pi$ using
+the greedy approach.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;initialize the policy $\pi(s)$ and value function $V(s)$&lt;/li&gt;
+&lt;li&gt;while not stop
+&lt;ul&gt;
+&lt;li&gt;while $\delta &amp;gt; \theta$, do
+&lt;ul&gt;
+&lt;li&gt;$\delta \leftarrow 0$&lt;/li&gt;
+&lt;li&gt;for each $s \in S$
+&lt;ul&gt;
+&lt;li&gt;$v \leftarrow V(s)$&lt;/li&gt;
+&lt;li&gt;$V(s) \leftarrow \sum_{a \in A} \pi(a \mid s)(R(s, a) + \gamma \sum_{s&amp;rsquo; \in S} p(s&amp;rsquo; \mid s, a) V_{\pi}(s&amp;rsquo;)) $ &lt;strong&gt;(policy evaluation)&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;$\delta \leftarrow \max(\delta, |v - V(s)|)$&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;end while&lt;/li&gt;
+&lt;li&gt;$\pi_{old} \leftarrow \pi$&lt;/li&gt;
+&lt;li&gt;for each $s \in S$
+&lt;ul&gt;
+&lt;li&gt;$\pi(s) \leftarrow \arg \max_{a} R(s, a) + \gamma \sum_{s&amp;rsquo;} p(s&amp;rsquo; \mid s, a)V(s&amp;rsquo;)$ &lt;strong&gt;(policy improvement)&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;if $\pi_{old} = \pi$
+&lt;ul&gt;
+&lt;li&gt;stop and return $\pi$ and $V$&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4 id=&#34;value-iteration&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#value-iteration&#34;&gt;
+        
+    &lt;/a&gt;
+    value iteration
+&lt;/div&gt;
+&lt;/h4&gt;
+&lt;p&gt;It usually takes quite a significant amount of time to run policy evaluation, especially when the state and action space are
+large enough. Is there a way to avoid too many policy evaluation process? The answer is value iteration. It&amp;rsquo;s an iterative process
+to update the Bellman optimal equation (1.13).&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;initialize the value function $V(s)$&lt;/li&gt;
+&lt;li&gt;while $\delta &amp;gt; \theta$, do
+&lt;ul&gt;
+&lt;li&gt;$\delta \leftarrow 0$&lt;/li&gt;
+&lt;li&gt;for each $s \in S$
+&lt;ul&gt;
+&lt;li&gt;$v \leftarrow V(s)$&lt;/li&gt;
+&lt;li&gt;$V(s) \leftarrow \max_{a \in A} (R(s, a) + \gamma \sum_{s&amp;rsquo; \in S} p(s&amp;rsquo; \mid s, a) V_{\pi}(s&amp;rsquo;)) $&lt;/li&gt;
+&lt;li&gt;$\delta \leftarrow \max(\delta, |v - V(s)|)$&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;end while&lt;/li&gt;
+&lt;li&gt;$\pi(s) \leftarrow \arg \max_{a} R(s, a) + \gamma \sum_{s&amp;rsquo;} p(s&amp;rsquo; \mid s, a)V(s&amp;rsquo;)$&lt;/li&gt;
+&lt;li&gt;return $V$ and $\pi$&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;It can be seen that value iteration doesn&amp;rsquo;t own policy updates, it generates the optimal policy when the value function converges.&lt;/p&gt;
+&lt;h2 id=&#34;model-free---when-the-environment-is-unknown&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#model-free---when-the-environment-is-unknown&#34;&gt;
+        
+    &lt;/a&gt;
+    Model Free - when the environment is unknown
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;p&gt;In practical, the environment is hardly fully known or it&amp;rsquo;s simply a blackbox most of the time. Thus dynamic programming (policy
+iteration &amp;amp; value iteration) might not helpful. In this section, we will introduce solutions originated from various kinds ideas.&lt;/p&gt;
+&lt;h3 id=&#34;value-based&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#value-based&#34;&gt;
+        
+    &lt;/a&gt;
+    Value Based
+&lt;/div&gt;
+&lt;/h3&gt;
+&lt;p&gt;This collection of algorithms aims optimizing the the value function $V$ or $Q$, which can then be used to derive the optimal
+policy. The policy is typically derived indirectly by selecting actions that maximize the estimated value. Value based methods
+are usually simple to implement and understand. They are effective in environments with discrete and finite action spaces.
+Deriving optimal policies is clear and straightforward. However, they are usually struggling with high-dimensional or continuous
+action spaces. Trying function approximation (e.g., neural networks) may not work well due to unstable and divergence. Besides,
+value based methods usually require extensive exploration to accurately estimate value functions.&lt;/p&gt;
+&lt;h4 id=&#34;model-free-policy-evaluation-monte-carlo--temporal-difference-td&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#model-free-policy-evaluation-monte-carlo--temporal-difference-td&#34;&gt;
+        
+    &lt;/a&gt;
+    Model Free Policy Evaluation: Monte Carlo &amp;amp; Temporal Difference (TD)
+&lt;/div&gt;
+&lt;/h4&gt;
+&lt;p&gt;Value based approaches inherits the idea from dynamic programming. The difference now is that the environment is unknown such that
+both policy iteration and value iteration are not feasible (transition probably unavailable now). Let&amp;rsquo;s start with a simple question:
+&lt;strong&gt;how can we estimate the value function given a policy when the environment is unknown&lt;/strong&gt;. The idea is to &lt;strong&gt;interact with the environment&lt;/strong&gt;
+and update the value function/policy based on the returned rewards. Depending on how heavily we rely on interacting with the
+environment, we have the Monte Carlo and Temporal difference method.&lt;/p&gt;
+&lt;h5 id=&#34;monte-carlo&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#monte-carlo&#34;&gt;
+        
+    &lt;/a&gt;
+    Monte Carlo
+&lt;/div&gt;
+&lt;/h5&gt;
+&lt;p&gt;Monte Carlo methods rely on averaging returns of sampled episodes to estimate the expected value of states or state-action pairs.
+Unlike temporal difference (TD) methods, Monte Carlo methods do not bootstrap and instead use complete episodes to update value estimates.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Initialize $V_{\pi}(s)$ arbitrarily for all states $s \in S$.&lt;/li&gt;
+&lt;li&gt;Initialize the total reward $S(s)$ and total visits $N(s)$&lt;/li&gt;
+&lt;li&gt;for episode from 1 to $N$, do:
+&lt;ul&gt;
+&lt;li&gt;Generate an episode trajectory $(s_0, a_0, r_1, s_1, a_1, r_2, \ldots, s_T)$ following policy $\pi$.&lt;/li&gt;
+&lt;li&gt;For each state $s$ that first appearing in the episode trajectory:
+&lt;ul&gt;
+&lt;li&gt;Compute the return $G_t$  from state $s$: $G_t = r_{t+1} + \gamma r_{t+2} + \dots + \gamma^{T-t-1} r_T$&lt;/li&gt;
+&lt;li&gt;total reward at $s$ is $S(s) \leftarrow S(s) + G_t$&lt;/li&gt;
+&lt;li&gt;total count visiting $s$ is $N(s) \leftarrow N(s) + 1$&lt;/li&gt;
+&lt;li&gt;Update the value estimate $V_{\pi}(s)$ as the average of all observed returns for state $s$: $V_{\pi}(s) \leftarrow \frac{S(s)} {N(s)}$.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;end for&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;end for&lt;/li&gt;
+&lt;li&gt;return the value function under policy $\pi$&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;It&amp;rsquo;s worth noting that the monte carlo update can also be reformated in an incremental way, that is,
+$$
+V_{\pi}(s) \leftarrow V_{\pi}(s) + \frac{1}{N(s)} (G_t - V_{\pi}(s)) \tag{3.1}
+$$
+So it&amp;rsquo;s updating the value function based on the delta of newly generated reward and current knowledge of value at $s$, with a
+learning rate proportion to the inverse of total visits. (3.1) is a typical formula of stochastic approximation. It is approximating
+the actual reward $G_t$ by updating $v_{\pi}$. However, the updates does not start until the entire episode completes. This may not
+feasible in some cases where the interactive game never ends or more frequent updates are expected. To tackle this, we are happy
+to introduce temporal difference.&lt;/p&gt;
+&lt;h5 id=&#34;temporal-difference&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#temporal-difference&#34;&gt;
+        
+    &lt;/a&gt;
+    Temporal Difference
+&lt;/div&gt;
+&lt;/h5&gt;
+&lt;p&gt;From (1.2), we can see that the Monte Carlo is approximating the target $G_t$ using (3.1). If we only interact with the environment
+one step instead of completing the full episode trajectory. It&amp;rsquo;s equivalent to reformat the (1.2) as (1.6), where the target is
+thus $r_{t} + \gamma V_{\pi}(s_{t+1})$. So the stochastic approximation updates (3.1) can be written as
+$$
+V_{\pi}(s) \leftarrow V_{\pi}(s) + \alpha (r_{t+1} + \gamma V_{\pi}(s_{t+1}) - V_{\pi}(s)) \tag{3.2}
+$$
+where the $r_{t+1} + \gamma V_{\pi}(s_{t+1}) - V_{\pi}(s)$ is called temporal difference error. Since only one step reward is retrieved
+from the system interaction, it&amp;rsquo;s also noted as 1-step temporal difference, i.e. TD(1). What if we interact a few more steps with the environment?
+The target $G_t$ would include more future steps rewards. A general representation of TD(k) is shown below.&lt;/p&gt;
+&lt;p align=&#34;center&#34;&gt;
+\begin{aligned}
+&amp;TD(1) \hspace{1em} \rightarrow \hspace{1em} G^{1}_t = r_{t+1} + \gamma V(s_{t+1}) \\
+&amp;TD(2) \hspace{1em} \rightarrow \hspace{1em} G^{2}_t = r_{t+1} + \gamma r_{t+2} + \gamma^2 V(s_{t+2}) \\
+&amp;TD(k) \hspace{1em} \rightarrow \hspace{1em} G^{k}_t = r_{t+1} + \gamma r_{t+2} + \dots + \gamma^{k-1} r_{t+k} + \gamma^k V(s_{t+k}) \\
+&amp;TD(\infty) / MC \hspace{1em} \rightarrow \hspace{1em} G^{\infty}_t = r_{t+1} + \gamma r_{t+2}+ \dots + \gamma^{T-t-1} r_{T})
+\end{aligned}
+&lt;/p&gt;
+&lt;p&gt;Compared with Monte Carlo, it&amp;rsquo;s possible to updating the value function in an online fashion, meaning that update happens after
+every step of interaction. It&amp;rsquo;s more efficient than updating after completing an episode. This also indicates that TD learning can be
+applied to any piece of episode, which is more flexible. The estimation variance is lower but bias can be higher due to bootstrapping
+(updates based on estimated value of next state)&lt;/p&gt;
+&lt;p&gt;Below compares the computation graph among MC, TD and DP. In MC, only the states on the episode trajectory are updated. On the
+other hand, DP computes all the related next states when updating. TD compromise both MC and DP, it sampled only one or finite steps
+for updating.&lt;/p&gt;
+&lt;p align=&#34;center&#34;&gt;
+&lt;img src=&#34;https://bingzw.github.io/rf/rf_dp_mc_td.png&#34; width=&#34;900&#34; height=&#34;600&#34;&gt;&lt;br&gt;
+&lt;em&gt;Figure 3: Visual Interpretation of DP, TD and MC&lt;/em&gt;
+&lt;p&gt;
+&lt;p&gt;&lt;em&gt;Image cited from &lt;sup id=&#34;fnref:5&#34;&gt;&lt;a href=&#34;#fn:5&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;5&lt;/a&gt;&lt;/sup&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;h4 id=&#34;sarsa&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#sarsa&#34;&gt;
+        
+    &lt;/a&gt;
+    SARSA
+&lt;/div&gt;
+&lt;/h4&gt;
+&lt;p&gt;Now given a policy $\pi$, we have learned TD and MC can help evaluate the value function when the environment is unknown.
+The next natural question is How can we find the optimal policy? We can borrow the policy improvement idea from policy
+iteration in DP. Get the next policy by using the greedy search, i.e. $\pi_{i+1}(s) = \arg \max_a Q_{\pi_i}(s, a)$.
+Combining the generalized policy evaluation and the greedy policy improvement would allow us to build the generalized policy
+iteration.&lt;/p&gt;
+&lt;p align=&#34;center&#34;&gt;
+&lt;img src=&#34;https://bingzw.github.io/rf/policy_iteration.png&#34; width=&#34;250&#34; height=&#34;150&#34;&gt;&lt;br&gt;
+&lt;em&gt;Figure 4: Generalized Policy Iteration&lt;/em&gt;
+&lt;p&gt;
+&lt;p&gt;Another difference from the policy iteration in DP is that we may never update some state-action pairs using the pure greedy
+policy improvement strategy. This is because we are now interacting with the environment instead of updating all the states action
+explicitly with known transition probabilities. So we may need to allow some extent of exploration to mitigate such issue. One
+solution is to apply the $\epsilon$-greedy strategy.&lt;/p&gt;
+&lt;p align=&#34;center&#34;&gt;
+\begin{aligned}
+\pi(a \mid s) &amp;= 
+\begin{cases} 
+      1 - \epsilon &amp; \text{if } a = \arg \max_a Q(s, a) \\
+      \epsilon &amp;  \text{other actions in A}
+\end{cases}
+\end{aligned}
+&lt;/p&gt;
+&lt;p&gt;Thus the complete algorithm (TD policy evaluation on $Q$ + $\epsilon$-greedy policy improvement) is:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Initialize the $Q(s, a)$&lt;/li&gt;
+&lt;li&gt;for iteration from 1 to $N$, do:
+&lt;ul&gt;
+&lt;li&gt;get initial state $s$&lt;/li&gt;
+&lt;li&gt;apply the $\epsilon$-greedy strategy to choose the action $a$ based on $s$&lt;/li&gt;
+&lt;li&gt;for $t$ from 1 to $T$, do:
+&lt;ul&gt;
+&lt;li&gt;interact with the environment and get reward $r$ and $s&#39;$&lt;/li&gt;
+&lt;li&gt;apply the $\epsilon$-greedy strategy to choose the next action $a&amp;rsquo;$ based on $s&#39;$&lt;/li&gt;
+&lt;li&gt;$Q(s, a) \leftarrow Q(s, a) + \alpha [r + \gamma Q(s&amp;rsquo;, a&amp;rsquo;) - Q(s, a)]$ &lt;strong&gt;(TD policy evaluation)&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;$s \leftarrow s&amp;rsquo;, a \leftarrow a&amp;rsquo;$ &lt;strong&gt;($\epsilon$-greedy policy improvement)&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;end for&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;end for&lt;/li&gt;
+&lt;li&gt;return the value action $Q$&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;It&amp;rsquo;s worth noting that once the state, action, reward, next state, next action $(s, a, r, s&amp;rsquo;, a&amp;rsquo;)$ is generated, the update is
+conducted once and then repeats the iterations. Therefore, is called &lt;strong&gt;SARSA&lt;/strong&gt;. In a more general case, if we interact more steps
+and update the $Q$ value using $Q(s_t, a_t) \leftarrow Q(s_t, a_t) + \alpha [r_t + \gamma r_{t+1} + \dots + \gamma^n Q(s_{t+n}, a_{t+n}) - Q(s_t, a_t)]$,
+then it&amp;rsquo;s &lt;strong&gt;$n$ step SARSA&lt;/strong&gt;.&lt;/p&gt;
+&lt;h4 id=&#34;q-learning&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#q-learning&#34;&gt;
+        
+    &lt;/a&gt;
+    Q-Learning
+&lt;/div&gt;
+&lt;/h4&gt;
+&lt;p&gt;If the way of updating the TD policy evaluation in SARSA is changed to
+$$
+Q(s, a) \leftarrow Q(s, a) + \alpha [r + \gamma \max_{a&amp;rsquo;}Q(s&amp;rsquo;, a&amp;rsquo;) - Q(s, a)] \tag{3.3}
+$$
+Then we would get the Q learning algorithm.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Initialize the $Q(s, a)$&lt;/li&gt;
+&lt;li&gt;for iteration from 1 to $N$, do:
+&lt;ul&gt;
+&lt;li&gt;get initial state $s$&lt;/li&gt;
+&lt;li&gt;for $t$ from 1 to $T$, do:
+&lt;ul&gt;
+&lt;li&gt;apply the $\epsilon$-greedy strategy to choose the action $a$ based on $s$&lt;/li&gt;
+&lt;li&gt;interact with the environment and get reward $r$ and $s&#39;$&lt;/li&gt;
+&lt;li&gt;$Q(s, a) \leftarrow Q(s, a) + \alpha [r + \gamma \max_{a&amp;rsquo;}Q(s&amp;rsquo;, a&amp;rsquo;) - Q(s, a)]$&lt;/li&gt;
+&lt;li&gt;$s \leftarrow s&#39;$&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;end for&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;end for&lt;/li&gt;
+&lt;li&gt;return the value action $Q$&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The major difference between Q learning and SARSA is about the way to update the $Q$ value. In (3.3), we are actually
+approximating the target value $r + \gamma \max_{a&amp;rsquo;}Q(s&amp;rsquo;, a&amp;rsquo;)$. So the goal here is to learn
+the optimal policy $\pi(a \mid s) = \max_{a&amp;rsquo;}Q(s, a&amp;rsquo;)$. Let&amp;rsquo;s call the policy used in (3.3) as the target policy.
+The data used to learn the target policy $(s, a, r, s&amp;rsquo;)$ is however generated from another policy that interacts with the
+environment, called the behavior policy ($\epsilon$-greedy). It&amp;rsquo;s easy to see that the target policy is different from the
+behavior policy. This is also called &lt;strong&gt;off-policy&lt;/strong&gt; learning.&lt;/p&gt;
+&lt;p&gt;On the other hand, the behavior policy fully aligns with the target policy in SARSA, which means $a&amp;rsquo;$ and $a$ are generated
+from the same policy. This kind of learning is called &lt;strong&gt;on-policy&lt;/strong&gt; learning.&lt;/p&gt;
+&lt;p&gt;One interesting common area among DP, SARSA, Q-learning is that they all assume finite or discrete state and action space.
+Optimizing such problem can be seen as updating a table with an entry for each possible state or state-action pair. Thus,
+these algorithms are also called &lt;strong&gt;tabular methods&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;To be continued &amp;hellip;&lt;/strong&gt;&lt;/p&gt;
+&lt;h2 id=&#34;summary&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#summary&#34;&gt;
+        
+    &lt;/a&gt;
+    Summary
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;p&gt;So far, we have introduced the basic RL setting and basic tabular methods that are suitable to simple cases. However, most
+real problems involve large quantity or infinite state or action space. More powerful tools are thus needed. In next blog,
+we will start the journey to deep reinforcement learning, an area that utilize the fancy deep learning techniques to tackle
+more complicated problems.&lt;/p&gt;
+&lt;h2 id=&#34;citation&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#citation&#34;&gt;
+        
+    &lt;/a&gt;
+    Citation
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;p&gt;If you find this post helpful, please consider citing it as:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bibtex&#34; data-lang=&#34;bibtex&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f3f99d&#34;&gt;@article&lt;/span&gt;{&lt;span style=&#34;color:#ff5c57&#34;&gt;wang2024rflearningtabular&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;author&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;Bing Wang&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;title&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;A Journey to Reinforcement Learning - Tabular Methods&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;journal&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;bingzw.github.io&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;year&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;2024&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;month&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;July&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;url&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;https://bingzw.github.io/posts/2024-07-05-rf-learning-tabular/&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;or&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-markdown&#34; data-lang=&#34;markdown&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Bing Wang. (2024, June). A Journey to Reinforcement Learning - Tabular Methods. 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;https://bingzw.github.io/posts/2024-07-05-rf-learning-tabular/
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;reference&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#reference&#34;&gt;
+        
+    &lt;/a&gt;
+    Reference
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;div class=&#34;footnotes&#34; role=&#34;doc-endnotes&#34;&gt;
+&lt;hr&gt;
+&lt;ol&gt;
+&lt;li id=&#34;fn:1&#34;&gt;
+&lt;p&gt;&lt;a href=&#34;https://www.mdpi.com/2076-3417/13/4/2443&#34;&gt;Souchleris, Konstantinos, George K. Sidiropoulos, and George A. Papakostas. &amp;ldquo;Reinforcement learning in game industry—review, prospects and challenges.&amp;rdquo; Applied Sciences 13.4 (2023): 2443&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:1&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:2&#34;&gt;
+&lt;p&gt;&lt;a href=&#34;https://datawhalechina.github.io/easy-rl/&#34;&gt;Easy RL&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:2&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:3&#34;&gt;
+&lt;p&gt;&lt;a href=&#34;https://hrl.boyuai.com/&#34;&gt;Hands On RL&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:3&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:4&#34;&gt;
+&lt;p&gt;&lt;a href=&#34;https://www.andrew.cmu.edu/course/10-703/textbook/BartoSutton.pdf&#34;&gt;Reinforcement Learning: An Introduction&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:4&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:5&#34;&gt;
+&lt;p&gt;&lt;a href=&#34;https://roboticseabass.com/2020/08/02/an-intuitive-guide-to-reinforcement-learning/&#34;&gt;An intuitive guide to reinforcement learning&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:5&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/div&gt;</description>
+    </item>
     
     <item>
       <title>Recommendation Models</title>

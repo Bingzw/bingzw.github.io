@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Deep Reinforcement Learning on Bingz Learning Blog</title>
+    <link>/tags/deep-reinforcement-learning/</link>
+    <description>Bingz Learning Blog (Deep Reinforcement Learning)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <managingEditor>bingwang8878@gamil.com (Bing Wang)</managingEditor>
+    <webMaster>bingwang8878@gamil.com (Bing Wang)</webMaster>
+    <lastBuildDate>Mon, 15 Jul 2024 21:40:55 -0700</lastBuildDate>
+    
+    <atom:link href="/tags/deep-reinforcement-learning/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>A Journey to Reinforcement Learning - Deep RL</title>
+      <link>/posts/2024-07-15-rf-learning-deep/</link>
+      <pubDate>Mon, 15 Jul 2024 21:40:55 -0700</pubDate>
+      <author>bingwang8878@gamil.com (Bing Wang)</author>
+      <guid>/posts/2024-07-15-rf-learning-deep/</guid>
+      <description>&lt;h2 id=&#34;model-free---when-the-environment-is-unknown&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#model-free---when-the-environment-is-unknown&#34;&gt;
+        
+    &lt;/a&gt;
+    Model Free - when the environment is unknown
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;h3 id=&#34;value-based-continuing-&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#value-based-continuing-&#34;&gt;
+        
+    &lt;/a&gt;
+    Value Based (Continuing &amp;hellip;)
+&lt;/div&gt;
+&lt;/h3&gt;
+&lt;h4 id=&#34;deep-q-network-dqn&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#deep-q-network-dqn&#34;&gt;
+        
+    &lt;/a&gt;
+    Deep Q Network (DQN)
+&lt;/div&gt;
+&lt;/h4&gt;
+&lt;h3 id=&#34;policy-based&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#policy-based&#34;&gt;
+        
+    &lt;/a&gt;
+    Policy Based
+&lt;/div&gt;
+&lt;/h3&gt;
+&lt;h4 id=&#34;policy-gradient&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#policy-gradient&#34;&gt;
+        
+    &lt;/a&gt;
+    Policy Gradient
+&lt;/div&gt;
+&lt;/h4&gt;
+&lt;h4 id=&#34;trpoppo&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#trpoppo&#34;&gt;
+        
+    &lt;/a&gt;
+    TRPO/PPO
+&lt;/div&gt;
+&lt;/h4&gt;
+&lt;h4 id=&#34;cross-entropy-method-gradient-free&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#cross-entropy-method-gradient-free&#34;&gt;
+        
+    &lt;/a&gt;
+    Cross-Entropy Method [Gradient Free]
+&lt;/div&gt;
+&lt;/h4&gt;
+&lt;h4 id=&#34;evolution-strategy-gradient-free&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#evolution-strategy-gradient-free&#34;&gt;
+        
+    &lt;/a&gt;
+    Evolution Strategy [Gradient Free]
+&lt;/div&gt;
+&lt;/h4&gt;
+&lt;h3 id=&#34;hybrid&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#hybrid&#34;&gt;
+        
+    &lt;/a&gt;
+    Hybrid
+&lt;/div&gt;
+&lt;/h3&gt;
+&lt;h4 id=&#34;ddpq&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#ddpq&#34;&gt;
+        
+    &lt;/a&gt;
+    DDPQ
+&lt;/div&gt;
+&lt;/h4&gt;
+&lt;h4 id=&#34;actor-critic-ac&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#actor-critic-ac&#34;&gt;
+        
+    &lt;/a&gt;
+    Actor Critic (AC)
+&lt;/div&gt;
+&lt;/h4&gt;
+&lt;h4 id=&#34;sac&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#sac&#34;&gt;
+        
+    &lt;/a&gt;
+    SAC
+&lt;/div&gt;
+&lt;/h4&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
