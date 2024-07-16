@@ -8,7 +8,7 @@
     <language>en-us</language>
     <managingEditor>bingwang8878@gamil.com (Bing Wang)</managingEditor>
     <webMaster>bingwang8878@gamil.com (Bing Wang)</webMaster>
-    <lastBuildDate>Fri, 05 Jul 2024 20:59:39 -0700</lastBuildDate>
+    <lastBuildDate>Mon, 15 Jul 2024 21:40:55 -0700</lastBuildDate>
     
     <atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     
@@ -27,13 +27,13 @@
     </item>
     
     <item>
-      <title>A Journey to Reinforcement Learning - Part I</title>
-      <link>/posts/2024-07-05-rf-learning_part_1/</link>
+      <title>A Journey to Reinforcement Learning - Tabular Methods</title>
+      <link>/posts/2024-07-05-rf-learning-tabular/</link>
       <pubDate>Fri, 05 Jul 2024 20:59:39 -0700</pubDate>
       <author>bingwang8878@gamil.com (Bing Wang)</author>
-      <guid>/posts/2024-07-05-rf-learning_part_1/</guid>
+      <guid>/posts/2024-07-05-rf-learning-tabular/</guid>
       <description>&lt;p align=&#34;center&#34;&gt;
-&lt;img src=&#34;http://localhost:1313/rf/rf.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+&lt;img src=&#34;https://bingzw.github.io/rf/rf.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
 &lt;em&gt;Figure 1: basic RL model&lt;/em&gt;
 &lt;p&gt;
 &lt;p&gt;&lt;em&gt;Image cited from &lt;sup id=&#34;fnref:1&#34;&gt;&lt;a href=&#34;#fn:1&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;1&lt;/a&gt;&lt;/sup&gt;&lt;/em&gt;&lt;/p&gt;
@@ -84,7 +84,8 @@ occurs through rewards and punishments. The agent learns to make decisions by re
 penalties. Positive outcomes reinforce the actions that led to them, strengthening the behavior. The learning process is kind
 of a process of &lt;strong&gt;&amp;ldquo;Trial and Error&amp;rdquo;&lt;/strong&gt;, where the agent explores different actions to discover which ones yield the highest rewards.
 Long-term beneficial actions are reinforced through repeated positive outcomes.&lt;/p&gt;
-&lt;p&gt;Now let&amp;rsquo;s start with the most influential and fundamental RL model - Markov Decision Process (MDP). Our fantastic journey begins here.&lt;/p&gt;
+&lt;p&gt;Now let&amp;rsquo;s start with the most influential and fundamental RL model - Markov Decision Process (MDP). Our fantastic journey begins here.
+Note that the below algorithms and equations are cited from &lt;sup id=&#34;fnref:2&#34;&gt;&lt;a href=&#34;#fn:2&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;2&lt;/a&gt;&lt;/sup&gt;, &lt;sup id=&#34;fnref:3&#34;&gt;&lt;a href=&#34;#fn:3&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;3&lt;/a&gt;&lt;/sup&gt; and &lt;sup id=&#34;fnref:4&#34;&gt;&lt;a href=&#34;#fn:4&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;4&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
 &lt;h3 id=&#34;markov-decision-process-mdp&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#markov-decision-process-mdp&#34;&gt;
@@ -163,7 +164,7 @@ which builds the connection of the action value function between the current and
 (1.6) and (1.8), (1.7) and (1.9), it&#39;s easy to observe that (1.8) and (1.9) actually implements the expectation expression explicitly. 
 &lt;p&gt;A visualized interpretation of (1.8) and (1.9) are shown in the following backup diagram.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-    &lt;img src=&#34;http://localhost:1313/rf/backup.png&#34;&gt;&lt;br&gt;
+    &lt;img src=&#34;https://bingzw.github.io/rf/backup.png&#34;&gt;&lt;br&gt;
     &lt;em&gt;Figure 2: Backup Diagram&lt;/em&gt;
 &lt;/p&gt;
 &lt;h4 id=&#34;bellman-optimal-equation&#34; &gt;
@@ -339,7 +340,7 @@ Unlike temporal difference (TD) methods, Monte Carlo methods do not bootstrap an
 &lt;ul&gt;
 &lt;li&gt;Initialize $V_{\pi}(s)$ arbitrarily for all states $s \in S$.&lt;/li&gt;
 &lt;li&gt;Initialize the total reward $S(s)$ and total visits $N(s)$&lt;/li&gt;
-&lt;li&gt;for each episode in $[1, N]$:
+&lt;li&gt;for episode from 1 to $N$, do:
 &lt;ul&gt;
 &lt;li&gt;Generate an episode trajectory $(s_0, a_0, r_1, s_1, a_1, r_2, \ldots, s_T)$ following policy $\pi$.&lt;/li&gt;
 &lt;li&gt;For each state $s$ that first appearing in the episode trajectory:
@@ -350,8 +351,11 @@ Unlike temporal difference (TD) methods, Monte Carlo methods do not bootstrap an
 &lt;li&gt;Update the value estimate $V_{\pi}(s)$ as the average of all observed returns for state $s$: $V_{\pi}(s) \leftarrow \frac{S(s)} {N(s)}$.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
+&lt;li&gt;end for&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
+&lt;li&gt;end for&lt;/li&gt;
+&lt;li&gt;return the value function under policy $\pi$&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;It&amp;rsquo;s worth noting that the monte carlo update can also be reformated in an incremental way, that is,
 $$
@@ -395,10 +399,10 @@ applied to any piece of episode, which is more flexible. The estimation variance
 other hand, DP computes all the related next states when updating. TD compromise both MC and DP, it sampled only one or finite steps
 for updating.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-&lt;img src=&#34;http://localhost:1313/rf/rf_dp_mc_td.png&#34; width=&#34;900&#34; height=&#34;600&#34;&gt;&lt;br&gt;
+&lt;img src=&#34;https://bingzw.github.io/rf/rf_dp_mc_td.png&#34; width=&#34;900&#34; height=&#34;600&#34;&gt;&lt;br&gt;
 &lt;em&gt;Figure 3: Visual Interpretation of DP, TD and MC&lt;/em&gt;
 &lt;p&gt;
-&lt;p&gt;&lt;em&gt;Image cited from &lt;sup id=&#34;fnref:2&#34;&gt;&lt;a href=&#34;#fn:2&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;2&lt;/a&gt;&lt;/sup&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Image cited from &lt;sup id=&#34;fnref:5&#34;&gt;&lt;a href=&#34;#fn:5&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;5&lt;/a&gt;&lt;/sup&gt;&lt;/em&gt;&lt;/p&gt;
 &lt;h4 id=&#34;sarsa&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#sarsa&#34;&gt;
@@ -407,7 +411,53 @@ for updating.&lt;/p&gt;
     SARSA
 &lt;/div&gt;
 &lt;/h4&gt;
-&lt;p&gt;Now given a policy $\pi$, we have learned TD and MC can help evaluate the value function when the environment is unknown. How can we find the optimal policy?&lt;/p&gt;
+&lt;p&gt;Now given a policy $\pi$, we have learned TD and MC can help evaluate the value function when the environment is unknown.
+The next natural question is How can we find the optimal policy? We can borrow the policy improvement idea from policy
+iteration in DP. Get the next policy by using the greedy search, i.e. $\pi_{i+1}(s) = \arg \max_a Q_{\pi_i}(s, a)$.
+Combining the generalized policy evaluation and the greedy policy improvement would allow us to build the generalized policy
+iteration.&lt;/p&gt;
+&lt;p align=&#34;center&#34;&gt;
+&lt;img src=&#34;https://bingzw.github.io/rf/policy_iteration.png&#34; width=&#34;250&#34; height=&#34;150&#34;&gt;&lt;br&gt;
+&lt;em&gt;Figure 4: Generalized Policy Iteration&lt;/em&gt;
+&lt;p&gt;
+&lt;p&gt;Another difference from the policy iteration in DP is that we may never update some state-action pairs using the pure greedy
+policy improvement strategy. This is because we are now interacting with the environment instead of updating all the states action
+explicitly with known transition probabilities. So we may need to allow some extent of exploration to mitigate such issue. One
+solution is to apply the $\epsilon$-greedy strategy.&lt;/p&gt;
+&lt;p align=&#34;center&#34;&gt;
+\begin{aligned}
+\pi(a \mid s) &amp;= 
+\begin{cases} 
+      1 - \epsilon &amp; \text{if } a = \arg \max_a Q(s, a) \\
+      \epsilon &amp;  \text{other actions in A}
+\end{cases}
+\end{aligned}
+&lt;/p&gt;
+&lt;p&gt;Thus the complete algorithm (TD policy evaluation on $Q$ + $\epsilon$-greedy policy improvement) is:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Initialize the $Q(s, a)$&lt;/li&gt;
+&lt;li&gt;for iteration from 1 to $N$, do:
+&lt;ul&gt;
+&lt;li&gt;get initial state $s$&lt;/li&gt;
+&lt;li&gt;apply the $\epsilon$-greedy strategy to choose the action $a$ based on $s$&lt;/li&gt;
+&lt;li&gt;for $t$ from 1 to $T$, do:
+&lt;ul&gt;
+&lt;li&gt;interact with the environment and get reward $r$ and $s&#39;$&lt;/li&gt;
+&lt;li&gt;apply the $\epsilon$-greedy strategy to choose the next action $a&amp;rsquo;$ based on $s&#39;$&lt;/li&gt;
+&lt;li&gt;$Q(s, a) \leftarrow Q(s, a) + \alpha [r + \gamma Q(s&amp;rsquo;, a&amp;rsquo;) - Q(s, a)]$ &lt;strong&gt;(TD policy evaluation)&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;$s \leftarrow s&amp;rsquo;, a \leftarrow a&amp;rsquo;$ &lt;strong&gt;($\epsilon$-greedy policy improvement)&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;end for&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;end for&lt;/li&gt;
+&lt;li&gt;return the value action $Q$&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;It&amp;rsquo;s worth noting that once the state, action, reward, next state, next action $(s, a, r, s&amp;rsquo;, a&amp;rsquo;)$ is generated, the update is
+conducted once and then repeats the iterations. Therefore, is called &lt;strong&gt;SARSA&lt;/strong&gt;. In a more general case, if we interact more steps
+and update the $Q$ value using $Q(s_t, a_t) \leftarrow Q(s_t, a_t) + \alpha [r_t + \gamma r_{t+1} + \dots + \gamma^n Q(s_{t+n}, a_{t+n}) - Q(s_t, a_t)]$,
+then it&amp;rsquo;s &lt;strong&gt;$n$ step SARSA&lt;/strong&gt;.&lt;/p&gt;
 &lt;h4 id=&#34;q-learning&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#q-learning&#34;&gt;
@@ -416,86 +466,42 @@ for updating.&lt;/p&gt;
     Q-Learning
 &lt;/div&gt;
 &lt;/h4&gt;
-&lt;h4 id=&#34;deep-q-network-dqn&#34; &gt;
-&lt;div&gt;
-    &lt;a href=&#34;#deep-q-network-dqn&#34;&gt;
-        
-    &lt;/a&gt;
-    Deep Q Network (DQN)
-&lt;/div&gt;
-&lt;/h4&gt;
-&lt;h3 id=&#34;policy-based&#34; &gt;
-&lt;div&gt;
-    &lt;a href=&#34;#policy-based&#34;&gt;
-        
-    &lt;/a&gt;
-    Policy Based
-&lt;/div&gt;
-&lt;/h3&gt;
-&lt;h4 id=&#34;policy-gradient&#34; &gt;
-&lt;div&gt;
-    &lt;a href=&#34;#policy-gradient&#34;&gt;
-        
-    &lt;/a&gt;
-    Policy Gradient
-&lt;/div&gt;
-&lt;/h4&gt;
-&lt;h4 id=&#34;trpoppo&#34; &gt;
-&lt;div&gt;
-    &lt;a href=&#34;#trpoppo&#34;&gt;
-        
-    &lt;/a&gt;
-    TRPO/PPO
-&lt;/div&gt;
-&lt;/h4&gt;
-&lt;h4 id=&#34;cross-entropy-method-gradient-free&#34; &gt;
-&lt;div&gt;
-    &lt;a href=&#34;#cross-entropy-method-gradient-free&#34;&gt;
-        
-    &lt;/a&gt;
-    Cross-Entropy Method [Gradient Free]
-&lt;/div&gt;
-&lt;/h4&gt;
-&lt;h4 id=&#34;evolution-strategy-gradient-free&#34; &gt;
-&lt;div&gt;
-    &lt;a href=&#34;#evolution-strategy-gradient-free&#34;&gt;
-        
-    &lt;/a&gt;
-    Evolution Strategy [Gradient Free]
-&lt;/div&gt;
-&lt;/h4&gt;
-&lt;h3 id=&#34;hybrid&#34; &gt;
-&lt;div&gt;
-    &lt;a href=&#34;#hybrid&#34;&gt;
-        
-    &lt;/a&gt;
-    Hybrid
-&lt;/div&gt;
-&lt;/h3&gt;
-&lt;h4 id=&#34;ddpq&#34; &gt;
-&lt;div&gt;
-    &lt;a href=&#34;#ddpq&#34;&gt;
-        
-    &lt;/a&gt;
-    DDPQ
-&lt;/div&gt;
-&lt;/h4&gt;
-&lt;h4 id=&#34;actor-critic-ac&#34; &gt;
-&lt;div&gt;
-    &lt;a href=&#34;#actor-critic-ac&#34;&gt;
-        
-    &lt;/a&gt;
-    Actor Critic (AC)
-&lt;/div&gt;
-&lt;/h4&gt;
-&lt;h4 id=&#34;sac&#34; &gt;
-&lt;div&gt;
-    &lt;a href=&#34;#sac&#34;&gt;
-        
-    &lt;/a&gt;
-    SAC
-&lt;/div&gt;
-&lt;/h4&gt;
+&lt;p&gt;If the way of updating the TD policy evaluation in SARSA is changed to
+$$
+Q(s, a) \leftarrow Q(s, a) + \alpha [r + \gamma \max_{a&amp;rsquo;}Q(s&amp;rsquo;, a&amp;rsquo;) - Q(s, a)] \tag{3.3}
+$$
+Then we would get the Q learning algorithm.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Initialize the $Q(s, a)$&lt;/li&gt;
+&lt;li&gt;for iteration from 1 to $N$, do:
+&lt;ul&gt;
+&lt;li&gt;get initial state $s$&lt;/li&gt;
+&lt;li&gt;for $t$ from 1 to $T$, do:
+&lt;ul&gt;
+&lt;li&gt;apply the $\epsilon$-greedy strategy to choose the action $a$ based on $s$&lt;/li&gt;
+&lt;li&gt;interact with the environment and get reward $r$ and $s&#39;$&lt;/li&gt;
+&lt;li&gt;$Q(s, a) \leftarrow Q(s, a) + \alpha [r + \gamma \max_{a&amp;rsquo;}Q(s&amp;rsquo;, a&amp;rsquo;) - Q(s, a)]$&lt;/li&gt;
+&lt;li&gt;$s \leftarrow s&#39;$&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;end for&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;end for&lt;/li&gt;
+&lt;li&gt;return the value action $Q$&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The major difference between Q learning and SARSA is about the way to update the $Q$ value. In (3.3), we are actually
+approximating the target value $r + \gamma \max_{a&amp;rsquo;}Q(s&amp;rsquo;, a&amp;rsquo;)$. So the goal here is to learn
+the optimal policy $\pi(a \mid s) = \max_{a&amp;rsquo;}Q(s, a&amp;rsquo;)$. Let&amp;rsquo;s call the policy used in (3.3) as the target policy.
+The data used to learn the target policy $(s, a, r, s&amp;rsquo;)$ is however generated from another policy that interacts with the
+environment, called the behavior policy ($\epsilon$-greedy). It&amp;rsquo;s easy to see that the target policy is different from the
+behavior policy. This is also called &lt;strong&gt;off-policy&lt;/strong&gt; learning.&lt;/p&gt;
+&lt;p&gt;On the other hand, the behavior policy fully aligns with the target policy in SARSA, which means $a&amp;rsquo;$ and $a$ are generated
+from the same policy. This kind of learning is called &lt;strong&gt;on-policy&lt;/strong&gt; learning.&lt;/p&gt;
+&lt;p&gt;One interesting common area among DP, SARSA, Q-learning is that they all assume finite or discrete state and action space.
+Optimizing such problem can be seen as updating a table with an entry for each possible state or state-action pair. Thus,
+these algorithms are also called &lt;strong&gt;tabular methods&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;To be continued &amp;hellip;&lt;/strong&gt;&lt;/p&gt;
 &lt;h2 id=&#34;summary&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#summary&#34;&gt;
@@ -504,6 +510,10 @@ for updating.&lt;/p&gt;
     Summary
 &lt;/div&gt;
 &lt;/h2&gt;
+&lt;p&gt;So far, we have introduced the basic RL setting and basic tabular methods that are suitable to simple cases. However, most
+real problems involve large quantity or infinite state or action space. More powerful tools are thus needed. In next blog,
+we will start the journey to deep reinforcement learning, an area that utilize the fancy deep learning techniques to tackle
+more complicated problems.&lt;/p&gt;
 &lt;h2 id=&#34;citation&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#citation&#34;&gt;
@@ -512,7 +522,19 @@ for updating.&lt;/p&gt;
     Citation
 &lt;/div&gt;
 &lt;/h2&gt;
-&lt;h2 id=&#34;reference&#34; &gt;
+&lt;p&gt;If you find this post helpful, please consider citing it as:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bibtex&#34; data-lang=&#34;bibtex&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f3f99d&#34;&gt;@article&lt;/span&gt;{&lt;span style=&#34;color:#ff5c57&#34;&gt;wang2024rflearningtabular&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;author&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;Bing Wang&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;title&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;A Journey to Reinforcement Learning - Tabular Methods&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;journal&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;bingzw.github.io&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;year&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;2024&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;month&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;July&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;url&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;https://bingzw.github.io/posts/2024-07-05-rf-learning-tabular/&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;or&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-markdown&#34; data-lang=&#34;markdown&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Bing Wang. (2024, June). A Journey to Reinforcement Learning - Tabular Methods. 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;https://bingzw.github.io/posts/2024-07-05-rf-learning-tabular/
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;reference&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#reference&#34;&gt;
         
@@ -527,7 +549,16 @@ for updating.&lt;/p&gt;
 &lt;p&gt;&lt;a href=&#34;https://www.mdpi.com/2076-3417/13/4/2443&#34;&gt;Souchleris, Konstantinos, George K. Sidiropoulos, and George A. Papakostas. &amp;ldquo;Reinforcement learning in game industry—review, prospects and challenges.&amp;rdquo; Applied Sciences 13.4 (2023): 2443&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:1&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id=&#34;fn:2&#34;&gt;
-&lt;p&gt;&lt;a href=&#34;https://roboticseabass.com/2020/08/02/an-intuitive-guide-to-reinforcement-learning/&#34;&gt;An intuitive guide to reinforcement learning&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:2&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://datawhalechina.github.io/easy-rl/&#34;&gt;Easy RL&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:2&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:3&#34;&gt;
+&lt;p&gt;&lt;a href=&#34;https://hrl.boyuai.com/&#34;&gt;Hands On RL&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:3&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:4&#34;&gt;
+&lt;p&gt;&lt;a href=&#34;https://www.andrew.cmu.edu/course/10-703/textbook/BartoSutton.pdf&#34;&gt;Reinforcement Learning: An Introduction&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:4&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:5&#34;&gt;
+&lt;p&gt;&lt;a href=&#34;https://roboticseabass.com/2020/08/02/an-intuitive-guide-to-reinforcement-learning/&#34;&gt;An intuitive guide to reinforcement learning&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:5&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
 &lt;/div&gt;</description>
@@ -540,7 +571,7 @@ for updating.&lt;/p&gt;
       <author>bingwang8878@gamil.com (Bing Wang)</author>
       <guid>/posts/2024-06-06-recommendation-model/</guid>
       <description>&lt;p align=&#34;center&#34;&gt;
-&lt;img src=&#34;http://localhost:1313/recommendation_model/reco.jpeg&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+&lt;img src=&#34;https://bingzw.github.io/recommendation_model/reco.jpeg&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
 &lt;p&gt;
 &lt;p&gt;&lt;em&gt;Image cited from &lt;a href=&#34;https://www.vecteezy.com/&#34;&gt;vecteezy&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
 &lt;h2 id=&#34;introduction-to-recommendation-models&#34; &gt;
@@ -674,7 +705,7 @@ architecture to the collaborative filtering domain. CDAE is designed to handle i
 are inferred from user behavior rather than explicit ratings. The model incorporates both user-specific and item-specific
 factors, leveraging the rich user interaction data to learn better representations for recommendation tasks.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-    &lt;img src=&#34;http://localhost:1313/recommendation_model/autoencoder_mf.png&#34;&gt;&lt;br&gt;
+    &lt;img src=&#34;https://bingzw.github.io/recommendation_model/autoencoder_mf.png&#34;&gt;&lt;br&gt;
     &lt;em&gt;Figure 1: deep auto-encoder&lt;/em&gt;
 &lt;/p&gt;
 &lt;h5 id=&#34;neural-collaborative-filtering3&#34; &gt;
@@ -694,7 +725,7 @@ that learn the interaction between these embeddings. The final output layer pred
 item. This approach not only improves the accuracy of recommendations but also enables the integration of additional
 features, such as user demographics or item attributes, into the model. Refer to the DLRM or DeepFM for more details.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-    &lt;img src=&#34;http://localhost:1313/recommendation_model/ncf_mf.png&#34;&gt;&lt;br&gt;
+    &lt;img src=&#34;https://bingzw.github.io/recommendation_model/ncf_mf.png&#34;&gt;&lt;br&gt;
     &lt;em&gt;Figure 2: neural collaborative filtering&lt;/em&gt;
 &lt;/p&gt;
 &lt;h2 id=&#34;content-based-models-ranking-as-recommendation&#34; &gt;
@@ -749,7 +780,7 @@ $$&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
 &lt;p align=&#34;center&#34;&gt;
-   &lt;img src=&#34;http://localhost:1313/recommendation_model/wide_deep.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
+   &lt;img src=&#34;https://bingzw.github.io/recommendation_model/wide_deep.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
    &lt;em&gt;Figure 3: wide &amp; deep model&lt;/em&gt;
 &lt;/p&gt;
 &lt;h3 id=&#34;deepfm5&#34; &gt;
@@ -792,7 +823,7 @@ activation of the last hidden layer.&lt;/p&gt;
 &lt;p&gt;$$\hat{y} = \sigma(y_{\text{FM}} + y_{\text{deep}})$$&lt;/p&gt;
 &lt;p&gt;where $\sigma$ is the sigmoid function used to squash the output to a probability score.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-   &lt;img src=&#34;http://localhost:1313/recommendation_model/deepfm.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+   &lt;img src=&#34;https://bingzw.github.io/recommendation_model/deepfm.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
    &lt;em&gt;Figure 4: deepfm model&lt;/em&gt;
 &lt;/p&gt;
 &lt;h3 id=&#34;deep-learning-recommendation-model-dlrm6&#34; &gt;
@@ -809,7 +840,7 @@ systems in environments such as social media platforms, e-commerce, and online a
 strengths of collaborative filtering and content-based methods by utilizing both dense and sparse features to provide
 highly accurate and scalable recommendations.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-   &lt;img src=&#34;http://localhost:1313/recommendation_model/dlrm.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+   &lt;img src=&#34;https://bingzw.github.io/recommendation_model/dlrm.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
    &lt;em&gt;Figure 5: deep learning recommendation model&lt;/em&gt;
 &lt;/p&gt;
 &lt;p&gt;Key components of DLRM includes&lt;/p&gt;
@@ -885,7 +916,7 @@ biases of the $l$-th layer, respectively, and $f_{l}$ is the activation function
 &lt;p&gt;The final prediction is a combination of the outputs from either the hidden layer (stacked structure) or the  concatenation
 of cross and deep network outputs.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-   &lt;img src=&#34;http://localhost:1313/recommendation_model/dcn_v2.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+   &lt;img src=&#34;https://bingzw.github.io/recommendation_model/dcn_v2.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
    &lt;em&gt;Figure 6: deep cross network v2&lt;/em&gt;
 &lt;/p&gt;
 &lt;h3 id=&#34;deep-interest-network-din8&#34; &gt;
@@ -902,7 +933,7 @@ DIN leverages a user&amp;rsquo;s historical behavior to make more accurate and c
 innovation in DIN is its ability to capture user interests dynamically and use this information to influence the recommendation
 process.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-   &lt;img src=&#34;http://localhost:1313/recommendation_model/din.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
+   &lt;img src=&#34;https://bingzw.github.io/recommendation_model/din.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
    &lt;em&gt;Figure 7: deep interest network&lt;/em&gt;
 &lt;/p&gt;
 &lt;p&gt;In particular, the DIN contains the following key components:&lt;/p&gt;
@@ -950,7 +981,7 @@ mixture-of-experts models with the flexibility of multi-gate mechanisms, allowin
 computational resources based on the specific needs of each task. This approach is particularly useful in scenarios
 where tasks are interrelated and can benefit from shared learning while maintaining task-specific adaptations.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-   &lt;img src=&#34;http://localhost:1313/recommendation_model/mmoe.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
+   &lt;img src=&#34;https://bingzw.github.io/recommendation_model/mmoe.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
    &lt;em&gt;Figure 8: multi-gate mixture of experts&lt;/em&gt;
 &lt;/p&gt;
 &lt;p&gt;Key components of the model architecture are:&lt;/p&gt;
@@ -997,7 +1028,7 @@ sequences in recommendation systems. BST leverages the power of Transformer mode
 success in natural language processing (NLP), to capture the sequential patterns and contextual dependencies in user
 interactions over time. This approach enhances the ability to predict user preferences and improve recommendation accuracy.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-   &lt;img src=&#34;http://localhost:1313/recommendation_model/bst.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
+   &lt;img src=&#34;https://bingzw.github.io/recommendation_model/bst.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
    &lt;em&gt;Figure 9: behavior sequence transformer&lt;/em&gt;
 &lt;/p&gt;
 &lt;p&gt;Key components of BST include:&lt;/p&gt;
@@ -1129,7 +1160,7 @@ Users may choose the best model depending on the business requirements and syste
       <author>bingwang8878@gamil.com (Bing Wang)</author>
       <guid>/posts/2024-05-28-causality/</guid>
       <description>&lt;p align=&#34;center&#34;&gt;
-&lt;img src=&#34;http://localhost:1313/causality/causality.jpeg&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+&lt;img src=&#34;https://bingzw.github.io/causality/causality.jpeg&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
 &lt;p&gt;
 &lt;p&gt;&lt;em&gt;Image cited from &lt;a href=&#34;https://depositphotos.com/vectors/causality.html&#34;&gt;depositphotos&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
 &lt;h2 id=&#34;what-is-causality&#34; &gt;
@@ -1167,7 +1198,7 @@ example, the health status of a patient if he/she received the new drug ($a=1$).
 &lt;p&gt;In practice, the data $(Y_i, A_i, X_i)$ is usually drawn i.i.d from a population and they are formulated into a causal
 graph as shown below&lt;sup id=&#34;fnref:1&#34;&gt;&lt;a href=&#34;#fn:1&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;1&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-    &lt;img src=&#34;http://localhost:1313/causality/causal_model_diagram.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+    &lt;img src=&#34;https://bingzw.github.io/causality/causal_model_diagram.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
     &lt;em&gt;Figure 1: causal inference elements&lt;/em&gt;
 &lt;/p&gt;
 &lt;p&gt;The mechanism of the causal graph is often reasoning by structural causal models (SCM). It models the underlying data
@@ -1239,7 +1270,7 @@ data.&lt;/p&gt;
 &lt;p&gt;Before diving into the confounder adjustments methods, let&amp;rsquo;s first clarify the confounding bias. Consider the following
 example:&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-    &lt;img src=&#34;http://localhost:1313/causality/confounder_selection_bias.png&#34;&gt;&lt;br&gt;
+    &lt;img src=&#34;https://bingzw.github.io/causality/confounder_selection_bias.png&#34;&gt;&lt;br&gt;
     &lt;em&gt;Figure 2: confounder example&lt;/em&gt;
 &lt;/p&gt;
 &lt;p&gt;A study is conducted to investigate the effect of a new drug on the health outcome of patients. The study
@@ -1280,7 +1311,7 @@ consistent with the true population. The general flow of causal inference can be
 &lt;li&gt;&lt;strong&gt;Estimate the Causal Effect&lt;/strong&gt;: Estimate the counterfactual causal effect using the trained model&lt;/li&gt;
 &lt;/ol&gt;
 &lt;p align=&#34;center&#34;&gt;
-    &lt;img src=&#34;http://localhost:1313/causality/causal_inference_flow.png&#34; width=&#34;800&#34; height=&#34;500&#34;&gt;&lt;br&gt;
+    &lt;img src=&#34;https://bingzw.github.io/causality/causal_inference_flow.png&#34; width=&#34;800&#34; height=&#34;500&#34;&gt;&lt;br&gt;
     &lt;em&gt;Figure 3: Causal Inference Modeling Flow&lt;/em&gt;
 &lt;/p&gt;
 We follow the same modeling process in figure 3. First defining the outcome, treatment, and covariates, then building the

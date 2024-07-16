@@ -2,54 +2,51 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-        <loc>http://localhost:1313/about/</loc>
+        <loc>https://bingzw.github.io/about/</loc>
       </url><url>
-        <loc>http://localhost:1313/posts/2024-07-05-rf-learning_part_1/</loc>
+        <loc>https://bingzw.github.io/</loc>
+        <lastmod>2024-07-15T21:40:55-07:00</lastmod>
+      </url><url>
+        <loc>https://bingzw.github.io/posts/</loc>
+        <lastmod>2024-07-15T21:40:55-07:00</lastmod>
+      </url><url>
+        <loc>https://bingzw.github.io/posts/2024-07-05-rf-learning-tabular/</loc>
         <lastmod>2024-07-05T20:59:39-07:00</lastmod>
       </url><url>
-        <loc>http://localhost:1313/</loc>
+        <loc>https://bingzw.github.io/tags/machine-learning/</loc>
         <lastmod>2024-07-05T20:59:39-07:00</lastmod>
       </url><url>
-        <loc>http://localhost:1313/tags/deep-reinforcement-learning/</loc>
+        <loc>https://bingzw.github.io/tags/reinforcement-learning/</loc>
         <lastmod>2024-07-05T20:59:39-07:00</lastmod>
       </url><url>
-        <loc>http://localhost:1313/tags/machine-learning/</loc>
+        <loc>https://bingzw.github.io/tags/</loc>
         <lastmod>2024-07-05T20:59:39-07:00</lastmod>
       </url><url>
-        <loc>http://localhost:1313/posts/</loc>
-        <lastmod>2024-07-05T20:59:39-07:00</lastmod>
-      </url><url>
-        <loc>http://localhost:1313/tags/reinforcement-learning/</loc>
-        <lastmod>2024-07-05T20:59:39-07:00</lastmod>
-      </url><url>
-        <loc>http://localhost:1313/tags/</loc>
-        <lastmod>2024-07-05T20:59:39-07:00</lastmod>
-      </url><url>
-        <loc>http://localhost:1313/tags/deep-learning/</loc>
+        <loc>https://bingzw.github.io/tags/deep-learning/</loc>
         <lastmod>2024-06-06T22:04:53-07:00</lastmod>
       </url><url>
-        <loc>http://localhost:1313/tags/neural-network/</loc>
+        <loc>https://bingzw.github.io/tags/neural-network/</loc>
         <lastmod>2024-06-06T22:04:53-07:00</lastmod>
       </url><url>
-        <loc>http://localhost:1313/tags/personalization/</loc>
+        <loc>https://bingzw.github.io/tags/personalization/</loc>
         <lastmod>2024-06-06T22:04:53-07:00</lastmod>
       </url><url>
-        <loc>http://localhost:1313/tags/ranking/</loc>
+        <loc>https://bingzw.github.io/tags/ranking/</loc>
         <lastmod>2024-06-06T22:04:53-07:00</lastmod>
       </url><url>
-        <loc>http://localhost:1313/tags/recommendation/</loc>
+        <loc>https://bingzw.github.io/tags/recommendation/</loc>
         <lastmod>2024-06-06T22:04:53-07:00</lastmod>
       </url><url>
-        <loc>http://localhost:1313/posts/2024-06-06-recommendation-model/</loc>
+        <loc>https://bingzw.github.io/posts/2024-06-06-recommendation-model/</loc>
         <lastmod>2024-06-06T22:04:53-07:00</lastmod>
       </url><url>
-        <loc>http://localhost:1313/tags/causal-inference/</loc>
+        <loc>https://bingzw.github.io/tags/causal-inference/</loc>
         <lastmod>2024-05-28T16:19:16-07:00</lastmod>
       </url><url>
-        <loc>http://localhost:1313/posts/2024-05-28-causality/</loc>
+        <loc>https://bingzw.github.io/posts/2024-05-28-causality/</loc>
         <lastmod>2024-05-28T16:19:16-07:00</lastmod>
       </url><url>
-        <loc>http://localhost:1313/tags/statistics/</loc>
+        <loc>https://bingzw.github.io/tags/statistics/</loc>
         <lastmod>2024-05-28T16:19:16-07:00</lastmod>
       </url>
 </urlset>

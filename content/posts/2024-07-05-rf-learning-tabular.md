@@ -1,9 +1,9 @@
 ---
-title: "A Journey to Reinforcement Learning - Part I"
+title: "A Journey to Reinforcement Learning - Tabular Methods"
 date: 2024-07-05T20:59:39-07:00
 draft: False
 description: "An summary of reinforcement learning algorithms basics, including mdp, dp, td, sarsa, q-learning"
-tags: ['Machine learning', 'Deep Reinforcement Learning', 'Reinforcement Learning']
+tags: ['Machine learning', 'Reinforcement Learning']
 ---
 <p align="center">
 <img src="/rf/rf.png" width="600" height="400"><br>
@@ -50,6 +50,7 @@ of a process of **"Trial and Error"**, where the agent explores different action
 Long-term beneficial actions are reinforced through repeated positive outcomes.
 
 Now let's start with the most influential and fundamental RL model - Markov Decision Process (MDP). Our fantastic journey begins here.
+Note that the below algorithms and equations are cited from [^3], [^4] and [^5].
 
 ### Markov Decision Process (MDP)
 Let's be more specific about the above settings to realize the MDP. Assume the state space $S$ and action space $A$ are finite, 
@@ -324,7 +325,7 @@ Thus the complete algorithm (TD policy evaluation on $Q$ + $\epsilon$-greedy pol
     - $s \leftarrow s', a \leftarrow a'$ **($\epsilon$-greedy policy improvement)**
   - end for
 - end for
-- return the policy $\pi(a \mid s)$ and the value action $Q$
+- return the value action $Q$
 
 It's worth noting that once the state, action, reward, next state, next action $(s, a, r, s', a')$ is generated, the update is 
 conducted once and then repeats the iterations. Therefore, is called **SARSA**. In a more general case, if we interact more steps
@@ -332,21 +333,68 @@ and update the $Q$ value using $Q(s_t, a_t) \leftarrow Q(s_t, a_t) + \alpha [r_t
 then it's **$n$ step SARSA**.
 
 #### Q-Learning
-#### Deep Q Network (DQN)
-### Policy Based
-#### Policy Gradient
-#### TRPO/PPO
-#### Cross-Entropy Method [Gradient Free]
-#### Evolution Strategy [Gradient Free]
-### Hybrid
-#### DDPQ
-#### Actor Critic (AC)
-#### SAC
+If the way of updating the TD policy evaluation in SARSA is changed to 
+$$ 
+Q(s, a) \leftarrow Q(s, a) + \alpha [r + \gamma \max_{a'}Q(s', a') - Q(s, a)] \tag{3.3}
+$$
+Then we would get the Q learning algorithm.
+
+- Initialize the $Q(s, a)$
+- for iteration from 1 to $N$, do:
+  - get initial state $s$
+  - for $t$ from 1 to $T$, do:
+      - apply the $\epsilon$-greedy strategy to choose the action $a$ based on $s$
+      - interact with the environment and get reward $r$ and $s'$
+      - $Q(s, a) \leftarrow Q(s, a) + \alpha [r + \gamma \max_{a'}Q(s', a') - Q(s, a)]$ 
+      - $s \leftarrow s'$
+  - end for
+- end for
+- return the value action $Q$
+
+The major difference between Q learning and SARSA is about the way to update the $Q$ value. In (3.3), we are actually 
+approximating the target value $r + \gamma \max_{a'}Q(s', a')$. So the goal here is to learn
+the optimal policy $\pi(a \mid s) = \max_{a'}Q(s, a')$. Let's call the policy used in (3.3) as the target policy. 
+The data used to learn the target policy $(s, a, r, s')$ is however generated from another policy that interacts with the 
+environment, called the behavior policy ($\epsilon$-greedy). It's easy to see that the target policy is different from the 
+behavior policy. This is also called **off-policy** learning.
+
+On the other hand, the behavior policy fully aligns with the target policy in SARSA, which means $a'$ and $a$ are generated
+from the same policy. This kind of learning is called **on-policy** learning.
+
+One interesting common area among DP, SARSA, Q-learning is that they all assume finite or discrete state and action space.
+Optimizing such problem can be seen as updating a table with an entry for each possible state or state-action pair. Thus, 
+these algorithms are also called **tabular methods**.
+
+**To be continued ...**
+
 ## Summary
+So far, we have introduced the basic RL setting and basic tabular methods that are suitable to simple cases. However, most
+real problems involve large quantity or infinite state or action space. More powerful tools are thus needed. In next blog, 
+we will start the journey to deep reinforcement learning, an area that utilize the fancy deep learning techniques to tackle 
+more complicated problems.
+
 ## Citation
+If you find this post helpful, please consider citing it as:
+```bibtex
+@article{wang2024rflearningtabular,
+  author = "Bing Wang",
+  title = "A Journey to Reinforcement Learning - Tabular Methods",
+  journal = "bingzw.github.io",
+  year = "2024",
+  month = "July",
+  url = "https://bingzw.github.io/posts/2024-07-05-rf-learning-tabular/"
+}
+```
+or 
+```markdown
+Bing Wang. (2024, June). A Journey to Reinforcement Learning - Tabular Methods. 
+https://bingzw.github.io/posts/2024-07-05-rf-learning-tabular/
+```
 
 ## Reference
 [^1]: [Souchleris, Konstantinos, George K. Sidiropoulos, and George A. Papakostas. "Reinforcement learning in game industry—review, prospects and challenges." Applied Sciences 13.4 (2023): 2443](https://www.mdpi.com/2076-3417/13/4/2443)
 [^2]: [An intuitive guide to reinforcement learning](https://roboticseabass.com/2020/08/02/an-intuitive-guide-to-reinforcement-learning/)
-
+[^3]: [Easy RL](https://datawhalechina.github.io/easy-rl/)
+[^4]: [Hands On RL](https://hrl.boyuai.com/)
+[^5]: [Reinforcement Learning: An Introduction](https://www.andrew.cmu.edu/course/10-703/textbook/BartoSutton.pdf)
 
