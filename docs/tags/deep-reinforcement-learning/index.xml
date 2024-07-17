@@ -19,7 +19,10 @@
       <pubDate>Mon, 15 Jul 2024 21:40:55 -0700</pubDate>
       <author>bingwang8878@gamil.com (Bing Wang)</author>
       <guid>/posts/2024-07-15-rf-learning-deep/</guid>
-      <description>&lt;h2 id=&#34;model-free---when-the-environment-is-unknown&#34; &gt;
+      <description>&lt;p align=&#34;center&#34;&gt;
+&lt;img src=&#34;http://localhost:1313/rf/deeprl.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+&lt;p&gt;
+&lt;h2 id=&#34;model-free---when-the-environment-is-unknown&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#model-free---when-the-environment-is-unknown&#34;&gt;
         
@@ -114,8 +117,7 @@
     &lt;/a&gt;
     SAC
 &lt;/div&gt;
-&lt;/h4&gt;
-</description>
+&lt;/h4&gt;</description>
     </item>
     
   </channel>
