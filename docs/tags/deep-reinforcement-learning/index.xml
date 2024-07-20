@@ -22,6 +22,9 @@
       <description>&lt;p align=&#34;center&#34;&gt;
 &lt;img src=&#34;http://localhost:1313/rf/deeprl.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
 &lt;p&gt;
+&lt;p&gt;This blog is a continuation of the last one: &lt;strong&gt;A Journey to Reinforcement Learning - Tabular Methods&lt;/strong&gt;. The
+table of content structure and notations follow the same framework. Let&amp;rsquo;s continue the journey from the last value based
+algorithm in model free setting.&lt;/p&gt;
 &lt;h2 id=&#34;model-free---when-the-environment-is-unknown&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#model-free---when-the-environment-is-unknown&#34;&gt;
@@ -46,6 +49,17 @@
     Deep Q Network (DQN)
 &lt;/div&gt;
 &lt;/h4&gt;
+&lt;p&gt;Like what have been discussed in SARSA and $Q$ learning, they may not be a good fit when state or action space is too large
+or even continuous. Maintaining a $Q$ table is not feasible in such cases. Instead, we can apply function approximation to
+the $Q$ value. So far, the model powerful approach that can approximate almost any shape of function is &lt;strong&gt;Neural Network&lt;/strong&gt;.
+Welcome to the realm of &lt;strong&gt;deep reinforcement learning&lt;/strong&gt; (short for &amp;ldquo;deep learning&amp;rdquo; + &amp;ldquo;reinforcement learning&amp;rdquo;).&lt;/p&gt;
+&lt;p&gt;The idea seems to be natural. Let&amp;rsquo;s refine the DQN framework step by step. As an extension from $Q$ learning. Let&amp;rsquo;s frame the
+problem with &lt;strong&gt;continuous states&lt;/strong&gt; and &lt;strong&gt;discrete actions&lt;/strong&gt; (the continuous actions case will be discussed later). The $Q$ value can
+be approximated by fitting a neural network where the state is fed into the network and get output of $Q$ value at each action.&lt;/p&gt;
+&lt;p align=&#34;center&#34;&gt;
+&lt;img src=&#34;http://localhost:1313/rf/q_dqn.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+&lt;em&gt;Figure 1: Q learning vs DQN&lt;/em&gt;
+&lt;p&gt;
 &lt;h3 id=&#34;policy-based&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#policy-based&#34;&gt;
