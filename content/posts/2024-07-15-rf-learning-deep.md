@@ -10,6 +10,8 @@ tags: ['Machine learning', 'Deep Reinforcement Learning']
 <p>
 <!--more-->
 
+*Image cited from [^1]*
+
 This blog is a continuation of the last one: **A Journey to Reinforcement Learning - Tabular Methods**. The 
 table of content structure and notations follow the same framework. Let's continue the journey from the last value based 
 algorithm in model free setting.
@@ -30,7 +32,9 @@ be approximated by fitting a neural network where the state is fed into the netw
 <em>Figure 1: Q learning vs DQN</em>
 <p>
 
-With such a neural network, how to define the loss function? From the basic $Q$ learning, the $Q$ value is updated
+*Image cited from [^2]*
+
+Given the network, what's the loss function? From the basic $Q$ learning, the $Q$ value is updated
 via $Q(s, a) \leftarrow Q(s, a) + \alpha [r + \gamma \max_{a'}Q(s', a') - Q(s, a)]$. This indicates that we are actually 
 "learning" the target $r + \gamma \max_{a'}Q(s', a')$. Therefore, the loss function can be defined as
 $$
@@ -53,9 +57,21 @@ The parameter $\theta*$ is fixed in (3.5) and only copied from $Q_\theta$ period
 this way, the loss function is firstly optimized towards a fixed label (only $\theta$ is updated), then labels are updated (copy 
 $\theta$ to $\theta*$) and optimization continues.
 
-Another point worth mentioning is about independent samples. To make this assumption valid, we need to build a replay buffer such 
-that the interaction data points $x = (s_i, a_i, r_i, s'_i)$ can be reused, thus also improving the training efficiency.
+Gathering the training samples purely from interacting with the system results in dependent samples due tot he Markov property.
+A *replay buffer* is needed for sampling independent samples $x = (s_i, a_i, r_i, s'_i)$, thus also improving the training efficiency.
 
+A general structure of DQN is
+<p align="center">
+<img src="/rf/dqn_flow.png" width="600" height="400"><br>
+<em>Figure 2: DQN flow</em>
+<p>
+
+*Image cited from [^3]*
+
+- Initialize the $Q_{\theta}$
+- Initialize the target network $Q_{\theta*}$ by cloning $\theta*$ from $\theta$
+
+    
 
 #### Advanced DQN
 ### Policy Based
@@ -67,3 +83,9 @@ that the interaction data points $x = (s_i, a_i, r_i, s'_i)$ can be reused, thus
 #### DDPQ
 #### Actor Critic (AC)
 #### SAC
+
+
+## Reference
+[^1]: Mao, Hongzi, et al. "Resource management with deep reinforcement learning." Proceedings of the 15th ACM workshop on hot topics in networks. 2016
+[^2]: Sebastianelli, Alessandro, et al. "A Deep Q-Learning based approach applied to the Snake game." 2021 29th Mediterranean Conference on Control and Automation (MED). IEEE, 2021
+[^3]: Muteba, K. F., Karim Djouani, and Thomas O. Olwal. "Deep reinforcement learning based resource allocation for narrowband cognitive radio-IoT systems." Procedia Computer Science 175 (2020): 315-324

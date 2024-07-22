@@ -9,6 +9,7 @@ tags: ['Machine learning', 'Reinforcement Learning']
 <img src="/rf/rf.png" width="600" height="400"><br>
 <p>
 <!--more-->
+
 *Image cited from [^1]*
 
 ## Basic Problem Statement of Reinforcement Learning

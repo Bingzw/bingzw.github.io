@@ -482,6 +482,7 @@
         </li>
       </ul>
     </li>
+    <li><a href="#reference">Reference</a></li>
   </ul>
 </nav></div>
   </details>
@@ -511,6 +512,7 @@
             <p align="center">
 <img src="/rf/deeprl.png" width="600" height="400"><br>
 <p>
+<p><em>Image cited from <sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup></em></p>
 <p>This blog is a continuation of the last one: <strong>A Journey to Reinforcement Learning - Tabular Methods</strong>. The
 table of content structure and notations follow the same framework. Let&rsquo;s continue the journey from the last value based
 algorithm in model free setting.</p>
@@ -549,7 +551,8 @@ be approximated by fitting a neural network where the state is fed into the netw
 <img src="/rf/q_dqn.png" width="600" height="400"><br>
 <em>Figure 1: Q learning vs DQN</em>
 <p>
-<p>With such a neural network, how to define the loss function? From the basic $Q$ learning, the $Q$ value is updated
+<p><em>Image cited from <sup id="fnref:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">2</a></sup></em></p>
+<p>Given the network, what&rsquo;s the loss function? From the basic $Q$ learning, the $Q$ value is updated
 via $Q(s, a) \leftarrow Q(s, a) + \alpha [r + \gamma \max_{a&rsquo;}Q(s&rsquo;, a&rsquo;) - Q(s, a)]$. This indicates that we are actually
 &ldquo;learning&rdquo; the target $r + \gamma \max_{a&rsquo;}Q(s&rsquo;, a&rsquo;)$. Therefore, the loss function can be defined as
 $$
@@ -567,8 +570,18 @@ $$</p>
 <p>The parameter $\theta*$ is fixed in (3.5) and only copied from $Q_\theta$ periodically after a few gradient descent runs. In
 this way, the loss function is firstly optimized towards a fixed label (only $\theta$ is updated), then labels are updated (copy
 $\theta$ to $\theta*$) and optimization continues.</p>
-<p>Another point worth mentioning is about independent samples. To make this assumption valid, we need to build a replay buffer such
-that the interaction data points $x = (s_i, a_i, r_i, s&rsquo;_i)$ can be reused, thus also improving the training efficiency.</p>
+<p>Gathering the training samples purely from interacting with the system results in dependent samples due tot he Markov property.
+A <em>replay buffer</em> is needed for sampling independent samples $x = (s_i, a_i, r_i, s&rsquo;_i)$, thus also improving the training efficiency.</p>
+<p>A general structure of DQN is</p>
+<p align="center">
+<img src="/rf/dqn_flow.png" width="600" height="400"><br>
+<em>Figure 2: DQN flow</em>
+<p>
+<p><em>Image cited from <sup id="fnref:3"><a href="#fn:3" class="footnote-ref" role="doc-noteref">3</a></sup></em></p>
+<ul>
+<li>Initialize the $Q_{\theta}$</li>
+<li>Initialize the target network $Q_{\theta*}$ by cloning $\theta*$ from $\theta$</li>
+</ul>
 <h4 id="advanced-dqn" >
 <div>
     <a href="#advanced-dqn">
@@ -649,6 +662,28 @@ that the interaction data points $x = (s_i, a_i, r_i, s&rsquo;_i)$ can be reused
     SAC
 </div>
 </h4>
+<h2 id="reference" >
+<div>
+    <a href="#reference">
+        
+    </a>
+    Reference
+</div>
+</h2>
+<div class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1">
+<p>Mao, Hongzi, et al. &ldquo;Resource management with deep reinforcement learning.&rdquo; Proceedings of the 15th ACM workshop on hot topics in networks. 2016&#160;<a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:2">
+<p>Sebastianelli, Alessandro, et al. &ldquo;A Deep Q-Learning based approach applied to the Snake game.&rdquo; 2021 29th Mediterranean Conference on Control and Automation (MED). IEEE, 2021&#160;<a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:3">
+<p>Muteba, K. F., Karim Djouani, and Thomas O. Olwal. &ldquo;Deep reinforcement learning based resource allocation for narrowband cognitive radio-IoT systems.&rdquo; Procedia Computer Science 175 (2020): 315-324&#160;<a href="#fnref:3" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+</ol>
+</div>
         </div>
 
     </article>
