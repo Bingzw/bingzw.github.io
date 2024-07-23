@@ -20,8 +20,9 @@
       <author>bingwang8878@gamil.com (Bing Wang)</author>
       <guid>/posts/2024-07-15-rf-learning-deep/</guid>
       <description>&lt;p align=&#34;center&#34;&gt;
-&lt;img src=&#34;http://localhost:1313/rf/deeprl.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+&lt;img src=&#34;https://bingzw.github.io/rf/deeprl.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
 &lt;p&gt;
+&lt;p&gt;&lt;em&gt;Image cited from &lt;sup id=&#34;fnref:1&#34;&gt;&lt;a href=&#34;#fn:1&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;1&lt;/a&gt;&lt;/sup&gt;&lt;/em&gt;&lt;/p&gt;
 &lt;p&gt;This blog is a continuation of the last one: &lt;strong&gt;A Journey to Reinforcement Learning - Tabular Methods&lt;/strong&gt;. The
 table of content structure and notations follow the same framework. Let&amp;rsquo;s continue the journey from the last value based
 algorithm in model free setting.&lt;/p&gt;
@@ -57,10 +58,11 @@ Welcome to the realm of &lt;strong&gt;deep reinforcement learning&lt;/strong&gt;
 problem with &lt;strong&gt;continuous states&lt;/strong&gt; and &lt;strong&gt;discrete actions&lt;/strong&gt; (the continuous actions case will be discussed later). The $Q$ value can
 be approximated by fitting a neural network where the state is fed into the network and get output of $Q$ value at each action.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-&lt;img src=&#34;http://localhost:1313/rf/q_dqn.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+&lt;img src=&#34;https://bingzw.github.io/rf/q_dqn.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
 &lt;em&gt;Figure 1: Q learning vs DQN&lt;/em&gt;
 &lt;p&gt;
-&lt;p&gt;With such a neural network, how to define the loss function? From the basic $Q$ learning, the $Q$ value is updated
+&lt;p&gt;&lt;em&gt;Image cited from &lt;sup id=&#34;fnref:2&#34;&gt;&lt;a href=&#34;#fn:2&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;2&lt;/a&gt;&lt;/sup&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;Given the network, what&amp;rsquo;s the loss function? From the basic $Q$ learning, the $Q$ value is updated
 via $Q(s, a) \leftarrow Q(s, a) + \alpha [r + \gamma \max_{a&amp;rsquo;}Q(s&amp;rsquo;, a&amp;rsquo;) - Q(s, a)]$. This indicates that we are actually
 &amp;ldquo;learning&amp;rdquo; the target $r + \gamma \max_{a&amp;rsquo;}Q(s&amp;rsquo;, a&amp;rsquo;)$. Therefore, the loss function can be defined as
 $$
@@ -70,16 +72,47 @@ given a sample $x = (s_i, a_i, r_i, s&amp;rsquo;_i)$.&lt;/p&gt;
 &lt;p&gt;When applying the backpropagation on (3.4), the target value is changing since it also depends on the parameter $\theta$
 to be optimized. This differs from the typical deep learning where the label is given and fixed. Learning from a changing label
 problem may be very unstable and loss may fluctuate. To tackle this, the target $Q$ network is introduced.&lt;/p&gt;
-&lt;p&gt;The idea is to maintain two $Q$ neural nets: $Q_\theta$ and $Q_{\theta*}$. The target net $Q_{\theta*}$ is originally cloned from
+&lt;p&gt;The idea is to maintain two $Q$ neural nets: $Q_\theta$ and $Q_{\theta ^ *}$. The target net $Q_{\theta ^ *}$ is originally cloned from
 the net $Q_\theta$ and the (3.4) is reformatted as&lt;/p&gt;
 &lt;p&gt;$$
-L(\theta, x) = \frac{1}{N}\sum_{i=1}^N[Q_{\theta}(s_i, a_i) - (r_i + \arg \max_{a&amp;rsquo;}Q_{\theta*}(s&amp;rsquo;, a&amp;rsquo;))]^2 \tag{3.5}
+L(\theta, x) = \frac{1}{N}\sum_{i=1}^N[Q_{\theta}(s_i, a_i) - (r_i + \arg \max_{a&amp;rsquo;}Q_{\theta ^ *}(s&amp;rsquo;, a&amp;rsquo;))]^2 \tag{3.5}
 $$&lt;/p&gt;
-&lt;p&gt;The parameter $\theta*$ is fixed in (3.5) and only copied from $Q_\theta$ periodically after a few gradient descent runs. In
+&lt;p&gt;The parameter $\theta ^ *$ is fixed in (3.5) and only copied from $Q_\theta$ periodically after a few gradient descent runs. In
 this way, the loss function is firstly optimized towards a fixed label (only $\theta$ is updated), then labels are updated (copy
-$\theta$ to $\theta*$) and optimization continues.&lt;/p&gt;
-&lt;p&gt;Another point worth mentioning is about independent samples. To make this assumption valid, we need to build a replay buffer such
-that the interaction data points $x = (s_i, a_i, r_i, s&amp;rsquo;_i)$ can be reused, thus also improving the training efficiency.&lt;/p&gt;
+$\theta$ to $\theta ^ *$) and optimization continues.&lt;/p&gt;
+&lt;p&gt;Gathering the training samples purely from interacting with the system results in dependent samples due to the Markov property. In DQN,
+An &lt;strong&gt;experience replay&lt;/strong&gt; (ER) component introduce a &lt;em&gt;replay buffer&lt;/em&gt; that is sampling independent samples $x = (s_i, a_i, r_i, s&amp;rsquo;_i)$,
+thus also improving the training efficiency.&lt;/p&gt;
+&lt;p&gt;A general structure of DQN is&lt;/p&gt;
+&lt;p align=&#34;center&#34;&gt;
+&lt;img src=&#34;https://bingzw.github.io/rf/dqn_flow.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+&lt;em&gt;Figure 2: DQN flow&lt;/em&gt;
+&lt;p&gt;
+&lt;p&gt;&lt;em&gt;Image cited from &lt;sup id=&#34;fnref:3&#34;&gt;&lt;a href=&#34;#fn:3&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;3&lt;/a&gt;&lt;/sup&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Initialize the $Q_{\theta}$&lt;/li&gt;
+&lt;li&gt;Initialize the target network $Q_{\theta ^ *}$ by cloning $\theta ^ *$ from $\theta$&lt;/li&gt;
+&lt;li&gt;Initialize the replay buffer&lt;/li&gt;
+&lt;li&gt;for episode $e$ from 1 to $K$, do:
+&lt;ul&gt;
+&lt;li&gt;Initialize the state $s$&lt;/li&gt;
+&lt;li&gt;for $t$ from 1 to $T$, do:
+&lt;ul&gt;
+&lt;li&gt;apply the $\epsilon$-greedy strategy to $Q_{\theta}$ to choose the action $a$ based on $s$&lt;/li&gt;
+&lt;li&gt;take the action and interact with the environment to get reward $r$ and $s&#39;$&lt;/li&gt;
+&lt;li&gt;save the sample (s, a, r, s&amp;rsquo;) to the replay buffer&lt;/li&gt;
+&lt;li&gt;if there are enough samples in the replay buffer, sample N data points $\{(s_i, s_i, r_i, s_{i+1})\}_{i=1,\dots,N}$&lt;/li&gt;
+&lt;li&gt;for each sample, calculate the target $y_i = r_i + \gamma \arg\max_{a} Q_{\theta ^ *}(s_{i+1}, a)$&lt;/li&gt;
+&lt;li&gt;minimize the loss function $L(\theta, x) = \frac{1}{N}\sum_{i=1}^N[y_i - Q_{\theta}(s_i, a_i)]^2$, update $Q_\theta$&lt;/li&gt;
+&lt;li&gt;Update $Q_{\theta ^ *}$ every $M$ steps&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;end for&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;end for&lt;/li&gt;
+&lt;li&gt;return $Q_{\theta}$ and derive the optimal policy&lt;/li&gt;
+&lt;/ul&gt;
 &lt;h4 id=&#34;advanced-dqn&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#advanced-dqn&#34;&gt;
@@ -88,6 +121,87 @@ that the interaction data points $x = (s_i, a_i, r_i, s&amp;rsquo;_i)$ can be re
     Advanced DQN
 &lt;/div&gt;
 &lt;/h4&gt;
+&lt;p&gt;Though DQN extends the problem solving capability from finite states to infinite state space, original DQN still suffers
+from issues like overestimation. Below lists the efforts to further refine the DQN.&lt;/p&gt;
+&lt;h5 id=&#34;double-dqn&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#double-dqn&#34;&gt;
+        
+    &lt;/a&gt;
+    Double DQN
+&lt;/div&gt;
+&lt;/h5&gt;
+&lt;p&gt;&lt;em&gt;Problem Addressed&lt;/em&gt;: DQN suffers from overestimation bias when updating Q-values because it uses the same network to
+select and evaluate actions.&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Approach&lt;/em&gt;: Double DQN separates action selection and action evaluation by using the training network to select actions and
+the target network to evaluate them. This reduces overestimation bias and leads to more accurate Q-value predictions.&lt;/p&gt;
+&lt;h5 id=&#34;duel-dqn&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#duel-dqn&#34;&gt;
+        
+    &lt;/a&gt;
+    Duel DQN
+&lt;/div&gt;
+&lt;/h5&gt;
+&lt;p&gt;&lt;em&gt;Problem Addressed&lt;/em&gt;: Traditional DQNs struggle to efficiently learn the value of states without requiring specific
+action-value pairs.&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Approach&lt;/em&gt;: Introduces a dueling network architecture that separates the estimation of state values and advantage functions.
+This allows the model to learn which states are valuable without needing to learn the effect of each action in those states,
+leading to improved learning efficiency.&lt;/p&gt;
+&lt;h5 id=&#34;prioritized-experience-replay&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#prioritized-experience-replay&#34;&gt;
+        
+    &lt;/a&gt;
+    Prioritized Experience Replay
+&lt;/div&gt;
+&lt;/h5&gt;
+&lt;p&gt;&lt;em&gt;Problem Addressed&lt;/em&gt;: In standard experience replay, all transitions are sampled with equal probability, which can be
+inefficient as some experiences are more valuable for learning.&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Approach&lt;/em&gt;: Prioritizes sampling of experiences that have higher expected learning progress, meaning transitions with
+a higher TD error are sampled more frequently. This focuses learning on more informative samples, speeding up
+the learning process.&lt;/p&gt;
+&lt;h5 id=&#34;noisy-nets&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#noisy-nets&#34;&gt;
+        
+    &lt;/a&gt;
+    Noisy Nets
+&lt;/div&gt;
+&lt;/h5&gt;
+&lt;p&gt;&lt;em&gt;Problem Addressed&lt;/em&gt;: Standard exploration methods (like epsilon-greedy) can be suboptimal or inefficient.&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Approach&lt;/em&gt;: Replaces deterministic parameters in the neural network with parameterized noise, allowing the network to explore more
+effectively by adding noise directly to the weights. This leads to more effective exploration strategies that adapt over time.&lt;/p&gt;
+&lt;h5 id=&#34;distributional-dqn&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#distributional-dqn&#34;&gt;
+        
+    &lt;/a&gt;
+    Distributional DQN
+&lt;/div&gt;
+&lt;/h5&gt;
+&lt;p&gt;&lt;em&gt;Problem Addressed&lt;/em&gt;: Traditional DQNs focus on learning the expected return, which can overlook valuable distributional
+information about the returns.&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Approach&lt;/em&gt;: Instead of estimating the expected value, estimate the distribution of the $Q$ function. This is to capture
+the uncertainty of the $Q$ function. The $Q$ function is then calculated as the expected value of the distribution.&lt;/p&gt;
+&lt;h5 id=&#34;rainbow-dqn-4&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#rainbow-dqn-4&#34;&gt;
+        
+    &lt;/a&gt;
+    Rainbow DQN &lt;sup id=&#34;fnref:4&#34;&gt;&lt;a href=&#34;#fn:4&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;4&lt;/a&gt;&lt;/sup&gt;
+&lt;/div&gt;
+&lt;/h5&gt;
+&lt;p&gt;&lt;em&gt;Problem Addressed&lt;/em&gt;: Individual improvements to DQN (like those above) each address specific limitations, but combining
+them could lead to even more robust performance.&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Approach&lt;/em&gt;: Integrates several enhancements to DQN into a single framework: Double DQN, Duel DQN, Prioritized Experience Replay,
+Noisy Nets, Distributional Q-learning, and a few others. By combining these techniques, Rainbow DQN leverages the strengths of
+each approach to achieve superior performance in a unified model.&lt;/p&gt;
+&lt;p align=&#34;center&#34;&gt;
+&lt;img src=&#34;https://bingzw.github.io/rf/rainbow.png&#34; width=&#34;500&#34; height=&#34;100&#34;&gt;&lt;br&gt;
+&lt;em&gt;Figure 3: Rainbow DQN&lt;/em&gt;
+&lt;p&gt;
+&lt;p&gt;&lt;em&gt;Image cited from &lt;sup id=&#34;fnref1:4&#34;&gt;&lt;a href=&#34;#fn:4&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;4&lt;/a&gt;&lt;/sup&gt;&lt;/em&gt;&lt;/p&gt;
 &lt;h3 id=&#34;policy-based&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#policy-based&#34;&gt;
@@ -159,7 +273,32 @@ that the interaction data points $x = (s_i, a_i, r_i, s&amp;rsquo;_i)$ can be re
     &lt;/a&gt;
     SAC
 &lt;/div&gt;
-&lt;/h4&gt;</description>
+&lt;/h4&gt;
+&lt;h2 id=&#34;reference&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#reference&#34;&gt;
+        
+    &lt;/a&gt;
+    Reference
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;div class=&#34;footnotes&#34; role=&#34;doc-endnotes&#34;&gt;
+&lt;hr&gt;
+&lt;ol&gt;
+&lt;li id=&#34;fn:1&#34;&gt;
+&lt;p&gt;Mao, Hongzi, et al. &amp;ldquo;Resource management with deep reinforcement learning.&amp;rdquo; Proceedings of the 15th ACM workshop on hot topics in networks. 2016&amp;#160;&lt;a href=&#34;#fnref:1&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:2&#34;&gt;
+&lt;p&gt;Sebastianelli, Alessandro, et al. &amp;ldquo;A Deep Q-Learning based approach applied to the Snake game.&amp;rdquo; 2021 29th Mediterranean Conference on Control and Automation (MED). IEEE, 2021&amp;#160;&lt;a href=&#34;#fnref:2&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:3&#34;&gt;
+&lt;p&gt;Muteba, K. F., Karim Djouani, and Thomas O. Olwal. &amp;ldquo;Deep reinforcement learning based resource allocation for narrowband cognitive radio-IoT systems.&amp;rdquo; Procedia Computer Science 175 (2020): 315-324&amp;#160;&lt;a href=&#34;#fnref:3&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:4&#34;&gt;
+&lt;p&gt;Hessel, Matteo, et al. &amp;ldquo;Rainbow: Combining improvements in deep reinforcement learning.&amp;rdquo; Proceedings of the AAAI conference on artificial intelligence. Vol. 32. No. 1. 2018.&amp;#160;&lt;a href=&#34;#fnref:4&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref1:4&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/div&gt;</description>
     </item>
     
     <item>
@@ -169,7 +308,7 @@ that the interaction data points $x = (s_i, a_i, r_i, s&amp;rsquo;_i)$ can be re
       <author>bingwang8878@gamil.com (Bing Wang)</author>
       <guid>/posts/2024-07-05-rf-learning-tabular/</guid>
       <description>&lt;p align=&#34;center&#34;&gt;
-&lt;img src=&#34;http://localhost:1313/rf/rf.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+&lt;img src=&#34;https://bingzw.github.io/rf/rf.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
 &lt;p&gt;
 &lt;p&gt;&lt;em&gt;Image cited from &lt;sup id=&#34;fnref:1&#34;&gt;&lt;a href=&#34;#fn:1&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;1&lt;/a&gt;&lt;/sup&gt;&lt;/em&gt;&lt;/p&gt;
 &lt;h2 id=&#34;basic-problem-statement-of-reinforcement-learning&#34; &gt;
@@ -299,7 +438,7 @@ which builds the connection of the action value function between the current and
 (1.6) and (1.8), (1.7) and (1.9), it&#39;s easy to observe that (1.8) and (1.9) actually implements the expectation expression explicitly. 
 &lt;p&gt;A visualized interpretation of (1.8) and (1.9) are shown in the following backup diagram.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-    &lt;img src=&#34;http://localhost:1313/rf/backup.png&#34;&gt;&lt;br&gt;
+    &lt;img src=&#34;https://bingzw.github.io/rf/backup.png&#34;&gt;&lt;br&gt;
     &lt;em&gt;Figure 1: Backup Diagram&lt;/em&gt;
 &lt;/p&gt;
 &lt;h4 id=&#34;bellman-optimal-equation&#34; &gt;
@@ -534,7 +673,7 @@ applied to any piece of episode, which is more flexible. The estimation variance
 other hand, DP computes all the related next states when updating. TD compromise both MC and DP, it sampled only one or finite steps
 for updating.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-&lt;img src=&#34;http://localhost:1313/rf/rf_dp_mc_td.png&#34; width=&#34;900&#34; height=&#34;600&#34;&gt;&lt;br&gt;
+&lt;img src=&#34;https://bingzw.github.io/rf/rf_dp_mc_td.png&#34; width=&#34;900&#34; height=&#34;600&#34;&gt;&lt;br&gt;
 &lt;em&gt;Figure 2: Visual Interpretation of DP, TD and MC&lt;/em&gt;
 &lt;p&gt;
 &lt;p&gt;&lt;em&gt;Image cited from &lt;sup id=&#34;fnref:5&#34;&gt;&lt;a href=&#34;#fn:5&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;5&lt;/a&gt;&lt;/sup&gt;&lt;/em&gt;&lt;/p&gt;
@@ -548,11 +687,11 @@ for updating.&lt;/p&gt;
 &lt;/h4&gt;
 &lt;p&gt;Now given a policy $\pi$, we have learned TD and MC can help evaluate the value function when the environment is unknown.
 The next natural question is How can we find the optimal policy? We can borrow the policy improvement idea from policy
-iteration in DP. Get the next policy by using the greedy search, i.e. $\pi_{i+1}(s) = \arg \max_a Q_{\pi_i}(s, a)$.
+iteration in DP. Get the next policy by using the greedy search, i.e. $\pi_{i+1}(s) = \arg \max_{a} Q_{\pi_i}(s, a)$.
 Combining the generalized policy evaluation and the greedy policy improvement would allow us to build the generalized policy
 iteration.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-&lt;img src=&#34;http://localhost:1313/rf/policy_iteration.png&#34; width=&#34;250&#34; height=&#34;150&#34;&gt;&lt;br&gt;
+&lt;img src=&#34;https://bingzw.github.io/rf/policy_iteration.png&#34; width=&#34;250&#34; height=&#34;150&#34;&gt;&lt;br&gt;
 &lt;em&gt;Figure 3: Generalized Policy Iteration&lt;/em&gt;
 &lt;p&gt;
 &lt;p&gt;Another difference from the policy iteration in DP is that we may never update some state-action pairs using the pure greedy
@@ -603,7 +742,7 @@ then it&amp;rsquo;s &lt;strong&gt;$n$ step SARSA&lt;/strong&gt;.&lt;/p&gt;
 &lt;/h4&gt;
 &lt;p&gt;If the way of updating the TD policy evaluation in SARSA is changed to
 $$
-Q(s, a) \leftarrow Q(s, a) + \alpha [r + \gamma \max_{a&amp;rsquo;}Q(s&amp;rsquo;, a&amp;rsquo;) - Q(s, a)] \tag{3.3}
+Q(s, a) \leftarrow Q(s, a) + \alpha [r + \gamma \max_{a&amp;rsquo;} Q(s&amp;rsquo;, a&amp;rsquo;) - Q(s, a)] \tag{3.3}
 $$
 Then we would get the Q learning algorithm.&lt;/p&gt;
 &lt;ul&gt;
@@ -615,7 +754,7 @@ Then we would get the Q learning algorithm.&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;apply the $\epsilon$-greedy strategy to choose the action $a$ based on $s$&lt;/li&gt;
 &lt;li&gt;interact with the environment and get reward $r$ and $s&#39;$&lt;/li&gt;
-&lt;li&gt;$Q(s, a) \leftarrow Q(s, a) + \alpha [r + \gamma \max_{a&amp;rsquo;}Q(s&amp;rsquo;, a&amp;rsquo;) - Q(s, a)]$&lt;/li&gt;
+&lt;li&gt;$Q(s, a) \leftarrow Q(s, a) + \alpha [r + \gamma \max_{a&amp;rsquo;} Q(s&amp;rsquo;, a&amp;rsquo;) - Q(s, a)]$&lt;/li&gt;
 &lt;li&gt;$s \leftarrow s&#39;$&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
@@ -623,11 +762,11 @@ Then we would get the Q learning algorithm.&lt;/p&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;li&gt;end for&lt;/li&gt;
-&lt;li&gt;return the value action $Q$&lt;/li&gt;
+&lt;li&gt;return the value action $Q$ and derive the optimal policy&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;The major difference between Q learning and SARSA is about the way to update the $Q$ value. In (3.3), we are actually
-approximating the target value $r + \gamma \max_{a&amp;rsquo;}Q(s&amp;rsquo;, a&amp;rsquo;)$. So the goal here is to learn
-the optimal policy $\pi(a \mid s) = \max_{a&amp;rsquo;}Q(s, a&amp;rsquo;)$. Let&amp;rsquo;s call the policy used in (3.3) as the target policy.
+approximating the target value $r + \gamma \max_{a&amp;rsquo;} Q(s&amp;rsquo;, a&amp;rsquo;)$. So the goal here is to learn
+the optimal policy $\pi(a \mid s) = \max_{a&amp;rsquo;} Q(s, a&amp;rsquo;)$. Let&amp;rsquo;s call the policy used in (3.3) as the target policy.
 The data used to learn the target policy $(s, a, r, s&amp;rsquo;)$ is however generated from another policy that interacts with the
 environment, called the behavior policy ($\epsilon$-greedy). It&amp;rsquo;s easy to see that the target policy is different from the
 behavior policy. This is also called &lt;strong&gt;off-policy&lt;/strong&gt; learning.&lt;/p&gt;
@@ -706,7 +845,7 @@ more complicated problems.&lt;/p&gt;
       <author>bingwang8878@gamil.com (Bing Wang)</author>
       <guid>/posts/2024-06-06-recommendation-model/</guid>
       <description>&lt;p align=&#34;center&#34;&gt;
-&lt;img src=&#34;http://localhost:1313/recommendation_model/reco.jpeg&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+&lt;img src=&#34;https://bingzw.github.io/recommendation_model/reco.jpeg&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
 &lt;p&gt;
 &lt;p&gt;&lt;em&gt;Image cited from &lt;a href=&#34;https://www.vecteezy.com/&#34;&gt;vecteezy&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
 &lt;h2 id=&#34;introduction-to-recommendation-models&#34; &gt;
@@ -840,7 +979,7 @@ architecture to the collaborative filtering domain. CDAE is designed to handle i
 are inferred from user behavior rather than explicit ratings. The model incorporates both user-specific and item-specific
 factors, leveraging the rich user interaction data to learn better representations for recommendation tasks.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-    &lt;img src=&#34;http://localhost:1313/recommendation_model/autoencoder_mf.png&#34;&gt;&lt;br&gt;
+    &lt;img src=&#34;https://bingzw.github.io/recommendation_model/autoencoder_mf.png&#34;&gt;&lt;br&gt;
     &lt;em&gt;Figure 1: deep auto-encoder&lt;/em&gt;
 &lt;/p&gt;
 &lt;h5 id=&#34;neural-collaborative-filtering3&#34; &gt;
@@ -860,7 +999,7 @@ that learn the interaction between these embeddings. The final output layer pred
 item. This approach not only improves the accuracy of recommendations but also enables the integration of additional
 features, such as user demographics or item attributes, into the model. Refer to the DLRM or DeepFM for more details.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-    &lt;img src=&#34;http://localhost:1313/recommendation_model/ncf_mf.png&#34;&gt;&lt;br&gt;
+    &lt;img src=&#34;https://bingzw.github.io/recommendation_model/ncf_mf.png&#34;&gt;&lt;br&gt;
     &lt;em&gt;Figure 2: neural collaborative filtering&lt;/em&gt;
 &lt;/p&gt;
 &lt;h2 id=&#34;content-based-models-ranking-as-recommendation&#34; &gt;
@@ -915,7 +1054,7 @@ $$&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
 &lt;p align=&#34;center&#34;&gt;
-   &lt;img src=&#34;http://localhost:1313/recommendation_model/wide_deep.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
+   &lt;img src=&#34;https://bingzw.github.io/recommendation_model/wide_deep.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
    &lt;em&gt;Figure 3: wide &amp; deep model&lt;/em&gt;
 &lt;/p&gt;
 &lt;h3 id=&#34;deepfm5&#34; &gt;
@@ -958,7 +1097,7 @@ activation of the last hidden layer.&lt;/p&gt;
 &lt;p&gt;$$\hat{y} = \sigma(y_{\text{FM}} + y_{\text{deep}})$$&lt;/p&gt;
 &lt;p&gt;where $\sigma$ is the sigmoid function used to squash the output to a probability score.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-   &lt;img src=&#34;http://localhost:1313/recommendation_model/deepfm.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+   &lt;img src=&#34;https://bingzw.github.io/recommendation_model/deepfm.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
    &lt;em&gt;Figure 4: deepfm model&lt;/em&gt;
 &lt;/p&gt;
 &lt;h3 id=&#34;deep-learning-recommendation-model-dlrm6&#34; &gt;
@@ -975,7 +1114,7 @@ systems in environments such as social media platforms, e-commerce, and online a
 strengths of collaborative filtering and content-based methods by utilizing both dense and sparse features to provide
 highly accurate and scalable recommendations.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-   &lt;img src=&#34;http://localhost:1313/recommendation_model/dlrm.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+   &lt;img src=&#34;https://bingzw.github.io/recommendation_model/dlrm.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
    &lt;em&gt;Figure 5: deep learning recommendation model&lt;/em&gt;
 &lt;/p&gt;
 &lt;p&gt;Key components of DLRM includes&lt;/p&gt;
@@ -1051,7 +1190,7 @@ biases of the $l$-th layer, respectively, and $f_{l}$ is the activation function
 &lt;p&gt;The final prediction is a combination of the outputs from either the hidden layer (stacked structure) or the  concatenation
 of cross and deep network outputs.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-   &lt;img src=&#34;http://localhost:1313/recommendation_model/dcn_v2.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+   &lt;img src=&#34;https://bingzw.github.io/recommendation_model/dcn_v2.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
    &lt;em&gt;Figure 6: deep cross network v2&lt;/em&gt;
 &lt;/p&gt;
 &lt;h3 id=&#34;deep-interest-network-din8&#34; &gt;
@@ -1068,7 +1207,7 @@ DIN leverages a user&amp;rsquo;s historical behavior to make more accurate and c
 innovation in DIN is its ability to capture user interests dynamically and use this information to influence the recommendation
 process.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-   &lt;img src=&#34;http://localhost:1313/recommendation_model/din.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
+   &lt;img src=&#34;https://bingzw.github.io/recommendation_model/din.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
    &lt;em&gt;Figure 7: deep interest network&lt;/em&gt;
 &lt;/p&gt;
 &lt;p&gt;In particular, the DIN contains the following key components:&lt;/p&gt;
@@ -1116,7 +1255,7 @@ mixture-of-experts models with the flexibility of multi-gate mechanisms, allowin
 computational resources based on the specific needs of each task. This approach is particularly useful in scenarios
 where tasks are interrelated and can benefit from shared learning while maintaining task-specific adaptations.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-   &lt;img src=&#34;http://localhost:1313/recommendation_model/mmoe.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
+   &lt;img src=&#34;https://bingzw.github.io/recommendation_model/mmoe.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
    &lt;em&gt;Figure 8: multi-gate mixture of experts&lt;/em&gt;
 &lt;/p&gt;
 &lt;p&gt;Key components of the model architecture are:&lt;/p&gt;
@@ -1163,7 +1302,7 @@ sequences in recommendation systems. BST leverages the power of Transformer mode
 success in natural language processing (NLP), to capture the sequential patterns and contextual dependencies in user
 interactions over time. This approach enhances the ability to predict user preferences and improve recommendation accuracy.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-   &lt;img src=&#34;http://localhost:1313/recommendation_model/bst.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
+   &lt;img src=&#34;https://bingzw.github.io/recommendation_model/bst.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
    &lt;em&gt;Figure 9: behavior sequence transformer&lt;/em&gt;
 &lt;/p&gt;
 &lt;p&gt;Key components of BST include:&lt;/p&gt;

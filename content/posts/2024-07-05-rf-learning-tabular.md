@@ -288,7 +288,7 @@ for updating.
 #### SARSA
 Now given a policy $\pi$, we have learned TD and MC can help evaluate the value function when the environment is unknown. 
 The next natural question is How can we find the optimal policy? We can borrow the policy improvement idea from policy 
-iteration in DP. Get the next policy by using the greedy search, i.e. $\pi_{i+1}(s) = \arg \max_a Q_{\pi_i}(s, a)$. 
+iteration in DP. Get the next policy by using the greedy search, i.e. $\pi_{i+1}(s) = \arg \max_{a} Q_{\pi_i}(s, a)$. 
 Combining the generalized policy evaluation and the greedy policy improvement would allow us to build the generalized policy 
 iteration.
 
@@ -335,7 +335,7 @@ then it's **$n$ step SARSA**.
 #### Q-Learning
 If the way of updating the TD policy evaluation in SARSA is changed to 
 $$ 
-Q(s, a) \leftarrow Q(s, a) + \alpha [r + \gamma \max_{a'}Q(s', a') - Q(s, a)] \tag{3.3}
+Q(s, a) \leftarrow Q(s, a) + \alpha [r + \gamma \max_{a'} Q(s', a') - Q(s, a)] \tag{3.3}
 $$
 Then we would get the Q learning algorithm.
 
@@ -345,15 +345,15 @@ Then we would get the Q learning algorithm.
   - for $t$ from 1 to $T$, do:
       - apply the $\epsilon$-greedy strategy to choose the action $a$ based on $s$
       - interact with the environment and get reward $r$ and $s'$
-      - $Q(s, a) \leftarrow Q(s, a) + \alpha [r + \gamma \max_{a'}Q(s', a') - Q(s, a)]$ 
+      - $Q(s, a) \leftarrow Q(s, a) + \alpha [r + \gamma \max_{a'} Q(s', a') - Q(s, a)]$ 
       - $s \leftarrow s'$
   - end for
 - end for
-- return the value action $Q$
+- return the value action $Q$ and derive the optimal policy
 
 The major difference between Q learning and SARSA is about the way to update the $Q$ value. In (3.3), we are actually 
-approximating the target value $r + \gamma \max_{a'}Q(s', a')$. So the goal here is to learn
-the optimal policy $\pi(a \mid s) = \max_{a'}Q(s, a')$. Let's call the policy used in (3.3) as the target policy. 
+approximating the target value $r + \gamma \max_{a'} Q(s', a')$. So the goal here is to learn
+the optimal policy $\pi(a \mid s) = \max_{a'} Q(s, a')$. Let's call the policy used in (3.3) as the target policy. 
 The data used to learn the target policy $(s, a, r, s')$ is however generated from another policy that interacts with the 
 environment, called the behavior policy ($\epsilon$-greedy). It's easy to see that the target policy is different from the 
 behavior policy. This is also called **off-policy** learning.
@@ -397,4 +397,3 @@ https://bingzw.github.io/posts/2024-07-05-rf-learning-tabular/
 [^3]: [Easy RL](https://datawhalechina.github.io/easy-rl/)
 [^4]: [Hands On RL](https://hrl.boyuai.com/)
 [^5]: [Reinforcement Learning: An Introduction](https://www.andrew.cmu.edu/course/10-703/textbook/BartoSutton.pdf)
-

@@ -20,8 +20,9 @@
       <author>bingwang8878@gamil.com (Bing Wang)</author>
       <guid>/posts/2024-07-15-rf-learning-deep/</guid>
       <description>&lt;p align=&#34;center&#34;&gt;
-&lt;img src=&#34;http://localhost:1313/rf/deeprl.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+&lt;img src=&#34;https://bingzw.github.io/rf/deeprl.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
 &lt;p&gt;
+&lt;p&gt;&lt;em&gt;Image cited from &lt;sup id=&#34;fnref:1&#34;&gt;&lt;a href=&#34;#fn:1&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;1&lt;/a&gt;&lt;/sup&gt;&lt;/em&gt;&lt;/p&gt;
 &lt;p&gt;This blog is a continuation of the last one: &lt;strong&gt;A Journey to Reinforcement Learning - Tabular Methods&lt;/strong&gt;. The
 table of content structure and notations follow the same framework. Let&amp;rsquo;s continue the journey from the last value based
 algorithm in model free setting.&lt;/p&gt;
@@ -57,10 +58,11 @@ Welcome to the realm of &lt;strong&gt;deep reinforcement learning&lt;/strong&gt;
 problem with &lt;strong&gt;continuous states&lt;/strong&gt; and &lt;strong&gt;discrete actions&lt;/strong&gt; (the continuous actions case will be discussed later). The $Q$ value can
 be approximated by fitting a neural network where the state is fed into the network and get output of $Q$ value at each action.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-&lt;img src=&#34;http://localhost:1313/rf/q_dqn.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+&lt;img src=&#34;https://bingzw.github.io/rf/q_dqn.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
 &lt;em&gt;Figure 1: Q learning vs DQN&lt;/em&gt;
 &lt;p&gt;
-&lt;p&gt;With such a neural network, how to define the loss function? From the basic $Q$ learning, the $Q$ value is updated
+&lt;p&gt;&lt;em&gt;Image cited from &lt;sup id=&#34;fnref:2&#34;&gt;&lt;a href=&#34;#fn:2&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;2&lt;/a&gt;&lt;/sup&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;Given the network, what&amp;rsquo;s the loss function? From the basic $Q$ learning, the $Q$ value is updated
 via $Q(s, a) \leftarrow Q(s, a) + \alpha [r + \gamma \max_{a&amp;rsquo;}Q(s&amp;rsquo;, a&amp;rsquo;) - Q(s, a)]$. This indicates that we are actually
 &amp;ldquo;learning&amp;rdquo; the target $r + \gamma \max_{a&amp;rsquo;}Q(s&amp;rsquo;, a&amp;rsquo;)$. Therefore, the loss function can be defined as
 $$
@@ -70,16 +72,47 @@ given a sample $x = (s_i, a_i, r_i, s&amp;rsquo;_i)$.&lt;/p&gt;
 &lt;p&gt;When applying the backpropagation on (3.4), the target value is changing since it also depends on the parameter $\theta$
 to be optimized. This differs from the typical deep learning where the label is given and fixed. Learning from a changing label
 problem may be very unstable and loss may fluctuate. To tackle this, the target $Q$ network is introduced.&lt;/p&gt;
-&lt;p&gt;The idea is to maintain two $Q$ neural nets: $Q_\theta$ and $Q_{\theta*}$. The target net $Q_{\theta*}$ is originally cloned from
+&lt;p&gt;The idea is to maintain two $Q$ neural nets: $Q_\theta$ and $Q_{\theta ^ *}$. The target net $Q_{\theta ^ *}$ is originally cloned from
 the net $Q_\theta$ and the (3.4) is reformatted as&lt;/p&gt;
 &lt;p&gt;$$
-L(\theta, x) = \frac{1}{N}\sum_{i=1}^N[Q_{\theta}(s_i, a_i) - (r_i + \arg \max_{a&amp;rsquo;}Q_{\theta*}(s&amp;rsquo;, a&amp;rsquo;))]^2 \tag{3.5}
+L(\theta, x) = \frac{1}{N}\sum_{i=1}^N[Q_{\theta}(s_i, a_i) - (r_i + \arg \max_{a&amp;rsquo;}Q_{\theta ^ *}(s&amp;rsquo;, a&amp;rsquo;))]^2 \tag{3.5}
 $$&lt;/p&gt;
-&lt;p&gt;The parameter $\theta*$ is fixed in (3.5) and only copied from $Q_\theta$ periodically after a few gradient descent runs. In
+&lt;p&gt;The parameter $\theta ^ *$ is fixed in (3.5) and only copied from $Q_\theta$ periodically after a few gradient descent runs. In
 this way, the loss function is firstly optimized towards a fixed label (only $\theta$ is updated), then labels are updated (copy
-$\theta$ to $\theta*$) and optimization continues.&lt;/p&gt;
-&lt;p&gt;Another point worth mentioning is about independent samples. To make this assumption valid, we need to build a replay buffer such
-that the interaction data points $x = (s_i, a_i, r_i, s&amp;rsquo;_i)$ can be reused, thus also improving the training efficiency.&lt;/p&gt;
+$\theta$ to $\theta ^ *$) and optimization continues.&lt;/p&gt;
+&lt;p&gt;Gathering the training samples purely from interacting with the system results in dependent samples due to the Markov property. In DQN,
+An &lt;strong&gt;experience replay&lt;/strong&gt; (ER) component introduce a &lt;em&gt;replay buffer&lt;/em&gt; that is sampling independent samples $x = (s_i, a_i, r_i, s&amp;rsquo;_i)$,
+thus also improving the training efficiency.&lt;/p&gt;
+&lt;p&gt;A general structure of DQN is&lt;/p&gt;
+&lt;p align=&#34;center&#34;&gt;
+&lt;img src=&#34;https://bingzw.github.io/rf/dqn_flow.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+&lt;em&gt;Figure 2: DQN flow&lt;/em&gt;
+&lt;p&gt;
+&lt;p&gt;&lt;em&gt;Image cited from &lt;sup id=&#34;fnref:3&#34;&gt;&lt;a href=&#34;#fn:3&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;3&lt;/a&gt;&lt;/sup&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Initialize the $Q_{\theta}$&lt;/li&gt;
+&lt;li&gt;Initialize the target network $Q_{\theta ^ *}$ by cloning $\theta ^ *$ from $\theta$&lt;/li&gt;
+&lt;li&gt;Initialize the replay buffer&lt;/li&gt;
+&lt;li&gt;for episode $e$ from 1 to $K$, do:
+&lt;ul&gt;
+&lt;li&gt;Initialize the state $s$&lt;/li&gt;
+&lt;li&gt;for $t$ from 1 to $T$, do:
+&lt;ul&gt;
+&lt;li&gt;apply the $\epsilon$-greedy strategy to $Q_{\theta}$ to choose the action $a$ based on $s$&lt;/li&gt;
+&lt;li&gt;take the action and interact with the environment to get reward $r$ and $s&#39;$&lt;/li&gt;
+&lt;li&gt;save the sample (s, a, r, s&amp;rsquo;) to the replay buffer&lt;/li&gt;
+&lt;li&gt;if there are enough samples in the replay buffer, sample N data points $\{(s_i, s_i, r_i, s_{i+1})\}_{i=1,\dots,N}$&lt;/li&gt;
+&lt;li&gt;for each sample, calculate the target $y_i = r_i + \gamma \arg\max_{a} Q_{\theta ^ *}(s_{i+1}, a)$&lt;/li&gt;
+&lt;li&gt;minimize the loss function $L(\theta, x) = \frac{1}{N}\sum_{i=1}^N[y_i - Q_{\theta}(s_i, a_i)]^2$, update $Q_\theta$&lt;/li&gt;
+&lt;li&gt;Update $Q_{\theta ^ *}$ every $M$ steps&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;end for&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;end for&lt;/li&gt;
+&lt;li&gt;return $Q_{\theta}$ and derive the optimal policy&lt;/li&gt;
+&lt;/ul&gt;
 &lt;h4 id=&#34;advanced-dqn&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#advanced-dqn&#34;&gt;
@@ -88,6 +121,87 @@ that the interaction data points $x = (s_i, a_i, r_i, s&amp;rsquo;_i)$ can be re
     Advanced DQN
 &lt;/div&gt;
 &lt;/h4&gt;
+&lt;p&gt;Though DQN extends the problem solving capability from finite states to infinite state space, original DQN still suffers
+from issues like overestimation. Below lists the efforts to further refine the DQN.&lt;/p&gt;
+&lt;h5 id=&#34;double-dqn&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#double-dqn&#34;&gt;
+        
+    &lt;/a&gt;
+    Double DQN
+&lt;/div&gt;
+&lt;/h5&gt;
+&lt;p&gt;&lt;em&gt;Problem Addressed&lt;/em&gt;: DQN suffers from overestimation bias when updating Q-values because it uses the same network to
+select and evaluate actions.&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Approach&lt;/em&gt;: Double DQN separates action selection and action evaluation by using the training network to select actions and
+the target network to evaluate them. This reduces overestimation bias and leads to more accurate Q-value predictions.&lt;/p&gt;
+&lt;h5 id=&#34;duel-dqn&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#duel-dqn&#34;&gt;
+        
+    &lt;/a&gt;
+    Duel DQN
+&lt;/div&gt;
+&lt;/h5&gt;
+&lt;p&gt;&lt;em&gt;Problem Addressed&lt;/em&gt;: Traditional DQNs struggle to efficiently learn the value of states without requiring specific
+action-value pairs.&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Approach&lt;/em&gt;: Introduces a dueling network architecture that separates the estimation of state values and advantage functions.
+This allows the model to learn which states are valuable without needing to learn the effect of each action in those states,
+leading to improved learning efficiency.&lt;/p&gt;
+&lt;h5 id=&#34;prioritized-experience-replay&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#prioritized-experience-replay&#34;&gt;
+        
+    &lt;/a&gt;
+    Prioritized Experience Replay
+&lt;/div&gt;
+&lt;/h5&gt;
+&lt;p&gt;&lt;em&gt;Problem Addressed&lt;/em&gt;: In standard experience replay, all transitions are sampled with equal probability, which can be
+inefficient as some experiences are more valuable for learning.&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Approach&lt;/em&gt;: Prioritizes sampling of experiences that have higher expected learning progress, meaning transitions with
+a higher TD error are sampled more frequently. This focuses learning on more informative samples, speeding up
+the learning process.&lt;/p&gt;
+&lt;h5 id=&#34;noisy-nets&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#noisy-nets&#34;&gt;
+        
+    &lt;/a&gt;
+    Noisy Nets
+&lt;/div&gt;
+&lt;/h5&gt;
+&lt;p&gt;&lt;em&gt;Problem Addressed&lt;/em&gt;: Standard exploration methods (like epsilon-greedy) can be suboptimal or inefficient.&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Approach&lt;/em&gt;: Replaces deterministic parameters in the neural network with parameterized noise, allowing the network to explore more
+effectively by adding noise directly to the weights. This leads to more effective exploration strategies that adapt over time.&lt;/p&gt;
+&lt;h5 id=&#34;distributional-dqn&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#distributional-dqn&#34;&gt;
+        
+    &lt;/a&gt;
+    Distributional DQN
+&lt;/div&gt;
+&lt;/h5&gt;
+&lt;p&gt;&lt;em&gt;Problem Addressed&lt;/em&gt;: Traditional DQNs focus on learning the expected return, which can overlook valuable distributional
+information about the returns.&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Approach&lt;/em&gt;: Instead of estimating the expected value, estimate the distribution of the $Q$ function. This is to capture
+the uncertainty of the $Q$ function. The $Q$ function is then calculated as the expected value of the distribution.&lt;/p&gt;
+&lt;h5 id=&#34;rainbow-dqn-4&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#rainbow-dqn-4&#34;&gt;
+        
+    &lt;/a&gt;
+    Rainbow DQN &lt;sup id=&#34;fnref:4&#34;&gt;&lt;a href=&#34;#fn:4&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;4&lt;/a&gt;&lt;/sup&gt;
+&lt;/div&gt;
+&lt;/h5&gt;
+&lt;p&gt;&lt;em&gt;Problem Addressed&lt;/em&gt;: Individual improvements to DQN (like those above) each address specific limitations, but combining
+them could lead to even more robust performance.&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Approach&lt;/em&gt;: Integrates several enhancements to DQN into a single framework: Double DQN, Duel DQN, Prioritized Experience Replay,
+Noisy Nets, Distributional Q-learning, and a few others. By combining these techniques, Rainbow DQN leverages the strengths of
+each approach to achieve superior performance in a unified model.&lt;/p&gt;
+&lt;p align=&#34;center&#34;&gt;
+&lt;img src=&#34;https://bingzw.github.io/rf/rainbow.png&#34; width=&#34;500&#34; height=&#34;100&#34;&gt;&lt;br&gt;
+&lt;em&gt;Figure 3: Rainbow DQN&lt;/em&gt;
+&lt;p&gt;
+&lt;p&gt;&lt;em&gt;Image cited from &lt;sup id=&#34;fnref1:4&#34;&gt;&lt;a href=&#34;#fn:4&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;4&lt;/a&gt;&lt;/sup&gt;&lt;/em&gt;&lt;/p&gt;
 &lt;h3 id=&#34;policy-based&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#policy-based&#34;&gt;
@@ -159,7 +273,32 @@ that the interaction data points $x = (s_i, a_i, r_i, s&amp;rsquo;_i)$ can be re
     &lt;/a&gt;
     SAC
 &lt;/div&gt;
-&lt;/h4&gt;</description>
+&lt;/h4&gt;
+&lt;h2 id=&#34;reference&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#reference&#34;&gt;
+        
+    &lt;/a&gt;
+    Reference
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;div class=&#34;footnotes&#34; role=&#34;doc-endnotes&#34;&gt;
+&lt;hr&gt;
+&lt;ol&gt;
+&lt;li id=&#34;fn:1&#34;&gt;
+&lt;p&gt;Mao, Hongzi, et al. &amp;ldquo;Resource management with deep reinforcement learning.&amp;rdquo; Proceedings of the 15th ACM workshop on hot topics in networks. 2016&amp;#160;&lt;a href=&#34;#fnref:1&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:2&#34;&gt;
+&lt;p&gt;Sebastianelli, Alessandro, et al. &amp;ldquo;A Deep Q-Learning based approach applied to the Snake game.&amp;rdquo; 2021 29th Mediterranean Conference on Control and Automation (MED). IEEE, 2021&amp;#160;&lt;a href=&#34;#fnref:2&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:3&#34;&gt;
+&lt;p&gt;Muteba, K. F., Karim Djouani, and Thomas O. Olwal. &amp;ldquo;Deep reinforcement learning based resource allocation for narrowband cognitive radio-IoT systems.&amp;rdquo; Procedia Computer Science 175 (2020): 315-324&amp;#160;&lt;a href=&#34;#fnref:3&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:4&#34;&gt;
+&lt;p&gt;Hessel, Matteo, et al. &amp;ldquo;Rainbow: Combining improvements in deep reinforcement learning.&amp;rdquo; Proceedings of the AAAI conference on artificial intelligence. Vol. 32. No. 1. 2018.&amp;#160;&lt;a href=&#34;#fnref:4&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref1:4&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/div&gt;</description>
     </item>
     
   </channel>
