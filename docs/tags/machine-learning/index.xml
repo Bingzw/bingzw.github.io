@@ -210,6 +210,11 @@ each approach to achieve superior performance in a unified model.&lt;/p&gt;
     Policy Based
 &lt;/div&gt;
 &lt;/h3&gt;
+&lt;p&gt;Value-based methods (like Q-learning and DQN) focus on estimating the value of state-action pairs to derive a policy.
+However, these methods can struggle with high-dimensional or continuous &lt;strong&gt;action spaces&lt;/strong&gt;. Policy-based methods address
+these limitations by directly learning the policy itself. In policy based approaches, policies are often represented
+using parameterized functions, such as neural networks. These functions map states directly to probabilities over actions,
+allowing the agent to choose actions based on the learned distribution.&lt;/p&gt;
 &lt;h4 id=&#34;policy-gradient&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#policy-gradient&#34;&gt;
@@ -218,6 +223,38 @@ each approach to achieve superior performance in a unified model.&lt;/p&gt;
     Policy Gradient
 &lt;/div&gt;
 &lt;/h4&gt;
+&lt;p&gt;Suppose $\pi_{\theta}$ is the parameterized policy that is to be optimized, our objective is to maximize the expected
+cumulative reward from any starting state&lt;/p&gt;
+&lt;p align=&#34;center&#34;&gt;
+$$
+J(\theta) = \mathbb{E}_{s}[V_{\pi_{\theta}}(s)] \tag{4.1}
+$$
+&lt;/p&gt;
+&lt;p&gt;where the expectation is taken over state. Let&amp;rsquo;s derive the derivative of (4.1).&lt;/p&gt;
+&lt;p align=&#34;center&#34;&gt;
+\begin{aligned}
+\nabla_{\theta} V_{\pi_{\theta}}(s) &amp;= \nabla_{\theta}  \sum_{a \in A} \pi_{\theta}(a \mid s)Q_{\pi_{\theta}}(s, a)\\
+&amp;= \sum_{a \in A} (\nabla_{\theta} \pi_{\theta}(a \mid s)Q_{\pi_{\theta}}(s, a) + \pi_{\theta}(a \mid s) \nabla_{\theta} Q_{\pi_{\theta}}(s, a)) \\
+&amp;= \sum_{a \in A} (\nabla_{\theta} \pi_{\theta}(a \mid s)Q_{\pi_{\theta}}(s, a) + \pi_{\theta}(a \mid s) \nabla_{\theta} \sum_{s&#39;, r} p(s&#39;, r \mid s, a)(r + \gamma V_{\pi_{\theta}}(s&#39;)) \\
+&amp;= \sum_{a \in A} (\nabla_{\theta} \pi_{\theta}(a \mid s)Q_{\pi_{\theta}}(s, a) + \gamma\pi_{\theta}(a \mid s) \sum_{s&#39;, r} p(s&#39;, r \mid s, a)\nabla_{\theta} V_{\pi_{\theta}}(s&#39;) \\
+&amp;= \sum_{a \in A} (\nabla_{\theta} \pi_{\theta}(a \mid s)Q_{\pi_{\theta}}(s, a) + \gamma\pi_{\theta}(a \mid s) \sum_{s&#39;} p(s&#39; \mid s, a)\nabla_{\theta} V_{\pi_{\theta}}(s&#39;) \hspace{2.5em} \text{(4.2)}
+\end{aligned}
+&lt;/p&gt;
+&lt;p&gt;Let&amp;rsquo;s define $\phi(s) = \sum_{a \in A} (\nabla_{\theta} \pi_{\theta}(a \mid s)Q_{\pi_{\theta}}(s, a)$ and denote the probability
+of getting state $s&amp;rsquo;$ after $k$ steps from state $s$ under the policy $\pi_{\theta}$ as $d_{\pi_{\theta}}(s \rightarrow s&amp;rsquo;, k)$, then continue
+with equation (4.2) as&lt;/p&gt;
+&lt;p align=&#34;center&#34;&gt;
+\begin{aligned}
+\nabla_{\theta} V_{\pi_{\theta}}(s) &amp;= \phi(s) + \gamma\sum_{a}\pi_{\theta}(a \mid s) \sum_{s&#39;} p(s&#39; \mid s, a)\nabla_{\theta} V_{\pi_{\theta}}(s&#39;) \\
+&amp;= \phi(s) + \gamma\sum_{a}\sum_{s&#39;}\pi_{\theta}(a \mid s)  p(s&#39; \mid s, a)\nabla_{\theta} V_{\pi_{\theta}}(s&#39;) \\
+&amp;= \phi(s) + \gamma\sum_{s&#39;}d_{\pi_{\theta}}(s \rightarrow s&#39;, 1)\nabla_{\theta} V_{\pi_{\theta}}(s&#39;) \\
+&amp;= \phi(s) + \gamma\sum_{s&#39;}d_{\pi_{\theta}}(s \rightarrow s&#39;, 1) [\phi(s&#39;) + \gamma\sum_{s&#39;&#39;}d_{\pi_{\theta}}(s&#39; \rightarrow s&#39;&#39;, 1)\nabla_{\theta} V_{\pi_{\theta}}(s&#39;&#39;)] \\
+&amp;= \phi(s) + \gamma\sum_{s&#39;}d_{\pi_{\theta}}(s \rightarrow s&#39;, 1) \phi(s&#39;) + \gamma^2\sum_{s&#39;&#39;}d_{\pi_{\theta}}(s \rightarrow s&#39;&#39;, 2)\nabla_{\theta} V_{\pi_{\theta}}(s&#39;&#39;) \\
+&amp;= \phi(s) + \gamma\sum_{s&#39;}d_{\pi_{\theta}}(s \rightarrow s&#39;, 1) \phi(s&#39;) + \gamma^2\sum_{s&#39;&#39;}d_{\pi_{\theta}}(s \rightarrow s&#39;&#39;, 2)\nabla_{\theta} V_{\pi_{\theta}}(s&#39;&#39;) + \gamma^3\sum_{s&#39;&#39;&#39;}d_{\pi_{\theta}}(s \rightarrow s&#39;&#39;&#39;, 3)\nabla_{\theta} V_{\pi_{\theta}}(s&#39;&#39;&#39;)] \\
+&amp;= \dots \\
+&amp;= \sum_{x \in S} \sum_{k=0}^{\infty} \gamma^k d_{\pi_{\theta}}(s \rightarrow x, k)\phi(x)
+\end{aligned}
+&lt;/p&gt;
 &lt;h4 id=&#34;trpoppo&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#trpoppo&#34;&gt;

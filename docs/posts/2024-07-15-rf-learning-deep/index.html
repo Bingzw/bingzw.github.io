@@ -739,6 +739,11 @@ each approach to achieve superior performance in a unified model.</p>
     Policy Based
 </div>
 </h3>
+<p>Value-based methods (like Q-learning and DQN) focus on estimating the value of state-action pairs to derive a policy.
+However, these methods can struggle with high-dimensional or continuous <strong>action spaces</strong>. Policy-based methods address
+these limitations by directly learning the policy itself. In policy based approaches, policies are often represented
+using parameterized functions, such as neural networks. These functions map states directly to probabilities over actions,
+allowing the agent to choose actions based on the learned distribution.</p>
 <h4 id="policy-gradient" >
 <div>
     <a href="#policy-gradient">
@@ -747,6 +752,38 @@ each approach to achieve superior performance in a unified model.</p>
     Policy Gradient
 </div>
 </h4>
+<p>Suppose $\pi_{\theta}$ is the parameterized policy that is to be optimized, our objective is to maximize the expected
+cumulative reward from any starting state</p>
+<p align="center">
+$$
+J(\theta) = \mathbb{E}_{s}[V_{\pi_{\theta}}(s)] \tag{4.1}
+$$
+</p>
+<p>where the expectation is taken over state. Let&rsquo;s derive the derivative of (4.1).</p>
+<p align="center">
+\begin{aligned}
+\nabla_{\theta} V_{\pi_{\theta}}(s) &= \nabla_{\theta}  \sum_{a \in A} \pi_{\theta}(a \mid s)Q_{\pi_{\theta}}(s, a)\\
+&= \sum_{a \in A} (\nabla_{\theta} \pi_{\theta}(a \mid s)Q_{\pi_{\theta}}(s, a) + \pi_{\theta}(a \mid s) \nabla_{\theta} Q_{\pi_{\theta}}(s, a)) \\
+&= \sum_{a \in A} (\nabla_{\theta} \pi_{\theta}(a \mid s)Q_{\pi_{\theta}}(s, a) + \pi_{\theta}(a \mid s) \nabla_{\theta} \sum_{s', r} p(s', r \mid s, a)(r + \gamma V_{\pi_{\theta}}(s')) \\
+&= \sum_{a \in A} (\nabla_{\theta} \pi_{\theta}(a \mid s)Q_{\pi_{\theta}}(s, a) + \gamma\pi_{\theta}(a \mid s) \sum_{s', r} p(s', r \mid s, a)\nabla_{\theta} V_{\pi_{\theta}}(s') \\
+&= \sum_{a \in A} (\nabla_{\theta} \pi_{\theta}(a \mid s)Q_{\pi_{\theta}}(s, a) + \gamma\pi_{\theta}(a \mid s) \sum_{s'} p(s' \mid s, a)\nabla_{\theta} V_{\pi_{\theta}}(s') \hspace{2.5em} \text{(4.2)}
+\end{aligned}
+</p>
+<p>Let&rsquo;s define $\phi(s) = \sum_{a \in A} (\nabla_{\theta} \pi_{\theta}(a \mid s)Q_{\pi_{\theta}}(s, a)$ and denote the probability
+of getting state $s&rsquo;$ after $k$ steps from state $s$ under the policy $\pi_{\theta}$ as $d_{\pi_{\theta}}(s \rightarrow s&rsquo;, k)$, then continue
+with equation (4.2) as</p>
+<p align="center">
+\begin{aligned}
+\nabla_{\theta} V_{\pi_{\theta}}(s) &= \phi(s) + \gamma\sum_{a}\pi_{\theta}(a \mid s) \sum_{s'} p(s' \mid s, a)\nabla_{\theta} V_{\pi_{\theta}}(s') \\
+&= \phi(s) + \gamma\sum_{a}\sum_{s'}\pi_{\theta}(a \mid s)  p(s' \mid s, a)\nabla_{\theta} V_{\pi_{\theta}}(s') \\
+&= \phi(s) + \gamma\sum_{s'}d_{\pi_{\theta}}(s \rightarrow s', 1)\nabla_{\theta} V_{\pi_{\theta}}(s') \\
+&= \phi(s) + \gamma\sum_{s'}d_{\pi_{\theta}}(s \rightarrow s', 1) [\phi(s') + \gamma\sum_{s''}d_{\pi_{\theta}}(s' \rightarrow s'', 1)\nabla_{\theta} V_{\pi_{\theta}}(s'')] \\
+&= \phi(s) + \gamma\sum_{s'}d_{\pi_{\theta}}(s \rightarrow s', 1) \phi(s') + \gamma^2\sum_{s''}d_{\pi_{\theta}}(s \rightarrow s'', 2)\nabla_{\theta} V_{\pi_{\theta}}(s'') \\
+&= \phi(s) + \gamma\sum_{s'}d_{\pi_{\theta}}(s \rightarrow s', 1) \phi(s') + \gamma^2\sum_{s''}d_{\pi_{\theta}}(s \rightarrow s'', 2)\nabla_{\theta} V_{\pi_{\theta}}(s'') + \gamma^3\sum_{s'''}d_{\pi_{\theta}}(s \rightarrow s''', 3)\nabla_{\theta} V_{\pi_{\theta}}(s''')] \\
+&= \dots \\
+&= \sum_{x \in S} \sum_{k=0}^{\infty} \gamma^k d_{\pi_{\theta}}(s \rightarrow x, k)\phi(x)
+\end{aligned}
+</p>
 <h4 id="trpoppo" >
 <div>
     <a href="#trpoppo">
