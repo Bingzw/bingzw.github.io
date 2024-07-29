@@ -148,7 +148,7 @@ cumulative reward from any starting state
 
 <p align="center">
 $$
-J(\theta) = \mathbb{E}_{s}[V_{\pi_{\theta}}(s)] \tag{4.1}
+J(\theta) = \mathbb{E}_{s_0}[V_{\pi_{\theta}}(s_0)] \tag{4.1}
 $$
 </p>
 
@@ -164,7 +164,7 @@ where the expectation is taken over state. Let's derive the derivative of (4.1).
 \end{aligned}
 </p>
 
-Let's define $\phi(s) = \sum_{a \in A} (\nabla_{\theta} \pi_{\theta}(a \mid s)Q_{\pi_{\theta}}(s, a)$ and denote the probability 
+Let's define $\phi(s) = \sum_{a \in A} \nabla_{\theta} \pi_{\theta}(a \mid s)Q_{\pi_{\theta}}(s, a)$ and denote the probability 
 of getting state $s'$ after $k$ steps from state $s$ under the policy $\pi_{\theta}$ as $d_{\pi_{\theta}}(s \rightarrow s', k)$, then continue
 with equation (4.2) as
 
@@ -177,10 +177,30 @@ with equation (4.2) as
 &= \phi(s) + \gamma\sum_{s'}d_{\pi_{\theta}}(s \rightarrow s', 1) \phi(s') + \gamma^2\sum_{s''}d_{\pi_{\theta}}(s \rightarrow s'', 2)\nabla_{\theta} V_{\pi_{\theta}}(s'') \\
 &= \phi(s) + \gamma\sum_{s'}d_{\pi_{\theta}}(s \rightarrow s', 1) \phi(s') + \gamma^2\sum_{s''}d_{\pi_{\theta}}(s \rightarrow s'', 2)\nabla_{\theta} V_{\pi_{\theta}}(s'') + \gamma^3\sum_{s'''}d_{\pi_{\theta}}(s \rightarrow s''', 3)\nabla_{\theta} V_{\pi_{\theta}}(s''')] \\
 &= \dots \\
-&= \sum_{x \in S} \sum_{k=0}^{\infty} \gamma^k d_{\pi_{\theta}}(s \rightarrow x, k)\phi(x)
+&= \sum_{x \in S} \sum_{k=0}^{\infty} \gamma^k d_{\pi_{\theta}}(s \rightarrow x, k)\phi(x) \hspace{17 em} \text{(4.3)}
 \end{aligned}
 </p>
 
+Now the gradient of the expected cumulative reward function is
+
+<p align="center">
+\begin{aligned}
+\nabla_{\theta} J_{\pi_{\theta}}(s) &= \nabla_{\theta} \mathbb{E}_{s_0} [V_{\pi_{\theta}}(s_0)] \\
+&= \sum_{s \in S} \mathbb{E}_{s_0} [\sum_{k=0}^{\infty} \gamma^k d_{\pi_{\theta}}(s_0 \rightarrow s, k)\phi(s)] \\
+&= \sum_{s \in S} \eta(s)\phi(s), \hspace{1 em} (\eta(s) = \mathbb{E}_{s_0} [\sum_{k=0}^{\infty} \gamma^k d_{\pi_{\theta}}(s_0 \rightarrow s, k)]) \\
+&= (\sum_{s \in S} \eta(s)) \sum_{s \in S} \frac{\eta(s)}{\sum_{s \in S} \eta(s)} \phi(s) \\
+& \propto \sum_{s \in S} \frac{\eta(s)}{\sum_{s \in S} \eta(s)} \phi(s) \\
+&= \sum_{s \in S} \nu(s) \phi(s), \hspace{1 em} (\nu(s) = \frac{\eta(s)}{\sum_{s \in S} \eta(s)}) \\
+&= \sum_{s \in S} \nu(s) \sum_{a \in A} Q_{\pi_{\theta}}(s, a) \nabla_{\theta} \pi_{\theta}(a \mid s) \\
+&= \sum_{s \in S} \nu(s) \sum_{a \in A} \pi_{\theta}(a \mid s) Q_{\pi_{\theta}}(s, a) \frac{\nabla_{\theta} \pi_{\theta}(a \mid s)}{\pi_{\theta}(a \mid s)} \\
+&= \mathbb{E}_{\pi_{\theta}} [Q_{\pi_{\theta}}(s, a) \nabla_{\theta} \log(\pi_{\theta}(a \mid s))] \hspace{16 em} \text{(4.4)}
+\end{aligned}
+</p>
+
+Thus, the expected cumulative reward function can be optimized by taking the gradient ascent from (4.4). Note that we may need to estimate 
+the $Q_{\pi_{\theta}}(s, a)$ when calculating the gradient, a simple way is to apply Monte Carlo here and thus results in "REINFORCE" algorithm.
+
+#### REINFORCE
 #### TRPO/PPO
 #### Cross-Entropy Method [Gradient Free]
 #### Evolution Strategy [Gradient Free]

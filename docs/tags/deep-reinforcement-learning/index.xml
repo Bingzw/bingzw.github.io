@@ -227,7 +227,7 @@ allowing the agent to choose actions based on the learned distribution.&lt;/p&gt
 cumulative reward from any starting state&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
 $$
-J(\theta) = \mathbb{E}_{s}[V_{\pi_{\theta}}(s)] \tag{4.1}
+J(\theta) = \mathbb{E}_{s_0}[V_{\pi_{\theta}}(s_0)] \tag{4.1}
 $$
 &lt;/p&gt;
 &lt;p&gt;where the expectation is taken over state. Let&amp;rsquo;s derive the derivative of (4.1).&lt;/p&gt;
@@ -240,7 +240,7 @@ $$
 &amp;= \sum_{a \in A} (\nabla_{\theta} \pi_{\theta}(a \mid s)Q_{\pi_{\theta}}(s, a) + \gamma\pi_{\theta}(a \mid s) \sum_{s&#39;} p(s&#39; \mid s, a)\nabla_{\theta} V_{\pi_{\theta}}(s&#39;) \hspace{2.5em} \text{(4.2)}
 \end{aligned}
 &lt;/p&gt;
-&lt;p&gt;Let&amp;rsquo;s define $\phi(s) = \sum_{a \in A} (\nabla_{\theta} \pi_{\theta}(a \mid s)Q_{\pi_{\theta}}(s, a)$ and denote the probability
+&lt;p&gt;Let&amp;rsquo;s define $\phi(s) = \sum_{a \in A} \nabla_{\theta} \pi_{\theta}(a \mid s)Q_{\pi_{\theta}}(s, a)$ and denote the probability
 of getting state $s&amp;rsquo;$ after $k$ steps from state $s$ under the policy $\pi_{\theta}$ as $d_{\pi_{\theta}}(s \rightarrow s&amp;rsquo;, k)$, then continue
 with equation (4.2) as&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
@@ -252,9 +252,33 @@ with equation (4.2) as&lt;/p&gt;
 &amp;= \phi(s) + \gamma\sum_{s&#39;}d_{\pi_{\theta}}(s \rightarrow s&#39;, 1) \phi(s&#39;) + \gamma^2\sum_{s&#39;&#39;}d_{\pi_{\theta}}(s \rightarrow s&#39;&#39;, 2)\nabla_{\theta} V_{\pi_{\theta}}(s&#39;&#39;) \\
 &amp;= \phi(s) + \gamma\sum_{s&#39;}d_{\pi_{\theta}}(s \rightarrow s&#39;, 1) \phi(s&#39;) + \gamma^2\sum_{s&#39;&#39;}d_{\pi_{\theta}}(s \rightarrow s&#39;&#39;, 2)\nabla_{\theta} V_{\pi_{\theta}}(s&#39;&#39;) + \gamma^3\sum_{s&#39;&#39;&#39;}d_{\pi_{\theta}}(s \rightarrow s&#39;&#39;&#39;, 3)\nabla_{\theta} V_{\pi_{\theta}}(s&#39;&#39;&#39;)] \\
 &amp;= \dots \\
-&amp;= \sum_{x \in S} \sum_{k=0}^{\infty} \gamma^k d_{\pi_{\theta}}(s \rightarrow x, k)\phi(x)
+&amp;= \sum_{x \in S} \sum_{k=0}^{\infty} \gamma^k d_{\pi_{\theta}}(s \rightarrow x, k)\phi(x) \hspace{17 em} \text{(4.3)}
 \end{aligned}
 &lt;/p&gt;
+&lt;p&gt;Now the gradient of the expected cumulative reward function is&lt;/p&gt;
+&lt;p align=&#34;center&#34;&gt;
+\begin{aligned}
+\nabla_{\theta} J_{\pi_{\theta}}(s) &amp;= \nabla_{\theta} \mathbb{E}_{s_0} [V_{\pi_{\theta}}(s_0)] \\
+&amp;= \sum_{s \in S} \mathbb{E}_{s_0} [\sum_{k=0}^{\infty} \gamma^k d_{\pi_{\theta}}(s_0 \rightarrow s, k)\phi(s)] \\
+&amp;= \sum_{s \in S} \eta(s)\phi(s), \hspace{1 em} (\eta(s) = \mathbb{E}_{s_0} [\sum_{k=0}^{\infty} \gamma^k d_{\pi_{\theta}}(s_0 \rightarrow s, k)]) \\
+&amp;= (\sum_{s \in S} \eta(s)) \sum_{s \in S} \frac{\eta(s)}{\sum_{s \in S} \eta(s)} \phi(s) \\
+&amp; \propto \sum_{s \in S} \frac{\eta(s)}{\sum_{s \in S} \eta(s)} \phi(s) \\
+&amp;= \sum_{s \in S} \nu(s) \phi(s), \hspace{1 em} (\nu(s) = \frac{\eta(s)}{\sum_{s \in S} \eta(s)}) \\
+&amp;= \sum_{s \in S} \nu(s) \sum_{a \in A} Q_{\pi_{\theta}}(s, a) \nabla_{\theta} \pi_{\theta}(a \mid s) \\
+&amp;= \sum_{s \in S} \nu(s) \sum_{a \in A} \pi_{\theta}(a \mid s) Q_{\pi_{\theta}}(s, a) \frac{\nabla_{\theta} \pi_{\theta}(a \mid s)}{\pi_{\theta}(a \mid s)} \\
+&amp;= \mathbb{E}_{\pi_{\theta}} [Q_{\pi_{\theta}}(s, a) \nabla_{\theta} \log(\pi_{\theta}(a \mid s))] \hspace{16 em} \text{(4.4)}
+\end{aligned}
+&lt;/p&gt;
+&lt;p&gt;Thus, the expected cumulative reward function can be optimized by taking the gradient ascent from (4.4). Note that we may need to estimate
+the $Q_{\pi_{\theta}}(s, a)$ when calculating the gradient, a simple way is to apply Monte Carlo here and thus results in &amp;ldquo;REINFORCE&amp;rdquo; algorithm.&lt;/p&gt;
+&lt;h4 id=&#34;reinforce&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#reinforce&#34;&gt;
+        
+    &lt;/a&gt;
+    REINFORCE
+&lt;/div&gt;
+&lt;/h4&gt;
 &lt;h4 id=&#34;trpoppo&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#trpoppo&#34;&gt;
