@@ -201,6 +201,21 @@ Thus, the expected cumulative reward function can be optimized by taking the gra
 the $Q_{\pi_{\theta}}(s, a)$ when calculating the gradient, a simple way is to apply Monte Carlo here and thus results in "REINFORCE" algorithm.
 
 #### REINFORCE
+- Initialize the policy parameter $\theta$
+- for episode $e$ from 1 to $K$, do:
+  - Initialize the state $s$
+  - for $t$ from 1 to $T$, do:
+    - sample the trajectories $\\{s_1, a_1, r_1, \dots, s_T, a_T, r_T\\}$ under the policy $\pi_{\theta}$
+    - For any $t \in [1, T]$, calculate the total reward since time $t$, $\psi_t = \sum_{t'=t}^T \gamma^{t'-t}r_{t'}$
+    - apply gradient ascent to update $\theta$, i.e. $\theta = \theta + \alpha \sum_t^T \psi_t \nabla_{\theta} \pi_{\theta}(a_t \mid s_t)$
+  - end for
+- end for
+- return the policy $\pi_\theta$
+
+This is a "policy version" monte carlo approach. Like the Monte Carlo algorithm, it's a simple online algorithm but may suffer from issues like
+high variance, delayed rewards, inefficient sampling, noisy updates and non-stationary returns. To tackle these issues, more dedicated tools 
+are needed.
+
 #### TRPO/PPO
 #### Cross-Entropy Method [Gradient Free]
 #### Evolution Strategy [Gradient Free]

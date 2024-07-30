@@ -279,6 +279,27 @@ the $Q_{\pi_{\theta}}(s, a)$ when calculating the gradient, a simple way is to a
     REINFORCE
 &lt;/div&gt;
 &lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;Initialize the policy parameter $\theta$&lt;/li&gt;
+&lt;li&gt;for episode $e$ from 1 to $K$, do:
+&lt;ul&gt;
+&lt;li&gt;Initialize the state $s$&lt;/li&gt;
+&lt;li&gt;for $t$ from 1 to $T$, do:
+&lt;ul&gt;
+&lt;li&gt;sample the trajectories $\{s_1, a_1, r_1, \dots, s_T, a_T, r_T\}$ under the policy $\pi_{\theta}$&lt;/li&gt;
+&lt;li&gt;For any $t \in [1, T]$, calculate the total reward since time $t$, $\psi_t = \sum_{t&amp;rsquo;=t}^T \gamma^{t&amp;rsquo;-t}r_{t&amp;rsquo;}$&lt;/li&gt;
+&lt;li&gt;apply gradient ascent to update $\theta$, i.e. $\theta = \theta + \alpha \sum_t^T \psi_t \nabla_{\theta} \pi_{\theta}(a_t \mid s_t)$&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;end for&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;end for&lt;/li&gt;
+&lt;li&gt;return the policy $\pi_\theta$&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;This is a &amp;ldquo;policy version&amp;rdquo; monte carlo approach. Like the Monte Carlo algorithm, it&amp;rsquo;s a simple online algorithm but may suffer from issues like
+high variance, delayed rewards, inefficient sampling, noisy updates and non-stationary returns. To tackle these issues, more dedicated tools
+are needed.&lt;/p&gt;
 &lt;h4 id=&#34;trpoppo&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#trpoppo&#34;&gt;
