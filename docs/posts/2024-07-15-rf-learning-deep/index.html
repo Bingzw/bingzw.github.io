@@ -508,7 +508,8 @@
           <ul>
             <li><a href="#policy-gradient">Policy Gradient</a></li>
             <li><a href="#reinforce">REINFORCE</a></li>
-            <li><a href="#trpoppo">TRPO/PPO</a></li>
+            <li><a href="#trust-region-policy-optimization-trpo">Trust Region Policy Optimization (TRPO)</a></li>
+            <li><a href="#ppo">PPO</a></li>
             <li><a href="#cross-entropy-method-gradient-free">Cross-Entropy Method [Gradient Free]</a></li>
             <li><a href="#evolution-strategy-gradient-free">Evolution Strategy [Gradient Free]</a></li>
           </ul>
@@ -830,12 +831,30 @@ the $Q_{\pi_{\theta}}(s, a)$ when calculating the gradient, a simple way is to a
 <p>This is a &ldquo;policy version&rdquo; monte carlo approach. Like the Monte Carlo algorithm, it&rsquo;s a simple online algorithm but may suffer from issues like
 high variance, delayed rewards, inefficient sampling, noisy updates and non-stationary returns. To tackle these issues, more dedicated tools
 are needed.</p>
-<h4 id="trpoppo" >
+<h4 id="trust-region-policy-optimization-trpo" >
 <div>
-    <a href="#trpoppo">
+    <a href="#trust-region-policy-optimization-trpo">
         
     </a>
-    TRPO/PPO
+    Trust Region Policy Optimization (TRPO)
+</div>
+</h4>
+<p>When using a deep neural network to fit the policy network, the policy gradient updates can be noisy with high variance. Thus resulting in
+worse policy updates due to the fluctuation parameters. Is there any way to guarantee the monotonicity of the parameter updates?</p>
+<p>Let&rsquo;s rephrase the problem as something like this: Suppose the current policy is $\pi_{\theta}$ with parameter $\theta$, we would like
+to search for a new parameter $\theta&rsquo;$ such that $J(\theta&rsquo;) \geq J(\theta)$.</p>
+<p align="center">
+\begin{aligned}
+J(\theta') - J(\theta) &= \mathbb{E}_{s_0}[V_{\pi_{\theta'}}(s_0)] - \mathbb{E}_{s_0}[V_{\pi_{\theta}}(s_0)] \\
+&= \mathbb{E}_{\pi_{\theta}}[\sum_{t=0}^{\infty} \gamma^{t} r_t] - 
+\end{aligned}
+</p>
+<h4 id="ppo" >
+<div>
+    <a href="#ppo">
+        
+    </a>
+    PPO
 </div>
 </h4>
 <h4 id="cross-entropy-method-gradient-free" >

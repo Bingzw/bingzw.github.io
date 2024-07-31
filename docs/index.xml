@@ -313,12 +313,30 @@ the $Q_{\pi_{\theta}}(s, a)$ when calculating the gradient, a simple way is to a
 &lt;p&gt;This is a &amp;ldquo;policy version&amp;rdquo; monte carlo approach. Like the Monte Carlo algorithm, it&amp;rsquo;s a simple online algorithm but may suffer from issues like
 high variance, delayed rewards, inefficient sampling, noisy updates and non-stationary returns. To tackle these issues, more dedicated tools
 are needed.&lt;/p&gt;
-&lt;h4 id=&#34;trpoppo&#34; &gt;
+&lt;h4 id=&#34;trust-region-policy-optimization-trpo&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#trpoppo&#34;&gt;
+    &lt;a href=&#34;#trust-region-policy-optimization-trpo&#34;&gt;
         
     &lt;/a&gt;
-    TRPO/PPO
+    Trust Region Policy Optimization (TRPO)
+&lt;/div&gt;
+&lt;/h4&gt;
+&lt;p&gt;When using a deep neural network to fit the policy network, the policy gradient updates can be noisy with high variance. Thus resulting in
+worse policy updates due to the fluctuation parameters. Is there any way to guarantee the monotonicity of the parameter updates?&lt;/p&gt;
+&lt;p&gt;Let&amp;rsquo;s rephrase the problem as something like this: Suppose the current policy is $\pi_{\theta}$ with parameter $\theta$, we would like
+to search for a new parameter $\theta&amp;rsquo;$ such that $J(\theta&amp;rsquo;) \geq J(\theta)$.&lt;/p&gt;
+&lt;p align=&#34;center&#34;&gt;
+\begin{aligned}
+J(\theta&#39;) - J(\theta) &amp;= \mathbb{E}_{s_0}[V_{\pi_{\theta&#39;}}(s_0)] - \mathbb{E}_{s_0}[V_{\pi_{\theta}}(s_0)] \\
+&amp;= \mathbb{E}_{\pi_{\theta}}[\sum_{t=0}^{\infty} \gamma^{t} r_t] - 
+\end{aligned}
+&lt;/p&gt;
+&lt;h4 id=&#34;ppo&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#ppo&#34;&gt;
+        
+    &lt;/a&gt;
+    PPO
 &lt;/div&gt;
 &lt;/h4&gt;
 &lt;h4 id=&#34;cross-entropy-method-gradient-free&#34; &gt;

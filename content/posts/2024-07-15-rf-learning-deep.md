@@ -216,7 +216,22 @@ This is a "policy version" monte carlo approach. Like the Monte Carlo algorithm,
 high variance, delayed rewards, inefficient sampling, noisy updates and non-stationary returns. To tackle these issues, more dedicated tools 
 are needed.
 
-#### TRPO/PPO
+#### Trust Region Policy Optimization (TRPO)
+When using a deep neural network to fit the policy network, the policy gradient updates can be noisy with high variance. Thus resulting in
+worse policy updates due to the fluctuation parameters. Is there any way to guarantee the monotonicity of the parameter updates? 
+
+Let's rephrase the problem as something like this: Suppose the current policy is $\pi_{\theta}$ with parameter $\theta$, we would like 
+to search for a new parameter $\theta'$ such that $J(\theta') \geq J(\theta)$.
+
+<p align="center">
+\begin{aligned}
+J(\theta') - J(\theta) &= \mathbb{E}_{s_0}[V_{\pi_{\theta'}}(s_0)] - \mathbb{E}_{s_0}[V_{\pi_{\theta}}(s_0)] \\
+&= \mathbb{E}_{\pi_{\theta}}[\sum_{t=0}^{\infty} \gamma^{t} r_t] - 
+\end{aligned}
+</p>
+
+
+#### PPO
 #### Cross-Entropy Method [Gradient Free]
 #### Evolution Strategy [Gradient Free]
 ### Hybrid
