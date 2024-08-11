@@ -315,9 +315,11 @@ to search for a new parameter $\theta&amp;rsquo;$ such that $J(\theta&amp;rsquo;
 &lt;p align=&#34;center&#34;&gt;
 \begin{aligned}
 J(\theta&#39;) - J(\theta) &amp;= \mathbb{E}_{s_0}[V_{\pi_{\theta&#39;}}(s_0)] - \mathbb{E}_{s_0}[V_{\pi_{\theta}}(s_0)] \\
-&amp;= \mathbb{E}_{\pi_{\theta}}[\sum_{t=0}^{\infty} \gamma^{t} r_t] - 
+&amp;= \mathbb{E}_{\pi_{\theta&#39;}}[\sum_{t=0}^{\infty} \gamma^{t} r_t] - \mathbb{E}_{\pi_{\theta&#39;}}[\sum_{t=0}^{\infty} \gamma^{t} V_{\pi_{\theta}}(s_t) - \sum_{t=1}^{\infty} \gamma^{t} V_{\pi_{\theta}}(s_t)] \hspace{7 em} \text{(4.5)}
 \end{aligned}
 &lt;/p&gt;
+&lt;p&gt;The equation (4.5) holds because the start state $s_0$ does not depend on policy $\pi_{\theta&amp;rsquo;}$, thus the expectation can be
+rewritten under the policy $\pi_{\theta&amp;rsquo;}$.&lt;/p&gt;
 &lt;h4 id=&#34;ppo&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#ppo&#34;&gt;

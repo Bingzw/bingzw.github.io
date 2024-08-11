@@ -226,10 +226,13 @@ to search for a new parameter $\theta'$ such that $J(\theta') \geq J(\theta)$.
 <p align="center">
 \begin{aligned}
 J(\theta') - J(\theta) &= \mathbb{E}_{s_0}[V_{\pi_{\theta'}}(s_0)] - \mathbb{E}_{s_0}[V_{\pi_{\theta}}(s_0)] \\
-&= \mathbb{E}_{\pi_{\theta}}[\sum_{t=0}^{\infty} \gamma^{t} r_t] - 
+&= \mathbb{E}_{\pi_{\theta'}}[\sum_{t=0}^{\infty} \gamma^{t} r_t] - \mathbb{E}_{\pi_{\theta'}}[\sum_{t=0}^{\infty} \gamma^{t} V_{\pi_{\theta}}(s_t) - \sum_{t=1}^{\infty} \gamma^{t} V_{\pi_{\theta}}(s_t)] \hspace{7 em} \text{(4.5)}
 \end{aligned}
 </p>
 
+
+The equation (4.5) holds because the start state $s_0$ does not depend on policy $\pi_{\theta'}$, thus the expectation can be 
+rewritten under the policy $\pi_{\theta'}$.
 
 #### PPO
 #### Cross-Entropy Method [Gradient Free]
