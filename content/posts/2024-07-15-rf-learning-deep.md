@@ -229,7 +229,7 @@ J(\theta') - J(\theta) &= \mathbb{E}_{s_0}[V_{\pi_{\theta'}}(s_0)] - \mathbb{E}_
 &= \mathbb{E}_{\pi_{\theta'}}[\sum_{t=0}^{\infty} \gamma^{t} r(s_{t}, a_{t})] - \mathbb{E}_{\pi_{\theta'}}[\sum_{t=0}^{\infty} \gamma^{t} V_{\pi_{\theta}}(s_t) - \sum_{t=1}^{\infty} \gamma^{t} V_{\pi_{\theta}}(s_t)] \hspace{4 em} \text{(4.5)} \\
 &= \mathbb{E}_{\pi_{\theta'}}[\sum_{t=0}^{\infty} \gamma^{t} r(s_{t}, a_{t})] + \mathbb{E}_{\pi_{\theta'}}[\sum_{t=0}^{\infty} \gamma^{t} (\gamma V_{\pi_{\theta}}(s_{t+1}) - V_{\pi_{\theta}}(s_t))] \\
 &= \mathbb{E}_{\pi_{\theta'}}[\sum_{t=0}^{\infty} \gamma^{t} [r(s_{t}, a_{t}) + \gamma V_{\pi_{\theta}}(s_{t+1}) - V_{\pi_{\theta}}(s_t)]] \\
-&= \mathbb{E}_{\pi_{\theta'}}[\sum_{t=0}^{\infty} \gamma^{t} A_{\pi_{\theta}}(s_{t}, a_{t})] \\ 
+&= \mathbb{E}_{\pi_{\theta'}}[\sum_{t=0}^{\infty} \gamma^{t} A_{\pi_{\theta}}(s_{t}, a_{t})], \hspace{1 em} (A_{\pi_{\theta}}(s_{t}, a_{t}) = Q_{\pi_{\theta}}(s_{t}, a_{t}) - V_{\pi_{\theta}}(s_{t}))\\ 
 &= \sum_{t=0}^{\infty} \gamma^{t} \mathbb{E}_{s_{t} \sim P_{t}^{\pi_{\theta'}}} \mathbb{E}_{a_{t} \sim \pi_{\theta'(\cdot \mid s_{t})}} [A_{\pi_{\theta}}(s_{t}, a_{t})] \\
 &= \frac{1}{1 - \gamma} \mathbb{E}_{s_{t} \sim \nu_{t}^{\pi_{\theta'}}} \mathbb{E}_{a_{t} \sim \pi_{\theta'(\cdot \mid s_{t})}} [A_{\pi_{\theta}}(s_{t}, a_{t})] \hspace{13 em} \text{(4.6)}
 \end{aligned}
@@ -263,8 +263,34 @@ s.t. \mathbb{E}_{s_{t} \sim \nu_{t}^{\pi_{\theta}}} [D_{KL}( \pi_{\theta(\cdot \
 $$
 </p>
 
-To approximately solve the optimization problem, we can apply the Taylor approximation to the objective and the constraint like this.
+To approximately solve the optimization problem, we can apply the Taylor approximation to the objective and its constraint like this.
 
+<p align="center">
+$$
+\mathbb{E}_{s_{t} \sim \nu_{t}^{\pi_{\theta}}} \mathbb{E}_{a_{t} \sim \pi_{\theta(\cdot \mid s_{t})}} [\frac{\pi_{\theta'(a \mid s_{t})}}{\pi_{\theta_k(a \mid s_{t})}} A_{\pi_{\theta_k}}(s_{t}, a_{t})] \approx g^T(\theta' - \theta_k) \hspace{13 em} \text{(4.7)}
+$$
+</p>
+
+<p align="center">
+$$
+\mathbb{E}_{s_{t} \sim \nu_{t}^{\pi_{\theta_k}}} [D_{KL}( \pi_{\theta_k(\cdot \mid s_{t})}, \pi_{\theta'(\cdot \mid s_{t})})] \approx \frac{1}{2} (\theta' - \theta_k)^T H(\theta' - \theta_k) \hspace{10.85 em} \text{(4.8)}
+$$
+</p>
+where $g$ denotes the gradient of the left hand side of equation (4.7) and $H$ represents the Hessian matrix of the left hand side of equation (4.8). The optimization problem can be solved by the conjugate gradient method with
+the following formula $\theta_{k+1} = \theta_k + \sqrt{\frac{2\delta}{x^T Hx}}x$.
+
+Therefore, the general TRPO algorithm is
+
+- initialize the policy network parameters $\theta$ and value network parameters $\omega$
+- for episode $e$ from 1 to $E$, do:
+  - sample the trajectories $\\{s_1, a_1, r_1, \dots, \\}$ under the policy $\pi_{\theta}$
+  - calculate the advantage $A(s_t, a_t)$ for each state, action pair. $A_t^{GAE} = \sum_{l=0}^{\infty} (\gamma \lambda)^l (r_{t+1} + \gamma V(s_{t+2}) - V(s_{t+1})), \lambda \in [0, 1]$
+  - calculate the gradient $g$ of the objective function 
+  - calculate the $x = H^{-1}g$
+  - Find $i \in \\{1,2,\dots,K\\}$ and update the policy network parameter $\theta_{k+1} = \theta_k + \alpha^{i}\sqrt{\frac{2\delta}{x^T Hx}}x, \alpha \in (0, 1)$
+  - Update the value network parameters
+- end for
+- return the policy $\pi_\theta$
 
 #### PPO
 #### Cross-Entropy Method [Gradient Free]
