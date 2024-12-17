@@ -250,7 +250,7 @@ $$
 &amp;= \sum_{a \in A} (\nabla_{\theta} \pi_{\theta}(a \mid s)Q_{\pi_{\theta}}(s, a) + \pi_{\theta}(a \mid s) \nabla_{\theta} Q_{\pi_{\theta}}(s, a)) \\
 &amp;= \sum_{a \in A} (\nabla_{\theta} \pi_{\theta}(a \mid s)Q_{\pi_{\theta}}(s, a) + \pi_{\theta}(a \mid s) \nabla_{\theta} \sum_{s&#39;, r} p(s&#39;, r \mid s, a)(r + \gamma V_{\pi_{\theta}}(s&#39;)) \\
 &amp;= \sum_{a \in A} (\nabla_{\theta} \pi_{\theta}(a \mid s)Q_{\pi_{\theta}}(s, a) + \gamma\pi_{\theta}(a \mid s) \sum_{s&#39;, r} p(s&#39;, r \mid s, a)\nabla_{\theta} V_{\pi_{\theta}}(s&#39;) \\
-&amp;= \sum_{a \in A} (\nabla_{\theta} \pi_{\theta}(a \mid s)Q_{\pi_{\theta}}(s, a) + \gamma\pi_{\theta}(a \mid s) \sum_{s&#39;} p(s&#39; \mid s, a)\nabla_{\theta} V_{\pi_{\theta}}(s&#39;) \hspace{2.5em} \text{(4.2)}
+&amp;= \sum_{a \in A} (\nabla_{\theta} \pi_{\theta}(a \mid s)Q_{\pi_{\theta}}(s, a) + \gamma\pi_{\theta}(a \mid s) \sum_{s&#39;} p(s&#39; \mid s, a)\nabla_{\theta} V_{\pi_{\theta}}(s&#39;) \hspace{2.4em} \text{(4.2)}
 \end{aligned}
 &lt;/p&gt;
 &lt;p&gt;Let&amp;rsquo;s define $\phi(s) = \sum_{a \in A} \nabla_{\theta} \pi_{\theta}(a \mid s)Q_{\pi_{\theta}}(s, a)$ and denote the probability
@@ -265,7 +265,7 @@ with equation (4.2) as&lt;/p&gt;
 &amp;= \phi(s) + \gamma\sum_{s&#39;}d_{\pi_{\theta}}(s \rightarrow s&#39;, 1) \phi(s&#39;) + \gamma^2\sum_{s&#39;&#39;}d_{\pi_{\theta}}(s \rightarrow s&#39;&#39;, 2)\nabla_{\theta} V_{\pi_{\theta}}(s&#39;&#39;) \\
 &amp;= \phi(s) + \gamma\sum_{s&#39;}d_{\pi_{\theta}}(s \rightarrow s&#39;, 1) \phi(s&#39;) + \gamma^2\sum_{s&#39;&#39;}d_{\pi_{\theta}}(s \rightarrow s&#39;&#39;, 2)\nabla_{\theta} V_{\pi_{\theta}}(s&#39;&#39;) + \gamma^3\sum_{s&#39;&#39;&#39;}d_{\pi_{\theta}}(s \rightarrow s&#39;&#39;&#39;, 3)\nabla_{\theta} V_{\pi_{\theta}}(s&#39;&#39;&#39;)] \\
 &amp;= \dots \\
-&amp;= \sum_{x \in S} \sum_{k=0}^{\infty} \gamma^k d_{\pi_{\theta}}(s \rightarrow x, k)\phi(x) \hspace{17 em} \text{(4.3)}
+&amp;= \sum_{x \in S} \sum_{k=0}^{\infty} \gamma^k d_{\pi_{\theta}}(s \rightarrow x, k)\phi(x) \hspace{16 em} \text{(4.3)}
 \end{aligned}
 &lt;/p&gt;
 &lt;p&gt;Now the gradient of the expected cumulative reward function is&lt;/p&gt;
@@ -279,7 +279,7 @@ with equation (4.2) as&lt;/p&gt;
 &amp;= \sum_{s \in S} \nu(s) \phi(s), \hspace{1 em} (\nu(s) = \frac{\eta(s)}{\sum_{s \in S} \eta(s)}) \\
 &amp;= \sum_{s \in S} \nu(s) \sum_{a \in A} Q_{\pi_{\theta}}(s, a) \nabla_{\theta} \pi_{\theta}(a \mid s) \\
 &amp;= \sum_{s \in S} \nu(s) \sum_{a \in A} \pi_{\theta}(a \mid s) Q_{\pi_{\theta}}(s, a) \frac{\nabla_{\theta} \pi_{\theta}(a \mid s)}{\pi_{\theta}(a \mid s)} \\
-&amp;= \mathbb{E}_{\pi_{\theta}} [Q_{\pi_{\theta}}(s, a) \nabla_{\theta} \log(\pi_{\theta}(a \mid s))] \hspace{16 em} \text{(4.4)}
+&amp;= \mathbb{E}_{\pi_{\theta}} [Q_{\pi_{\theta}}(s, a) \nabla_{\theta} \log(\pi_{\theta}(a \mid s))] \hspace{15 em} \text{(4.4)}
 \end{aligned}
 &lt;/p&gt;
 &lt;p&gt;Thus, the expected cumulative reward function can be optimized by taking the gradient ascent from (4.4). Note that we may need to estimate
@@ -328,12 +328,12 @@ to search for a new parameter $\theta&amp;rsquo;$ such that $J(\theta&amp;rsquo;
 &lt;p align=&#34;center&#34;&gt;
 \begin{aligned}
 J(\theta&#39;) - J(\theta) &amp;= \mathbb{E}_{s_0}[V_{\pi_{\theta&#39;}}(s_0)] - \mathbb{E}_{s_0}[V_{\pi_{\theta}}(s_0)] \\
-&amp;= \mathbb{E}_{\pi_{\theta&#39;}}[\sum_{t=0}^{\infty} \gamma^{t} r(s_{t}, a_{t})] - \mathbb{E}_{\pi_{\theta&#39;}}[\sum_{t=0}^{\infty} \gamma^{t} V_{\pi_{\theta}}(s_t) - \sum_{t=1}^{\infty} \gamma^{t} V_{\pi_{\theta}}(s_t)] \hspace{4 em} \text{(4.5)} \\
+&amp;= \mathbb{E}_{\pi_{\theta&#39;}}[\sum_{t=0}^{\infty} \gamma^{t} r(s_{t}, a_{t})] - \mathbb{E}_{\pi_{\theta&#39;}}[\sum_{t=0}^{\infty} \gamma^{t} V_{\pi_{\theta}}(s_t) - \sum_{t=1}^{\infty} \gamma^{t} V_{\pi_{\theta}}(s_t)] \hspace{3 em} \text{(4.5)} \\
 &amp;= \mathbb{E}_{\pi_{\theta&#39;}}[\sum_{t=0}^{\infty} \gamma^{t} r(s_{t}, a_{t})] + \mathbb{E}_{\pi_{\theta&#39;}}[\sum_{t=0}^{\infty} \gamma^{t} (\gamma V_{\pi_{\theta}}(s_{t+1}) - V_{\pi_{\theta}}(s_t))] \\
 &amp;= \mathbb{E}_{\pi_{\theta&#39;}}[\sum_{t=0}^{\infty} \gamma^{t} [r(s_{t}, a_{t}) + \gamma V_{\pi_{\theta}}(s_{t+1}) - V_{\pi_{\theta}}(s_t)]] \\
 &amp;= \mathbb{E}_{\pi_{\theta&#39;}}[\sum_{t=0}^{\infty} \gamma^{t} A_{\pi_{\theta}}(s_{t}, a_{t})], \hspace{1 em} (A_{\pi_{\theta}}(s_{t}, a_{t}) = Q_{\pi_{\theta}}(s_{t}, a_{t}) - V_{\pi_{\theta}}(s_{t}))\\ 
 &amp;= \sum_{t=0}^{\infty} \gamma^{t} \mathbb{E}_{s_{t} \sim P_{t}^{\pi_{\theta&#39;}}} \mathbb{E}_{a_{t} \sim \pi_{\theta&#39;(\cdot \mid s_{t})}} [A_{\pi_{\theta}}(s_{t}, a_{t})] \\
-&amp;= \frac{1}{1 - \gamma} \mathbb{E}_{s_{t} \sim \nu_{t}^{\pi_{\theta&#39;}}} \mathbb{E}_{a_{t} \sim \pi_{\theta&#39;(\cdot \mid s_{t})}} [A_{\pi_{\theta}}(s_{t}, a_{t})] \hspace{13 em} \text{(4.6)}
+&amp;= \frac{1}{1 - \gamma} \mathbb{E}_{s_{t} \sim \nu_{t}^{\pi_{\theta&#39;}}} \mathbb{E}_{a_{t} \sim \pi_{\theta&#39;(\cdot \mid s_{t})}} [A_{\pi_{\theta}}(s_{t}, a_{t})] \hspace{12 em} \text{(4.6)}
 \end{aligned}
 &lt;/p&gt;
 where the equation (4.5) holds because the start state $s_0$ does not depend on policy $\pi_{\theta&#39;}$, thus the expectation can be 
@@ -350,26 +350,26 @@ L_{TPRO}(\theta&#39;) &amp;= \frac{1}{1 - \gamma} \mathbb{E}_{s_{t} \sim \nu_{t}
 &lt;p&gt;TPRO is actually trying to solve the following optimization problem.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
 $$
-\max_{\theta&#39;} \mathbb{E}_{s_{t} \sim \nu_{t}^{\pi_{\theta}}} \mathbb{E}_{a_{t} \sim \pi_{\theta(\cdot \mid s_{t})}} [\frac{\pi_{\theta&#39;(a \mid s_{t})}}{\pi_{\theta(a \mid s_{t})}} A_{\pi_{\theta}}(s_{t}, a_{t})]
+\max_{\theta&#39;} \mathbb{E}_{s_{t} \sim \nu_{t}^{\pi_{\theta}}} \mathbb{E}_{a_{t} \sim \pi_{\theta(\cdot \mid s_{t})}} [\frac{\pi_{\theta&#39;(a \mid s_{t})}}{\pi_{\theta(a \mid s_{t})}} A_{\pi_{\theta}}(s_{t}, a_{t})] \tag{4.7}
 $$
 &lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
 $$
-s.t. \mathbb{E}_{s_{t} \sim \nu_{t}^{\pi_{\theta}}} [D_{KL}( \pi_{\theta(\cdot \mid s_{t})}, \pi_{\theta&#39;(\cdot \mid s_{t})})] \leq \delta
+s.t. \mathbb{E}_{s_{t} \sim \nu_{t}^{\pi_{\theta}}} [D_{KL}( \pi_{\theta(\cdot \mid s_{t})}, \pi_{\theta&#39;(\cdot \mid s_{t})})] \leq \delta \tag{4.8}
 $$
 &lt;/p&gt;
 &lt;p&gt;To approximately solve the optimization problem, we can apply the Taylor approximation to the objective and its constraint like this.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
 $$
-\mathbb{E}_{s_{t} \sim \nu_{t}^{\pi_{\theta}}} \mathbb{E}_{a_{t} \sim \pi_{\theta(\cdot \mid s_{t})}} [\frac{\pi_{\theta&#39;(a \mid s_{t})}}{\pi_{\theta_k(a \mid s_{t})}} A_{\pi_{\theta_k}}(s_{t}, a_{t})] \approx g^T(\theta&#39; - \theta_k) \hspace{13 em} \text{(4.7)}
+\mathbb{E}_{s_{t} \sim \nu_{t}^{\pi_{\theta}}} \mathbb{E}_{a_{t} \sim \pi_{\theta(\cdot \mid s_{t})}} [\frac{\pi_{\theta&#39;(a \mid s_{t})}}{\pi_{\theta_k(a \mid s_{t})}} A_{\pi_{\theta_k}}(s_{t}, a_{t})] \approx g^T(\theta&#39; - \theta_k) \tag{4.9}
 $$
 &lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
 $$
-\mathbb{E}_{s_{t} \sim \nu_{t}^{\pi_{\theta_k}}} [D_{KL}( \pi_{\theta_k(\cdot \mid s_{t})}, \pi_{\theta&#39;(\cdot \mid s_{t})})] \approx \frac{1}{2} (\theta&#39; - \theta_k)^T H(\theta&#39; - \theta_k) \hspace{10.85 em} \text{(4.8)}
+\mathbb{E}_{s_{t} \sim \nu_{t}^{\pi_{\theta_k}}} [D_{KL}( \pi_{\theta_k(\cdot \mid s_{t})}, \pi_{\theta&#39;(\cdot \mid s_{t})})] \approx \frac{1}{2} (\theta&#39; - \theta_k)^T H(\theta&#39; - \theta_k) \tag{4.10}
 $$
 &lt;/p&gt;
-where $g$ denotes the gradient of the left hand side of equation (4.7) and $H$ represents the Hessian matrix of the left hand side of equation (4.8). The optimization problem can be solved by the conjugate gradient method with
+where $g$ denotes the gradient of the left hand side of equation (4.9) and $H$ represents the Hessian matrix of the left hand side of equation (4.10). The optimization problem can be solved by the conjugate gradient method with
 the following formula $\theta_{k+1} = \theta_k + \sqrt{\frac{2\delta}{x^T Hx}}x$.
 &lt;p&gt;Therefore, the general TRPO algorithm is&lt;/p&gt;
 &lt;ul&gt;
@@ -377,24 +377,89 @@ the following formula $\theta_{k+1} = \theta_k + \sqrt{\frac{2\delta}{x^T Hx}}x$
 &lt;li&gt;for episode $e$ from 1 to $E$, do:
 &lt;ul&gt;
 &lt;li&gt;sample the trajectories $\{s_1, a_1, r_1, \dots, \}$ under the policy $\pi_{\theta}$&lt;/li&gt;
-&lt;li&gt;calculate the advantage $A(s_t, a_t)$ for each state, action pair. $A_t^{GAE} = \sum_{l=0}^{\infty} (\gamma \lambda)^l (r_{t+1} + \gamma V(s_{t+2}) - V(s_{t+1})), \lambda \in [0, 1]$&lt;/li&gt;
+&lt;li&gt;calculate the advantage $A(s_t, a_t)$ for each state, action pair. $A_t^{GAE} = \sum_{l=0}^{\infty} (\gamma \lambda)^l (r_{t+1} + \gamma V_{\omega}(s_{t+2}) - V_{\omega}(s_{t+1})), \lambda \in [0, 1]$&lt;/li&gt;
 &lt;li&gt;calculate the gradient $g$ of the objective function&lt;/li&gt;
 &lt;li&gt;calculate the $x = H^{-1}g$&lt;/li&gt;
 &lt;li&gt;Find $i \in \{1,2,\dots,K\}$ and update the policy network parameter $\theta_{k+1} = \theta_k + \alpha^{i}\sqrt{\frac{2\delta}{x^T Hx}}x, \alpha \in (0, 1)$&lt;/li&gt;
-&lt;li&gt;Update the value network parameters&lt;/li&gt;
+&lt;li&gt;Update the value network parameters by minimizing the square error:&lt;/li&gt;
 &lt;/ul&gt;
+&lt;p align=&#34;center&#34;&gt;
+$$ L(\omega) = \frac{1}{2} \mathbb{E}_t [G_t - V_{\omega} (s_t)]^2 $$
+&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;end for&lt;/li&gt;
 &lt;li&gt;return the policy $\pi_\theta$&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h4 id=&#34;ppo&#34; &gt;
+&lt;h4 id=&#34;proximal-policy-optimization-ppo&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#ppo&#34;&gt;
+    &lt;a href=&#34;#proximal-policy-optimization-ppo&#34;&gt;
         
     &lt;/a&gt;
-    PPO
+    Proximal Policy Optimization (PPO)
 &lt;/div&gt;
 &lt;/h4&gt;
+&lt;p&gt;Though TRPO is successful in many cases, the computation can be time consuming due to its complexity. To simplify the optimization process, PPO is taking the following two approaches for the
+objective (4.7) with the constraint (4.8).&lt;/p&gt;
+&lt;h5 id=&#34;ppo-penalty&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#ppo-penalty&#34;&gt;
+        
+    &lt;/a&gt;
+    PPO-penalty
+&lt;/div&gt;
+&lt;/h5&gt;
+&lt;p&gt;Instead of optimizing a constraint objective, we can transform the objective (4.7) into an un-constraint optimization problem by using Lagrange multipliers.&lt;/p&gt;
+&lt;p align=&#34;center&#34;&gt;
+$$
+\max_{\theta} \mathbb{E}_{s \sim \nu_{t}^{\pi_{\theta_k}}} \mathbb{E}_{a \sim \pi_{\theta_k(\cdot \mid s)}} [\frac{\pi_{\theta(a \mid s)}}{\pi_{\theta_k(a \mid s)}} A_{\pi_{\theta_k}}(s, a) - \beta D_{KL}( \pi_{\theta_k(a \mid s)}, \pi_{\theta(a \mid s)})]
+$$
+&lt;/p&gt;
+where $d_k = D_{KL}^{\nu_{t}^{\pi_{\theta_k}}}(\pi_{\theta_k}, \pi_\theta)$ denotes the DL divergence between policies in two consecutive iterations. $\beta$ can be updated according to
+&lt;pre&gt;&lt;code&gt;if d_k &amp;lt; delta / 1.5:
+  beta_{k+1} = beta_k /2
+elif d_k &amp;gt; delta * 1.5:
+  beta_{k+1} = beta_k * 2
+else:
+  beta_{k+1} = beta_{k}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;where $\delta$ is a hyper-parameter which is set in the beginning of learning.&lt;/p&gt;
+&lt;h5 id=&#34;ppo-clip&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#ppo-clip&#34;&gt;
+        
+    &lt;/a&gt;
+    PPO-Clip
+&lt;/div&gt;
+&lt;/h5&gt;
+&lt;p&gt;The other way of joining the constraint into the objective is using clips, that is, to set boundaries for the objective function.&lt;/p&gt;
+&lt;p align=&#34;center&#34;&gt;
+$$
+\max_{\theta} \mathbb{E}_{s \sim \nu_{t}^{\pi_{\theta_k}}} \mathbb{E}_{a \sim \pi_{\theta_k(\cdot \mid s)}} \left[min \\
+\left(\frac{\pi_{\theta(a \mid s)}}{\pi_{\theta_k(a \mid s)}} A_{\pi_{\theta_k}}(s, a), clip \left(\frac{\pi_{\theta(a \mid s)}}{\pi_{\theta_k(a \mid s)}}, 1-\epsilon, 1+\epsilon \right)A_{\pi_{\theta_k}}(s, a)\right) \right]
+$$
+&lt;/p&gt;
+where $clip(x, a, b) = max(min(x, b), a)$ and $\epsilon$ is a hyper-parameter. This makes the policy updates to be within the $[1-\epsilon, 1+\epsilon]$.
+&lt;p&gt;Therefore the sudo code for PPO is:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;initialize the policy network parameters $\theta$ and value network parameters $\omega$&lt;/li&gt;
+&lt;li&gt;for episode $e$ from 1 to $E$, do:
+&lt;ul&gt;
+&lt;li&gt;sample the trajectories $\{s_1, a_1, r_1, \dots, \}$ under the policy $\pi_{\theta}$&lt;/li&gt;
+&lt;li&gt;calculate the advantage $A(s_t, a_t)$ for each state, action pair. $A_t^{GAE} = \sum_{l=0}^{\infty} (\gamma \lambda)^l (r_{t+1} + \gamma V_{\omega}(s_{t+2}) - V_{\omega}(s_{t+1})), \lambda \in [0, 1]$&lt;/li&gt;
+&lt;li&gt;Compute discounted cumulative rewards:$ G_t = r_t + \gamma r_{t+1} + \gamma^2 r_{t+2} + \dots$&lt;/li&gt;
+&lt;li&gt;calculate the gradient $g$ of the objective function&lt;/li&gt;
+&lt;li&gt;update the policy network using stochastic gradient ascent&lt;/li&gt;
+&lt;li&gt;Update the value network parameters by minimizing the square error:&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p align=&#34;center&#34;&gt;
+$$ L(\omega) = \frac{1}{2} \mathbb{E}_t (G_t - V_{\omega} (s_t))^2 $$
+&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;end for&lt;/li&gt;
+&lt;li&gt;return the policy $\pi_\theta$&lt;/li&gt;
+&lt;/ul&gt;
 &lt;h4 id=&#34;cross-entropy-method-gradient-free&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#cross-entropy-method-gradient-free&#34;&gt;
