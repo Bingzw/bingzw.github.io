@@ -20,7 +20,7 @@
       <author>bingwang8878@gamil.com (Bing Wang)</author>
       <guid>/posts/2024-07-15-rf-learning-deep/</guid>
       <description>&lt;p align=&#34;center&#34;&gt;
-&lt;img src=&#34;https://bingzw.github.io/rf/deeprl.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+&lt;img src=&#34;http://localhost:1313/rf/deeprl.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
 &lt;p&gt;
 &lt;p&gt;&lt;em&gt;Image cited from &lt;sup id=&#34;fnref:1&#34;&gt;&lt;a href=&#34;#fn:1&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;1&lt;/a&gt;&lt;/sup&gt;&lt;/em&gt;&lt;/p&gt;
 &lt;p&gt;This blog is a continuation of the last one: &lt;strong&gt;A Journey to Reinforcement Learning - Tabular Methods&lt;/strong&gt;. The
@@ -58,7 +58,7 @@ Welcome to the realm of &lt;strong&gt;deep reinforcement learning&lt;/strong&gt;
 problem with &lt;strong&gt;continuous states&lt;/strong&gt; and &lt;strong&gt;discrete actions&lt;/strong&gt; (the continuous actions case will be discussed later). The $Q$ value can
 be approximated by fitting a neural network where the state is fed into the network and get output of $Q$ value at each action.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-&lt;img src=&#34;https://bingzw.github.io/rf/q_dqn.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+&lt;img src=&#34;http://localhost:1313/rf/q_dqn.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
 &lt;em&gt;Figure 1: Q learning vs DQN&lt;/em&gt;
 &lt;p&gt;
 &lt;p&gt;&lt;em&gt;Image cited from &lt;sup id=&#34;fnref:2&#34;&gt;&lt;a href=&#34;#fn:2&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;2&lt;/a&gt;&lt;/sup&gt;&lt;/em&gt;&lt;/p&gt;
@@ -85,7 +85,7 @@ An &lt;strong&gt;experience replay&lt;/strong&gt; (ER) component introduce a &lt
 thus also improving the training efficiency.&lt;/p&gt;
 &lt;p&gt;A general structure of DQN is&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-&lt;img src=&#34;https://bingzw.github.io/rf/dqn_flow.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+&lt;img src=&#34;http://localhost:1313/rf/dqn_flow.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
 &lt;em&gt;Figure 2: DQN flow&lt;/em&gt;
 &lt;p&gt;
 &lt;p&gt;&lt;em&gt;Image cited from &lt;sup id=&#34;fnref:3&#34;&gt;&lt;a href=&#34;#fn:3&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;3&lt;/a&gt;&lt;/sup&gt;&lt;/em&gt;&lt;/p&gt;
@@ -198,7 +198,7 @@ them could lead to even more robust performance.&lt;/p&gt;
 Noisy Nets, Distributional Q-learning, and a few others. By combining these techniques, Rainbow DQN leverages the strengths of
 each approach to achieve superior performance in a unified model.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-&lt;img src=&#34;https://bingzw.github.io/rf/rainbow.png&#34; width=&#34;500&#34; height=&#34;100&#34;&gt;&lt;br&gt;
+&lt;img src=&#34;http://localhost:1313/rf/rainbow.png&#34; width=&#34;500&#34; height=&#34;100&#34;&gt;&lt;br&gt;
 &lt;em&gt;Figure 3: Rainbow DQN&lt;/em&gt;
 &lt;p&gt;
 &lt;p&gt;&lt;em&gt;Image cited from &lt;sup id=&#34;fnref1:4&#34;&gt;&lt;a href=&#34;#fn:4&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;4&lt;/a&gt;&lt;/sup&gt;&lt;/em&gt;&lt;/p&gt;
@@ -398,7 +398,8 @@ objective (4.7) with the constraint (4.8).&lt;/p&gt;
 &lt;p&gt;Instead of optimizing a constraint objective, we can transform the objective (4.7) into an un-constraint optimization problem by using Lagrange multipliers.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
 $$
-\max_{\theta} \mathbb{E}_{s \sim \nu_{t}^{\pi_{\theta_k}}} \mathbb{E}_{a \sim \pi_{\theta_k(\cdot \mid s)}} [\frac{\pi_{\theta(a \mid s)}}{\pi_{\theta_k(a \mid s)}} A_{\pi_{\theta_k}}(s, a) - \beta D_{KL}( \pi_{\theta_k(a \mid s)}, \pi_{\theta(a \mid s)})]
+\max_{\theta} \mathbb{E}_{s \sim \nu_{t}^{\pi_{\theta_k}}} \mathbb{E}_{a \sim \pi_{\theta_k(\cdot \mid s)}} [\frac{\pi_{\theta(a \mid s)}}
+{\pi_{\theta_k(a \mid s)}} A_{\pi_{\theta_k}}(s, a) - \beta D_{KL}( \pi_{\theta_k(a \mid s)}, \pi_{\theta(a \mid s)})] \tag{4.11}
 $$
 &lt;/p&gt;
 where $d_k = D_{KL}^{\nu_{t}^{\pi_{\theta_k}}}(\pi_{\theta_k}, \pi_\theta)$ denotes the DL divergence between policies in two consecutive iterations. $\beta$ can be updated according to
@@ -422,7 +423,8 @@ else:
 &lt;p align=&#34;center&#34;&gt;
 $$
 \max_{\theta} \mathbb{E}_{s \sim \nu_{t}^{\pi_{\theta_k}}} \mathbb{E}_{a \sim \pi_{\theta_k(\cdot \mid s)}} \left[min \\
-\left(\frac{\pi_{\theta(a \mid s)}}{\pi_{\theta_k(a \mid s)}} A_{\pi_{\theta_k}}(s, a), clip \left(\frac{\pi_{\theta(a \mid s)}}{\pi_{\theta_k(a \mid s)}}, 1-\epsilon, 1+\epsilon \right)A_{\pi_{\theta_k}}(s, a)\right) \right]
+\left(\frac{\pi_{\theta(a \mid s)}}{\pi_{\theta_k(a \mid s)}} A_{\pi_{\theta_k}}(s, a), clip \left(\frac{\pi_{\theta(a \mid s)}}
+{\pi_{\theta_k(a \mid s)}}, 1-\epsilon, 1+\epsilon \right)A_{\pi_{\theta_k}}(s, a)\right) \right] \tag{4.12}
 $$
 &lt;/p&gt;
 where $clip(x, a, b) = max(min(x, b), a)$ and $\epsilon$ is a hyper-parameter. This makes the policy updates to be within the $[1-\epsilon, 1+\epsilon]$.
@@ -471,20 +473,76 @@ $$ L(\omega) = \frac{1}{2} \mathbb{E}_t (G_t - V_{\omega} (s_t))^2 $$
     Hybrid
 &lt;/div&gt;
 &lt;/h3&gt;
-&lt;h4 id=&#34;ddpq&#34; &gt;
-&lt;div&gt;
-    &lt;a href=&#34;#ddpq&#34;&gt;
-        
-    &lt;/a&gt;
-    DDPQ
-&lt;/div&gt;
-&lt;/h4&gt;
+&lt;p&gt;A hybrid approach in reinforcement learning combines elements from both value-based and policy-based methods to leverage
+their respective strengths while mitigating their weaknesses.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Value-based methods (e.g., Q-Learning, DQN) focus on learning a value function (like $Q(s, a)$) to guide decision-making
+but struggle in high-dimensional or continuous action spaces.&lt;/li&gt;
+&lt;li&gt;Policy-based methods (e.g., REINFORCE) directly learn a policy $\pi(a|s)$, which works well for continuous actions but
+suffers from high variance in gradient estimation.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;By integrating these approaches, a hybrid method learns both the value function (to stabilize learning and reduce variance)
+and the policy (to directly optimize actions). Actor-Critic algorithms, like A2C, PPO, and SAC, are popular examples of
+hybrid methods, combining a critic (value function) to evaluate actions and an actor (policy) to select actions. This synergy
+improves learning efficiency, stability, and scalability to complex environments.&lt;/p&gt;
 &lt;h4 id=&#34;actor-critic-ac&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#actor-critic-ac&#34;&gt;
         
     &lt;/a&gt;
     Actor Critic (AC)
+&lt;/div&gt;
+&lt;/h4&gt;
+&lt;p&gt;Actor-Critic is a class of reinforcement learning (RL) algorithms that combines the benefits of policy-based methods
+(like REINFORCE) and value-based methods (like Q-learning). It is a hybrid approach where two components — an actor and
+a critic — work together to optimize the policy. There are two components: actor and critic.&lt;/p&gt;
+&lt;p&gt;The actor is responsible for learning and outputting the policy, $\pi_\theta(a|s)$, which is a mapping from states to actions.
+It is a parameterized function (e.g., a neural network) with parameters $\theta.$
+Its goal is to directly improve the policy by maximizing the expected reward. The policy gradient (4.4) can be extended to&lt;/p&gt;
+&lt;p align=&#34;center&#34;&gt;
+$$g = \mathbb{E}_{\pi_{\theta}} [A_{\pi_{\theta}}(s, a) \nabla_{\theta} \log(\pi_{\theta}(a \mid s))] \tag{4.13}$$
+&lt;/p&gt;
+&lt;p&gt;when introducing the value function $V_\pi(s)$ as baseline, and the advantage function $A_{\pi_{\theta}}(s, a)$ is usually
+approximated by the temporal difference $\delta_t = r_t + \gamma V_\omega(s_{t+1}) - V_\omega(s_t)$.&lt;/p&gt;
+&lt;p&gt;The critic evaluates how good the actions taken by the actor are, using a value function.
+Common choices for the value function:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;State Value Function: $V_\pi(s) = \mathbb{E}_\pi [G_t | s_t = s]$&lt;/li&gt;
+&lt;li&gt;Action-Value Function: $Q_\pi(s, a) = \mathbb{E}_\pi [G_t | s_t = s, a_t = a]$&lt;/li&gt;
+&lt;li&gt;Advantage Function: $A_\pi(s, a) = Q_\pi(s, a) - V_\pi(s)$&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The critic guides the actor by providing feedback on its actions. When updating the critic net, the loss can be defined by temporal difference, i.e.
+$L_\omega = \frac{1}{2}(r_t + \gamma V_\omega(s_{t+1}) - V_\omega(s_t))^2$. Therefore the gradient of critic loss
+is $$\nabla_\omega L_\omega = -(r_t + \gamma V_\omega(s_{t+1}) - V_\omega(s_t))\nabla_\omega V_\omega(s_t) \tag{4.14}$$ Both the actor and critic loss
+are thus optimized by gradient descent.&lt;/p&gt;
+&lt;p align=&#34;center&#34;&gt;
+&lt;img src=&#34;http://localhost:1313/rf/ac.png&#34; width=&#34;300&#34; height=&#34;150&#34;&gt;&lt;br&gt;
+&lt;em&gt;Figure 4: Actor Critic&lt;/em&gt;
+&lt;p&gt;
+&lt;p&gt;&lt;em&gt;Image cited from &lt;sup id=&#34;fnref:5&#34;&gt;&lt;a href=&#34;#fn:5&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;5&lt;/a&gt;&lt;/sup&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;In all, the sudo code for actor-critic is:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;initialize the policy network parameters $\theta$ and value network parameters $\omega$&lt;/li&gt;
+&lt;li&gt;for episode $e$ from 1 to $E$, do:
+&lt;ul&gt;
+&lt;li&gt;sample the trajectories $\{s_1, a_1, r_1, \dots, \}$ under the policy $\pi_{\theta}$&lt;/li&gt;
+&lt;li&gt;calculate the temporal difference by $\delta_t = r_t + \gamma V_\omega(s_{t+1}) - V_\omega(s_t)$&lt;/li&gt;
+&lt;li&gt;calculate the gradient (4.13) and update the policy net parameters by $\theta$&lt;/li&gt;
+&lt;li&gt;calculate the gradient (4.14) and update the value net parameters by $\omega$&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;end for&lt;/li&gt;
+&lt;li&gt;return the policy $\pi_\theta$ and value function $V_\omega$&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Actor-Critic serves as the foundation for many advanced RL algorithms and is widely used in solving complex decision-making problems.
+For example, PPO (Proximal Policy Optimization) is an variant that improves stability by constraining the policy update step.
+SAC (Soft Actor-Critic) extends actor-critic by incorporating entropy regularization to encourage exploration.&lt;/p&gt;
+&lt;h4 id=&#34;ddpq&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#ddpq&#34;&gt;
+        
+    &lt;/a&gt;
+    DDPQ
 &lt;/div&gt;
 &lt;/h4&gt;
 &lt;h4 id=&#34;sac&#34; &gt;
@@ -518,6 +576,9 @@ $$ L(\omega) = \frac{1}{2} \mathbb{E}_t (G_t - V_{\omega} (s_t))^2 $$
 &lt;li id=&#34;fn:4&#34;&gt;
 &lt;p&gt;Hessel, Matteo, et al. &amp;ldquo;Rainbow: Combining improvements in deep reinforcement learning.&amp;rdquo; Proceedings of the AAAI conference on artificial intelligence. Vol. 32. No. 1. 2018.&amp;#160;&lt;a href=&#34;#fnref:4&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref1:4&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
+&lt;li id=&#34;fn:5&#34;&gt;
+&lt;p&gt;&lt;a href=&#34;https://medium.com/intro-to-artificial-intelligence/a-link-between-cross-entropy-and-policy-gradient-expression-b2b308511867&#34;&gt;The Actor-Critic Reinforcement Learning algorithm&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:5&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
 &lt;/ol&gt;
 &lt;/div&gt;</description>
     </item>
@@ -529,7 +590,7 @@ $$ L(\omega) = \frac{1}{2} \mathbb{E}_t (G_t - V_{\omega} (s_t))^2 $$
       <author>bingwang8878@gamil.com (Bing Wang)</author>
       <guid>/posts/2024-07-05-rf-learning-tabular/</guid>
       <description>&lt;p align=&#34;center&#34;&gt;
-&lt;img src=&#34;https://bingzw.github.io/rf/rf.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+&lt;img src=&#34;http://localhost:1313/rf/rf.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
 &lt;p&gt;
 &lt;p&gt;&lt;em&gt;Image cited from &lt;sup id=&#34;fnref:1&#34;&gt;&lt;a href=&#34;#fn:1&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;1&lt;/a&gt;&lt;/sup&gt;&lt;/em&gt;&lt;/p&gt;
 &lt;h2 id=&#34;basic-problem-statement-of-reinforcement-learning&#34; &gt;
@@ -659,7 +720,7 @@ which builds the connection of the action value function between the current and
 (1.6) and (1.8), (1.7) and (1.9), it&#39;s easy to observe that (1.8) and (1.9) actually implements the expectation expression explicitly. 
 &lt;p&gt;A visualized interpretation of (1.8) and (1.9) are shown in the following backup diagram.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-    &lt;img src=&#34;https://bingzw.github.io/rf/backup.png&#34;&gt;&lt;br&gt;
+    &lt;img src=&#34;http://localhost:1313/rf/backup.png&#34;&gt;&lt;br&gt;
     &lt;em&gt;Figure 1: Backup Diagram&lt;/em&gt;
 &lt;/p&gt;
 &lt;h4 id=&#34;bellman-optimal-equation&#34; &gt;
@@ -894,7 +955,7 @@ applied to any piece of episode, which is more flexible. The estimation variance
 other hand, DP computes all the related next states when updating. TD compromise both MC and DP, it sampled only one or finite steps
 for updating.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-&lt;img src=&#34;https://bingzw.github.io/rf/rf_dp_mc_td.png&#34; width=&#34;900&#34; height=&#34;600&#34;&gt;&lt;br&gt;
+&lt;img src=&#34;http://localhost:1313/rf/rf_dp_mc_td.png&#34; width=&#34;900&#34; height=&#34;600&#34;&gt;&lt;br&gt;
 &lt;em&gt;Figure 2: Visual Interpretation of DP, TD and MC&lt;/em&gt;
 &lt;p&gt;
 &lt;p&gt;&lt;em&gt;Image cited from &lt;sup id=&#34;fnref:5&#34;&gt;&lt;a href=&#34;#fn:5&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;5&lt;/a&gt;&lt;/sup&gt;&lt;/em&gt;&lt;/p&gt;
@@ -912,7 +973,7 @@ iteration in DP. Get the next policy by using the greedy search, i.e. $\pi_{i+1}
 Combining the generalized policy evaluation and the greedy policy improvement would allow us to build the generalized policy
 iteration.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-&lt;img src=&#34;https://bingzw.github.io/rf/policy_iteration.png&#34; width=&#34;250&#34; height=&#34;150&#34;&gt;&lt;br&gt;
+&lt;img src=&#34;http://localhost:1313/rf/policy_iteration.png&#34; width=&#34;250&#34; height=&#34;150&#34;&gt;&lt;br&gt;
 &lt;em&gt;Figure 3: Generalized Policy Iteration&lt;/em&gt;
 &lt;p&gt;
 &lt;p&gt;Another difference from the policy iteration in DP is that we may never update some state-action pairs using the pure greedy
@@ -1066,7 +1127,7 @@ more complicated problems.&lt;/p&gt;
       <author>bingwang8878@gamil.com (Bing Wang)</author>
       <guid>/posts/2024-06-06-recommendation-model/</guid>
       <description>&lt;p align=&#34;center&#34;&gt;
-&lt;img src=&#34;https://bingzw.github.io/recommendation_model/reco.jpeg&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+&lt;img src=&#34;http://localhost:1313/recommendation_model/reco.jpeg&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
 &lt;p&gt;
 &lt;p&gt;&lt;em&gt;Image cited from &lt;a href=&#34;https://www.vecteezy.com/&#34;&gt;vecteezy&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
 &lt;h2 id=&#34;introduction-to-recommendation-models&#34; &gt;
@@ -1200,7 +1261,7 @@ architecture to the collaborative filtering domain. CDAE is designed to handle i
 are inferred from user behavior rather than explicit ratings. The model incorporates both user-specific and item-specific
 factors, leveraging the rich user interaction data to learn better representations for recommendation tasks.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-    &lt;img src=&#34;https://bingzw.github.io/recommendation_model/autoencoder_mf.png&#34;&gt;&lt;br&gt;
+    &lt;img src=&#34;http://localhost:1313/recommendation_model/autoencoder_mf.png&#34;&gt;&lt;br&gt;
     &lt;em&gt;Figure 1: deep auto-encoder&lt;/em&gt;
 &lt;/p&gt;
 &lt;h5 id=&#34;neural-collaborative-filtering3&#34; &gt;
@@ -1220,7 +1281,7 @@ that learn the interaction between these embeddings. The final output layer pred
 item. This approach not only improves the accuracy of recommendations but also enables the integration of additional
 features, such as user demographics or item attributes, into the model. Refer to the DLRM or DeepFM for more details.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-    &lt;img src=&#34;https://bingzw.github.io/recommendation_model/ncf_mf.png&#34;&gt;&lt;br&gt;
+    &lt;img src=&#34;http://localhost:1313/recommendation_model/ncf_mf.png&#34;&gt;&lt;br&gt;
     &lt;em&gt;Figure 2: neural collaborative filtering&lt;/em&gt;
 &lt;/p&gt;
 &lt;h2 id=&#34;content-based-models-ranking-as-recommendation&#34; &gt;
@@ -1275,7 +1336,7 @@ $$&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
 &lt;p align=&#34;center&#34;&gt;
-   &lt;img src=&#34;https://bingzw.github.io/recommendation_model/wide_deep.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
+   &lt;img src=&#34;http://localhost:1313/recommendation_model/wide_deep.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
    &lt;em&gt;Figure 3: wide &amp; deep model&lt;/em&gt;
 &lt;/p&gt;
 &lt;h3 id=&#34;deepfm5&#34; &gt;
@@ -1318,7 +1379,7 @@ activation of the last hidden layer.&lt;/p&gt;
 &lt;p&gt;$$\hat{y} = \sigma(y_{\text{FM}} + y_{\text{deep}})$$&lt;/p&gt;
 &lt;p&gt;where $\sigma$ is the sigmoid function used to squash the output to a probability score.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-   &lt;img src=&#34;https://bingzw.github.io/recommendation_model/deepfm.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+   &lt;img src=&#34;http://localhost:1313/recommendation_model/deepfm.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
    &lt;em&gt;Figure 4: deepfm model&lt;/em&gt;
 &lt;/p&gt;
 &lt;h3 id=&#34;deep-learning-recommendation-model-dlrm6&#34; &gt;
@@ -1335,7 +1396,7 @@ systems in environments such as social media platforms, e-commerce, and online a
 strengths of collaborative filtering and content-based methods by utilizing both dense and sparse features to provide
 highly accurate and scalable recommendations.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-   &lt;img src=&#34;https://bingzw.github.io/recommendation_model/dlrm.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+   &lt;img src=&#34;http://localhost:1313/recommendation_model/dlrm.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
    &lt;em&gt;Figure 5: deep learning recommendation model&lt;/em&gt;
 &lt;/p&gt;
 &lt;p&gt;Key components of DLRM includes&lt;/p&gt;
@@ -1411,7 +1472,7 @@ biases of the $l$-th layer, respectively, and $f_{l}$ is the activation function
 &lt;p&gt;The final prediction is a combination of the outputs from either the hidden layer (stacked structure) or the  concatenation
 of cross and deep network outputs.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-   &lt;img src=&#34;https://bingzw.github.io/recommendation_model/dcn_v2.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+   &lt;img src=&#34;http://localhost:1313/recommendation_model/dcn_v2.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
    &lt;em&gt;Figure 6: deep cross network v2&lt;/em&gt;
 &lt;/p&gt;
 &lt;h3 id=&#34;deep-interest-network-din8&#34; &gt;
@@ -1428,7 +1489,7 @@ DIN leverages a user&amp;rsquo;s historical behavior to make more accurate and c
 innovation in DIN is its ability to capture user interests dynamically and use this information to influence the recommendation
 process.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-   &lt;img src=&#34;https://bingzw.github.io/recommendation_model/din.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
+   &lt;img src=&#34;http://localhost:1313/recommendation_model/din.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
    &lt;em&gt;Figure 7: deep interest network&lt;/em&gt;
 &lt;/p&gt;
 &lt;p&gt;In particular, the DIN contains the following key components:&lt;/p&gt;
@@ -1476,7 +1537,7 @@ mixture-of-experts models with the flexibility of multi-gate mechanisms, allowin
 computational resources based on the specific needs of each task. This approach is particularly useful in scenarios
 where tasks are interrelated and can benefit from shared learning while maintaining task-specific adaptations.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-   &lt;img src=&#34;https://bingzw.github.io/recommendation_model/mmoe.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
+   &lt;img src=&#34;http://localhost:1313/recommendation_model/mmoe.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
    &lt;em&gt;Figure 8: multi-gate mixture of experts&lt;/em&gt;
 &lt;/p&gt;
 &lt;p&gt;Key components of the model architecture are:&lt;/p&gt;
@@ -1523,7 +1584,7 @@ sequences in recommendation systems. BST leverages the power of Transformer mode
 success in natural language processing (NLP), to capture the sequential patterns and contextual dependencies in user
 interactions over time. This approach enhances the ability to predict user preferences and improve recommendation accuracy.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-   &lt;img src=&#34;https://bingzw.github.io/recommendation_model/bst.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
+   &lt;img src=&#34;http://localhost:1313/recommendation_model/bst.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
    &lt;em&gt;Figure 9: behavior sequence transformer&lt;/em&gt;
 &lt;/p&gt;
 &lt;p&gt;Key components of BST include:&lt;/p&gt;
@@ -1655,7 +1716,7 @@ Users may choose the best model depending on the business requirements and syste
       <author>bingwang8878@gamil.com (Bing Wang)</author>
       <guid>/posts/2024-05-28-causality/</guid>
       <description>&lt;p align=&#34;center&#34;&gt;
-&lt;img src=&#34;https://bingzw.github.io/causality/causality.jpeg&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+&lt;img src=&#34;http://localhost:1313/causality/causality.jpeg&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
 &lt;p&gt;
 &lt;p&gt;&lt;em&gt;Image cited from &lt;a href=&#34;https://depositphotos.com/vectors/causality.html&#34;&gt;depositphotos&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
 &lt;h2 id=&#34;what-is-causality&#34; &gt;
@@ -1693,7 +1754,7 @@ example, the health status of a patient if he/she received the new drug ($a=1$).
 &lt;p&gt;In practice, the data $(Y_i, A_i, X_i)$ is usually drawn i.i.d from a population and they are formulated into a causal
 graph as shown below&lt;sup id=&#34;fnref:1&#34;&gt;&lt;a href=&#34;#fn:1&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;1&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-    &lt;img src=&#34;https://bingzw.github.io/causality/causal_model_diagram.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+    &lt;img src=&#34;http://localhost:1313/causality/causal_model_diagram.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
     &lt;em&gt;Figure 1: causal inference elements&lt;/em&gt;
 &lt;/p&gt;
 &lt;p&gt;The mechanism of the causal graph is often reasoning by structural causal models (SCM). It models the underlying data
@@ -1765,7 +1826,7 @@ data.&lt;/p&gt;
 &lt;p&gt;Before diving into the confounder adjustments methods, let&amp;rsquo;s first clarify the confounding bias. Consider the following
 example:&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-    &lt;img src=&#34;https://bingzw.github.io/causality/confounder_selection_bias.png&#34;&gt;&lt;br&gt;
+    &lt;img src=&#34;http://localhost:1313/causality/confounder_selection_bias.png&#34;&gt;&lt;br&gt;
     &lt;em&gt;Figure 2: confounder example&lt;/em&gt;
 &lt;/p&gt;
 &lt;p&gt;A study is conducted to investigate the effect of a new drug on the health outcome of patients. The study
@@ -1806,7 +1867,7 @@ consistent with the true population. The general flow of causal inference can be
 &lt;li&gt;&lt;strong&gt;Estimate the Causal Effect&lt;/strong&gt;: Estimate the counterfactual causal effect using the trained model&lt;/li&gt;
 &lt;/ol&gt;
 &lt;p align=&#34;center&#34;&gt;
-    &lt;img src=&#34;https://bingzw.github.io/causality/causal_inference_flow.png&#34; width=&#34;800&#34; height=&#34;500&#34;&gt;&lt;br&gt;
+    &lt;img src=&#34;http://localhost:1313/causality/causal_inference_flow.png&#34; width=&#34;800&#34; height=&#34;500&#34;&gt;&lt;br&gt;
     &lt;em&gt;Figure 3: Causal Inference Modeling Flow&lt;/em&gt;
 &lt;/p&gt;
 We follow the same modeling process in figure 3. First defining the outcome, treatment, and covariates, then building the

@@ -304,7 +304,8 @@ Instead of optimizing a constraint objective, we can transform the objective (4.
 
 <p align="center">
 $$
-\max_{\theta} \mathbb{E}_{s \sim \nu_{t}^{\pi_{\theta_k}}} \mathbb{E}_{a \sim \pi_{\theta_k(\cdot \mid s)}} [\frac{\pi_{\theta(a \mid s)}}{\pi_{\theta_k(a \mid s)}} A_{\pi_{\theta_k}}(s, a) - \beta D_{KL}( \pi_{\theta_k(a \mid s)}, \pi_{\theta(a \mid s)})]
+\max_{\theta} \mathbb{E}_{s \sim \nu_{t}^{\pi_{\theta_k}}} \mathbb{E}_{a \sim \pi_{\theta_k(\cdot \mid s)}} [\frac{\pi_{\theta(a \mid s)}}
+{\pi_{\theta_k(a \mid s)}} A_{\pi_{\theta_k}}(s, a) - \beta D_{KL}( \pi_{\theta_k(a \mid s)}, \pi_{\theta(a \mid s)})] \tag{4.11}
 $$
 </p>
 where $d_k = D_{KL}^{\nu_{t}^{\pi_{\theta_k}}}(\pi_{\theta_k}, \pi_\theta)$ denotes the DL divergence between policies in two consecutive iterations. $\beta$ can be updated according to
@@ -324,7 +325,8 @@ The other way of joining the constraint into the objective is using clips, that 
 <p align="center">
 $$
 \max_{\theta} \mathbb{E}_{s \sim \nu_{t}^{\pi_{\theta_k}}} \mathbb{E}_{a \sim \pi_{\theta_k(\cdot \mid s)}} \left[min \\
-\left(\frac{\pi_{\theta(a \mid s)}}{\pi_{\theta_k(a \mid s)}} A_{\pi_{\theta_k}}(s, a), clip \left(\frac{\pi_{\theta(a \mid s)}}{\pi_{\theta_k(a \mid s)}}, 1-\epsilon, 1+\epsilon \right)A_{\pi_{\theta_k}}(s, a)\right) \right]
+\left(\frac{\pi_{\theta(a \mid s)}}{\pi_{\theta_k(a \mid s)}} A_{\pi_{\theta_k}}(s, a), clip \left(\frac{\pi_{\theta(a \mid s)}}
+{\pi_{\theta_k(a \mid s)}}, 1-\epsilon, 1+\epsilon \right)A_{\pi_{\theta_k}}(s, a)\right) \right] \tag{4.12}
 $$
 </p>
 where $clip(x, a, b) = max(min(x, b), a)$ and $\epsilon$ is a hyper-parameter. This makes the policy updates to be within the $[1-\epsilon, 1+\epsilon]$.
@@ -349,8 +351,68 @@ $$ L(\omega) = \frac{1}{2} \mathbb{E}_t (G_t - V_{\omega} (s_t))^2 $$
 #### Cross-Entropy Method [Gradient Free]
 #### Evolution Strategy [Gradient Free]
 ### Hybrid
-#### DDPQ
+A hybrid approach in reinforcement learning combines elements from both value-based and policy-based methods to leverage 
+their respective strengths while mitigating their weaknesses.
+
+- Value-based methods (e.g., Q-Learning, DQN) focus on learning a value function (like $Q(s, a)$) to guide decision-making 
+but struggle in high-dimensional or continuous action spaces.
+- Policy-based methods (e.g., REINFORCE) directly learn a policy $\pi(a|s)$, which works well for continuous actions but 
+suffers from high variance in gradient estimation.
+
+By integrating these approaches, a hybrid method learns both the value function (to stabilize learning and reduce variance) 
+and the policy (to directly optimize actions). Actor-Critic algorithms, like A2C, PPO, and SAC, are popular examples of 
+hybrid methods, combining a critic (value function) to evaluate actions and an actor (policy) to select actions. This synergy 
+improves learning efficiency, stability, and scalability to complex environments.
 #### Actor Critic (AC)
+Actor-Critic is a class of reinforcement learning (RL) algorithms that combines the benefits of policy-based methods 
+(like REINFORCE) and value-based methods (like Q-learning). It is a hybrid approach where two components — an actor and 
+a critic — work together to optimize the policy. There are two components: actor and critic.
+
+The actor is responsible for learning and outputting the policy, $\pi_\theta(a|s)$, which is a mapping from states to actions.
+It is a parameterized function (e.g., a neural network) with parameters $\theta.$
+Its goal is to directly improve the policy by maximizing the expected reward. The policy gradient (4.4) can be extended to
+
+<p align="center">
+$$g = \mathbb{E}_{\pi_{\theta}} [A_{\pi_{\theta}}(s, a) \nabla_{\theta} \log(\pi_{\theta}(a \mid s))] \tag{4.13}$$
+</p>
+
+when introducing the value function $V_\pi(s)$ as baseline, and the advantage function $A_{\pi_{\theta}}(s, a)$ is usually 
+approximated by the temporal difference $\delta_t = r_t + \gamma V_\omega(s_{t+1}) - V_\omega(s_t)$.
+
+The critic evaluates how good the actions taken by the actor are, using a value function.
+Common choices for the value function:
+- State Value Function: $V_\pi(s) = \mathbb{E}_\pi [G_t | s_t = s]$
+- Action-Value Function: $Q_\pi(s, a) = \mathbb{E}_\pi [G_t | s_t = s, a_t = a]$
+- Advantage Function: $A_\pi(s, a) = Q_\pi(s, a) - V_\pi(s)$
+
+The critic guides the actor by providing feedback on its actions. When updating the critic net, the loss can be defined by temporal difference, i.e. 
+$L_\omega = \frac{1}{2}(r_t + \gamma V_\omega(s_{t+1}) - V_\omega(s_t))^2$. Therefore the gradient of critic loss 
+is $$\nabla_\omega L_\omega = -(r_t + \gamma V_\omega(s_{t+1}) - V_\omega(s_t))\nabla_\omega V_\omega(s_t) \tag{4.14}$$ Both the actor and critic loss 
+are thus optimized by gradient descent.
+
+<p align="center">
+<img src="/rf/ac.png" width="300" height="150"><br>
+<em>Figure 4: Actor Critic</em>
+<p>
+
+*Image cited from [^5]*
+
+In all, the sudo code for actor-critic is:
+- initialize the policy network parameters $\theta$ and value network parameters $\omega$
+- for episode $e$ from 1 to $E$, do:
+  - sample the trajectories $\\{s_1, a_1, r_1, \dots, \\}$ under the policy $\pi_{\theta}$
+  - calculate the temporal difference by $\delta_t = r_t + \gamma V_\omega(s_{t+1}) - V_\omega(s_t)$
+  - calculate the gradient (4.13) and update the policy net parameters by $\theta$ 
+  - calculate the gradient (4.14) and update the value net parameters by $\omega$
+- end for
+- return the policy $\pi_\theta$ and value function $V_\omega$
+
+Actor-Critic serves as the foundation for many advanced RL algorithms and is widely used in solving complex decision-making problems.
+For example, PPO (Proximal Policy Optimization) is an variant that improves stability by constraining the policy update step.
+SAC (Soft Actor-Critic) extends actor-critic by incorporating entropy regularization to encourage exploration.
+
+#### DDPQ
+
 #### SAC
 
 
@@ -359,3 +421,4 @@ $$ L(\omega) = \frac{1}{2} \mathbb{E}_t (G_t - V_{\omega} (s_t))^2 $$
 [^2]: Sebastianelli, Alessandro, et al. "A Deep Q-Learning based approach applied to the Snake game." 2021 29th Mediterranean Conference on Control and Automation (MED). IEEE, 2021
 [^3]: Muteba, K. F., Karim Djouani, and Thomas O. Olwal. "Deep reinforcement learning based resource allocation for narrowband cognitive radio-IoT systems." Procedia Computer Science 175 (2020): 315-324
 [^4]: Hessel, Matteo, et al. "Rainbow: Combining improvements in deep reinforcement learning." Proceedings of the AAAI conference on artificial intelligence. Vol. 32. No. 1. 2018.
+[^5]: [The Actor-Critic Reinforcement Learning algorithm](https://medium.com/intro-to-artificial-intelligence/a-link-between-cross-entropy-and-policy-gradient-expression-b2b308511867)
