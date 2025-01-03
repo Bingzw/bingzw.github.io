@@ -398,7 +398,8 @@ objective (4.7) with the constraint (4.8).&lt;/p&gt;
 &lt;p&gt;Instead of optimizing a constraint objective, we can transform the objective (4.7) into an un-constraint optimization problem by using Lagrange multipliers.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
 $$
-\max_{\theta} \mathbb{E}_{s \sim \nu_{t}^{\pi_{\theta_k}}} \mathbb{E}_{a \sim \pi_{\theta_k(\cdot \mid s)}} [\frac{\pi_{\theta(a \mid s)}}{\pi_{\theta_k(a \mid s)}} A_{\pi_{\theta_k}}(s, a) - \beta D_{KL}( \pi_{\theta_k(a \mid s)}, \pi_{\theta(a \mid s)})]
+\max_{\theta} \mathbb{E}_{s \sim \nu_{t}^{\pi_{\theta_k}}} \mathbb{E}_{a \sim \pi_{\theta_k(\cdot \mid s)}} [\frac{\pi_{\theta(a \mid s)}}
+{\pi_{\theta_k(a \mid s)}} A_{\pi_{\theta_k}}(s, a) - \beta D_{KL}( \pi_{\theta_k(a \mid s)}, \pi_{\theta(a \mid s)})] \tag{4.11}
 $$
 &lt;/p&gt;
 where $d_k = D_{KL}^{\nu_{t}^{\pi_{\theta_k}}}(\pi_{\theta_k}, \pi_\theta)$ denotes the DL divergence between policies in two consecutive iterations. $\beta$ can be updated according to
@@ -422,7 +423,8 @@ else:
 &lt;p align=&#34;center&#34;&gt;
 $$
 \max_{\theta} \mathbb{E}_{s \sim \nu_{t}^{\pi_{\theta_k}}} \mathbb{E}_{a \sim \pi_{\theta_k(\cdot \mid s)}} \left[min \\
-\left(\frac{\pi_{\theta(a \mid s)}}{\pi_{\theta_k(a \mid s)}} A_{\pi_{\theta_k}}(s, a), clip \left(\frac{\pi_{\theta(a \mid s)}}{\pi_{\theta_k(a \mid s)}}, 1-\epsilon, 1+\epsilon \right)A_{\pi_{\theta_k}}(s, a)\right) \right]
+\left(\frac{\pi_{\theta(a \mid s)}}{\pi_{\theta_k(a \mid s)}} A_{\pi_{\theta_k}}(s, a), clip \left(\frac{\pi_{\theta(a \mid s)}}
+{\pi_{\theta_k(a \mid s)}}, 1-\epsilon, 1+\epsilon \right)A_{\pi_{\theta_k}}(s, a)\right) \right] \tag{4.12}
 $$
 &lt;/p&gt;
 where $clip(x, a, b) = max(min(x, b), a)$ and $\epsilon$ is a hyper-parameter. This makes the policy updates to be within the $[1-\epsilon, 1+\epsilon]$.
@@ -471,6 +473,18 @@ $$ L(\omega) = \frac{1}{2} \mathbb{E}_t (G_t - V_{\omega} (s_t))^2 $$
     Hybrid
 &lt;/div&gt;
 &lt;/h3&gt;
+&lt;p&gt;A hybrid approach in reinforcement learning combines elements from both value-based and policy-based methods to leverage
+their respective strengths while mitigating their weaknesses.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Value-based methods (e.g., Q-Learning, DQN) focus on learning a value function (like $Q(s, a)$) to guide decision-making
+but struggle in high-dimensional or continuous action spaces.&lt;/li&gt;
+&lt;li&gt;Policy-based methods (e.g., REINFORCE) directly learn a policy $\pi(a|s)$, which works well for continuous actions but
+suffers from high variance in gradient estimation.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;By integrating these approaches, a hybrid method learns both the value function (to stabilize learning and reduce variance)
+and the policy (to directly optimize actions). Actor-Critic algorithms, like A2C, PPO, and SAC, are popular examples of
+hybrid methods, combining a critic (value function) to evaluate actions and an actor (policy) to select actions. This synergy
+improves learning efficiency, stability, and scalability to complex environments.&lt;/p&gt;
 &lt;h4 id=&#34;actor-critic-ac&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#actor-critic-ac&#34;&gt;
@@ -483,15 +497,46 @@ $$ L(\omega) = \frac{1}{2} \mathbb{E}_t (G_t - V_{\omega} (s_t))^2 $$
 (like REINFORCE) and value-based methods (like Q-learning). It is a hybrid approach where two components — an actor and
 a critic — work together to optimize the policy. There are two components: actor and critic.&lt;/p&gt;
 &lt;p&gt;The actor is responsible for learning and outputting the policy, $\pi_\theta(a|s)$, which is a mapping from states to actions.
-It is a parameterized function (e.g., a neural network) with parameters $\theta$.
-Its goal is to directly improve the policy by maximizing the expected reward.
-Critic:&lt;/p&gt;
+It is a parameterized function (e.g., a neural network) with parameters $\theta.$
+Its goal is to directly improve the policy by maximizing the expected reward. The policy gradient (4.4) can be extended to&lt;/p&gt;
+&lt;p align=&#34;center&#34;&gt;
+$$g = \mathbb{E}_{\pi_{\theta}} [A_{\pi_{\theta}}(s, a) \nabla_{\theta} \log(\pi_{\theta}(a \mid s))] \tag{4.13}$$
+&lt;/p&gt;
+&lt;p&gt;when introducing the value function $V_\pi(s)$ as baseline, and the advantage function $A_{\pi_{\theta}}(s, a)$ is usually
+approximated by the temporal difference $\delta_t = r_t + \gamma V_\omega(s_{t+1}) - V_\omega(s_t)$.&lt;/p&gt;
 &lt;p&gt;The critic evaluates how good the actions taken by the actor are, using a value function.
-Common choices for the value function:
-State Value Function: $V^\pi(s) = \mathbb{E}&lt;em&gt;\pi [G_t | s_t = s]$
-Action-Value Function: $Q^\pi(s, a) = \mathbb{E}&lt;/em&gt;\pi [G_t | s_t = s, a_t = a]$
-Advantage Function: $A^\pi(s, a) = Q^\pi(s, a) - V^\pi(s)$
-The critic guides the actor by providing feedback on its actions.&lt;/p&gt;
+Common choices for the value function:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;State Value Function: $V_\pi(s) = \mathbb{E}_\pi [G_t | s_t = s]$&lt;/li&gt;
+&lt;li&gt;Action-Value Function: $Q_\pi(s, a) = \mathbb{E}_\pi [G_t | s_t = s, a_t = a]$&lt;/li&gt;
+&lt;li&gt;Advantage Function: $A_\pi(s, a) = Q_\pi(s, a) - V_\pi(s)$&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The critic guides the actor by providing feedback on its actions. When updating the critic net, the loss can be defined by temporal difference, i.e.
+$L_\omega = \frac{1}{2}(r_t + \gamma V_\omega(s_{t+1}) - V_\omega(s_t))^2$. Therefore the gradient of critic loss
+is $$\nabla_\omega L_\omega = -(r_t + \gamma V_\omega(s_{t+1}) - V_\omega(s_t))\nabla_\omega V_\omega(s_t) \tag{4.14}$$ Both the actor and critic loss
+are thus optimized by gradient descent.&lt;/p&gt;
+&lt;p align=&#34;center&#34;&gt;
+&lt;img src=&#34;http://localhost:1313/rf/ac.png&#34; width=&#34;300&#34; height=&#34;150&#34;&gt;&lt;br&gt;
+&lt;em&gt;Figure 4: Actor Critic&lt;/em&gt;
+&lt;p&gt;
+&lt;p&gt;&lt;em&gt;Image cited from &lt;sup id=&#34;fnref:5&#34;&gt;&lt;a href=&#34;#fn:5&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;5&lt;/a&gt;&lt;/sup&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;In all, the sudo code for actor-critic is:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;initialize the policy network parameters $\theta$ and value network parameters $\omega$&lt;/li&gt;
+&lt;li&gt;for episode $e$ from 1 to $E$, do:
+&lt;ul&gt;
+&lt;li&gt;sample the trajectories $\{s_1, a_1, r_1, \dots, \}$ under the policy $\pi_{\theta}$&lt;/li&gt;
+&lt;li&gt;calculate the temporal difference by $\delta_t = r_t + \gamma V_\omega(s_{t+1}) - V_\omega(s_t)$&lt;/li&gt;
+&lt;li&gt;calculate the gradient (4.13) and update the policy net parameters by $\theta$&lt;/li&gt;
+&lt;li&gt;calculate the gradient (4.14) and update the value net parameters by $\omega$&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;end for&lt;/li&gt;
+&lt;li&gt;return the policy $\pi_\theta$ and value function $V_\omega$&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Actor-Critic serves as the foundation for many advanced RL algorithms and is widely used in solving complex decision-making problems.
+For example, PPO (Proximal Policy Optimization) is an variant that improves stability by constraining the policy update step.
+SAC (Soft Actor-Critic) extends actor-critic by incorporating entropy regularization to encourage exploration.&lt;/p&gt;
 &lt;h4 id=&#34;ddpq&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#ddpq&#34;&gt;
@@ -530,6 +575,9 @@ The critic guides the actor by providing feedback on its actions.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id=&#34;fn:4&#34;&gt;
 &lt;p&gt;Hessel, Matteo, et al. &amp;ldquo;Rainbow: Combining improvements in deep reinforcement learning.&amp;rdquo; Proceedings of the AAAI conference on artificial intelligence. Vol. 32. No. 1. 2018.&amp;#160;&lt;a href=&#34;#fnref:4&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref1:4&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:5&#34;&gt;
+&lt;p&gt;&lt;a href=&#34;https://medium.com/intro-to-artificial-intelligence/a-link-between-cross-entropy-and-policy-gradient-expression-b2b308511867&#34;&gt;The Actor-Critic Reinforcement Learning algorithm&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:5&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
 &lt;/div&gt;</description>

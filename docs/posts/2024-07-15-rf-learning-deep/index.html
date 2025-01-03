@@ -492,7 +492,7 @@
         <li><a href="#hybrid">Hybrid</a>
           <ul>
             <li><a href="#actor-critic-ac">Actor Critic (AC)</a></li>
-            <li><a href="#ddpq">DDPQ</a></li>
+            <li><a href="#ddpg">DDPG</a></li>
             <li><a href="#sac">SAC</a></li>
           </ul>
         </li>
@@ -1043,14 +1043,62 @@ are thus optimized by gradient descent.</p>
 <p>Actor-Critic serves as the foundation for many advanced RL algorithms and is widely used in solving complex decision-making problems.
 For example, PPO (Proximal Policy Optimization) is an variant that improves stability by constraining the policy update step.
 SAC (Soft Actor-Critic) extends actor-critic by incorporating entropy regularization to encourage exploration.</p>
-<h4 id="ddpq" >
+<h4 id="ddpg" >
 <div>
-    <a href="#ddpq">
+    <a href="#ddpg">
         
     </a>
-    DDPQ
+    DDPG
 </div>
 </h4>
+<p>Reinforce, actor-critic, TRPO and PPO are all about on-policy learning algorithms, while DQN is off-policy algorithm, it suffered from the discrete action space.
+Deep Deterministic Policy Gradient (DDPG) is a model-free, off-policy reinforcement learning algorithm designed for continuous action spaces.
+It combines ideas from Deterministic Policy Gradient (DPG) and Deep Q-Learning (DQN), leveraging neural networks to approximate policies and value functions.</p>
+<p>DDPG leverages the Actor-Critic Architecture. However, some unique key features in DDPG include:</p>
+<ul>
+<li>
+<p>Actor: Learns a deterministic policy $\mu_\theta(s)$ that maps states directly to actions.</p>
+</li>
+<li>
+<p>Critic: Estimates the action-value function $Q(s, a)$, which evaluates the quality of actions.</p>
+</li>
+<li>
+<p>Off-Policy Learning: Uses a replay buffer to store past experiences $(s, a, r, s&rsquo;)$, enabling sample efficiency and breaking correlations between samples.</p>
+</li>
+<li>
+<p>Target Networks: Employs target networks for both the actor and critic to stabilize learning by slowly updating their parameters towards the current networks.</p>
+</li>
+<li>
+<p>Continuous Action Space:Unlike DQN, which handles discrete actions, DDPG can handle high-dimensional continuous actions, making it suitable for tasks like robotics control.</p>
+</li>
+</ul>
+<p>DDPG sudo Algorithm:</p>
+<ul>
+<li>Initialize the actor network $\mu_\theta(s)$ and the critic network $Q_\phi(s, a)$ with random weights.</li>
+<li>Create target networks $\mu_{\theta&rsquo;}(s)$ and $Q_{\phi&rsquo;}(s, a)$ by copying the weights of the actor and critic networks.</li>
+<li>Initialize a replay buffer to store transitions $(s, a, r, s&rsquo;)$.</li>
+<li>For each episode:
+<ul>
+<li>At each step:
+<ul>
+<li>Select an action using the actor network with added noise for exploration: $a_t = \mu_\theta(s_t) + \mathcal{N}_t$ (where $\mathcal{N}_t$ is a noise process like Ornstein-Uhlenbeck).</li>
+<li>Execute the action, observe reward $r_t$ and the next state $s_{t+1}$.</li>
+<li>Store the transition $(s_t, a_t, r_t, s_{t+1})$ in the replay buffer.</li>
+<li>Sample a minibatch of transitions from the replay buffer.</li>
+<li>Update the critic by minimizing the Bellman error: $\mathcal{L}(\phi) = \mathbb{E}\left[\left(Q_\phi(s, a) - \left(r + \gamma Q_{\phi&rsquo;}(s&rsquo;, \mu_{\theta&rsquo;}(s&rsquo;))\right)\right)^2\right]$</li>
+<li>Update the actor using the deterministic policy gradient: $\nabla_\theta J = \mathbb{E}\left[\nabla_\theta \mu_\theta(s) \nabla_a Q_\phi(s, a) \big|{a=\mu_\theta(s)} \right]$</li>
+<li>Update the target networks:
+<ul>
+<li>$\phi&rsquo; \leftarrow \tau \phi + (1 - \tau) \phi'$</li>
+<li>$\theta&rsquo; \leftarrow \tau \theta + (1 - \tau) \theta'$</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Repeat until convergence.</li>
+</ul>
 <h4 id="sac" >
 <div>
     <a href="#sac">
@@ -1186,7 +1234,7 @@ SAC (Soft Actor-Critic) extends actor-critic by incorporating entropy regulariza
         
 
         <div style="display: flex; align-items: center; gap:8px">
-            © Bing Wang, 2024
+            © Bing Wang, 2025
             
         </div>
         <div style="display:flex;align-items: center">

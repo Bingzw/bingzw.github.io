@@ -411,7 +411,36 @@ Actor-Critic serves as the foundation for many advanced RL algorithms and is wid
 For example, PPO (Proximal Policy Optimization) is an variant that improves stability by constraining the policy update step.
 SAC (Soft Actor-Critic) extends actor-critic by incorporating entropy regularization to encourage exploration.
 
-#### DDPQ
+#### DDPG
+Reinforce, actor-critic, TRPO and PPO are all about on-policy learning algorithms, while DQN is off-policy algorithm, it suffered from the discrete action space.
+Deep Deterministic Policy Gradient (DDPG) is a model-free, off-policy reinforcement learning algorithm designed for continuous action spaces. 
+It combines ideas from Deterministic Policy Gradient (DPG) and Deep Q-Learning (DQN), leveraging neural networks to approximate policies and value functions.
+
+DDPG leverages the Actor-Critic Architecture. However, some unique key features in DDPG include:  
+
+- Actor: Learns a deterministic policy $\mu_\theta(s)$ that maps states directly to actions.
+- Critic: Estimates the action-value function $Q(s, a)$, which evaluates the quality of actions.
+
+- Off-Policy Learning: Uses a replay buffer to store past experiences $(s, a, r, s')$, enabling sample efficiency and breaking correlations between samples.
+- Target Networks: Employs target networks for both the actor and critic to stabilize learning by slowly updating their parameters towards the current networks.
+- Continuous Action Space:Unlike DQN, which handles discrete actions, DDPG can handle high-dimensional continuous actions, making it suitable for tasks like robotics control.
+
+DDPG sudo Algorithm:
+- Initialize the actor network $\mu_\theta(s)$ and the critic network $Q_\phi(s, a)$ with random weights.
+- Create target networks $\mu_{\theta'}(s)$ and $Q_{\phi'}(s, a)$ by copying the weights of the actor and critic networks.
+- Initialize a replay buffer to store transitions $(s, a, r, s')$.
+- For each episode:
+  - At each step:
+    - Select an action using the actor network with added noise for exploration: $a_t = \mu_\theta(s_t) + \mathcal{N}_t$ (where $\mathcal{N}_t$ is a noise process like Ornstein-Uhlenbeck).
+    - Execute the action, observe reward $r_t$ and the next state $s_{t+1}$.
+    - Store the transition $(s_t, a_t, r_t, s_{t+1})$ in the replay buffer.
+    - Sample a minibatch of transitions from the replay buffer.
+    - Update the critic by minimizing the Bellman error: $\mathcal{L}(\phi) = \mathbb{E}\left[\left(Q_\phi(s, a) - \left(r + \gamma Q_{\phi'}(s', \mu_{\theta'}(s'))\right)\right)^2\right]$
+    - Update the actor using the deterministic policy gradient: $\nabla_\theta J = \mathbb{E}\left[\nabla_\theta \mu_\theta(s) \nabla_a Q_\phi(s, a) \big|{a=\mu_\theta(s)} \right]$
+    - Update the target networks:
+      - $\phi' \leftarrow \tau \phi + (1 - \tau) \phi'$
+      - $\theta' \leftarrow \tau \theta + (1 - \tau) \theta'$
+- Repeat until convergence.
 
 #### SAC
 
