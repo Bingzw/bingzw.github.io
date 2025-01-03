@@ -20,7 +20,7 @@
       <author>bingwang8878@gamil.com (Bing Wang)</author>
       <guid>/posts/2024-07-15-rf-learning-deep/</guid>
       <description>&lt;p align=&#34;center&#34;&gt;
-&lt;img src=&#34;http://localhost:1313/rf/deeprl.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+&lt;img src=&#34;https://bingzw.github.io/rf/deeprl.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
 &lt;p&gt;
 &lt;p&gt;&lt;em&gt;Image cited from &lt;sup id=&#34;fnref:1&#34;&gt;&lt;a href=&#34;#fn:1&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;1&lt;/a&gt;&lt;/sup&gt;&lt;/em&gt;&lt;/p&gt;
 &lt;p&gt;This blog is a continuation of the last one: &lt;strong&gt;A Journey to Reinforcement Learning - Tabular Methods&lt;/strong&gt;. The
@@ -58,7 +58,7 @@ Welcome to the realm of &lt;strong&gt;deep reinforcement learning&lt;/strong&gt;
 problem with &lt;strong&gt;continuous states&lt;/strong&gt; and &lt;strong&gt;discrete actions&lt;/strong&gt; (the continuous actions case will be discussed later). The $Q$ value can
 be approximated by fitting a neural network where the state is fed into the network and get output of $Q$ value at each action.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-&lt;img src=&#34;http://localhost:1313/rf/q_dqn.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+&lt;img src=&#34;https://bingzw.github.io/rf/q_dqn.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
 &lt;em&gt;Figure 1: Q learning vs DQN&lt;/em&gt;
 &lt;p&gt;
 &lt;p&gt;&lt;em&gt;Image cited from &lt;sup id=&#34;fnref:2&#34;&gt;&lt;a href=&#34;#fn:2&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;2&lt;/a&gt;&lt;/sup&gt;&lt;/em&gt;&lt;/p&gt;
@@ -85,7 +85,7 @@ An &lt;strong&gt;experience replay&lt;/strong&gt; (ER) component introduce a &lt
 thus also improving the training efficiency.&lt;/p&gt;
 &lt;p&gt;A general structure of DQN is&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-&lt;img src=&#34;http://localhost:1313/rf/dqn_flow.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+&lt;img src=&#34;https://bingzw.github.io/rf/dqn_flow.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
 &lt;em&gt;Figure 2: DQN flow&lt;/em&gt;
 &lt;p&gt;
 &lt;p&gt;&lt;em&gt;Image cited from &lt;sup id=&#34;fnref:3&#34;&gt;&lt;a href=&#34;#fn:3&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;3&lt;/a&gt;&lt;/sup&gt;&lt;/em&gt;&lt;/p&gt;
@@ -198,7 +198,7 @@ them could lead to even more robust performance.&lt;/p&gt;
 Noisy Nets, Distributional Q-learning, and a few others. By combining these techniques, Rainbow DQN leverages the strengths of
 each approach to achieve superior performance in a unified model.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-&lt;img src=&#34;http://localhost:1313/rf/rainbow.png&#34; width=&#34;500&#34; height=&#34;100&#34;&gt;&lt;br&gt;
+&lt;img src=&#34;https://bingzw.github.io/rf/rainbow.png&#34; width=&#34;500&#34; height=&#34;100&#34;&gt;&lt;br&gt;
 &lt;em&gt;Figure 3: Rainbow DQN&lt;/em&gt;
 &lt;p&gt;
 &lt;p&gt;&lt;em&gt;Image cited from &lt;sup id=&#34;fnref1:4&#34;&gt;&lt;a href=&#34;#fn:4&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;4&lt;/a&gt;&lt;/sup&gt;&lt;/em&gt;&lt;/p&gt;
@@ -300,12 +300,12 @@ the $Q_{\pi_{\theta}}(s, a)$ when calculating the gradient, a simple way is to a
 &lt;p&gt;This is a &amp;ldquo;policy version&amp;rdquo; monte carlo approach. Like the Monte Carlo algorithm, it&amp;rsquo;s a simple online algorithm but may suffer from issues like
 high variance, delayed rewards, inefficient sampling, noisy updates and non-stationary returns. To tackle these issues, more dedicated tools
 are needed.&lt;/p&gt;
-&lt;h4 id=&#34;trust-region-policy-optimization-trpo&#34; &gt;
+&lt;h4 id=&#34;trust-region-policy-optimization-trpo-7&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#trust-region-policy-optimization-trpo&#34;&gt;
+    &lt;a href=&#34;#trust-region-policy-optimization-trpo-7&#34;&gt;
         
     &lt;/a&gt;
-    Trust Region Policy Optimization (TRPO)
+    Trust Region Policy Optimization (TRPO) &lt;sup id=&#34;fnref:5&#34;&gt;&lt;a href=&#34;#fn:5&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;5&lt;/a&gt;&lt;/sup&gt;
 &lt;/div&gt;
 &lt;/h4&gt;
 &lt;p&gt;When using a deep neural network to fit the policy network, the policy gradient updates can be noisy with high variance. Thus resulting in
@@ -377,12 +377,12 @@ $$ L(\omega) = \frac{1}{2} \mathbb{E}_t [G_t - V_{\omega} (s_t)]^2 $$
 &lt;li&gt;end for&lt;/li&gt;
 &lt;li&gt;return the policy $\pi_\theta$&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h4 id=&#34;proximal-policy-optimization-ppo&#34; &gt;
+&lt;h4 id=&#34;proximal-policy-optimization-ppo8&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#proximal-policy-optimization-ppo&#34;&gt;
+    &lt;a href=&#34;#proximal-policy-optimization-ppo8&#34;&gt;
         
     &lt;/a&gt;
-    Proximal Policy Optimization (PPO)
+    Proximal Policy Optimization (PPO)&lt;sup id=&#34;fnref:6&#34;&gt;&lt;a href=&#34;#fn:6&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;6&lt;/a&gt;&lt;/sup&gt;
 &lt;/div&gt;
 &lt;/h4&gt;
 &lt;p&gt;Though TRPO is successful in many cases, the computation can be time consuming due to its complexity. To simplify the optimization process, PPO is taking the following two approaches for the
@@ -449,22 +449,6 @@ $$ L(\omega) = \frac{1}{2} \mathbb{E}_t (G_t - V_{\omega} (s_t))^2 $$
 &lt;li&gt;end for&lt;/li&gt;
 &lt;li&gt;return the policy $\pi_\theta$&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h4 id=&#34;cross-entropy-method-gradient-free&#34; &gt;
-&lt;div&gt;
-    &lt;a href=&#34;#cross-entropy-method-gradient-free&#34;&gt;
-        
-    &lt;/a&gt;
-    Cross-Entropy Method [Gradient Free]
-&lt;/div&gt;
-&lt;/h4&gt;
-&lt;h4 id=&#34;evolution-strategy-gradient-free&#34; &gt;
-&lt;div&gt;
-    &lt;a href=&#34;#evolution-strategy-gradient-free&#34;&gt;
-        
-    &lt;/a&gt;
-    Evolution Strategy [Gradient Free]
-&lt;/div&gt;
-&lt;/h4&gt;
 &lt;h3 id=&#34;hybrid&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#hybrid&#34;&gt;
@@ -485,12 +469,12 @@ suffers from high variance in gradient estimation.&lt;/li&gt;
 and the policy (to directly optimize actions). Actor-Critic algorithms, like A2C, PPO, and SAC, are popular examples of
 hybrid methods, combining a critic (value function) to evaluate actions and an actor (policy) to select actions. This synergy
 improves learning efficiency, stability, and scalability to complex environments.&lt;/p&gt;
-&lt;h4 id=&#34;actor-critic-ac&#34; &gt;
+&lt;h4 id=&#34;actor-critic-ac9&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#actor-critic-ac&#34;&gt;
+    &lt;a href=&#34;#actor-critic-ac9&#34;&gt;
         
     &lt;/a&gt;
-    Actor Critic (AC)
+    Actor Critic (AC)&lt;sup id=&#34;fnref:7&#34;&gt;&lt;a href=&#34;#fn:7&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;7&lt;/a&gt;&lt;/sup&gt;
 &lt;/div&gt;
 &lt;/h4&gt;
 &lt;p&gt;Actor-Critic is a class of reinforcement learning (RL) algorithms that combines the benefits of policy-based methods
@@ -516,10 +500,10 @@ $L_\omega = \frac{1}{2}(r_t + \gamma V_\omega(s_{t+1}) - V_\omega(s_t))^2$. Ther
 is $$\nabla_\omega L_\omega = -(r_t + \gamma V_\omega(s_{t+1}) - V_\omega(s_t))\nabla_\omega V_\omega(s_t) \tag{4.14}$$ Both the actor and critic loss
 are thus optimized by gradient descent.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-&lt;img src=&#34;http://localhost:1313/rf/ac.png&#34; width=&#34;300&#34; height=&#34;150&#34;&gt;&lt;br&gt;
+&lt;img src=&#34;https://bingzw.github.io/rf/ac.png&#34; width=&#34;300&#34; height=&#34;150&#34;&gt;&lt;br&gt;
 &lt;em&gt;Figure 4: Actor Critic&lt;/em&gt;
 &lt;p&gt;
-&lt;p&gt;&lt;em&gt;Image cited from &lt;sup id=&#34;fnref:5&#34;&gt;&lt;a href=&#34;#fn:5&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;5&lt;/a&gt;&lt;/sup&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Image cited from &lt;sup id=&#34;fnref:8&#34;&gt;&lt;a href=&#34;#fn:8&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;8&lt;/a&gt;&lt;/sup&gt;&lt;/em&gt;&lt;/p&gt;
 &lt;p&gt;In all, the sudo code for actor-critic is:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;initialize the policy network parameters $\theta$ and value network parameters $\omega$&lt;/li&gt;
@@ -537,22 +521,171 @@ are thus optimized by gradient descent.&lt;/p&gt;
 &lt;p&gt;Actor-Critic serves as the foundation for many advanced RL algorithms and is widely used in solving complex decision-making problems.
 For example, PPO (Proximal Policy Optimization) is an variant that improves stability by constraining the policy update step.
 SAC (Soft Actor-Critic) extends actor-critic by incorporating entropy regularization to encourage exploration.&lt;/p&gt;
-&lt;h4 id=&#34;ddpq&#34; &gt;
+&lt;h4 id=&#34;ddpg11&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#ddpq&#34;&gt;
+    &lt;a href=&#34;#ddpg11&#34;&gt;
         
     &lt;/a&gt;
-    DDPQ
+    DDPG&lt;sup id=&#34;fnref:9&#34;&gt;&lt;a href=&#34;#fn:9&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;9&lt;/a&gt;&lt;/sup&gt;
 &lt;/div&gt;
 &lt;/h4&gt;
-&lt;h4 id=&#34;sac&#34; &gt;
+&lt;p&gt;Reinforce, actor-critic, TRPO and PPO are all about on-policy learning algorithms, while DQN is off-policy algorithm, it suffered from the discrete action space.
+Deep Deterministic Policy Gradient (DDPG) is a model-free, off-policy reinforcement learning algorithm designed for continuous action spaces.
+It combines ideas from Deterministic Policy Gradient (DPG) and Deep Q-Learning (DQN), leveraging neural networks to approximate policies and value functions.&lt;/p&gt;
+&lt;p&gt;DDPG leverages the Actor-Critic Architecture. However, some unique key features in DDPG include:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Actor: Learns a deterministic policy $\mu_\theta(s)$ that maps states directly to actions.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Critic: Estimates the action-value function $Q(s, a)$, which evaluates the quality of actions.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Off-Policy Learning: Uses a replay buffer to store past experiences $(s, a, r, s&amp;rsquo;)$, enabling sample efficiency and breaking correlations between samples.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Target Networks: Employs target networks for both the actor and critic to stabilize learning by slowly updating their parameters towards the current networks.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Continuous Action Space:Unlike DQN, which handles discrete actions, DDPG can handle high-dimensional continuous actions, making it suitable for tasks like robotics control.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;DDPG sudo Algorithm:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Initialize the actor network $\mu_\theta(s)$ and the critic network $Q_\phi(s, a)$ with random weights.&lt;/li&gt;
+&lt;li&gt;Create target networks $\mu_{\theta&amp;rsquo;}(s)$ and $Q_{\phi&amp;rsquo;}(s, a)$ by copying the weights of the actor and critic networks.&lt;/li&gt;
+&lt;li&gt;Initialize a replay buffer to store transitions $(s, a, r, s&amp;rsquo;)$.&lt;/li&gt;
+&lt;li&gt;For each episode:
+&lt;ul&gt;
+&lt;li&gt;At each step:
+&lt;ul&gt;
+&lt;li&gt;Select an action using the actor network with added noise for exploration: $a_t = \mu_\theta(s_t) + \mathcal{N}_t$ (where $\mathcal{N}_t$ is a noise process like Ornstein-Uhlenbeck).&lt;/li&gt;
+&lt;li&gt;Execute the action, observe reward $r_t$ and the next state $s_{t+1}$.&lt;/li&gt;
+&lt;li&gt;Store the transition $(s_t, a_t, r_t, s_{t+1})$ in the replay buffer.&lt;/li&gt;
+&lt;li&gt;Sample a minibatch of transitions from the replay buffer.&lt;/li&gt;
+&lt;li&gt;Update the critic by minimizing the Bellman error: $\mathcal{L}(\phi) = \mathbb{E}\left[\left(Q_\phi(s, a) - \left(r + \gamma Q_{\phi&amp;rsquo;}(s&amp;rsquo;, \mu_{\theta&amp;rsquo;}(s&amp;rsquo;))\right)\right)^2\right]$&lt;/li&gt;
+&lt;li&gt;Update the actor using the deterministic policy gradient: $\nabla_\theta J = \mathbb{E}\left[\nabla_\theta \mu_\theta(s) \nabla_a Q_\phi(s, a) \big|{a=\mu_\theta(s)} \right]$&lt;/li&gt;
+&lt;li&gt;Update the target networks:
+&lt;ul&gt;
+&lt;li&gt;$\phi&amp;rsquo; \leftarrow \tau \phi + (1 - \tau) \phi&#39;$&lt;/li&gt;
+&lt;li&gt;$\theta&amp;rsquo; \leftarrow \tau \theta + (1 - \tau) \theta&#39;$&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Repeat until convergence.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4 id=&#34;sac10&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#sac&#34;&gt;
+    &lt;a href=&#34;#sac10&#34;&gt;
         
     &lt;/a&gt;
-    SAC
+    SAC&lt;sup id=&#34;fnref:10&#34;&gt;&lt;a href=&#34;#fn:10&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;10&lt;/a&gt;&lt;/sup&gt;
 &lt;/div&gt;
 &lt;/h4&gt;
+&lt;p&gt;Though DDPG is able to learn an off-policy strategy, it&amp;rsquo;s not robust to converge and is usually very sensitive to hyper-parameters. Soft Actor-Critic (SAC)
+is a &lt;strong&gt;model-free&lt;/strong&gt;, &lt;strong&gt;off-policy&lt;/strong&gt; reinforcement learning algorithm designed for &lt;strong&gt;continuous action spaces&lt;/strong&gt;. SAC improves traditional Actor-Critic methods by
+incorporating &lt;strong&gt;entropy regularization&lt;/strong&gt; to encourage exploration and improve stability.&lt;/p&gt;
+&lt;p&gt;Key Features of SAC&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;Maximum Entropy Framework:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;SAC maximizes a combination of reward and policy entropy:
+$J(\pi) = \mathbb{E}\left[\sum_{t=0}^\infty \gamma^t \left(r(s_t, a_t) + \alpha \mathcal{H}(\pi(\cdot|s_t))\right)\right]$
+where $\mathcal{H}(\pi(\cdot|s_t))$ is the entropy of the policy, and $\alpha$ is a temperature parameter balancing exploration and exploitation.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Stochastic Policy:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;SAC uses a stochastic policy $\pi_\phi(a|s)$ parameterized by a neural network, improving exploration compared to deterministic policies.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Off-Policy Learning:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;SAC uses a replay buffer to store and reuse past experiences, enhancing sample efficiency.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Critic Networks:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Two Q-value networks ($Q_{\theta_1}$ and $Q_{\theta_2}$) are used to reduce overestimation bias.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Target Networks:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Slowly updated target Q-networks ($Q_{\theta_1&amp;rsquo;}$ and $Q_{\theta_2&amp;rsquo;}$) improve training stability.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;SAC sudo algorithm:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Initialize:
+&lt;ul&gt;
+&lt;li&gt;Policy network $\pi_\phi(a|s)$.&lt;/li&gt;
+&lt;li&gt;Two Q-value networks $Q_{\theta_1}(s, a)$ and $Q_{\theta_2}(s, a)$.&lt;/li&gt;
+&lt;li&gt;Target Q-value networks $Q_{\theta_1&amp;rsquo;}$ and $Q_{\theta_2&amp;rsquo;}$.&lt;/li&gt;
+&lt;li&gt;Replay buffer $\mathcal{D}$.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;For each episode:
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;At each time step:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Sample an action $a_t \sim \pi_\phi(a|s_t)$.&lt;/li&gt;
+&lt;li&gt;Execute the action, observe reward $r_t$ and next state $s_{t+1}$.&lt;/li&gt;
+&lt;li&gt;Store the transition $(s_t, a_t, r_t, s_{t+1})$ in the replay buffer.&lt;/li&gt;
+&lt;li&gt;Sample a minibatch of transitions $(s, a, r, s&amp;rsquo;)$ from the replay buffer.&lt;/li&gt;
+&lt;li&gt;Compute the target Q-value:
+$ y = r + \gamma \left[\min_{i=1,2} Q_{\theta_i&amp;rsquo;}(s&amp;rsquo;, a&amp;rsquo;) - \alpha \log \pi_\phi(a&amp;rsquo;|s&amp;rsquo;)\right]$
+where $a&amp;rsquo; \sim \pi_\phi(\cdot|s&amp;rsquo;)$.&lt;/li&gt;
+&lt;li&gt;Update the Q-value networks by minimizing:&lt;/li&gt;
+&lt;/ul&gt;
+ &lt;p align=&#34;center&#34;&gt;
+ $\mathcal{L}_Q = \frac{1}{N} \sum \left(Q_{\theta_i}(s, a) - y\right)^2$
+ &lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Update the policy network using:&lt;/li&gt;
+&lt;/ul&gt;
+ &lt;p align=&#34;center&#34;&gt;
+ $\mathcal{L}_\pi = \mathbb{E}_{s \sim \mathcal{D}, a \sim \pi_\phi} \left[\alpha \log \pi_\phi(a|s) - Q_{\theta_1}(s, a)\right]$
+ &lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Optionally, adjust the temperature parameter $\alpha$ to control entropy:&lt;/li&gt;
+&lt;/ul&gt;
+ &lt;p align=&#34;center&#34;&gt;
+ $\mathcal{L}_\alpha = \mathbb{E}_{a \sim \pi_\phi} \left[-\alpha \left(\log \pi_\phi(a|s) + \mathcal{H}_\text{target}\right)\right]$
+ &lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Update the target Q-value networks:&lt;/li&gt;
+&lt;/ul&gt;
+ &lt;p align=&#34;center&#34;&gt;
+ $\theta_i&#39; \leftarrow \tau \theta_i + (1 - \tau) \theta_i&#39;$
+ &lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Repeat until convergence.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;In all, Reinforcement learning (RL) algorithms can be broadly categorized into value-based, policy-based, and actor-critic approaches.
+Value-based methods, such as Q-learning and DQN (Deep Q-Network), focus on estimating value functions to derive optimal policies,
+excelling in discrete action spaces. Policy-based methods, like REINFORCE, directly optimize the policy, making them suitable for
+high-dimensional or continuous action spaces, though they can suffer from high variance. Actor-critic methods, such as A3C and PPO,
+combine the strengths of value and policy-based approaches by using an actor to decide actions and a critic to evaluate them, leading
+to better stability and efficiency. Advanced algorithms like DDPG and SAC extend RL to continuous control tasks by incorporating techniques
+such as deterministic policies, entropy regularization, and off-policy training. Each algorithm is tailored to specific challenges,
+balancing exploration, stability, and scalability in diverse RL environments. Below shows an overview of the RL algorithms.&lt;/p&gt;
+&lt;p align=&#34;center&#34;&gt;
+&lt;img src=&#34;https://bingzw.github.io/rf/RL_algorithms.png&#34; width=&#34;800&#34; height=&#34;550&#34;&gt;&lt;br&gt;
+&lt;em&gt;Figure 5: Taxonomy of Reinforcement Learning Algorithms&lt;/em&gt;
+&lt;p&gt;
+&lt;p&gt;&lt;em&gt;Image cited from &lt;sup id=&#34;fnref:11&#34;&gt;&lt;a href=&#34;#fn:11&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;11&lt;/a&gt;&lt;/sup&gt;&lt;/em&gt;&lt;/p&gt;
 &lt;h2 id=&#34;reference&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#reference&#34;&gt;
@@ -565,19 +698,37 @@ SAC (Soft Actor-Critic) extends actor-critic by incorporating entropy regulariza
 &lt;hr&gt;
 &lt;ol&gt;
 &lt;li id=&#34;fn:1&#34;&gt;
-&lt;p&gt;Mao, Hongzi, et al. &amp;ldquo;Resource management with deep reinforcement learning.&amp;rdquo; Proceedings of the 15th ACM workshop on hot topics in networks. 2016&amp;#160;&lt;a href=&#34;#fnref:1&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://www.cl.cam.ac.uk/~ey204/teaching/ACS/R244_2018_2019/papers/mao_HOTNETS_2016.pdf&#34;&gt;Mao, Hongzi, et al. &amp;ldquo;Resource management with deep reinforcement learning.&amp;rdquo; Proceedings of the 15th ACM workshop on hot topics in networks. 2016&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:1&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id=&#34;fn:2&#34;&gt;
-&lt;p&gt;Sebastianelli, Alessandro, et al. &amp;ldquo;A Deep Q-Learning based approach applied to the Snake game.&amp;rdquo; 2021 29th Mediterranean Conference on Control and Automation (MED). IEEE, 2021&amp;#160;&lt;a href=&#34;#fnref:2&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://www.researchgate.net/profile/Silvia-Ullo/publication/351884746_A_Deep_Q-Learning_based_approach_applied_to_the_Snake_game/links/6140bf81dabce51cf451e5cd/A-Deep-Q-Learning-based-approach-applied-to-the-Snake-game.pdf&#34;&gt;Sebastianelli, Alessandro, et al. &amp;ldquo;A Deep Q-Learning based approach applied to the Snake game.&amp;rdquo; 2021 29th Mediterranean Conference on Control and Automation (MED). IEEE, 2021&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:2&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id=&#34;fn:3&#34;&gt;
-&lt;p&gt;Muteba, K. F., Karim Djouani, and Thomas O. Olwal. &amp;ldquo;Deep reinforcement learning based resource allocation for narrowband cognitive radio-IoT systems.&amp;rdquo; Procedia Computer Science 175 (2020): 315-324&amp;#160;&lt;a href=&#34;#fnref:3&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://pdf.sciencedirectassets.com/280203/1-s2.0-S1877050920X00135/1-s2.0-S1877050920317270/main.pdf?X-Amz-Security-Token=IQoJb3JpZ2luX2VjEB8aCXVzLWVhc3QtMSJHMEUCIBh17YAsP3s4HO6Gu91yQrt0YzGZg43Bdw25VI2dHM3XAiEApEVuGJv4Mo%2Fk0EWe7Q49Q3v6TzM6q4uR1RnX8P80fJgqvAUI%2BP%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FARAFGgwwNTkwMDM1NDY4NjUiDCKuNwv3%2BpSUgMzNZiqQBRwpKXgGARLCnqPuT15k0Smwr8r%2BQFH3S2wvseq9nLLFylSoZOfWzALE1Ln6c4WxsfjyqefZgDrdt%2FjcLiSwd%2BsiAYSZIt47t%2F%2Fu4jSgJ17To2MtSTHQOH9AH6IUMu93FLsvhnfHy0YfflxASGjijWMkldB9ogxAnquDkgaT1OqEa6QmZnvDlIaLSsLD5%2B8NPauGfzw4SAk0xEMG5YjqsKkJWD%2BhYjWAhEJreTUYMq0oKNz6Lg%2Bh8csxqOoHafYYLEbDXWcZxDAlcudjz0uCzi9PJlErsxmJUaUsOupBYG7O252KxbIQMZ1nVw9M3pp6Ihg0SiEQJYcm178Yq1k8MpndZO7HTLXRuQOpSCQi1YdEw8j8r84QJLcfME1EWbhrPezxXGMwSGHYJ3wF3hMSNNrcG1eQbmKSZpLZLHYx1ewiLwejT3WrKM0M7ogaOLmC854ng5izD0s3CCd%2BKos1TViNFQb1xvp%2BHKceFJ6QzPueqpvTCNOk7c9Wt6fosl4ZHsj%2FYyGKvLtnB3OOiEMQ52OSRYvmXICTlAK0PoNwWXayA%2BLhukKRrB4g%2FXPQRE%2FShS1O495GdUcukvQpbH4%2FcxgI6dw5lj3gwVWcj%2Fga9VBIHmx3RbWKexaupwqmBZWOY%2BOZCT%2FLpZla39lQ7xkIq9wSQV25%2BBzdt96va5ffpD%2F9sfm6KmISyWLjJcgCVkSwQVOJbSdPA%2BhMTfPreci3%2BBQ19dl1oHIw3HfiigntgdNIyfBH0vJ6Fg4hgR8MX73f743x%2BYSIfATowK9figEaH%2BpEXaWcESof%2FkAlaqx%2FTO59JzOJNB%2B9mFV0QFh2pfkg12mlqDNVBkGQBtdnNvXqgawcszshyL0kzrZJp94qE5%2F4MKPS4bsGOrEBRfodhQxsvkkZwea%2BobFI1jDgYDXWFe8EeYje3%2BHiPc%2BA8ZvWYaTgDjPdwJpcyFRkqvDD3doNPaItbGPKay55vEGE3dkbr%2BUjXw9fL2ONkyNGYz6MSfVrbe4O4HegdXeVKCjnZ4t9EMRAzv73PSWqPDTm3V758HVZU12yK652%2BV8Iy3g7gsMlm%2FgK7hjMz9lJ3UUs1jk9QbDkHSgP2VM%2F3JLDgeo%2BJ5Mhj56o%2FZDlYe4t&amp;amp;X-Amz-Algorithm=AWS4-HMAC-SHA256&amp;amp;X-Amz-Date=20250103T233634Z&amp;amp;X-Amz-SignedHeaders=host&amp;amp;X-Amz-Expires=300&amp;amp;X-Amz-Credential=ASIAQ3PHCVTY3KWOGMCD%2F20250103%2Fus-east-1%2Fs3%2Faws4_request&amp;amp;X-Amz-Signature=9ee9389298c9c7d315fb25d32c13e3e2ec7f2a5910a8707d8ae4f3a8f94e1a61&amp;amp;hash=38da7b42222fc0c6ab1ec2b34e73d1cec90f3979a0929597278c884df5f1a286&amp;amp;host=68042c943591013ac2b2430a89b270f6af2c76d8dfd086a07176afe7c76c2c61&amp;amp;pii=S1877050920317270&amp;amp;tid=spdf-19aa14af-b1d8-40de-91fb-4dab2f9971ca&amp;amp;sid=08c9e8946f89c14d13183e673e6b24f8836dgxrqa&amp;amp;type=client&amp;amp;tsoh=d3d3LnNjaWVuY2VkaXJlY3QuY29t&amp;amp;ua=0f155d0900510c08025f50&amp;amp;rr=8fc6cfd05824f642&amp;amp;cc=us&#34;&gt;Muteba, K. F., Karim Djouani, and Thomas O. Olwal. &amp;ldquo;Deep reinforcement learning based resource allocation for narrowband cognitive radio-IoT systems.&amp;rdquo; Procedia Computer Science 175 (2020): 315-324&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:3&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id=&#34;fn:4&#34;&gt;
-&lt;p&gt;Hessel, Matteo, et al. &amp;ldquo;Rainbow: Combining improvements in deep reinforcement learning.&amp;rdquo; Proceedings of the AAAI conference on artificial intelligence. Vol. 32. No. 1. 2018.&amp;#160;&lt;a href=&#34;#fnref:4&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref1:4&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://ojs.aaai.org/index.php/AAAI/article/view/11796&#34;&gt;Hessel, Matteo, et al. &amp;ldquo;Rainbow: Combining improvements in deep reinforcement learning.&amp;rdquo; Proceedings of the AAAI conference on artificial intelligence. Vol. 32. No. 1. 2018.&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:4&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref1:4&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id=&#34;fn:5&#34;&gt;
-&lt;p&gt;&lt;a href=&#34;https://medium.com/intro-to-artificial-intelligence/a-link-between-cross-entropy-and-policy-gradient-expression-b2b308511867&#34;&gt;The Actor-Critic Reinforcement Learning algorithm&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:5&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://people.engr.tamu.edu/guni/csce642/files/trpo.pdf&#34;&gt;Schulman, John. &amp;ldquo;Trust Region Policy Optimization.&amp;rdquo; arXiv preprint arXiv:1502.05477 (2015).&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:5&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:6&#34;&gt;
+&lt;p&gt;&lt;a href=&#34;https://arxiv.org/abs/1707.06347&#34;&gt;Schulman, John, et al. &amp;ldquo;Proximal policy optimization algorithms.&amp;rdquo; arXiv preprint arXiv:1707.06347 (2017).&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:6&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:7&#34;&gt;
+&lt;p&gt;&lt;a href=&#34;https://ieeexplore.ieee.org/abstract/document/6392457&#34;&gt;Grondman, Ivo, et al. &amp;ldquo;A survey of actor-critic reinforcement learning: Standard and natural policy gradients.&amp;rdquo; IEEE Transactions on Systems, Man, and Cybernetics, part C (applications and reviews) 42.6 (2012): 1291-1307&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:7&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:8&#34;&gt;
+&lt;p&gt;&lt;a href=&#34;https://medium.com/intro-to-artificial-intelligence/a-link-between-cross-entropy-and-policy-gradient-expression-b2b308511867&#34;&gt;The Actor-Critic Reinforcement Learning algorithm&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:8&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:9&#34;&gt;
+&lt;p&gt;&lt;a href=&#34;https://proceedings.mlr.press/v32/silver14.html&#34;&gt;Silver, David, et al. &amp;ldquo;Deterministic policy gradient algorithms.&amp;rdquo; International conference on machine learning. Pmlr, 2014.&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:9&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:10&#34;&gt;
+&lt;p&gt;&lt;a href=&#34;https://proceedings.mlr.press/v80/haarnoja18b&#34;&gt;Haarnoja, Tuomas, et al. &amp;ldquo;Soft actor-critic: Off-policy maximum entropy deep reinforcement learning with a stochastic actor.&amp;rdquo; International conference on machine learning. PMLR, 2018.&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:10&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:11&#34;&gt;
+&lt;p&gt;&lt;a href=&#34;https://doi.org/10.1007/978-981-15-4095-0_3&#34;&gt;Zhang, H., Yu, T. (2020). Taxonomy of Reinforcement Learning Algorithms. In: Dong, H., Ding, Z., Zhang, S. (eds) Deep Reinforcement Learning. Springer, Singapore.&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:11&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
 &lt;/div&gt;</description>

@@ -216,7 +216,7 @@ This is a "policy version" monte carlo approach. Like the Monte Carlo algorithm,
 high variance, delayed rewards, inefficient sampling, noisy updates and non-stationary returns. To tackle these issues, more dedicated tools 
 are needed.
 
-#### Trust Region Policy Optimization (TRPO)
+#### Trust Region Policy Optimization (TRPO) [^7]
 When using a deep neural network to fit the policy network, the policy gradient updates can be noisy with high variance. Thus resulting in
 worse policy updates due to the fluctuation parameters. Is there any way to guarantee the monotonicity of the parameter updates? 
 
@@ -295,7 +295,7 @@ Therefore, the general TRPO algorithm is
 - end for
 - return the policy $\pi_\theta$
 
-#### Proximal Policy Optimization (PPO)
+#### Proximal Policy Optimization (PPO)[^8]
 Though TRPO is successful in many cases, the computation can be time consuming due to its complexity. To simplify the optimization process, PPO is taking the following two approaches for the 
 objective (4.7) with the constraint (4.8).
 
@@ -348,8 +348,6 @@ $$ L(\omega) = \frac{1}{2} \mathbb{E}_t (G_t - V_{\omega} (s_t))^2 $$
 - end for
 - return the policy $\pi_\theta$
 
-#### Cross-Entropy Method [Gradient Free]
-#### Evolution Strategy [Gradient Free]
 ### Hybrid
 A hybrid approach in reinforcement learning combines elements from both value-based and policy-based methods to leverage 
 their respective strengths while mitigating their weaknesses.
@@ -363,7 +361,7 @@ By integrating these approaches, a hybrid method learns both the value function 
 and the policy (to directly optimize actions). Actor-Critic algorithms, like A2C, PPO, and SAC, are popular examples of 
 hybrid methods, combining a critic (value function) to evaluate actions and an actor (policy) to select actions. This synergy 
 improves learning efficiency, stability, and scalability to complex environments.
-#### Actor Critic (AC)
+#### Actor Critic (AC)[^9]
 Actor-Critic is a class of reinforcement learning (RL) algorithms that combines the benefits of policy-based methods 
 (like REINFORCE) and value-based methods (like Q-learning). It is a hybrid approach where two components — an actor and 
 a critic — work together to optimize the policy. There are two components: actor and critic.
@@ -411,7 +409,7 @@ Actor-Critic serves as the foundation for many advanced RL algorithms and is wid
 For example, PPO (Proximal Policy Optimization) is an variant that improves stability by constraining the policy update step.
 SAC (Soft Actor-Critic) extends actor-critic by incorporating entropy regularization to encourage exploration.
 
-#### DDPG
+#### DDPG[^11]
 Reinforce, actor-critic, TRPO and PPO are all about on-policy learning algorithms, while DQN is off-policy algorithm, it suffered from the discrete action space.
 Deep Deterministic Policy Gradient (DDPG) is a model-free, off-policy reinforcement learning algorithm designed for continuous action spaces. 
 It combines ideas from Deterministic Policy Gradient (DPG) and Deep Q-Learning (DQN), leveraging neural networks to approximate policies and value functions.
@@ -442,12 +440,95 @@ DDPG sudo Algorithm:
       - $\theta' \leftarrow \tau \theta + (1 - \tau) \theta'$
 - Repeat until convergence.
 
-#### SAC
+#### SAC[^10]
+Though DDPG is able to learn an off-policy strategy, it's not robust to converge and is usually very sensitive to hyper-parameters. Soft Actor-Critic (SAC) 
+is a **model-free**, **off-policy** reinforcement learning algorithm designed for **continuous action spaces**. SAC improves traditional Actor-Critic methods by 
+incorporating **entropy regularization** to encourage exploration and improve stability.
+
+Key Features of SAC
+
+1. Maximum Entropy Framework:
+   - SAC maximizes a combination of reward and policy entropy:
+     $J(\pi) = \mathbb{E}\left[\sum_{t=0}^\infty \gamma^t \left(r(s_t, a_t) + \alpha \mathcal{H}(\pi(\cdot|s_t))\right)\right]$
+     where $\mathcal{H}(\pi(\cdot|s_t))$ is the entropy of the policy, and $\alpha$ is a temperature parameter balancing exploration and exploitation.
+
+2. Stochastic Policy:
+   - SAC uses a stochastic policy $\pi_\phi(a|s)$ parameterized by a neural network, improving exploration compared to deterministic policies.
+
+3. Off-Policy Learning:
+   - SAC uses a replay buffer to store and reuse past experiences, enhancing sample efficiency.
+
+4. Critic Networks:
+   - Two Q-value networks ($Q_{\theta_1}$ and $Q_{\theta_2}$) are used to reduce overestimation bias.
+
+5. Target Networks:
+   - Slowly updated target Q-networks ($Q_{\theta_1'}$ and $Q_{\theta_2'}$) improve training stability.
+
+SAC sudo algorithm:
+
+- Initialize: 
+   - Policy network $\pi_\phi(a|s)$. 
+   - Two Q-value networks $Q_{\theta_1}(s, a)$ and $Q_{\theta_2}(s, a)$.
+   - Target Q-value networks $Q_{\theta_1'}$ and $Q_{\theta_2'}$.
+   - Replay buffer $\mathcal{D}$.
+- For each episode:
+   - At each time step:
+     - Sample an action $a_t \sim \pi_\phi(a|s_t)$.
+     - Execute the action, observe reward $r_t$ and next state $s_{t+1}$.
+     - Store the transition $(s_t, a_t, r_t, s_{t+1})$ in the replay buffer.
+     - Sample a minibatch of transitions $(s, a, r, s')$ from the replay buffer.
+     - Compute the target Q-value:
+       $ y = r + \gamma \left[\min_{i=1,2} Q_{\theta_i'}(s', a') - \alpha \log \pi_\phi(a'|s')\right]$
+       where $a' \sim \pi_\phi(\cdot|s')$.
+     - Update the Q-value networks by minimizing:
+      <p align="center">
+      $\mathcal{L}_Q = \frac{1}{N} \sum \left(Q_{\theta_i}(s, a) - y\right)^2$
+      </p>
+     
+     - Update the policy network using:
+      <p align="center">
+      $\mathcal{L}_\pi = \mathbb{E}_{s \sim \mathcal{D}, a \sim \pi_\phi} \left[\alpha \log \pi_\phi(a|s) - Q_{\theta_1}(s, a)\right]$
+      </p>
+
+     - Optionally, adjust the temperature parameter $\alpha$ to control entropy:
+      <p align="center">
+      $\mathcal{L}_\alpha = \mathbb{E}_{a \sim \pi_\phi} \left[-\alpha \left(\log \pi_\phi(a|s) + \mathcal{H}_\text{target}\right)\right]$
+      </p>
+     
+     - Update the target Q-value networks:
+      <p align="center">
+      $\theta_i' \leftarrow \tau \theta_i + (1 - \tau) \theta_i'$
+      </p>
+- Repeat until convergence.
+
+In all, Reinforcement learning (RL) algorithms can be broadly categorized into value-based, policy-based, and actor-critic approaches. 
+Value-based methods, such as Q-learning and DQN (Deep Q-Network), focus on estimating value functions to derive optimal policies, 
+excelling in discrete action spaces. Policy-based methods, like REINFORCE, directly optimize the policy, making them suitable for 
+high-dimensional or continuous action spaces, though they can suffer from high variance. Actor-critic methods, such as A3C and PPO, 
+combine the strengths of value and policy-based approaches by using an actor to decide actions and a critic to evaluate them, leading 
+to better stability and efficiency. Advanced algorithms like DDPG and SAC extend RL to continuous control tasks by incorporating techniques 
+such as deterministic policies, entropy regularization, and off-policy training. Each algorithm is tailored to specific challenges, 
+balancing exploration, stability, and scalability in diverse RL environments. Below shows an overview of the RL algorithms.
+
+<p align="center">
+<img src="/rf/RL_algorithms.png" width="800" height="550"><br>
+<em>Figure 5: Taxonomy of Reinforcement Learning Algorithms</em>
+<p>
+
+*Image cited from [^6]*
+
+
 
 
 ## Reference
-[^1]: Mao, Hongzi, et al. "Resource management with deep reinforcement learning." Proceedings of the 15th ACM workshop on hot topics in networks. 2016
-[^2]: Sebastianelli, Alessandro, et al. "A Deep Q-Learning based approach applied to the Snake game." 2021 29th Mediterranean Conference on Control and Automation (MED). IEEE, 2021
-[^3]: Muteba, K. F., Karim Djouani, and Thomas O. Olwal. "Deep reinforcement learning based resource allocation for narrowband cognitive radio-IoT systems." Procedia Computer Science 175 (2020): 315-324
-[^4]: Hessel, Matteo, et al. "Rainbow: Combining improvements in deep reinforcement learning." Proceedings of the AAAI conference on artificial intelligence. Vol. 32. No. 1. 2018.
+[^1]: [Mao, Hongzi, et al. "Resource management with deep reinforcement learning." Proceedings of the 15th ACM workshop on hot topics in networks. 2016](https://www.cl.cam.ac.uk/~ey204/teaching/ACS/R244_2018_2019/papers/mao_HOTNETS_2016.pdf)
+[^2]: [Sebastianelli, Alessandro, et al. "A Deep Q-Learning based approach applied to the Snake game." 2021 29th Mediterranean Conference on Control and Automation (MED). IEEE, 2021](https://www.researchgate.net/profile/Silvia-Ullo/publication/351884746_A_Deep_Q-Learning_based_approach_applied_to_the_Snake_game/links/6140bf81dabce51cf451e5cd/A-Deep-Q-Learning-based-approach-applied-to-the-Snake-game.pdf)
+[^3]: [Muteba, K. F., Karim Djouani, and Thomas O. Olwal. "Deep reinforcement learning based resource allocation for narrowband cognitive radio-IoT systems." Procedia Computer Science 175 (2020): 315-324](https://pdf.sciencedirectassets.com/280203/1-s2.0-S1877050920X00135/1-s2.0-S1877050920317270/main.pdf?X-Amz-Security-Token=IQoJb3JpZ2luX2VjEB8aCXVzLWVhc3QtMSJHMEUCIBh17YAsP3s4HO6Gu91yQrt0YzGZg43Bdw25VI2dHM3XAiEApEVuGJv4Mo%2Fk0EWe7Q49Q3v6TzM6q4uR1RnX8P80fJgqvAUI%2BP%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FARAFGgwwNTkwMDM1NDY4NjUiDCKuNwv3%2BpSUgMzNZiqQBRwpKXgGARLCnqPuT15k0Smwr8r%2BQFH3S2wvseq9nLLFylSoZOfWzALE1Ln6c4WxsfjyqefZgDrdt%2FjcLiSwd%2BsiAYSZIt47t%2F%2Fu4jSgJ17To2MtSTHQOH9AH6IUMu93FLsvhnfHy0YfflxASGjijWMkldB9ogxAnquDkgaT1OqEa6QmZnvDlIaLSsLD5%2B8NPauGfzw4SAk0xEMG5YjqsKkJWD%2BhYjWAhEJreTUYMq0oKNz6Lg%2Bh8csxqOoHafYYLEbDXWcZxDAlcudjz0uCzi9PJlErsxmJUaUsOupBYG7O252KxbIQMZ1nVw9M3pp6Ihg0SiEQJYcm178Yq1k8MpndZO7HTLXRuQOpSCQi1YdEw8j8r84QJLcfME1EWbhrPezxXGMwSGHYJ3wF3hMSNNrcG1eQbmKSZpLZLHYx1ewiLwejT3WrKM0M7ogaOLmC854ng5izD0s3CCd%2BKos1TViNFQb1xvp%2BHKceFJ6QzPueqpvTCNOk7c9Wt6fosl4ZHsj%2FYyGKvLtnB3OOiEMQ52OSRYvmXICTlAK0PoNwWXayA%2BLhukKRrB4g%2FXPQRE%2FShS1O495GdUcukvQpbH4%2FcxgI6dw5lj3gwVWcj%2Fga9VBIHmx3RbWKexaupwqmBZWOY%2BOZCT%2FLpZla39lQ7xkIq9wSQV25%2BBzdt96va5ffpD%2F9sfm6KmISyWLjJcgCVkSwQVOJbSdPA%2BhMTfPreci3%2BBQ19dl1oHIw3HfiigntgdNIyfBH0vJ6Fg4hgR8MX73f743x%2BYSIfATowK9figEaH%2BpEXaWcESof%2FkAlaqx%2FTO59JzOJNB%2B9mFV0QFh2pfkg12mlqDNVBkGQBtdnNvXqgawcszshyL0kzrZJp94qE5%2F4MKPS4bsGOrEBRfodhQxsvkkZwea%2BobFI1jDgYDXWFe8EeYje3%2BHiPc%2BA8ZvWYaTgDjPdwJpcyFRkqvDD3doNPaItbGPKay55vEGE3dkbr%2BUjXw9fL2ONkyNGYz6MSfVrbe4O4HegdXeVKCjnZ4t9EMRAzv73PSWqPDTm3V758HVZU12yK652%2BV8Iy3g7gsMlm%2FgK7hjMz9lJ3UUs1jk9QbDkHSgP2VM%2F3JLDgeo%2BJ5Mhj56o%2FZDlYe4t&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20250103T233634Z&X-Amz-SignedHeaders=host&X-Amz-Expires=300&X-Amz-Credential=ASIAQ3PHCVTY3KWOGMCD%2F20250103%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=9ee9389298c9c7d315fb25d32c13e3e2ec7f2a5910a8707d8ae4f3a8f94e1a61&hash=38da7b42222fc0c6ab1ec2b34e73d1cec90f3979a0929597278c884df5f1a286&host=68042c943591013ac2b2430a89b270f6af2c76d8dfd086a07176afe7c76c2c61&pii=S1877050920317270&tid=spdf-19aa14af-b1d8-40de-91fb-4dab2f9971ca&sid=08c9e8946f89c14d13183e673e6b24f8836dgxrqa&type=client&tsoh=d3d3LnNjaWVuY2VkaXJlY3QuY29t&ua=0f155d0900510c08025f50&rr=8fc6cfd05824f642&cc=us)
+[^4]: [Hessel, Matteo, et al. "Rainbow: Combining improvements in deep reinforcement learning." Proceedings of the AAAI conference on artificial intelligence. Vol. 32. No. 1. 2018.](https://ojs.aaai.org/index.php/AAAI/article/view/11796)
 [^5]: [The Actor-Critic Reinforcement Learning algorithm](https://medium.com/intro-to-artificial-intelligence/a-link-between-cross-entropy-and-policy-gradient-expression-b2b308511867)
+[^6]: [Zhang, H., Yu, T. (2020). Taxonomy of Reinforcement Learning Algorithms. In: Dong, H., Ding, Z., Zhang, S. (eds) Deep Reinforcement Learning. Springer, Singapore.](https://doi.org/10.1007/978-981-15-4095-0_3)
+[^7]: [Schulman, John. "Trust Region Policy Optimization." arXiv preprint arXiv:1502.05477 (2015).](https://people.engr.tamu.edu/guni/csce642/files/trpo.pdf)
+[^8]: [Schulman, John, et al. "Proximal policy optimization algorithms." arXiv preprint arXiv:1707.06347 (2017).](https://arxiv.org/abs/1707.06347)
+[^9]: [Grondman, Ivo, et al. "A survey of actor-critic reinforcement learning: Standard and natural policy gradients." IEEE Transactions on Systems, Man, and Cybernetics, part C (applications and reviews) 42.6 (2012): 1291-1307](https://ieeexplore.ieee.org/abstract/document/6392457)
+[^10]: [Haarnoja, Tuomas, et al. "Soft actor-critic: Off-policy maximum entropy deep reinforcement learning with a stochastic actor." International conference on machine learning. PMLR, 2018.](https://proceedings.mlr.press/v80/haarnoja18b)
+[^11]: [Silver, David, et al. "Deterministic policy gradient algorithms." International conference on machine learning. Pmlr, 2014.](https://proceedings.mlr.press/v32/silver14.html)
