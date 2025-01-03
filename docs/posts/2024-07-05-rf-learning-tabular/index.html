@@ -511,7 +511,12 @@
       <ul>
         <li><a href="#value-based">Value Based</a>
           <ul>
-            <li><a href="#model-free-policy-evaluation-monte-carlo--temporal-difference-td">Model Free Policy Evaluation: Monte Carlo &amp; Temporal Difference (TD)</a></li>
+            <li><a href="#model-free-policy-evaluation-monte-carlo--temporal-difference-td">Model Free Policy Evaluation: Monte Carlo &amp; Temporal Difference (TD)</a>
+              <ul>
+                <li><a href="#monte-carlo">Monte Carlo</a></li>
+                <li><a href="#temporal-difference">Temporal Difference</a></li>
+              </ul>
+            </li>
             <li><a href="#sarsa">SARSA</a></li>
             <li><a href="#q-learning">Q-Learning</a></li>
           </ul>
@@ -549,7 +554,6 @@
         <div class="content e-content">
             <p align="center">
 <img src="/rf/rf.png" width="600" height="400"><br>
-<em>Figure 1: basic RL model</em>
 <p>
 <p><em>Image cited from <sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup></em></p>
 <h2 id="basic-problem-statement-of-reinforcement-learning" >
@@ -579,7 +583,7 @@ a probability function $\pi: S\times A$ -&gt; $[0, 1]$</li>
 <li><strong>Value Function $V_{\pi}(s)$</strong>: A function that estimates the expected cumulative reward from a given state with the policy $\pi$.</li>
 <li><strong>Q-Function $Q_{\pi}(s, a)$</strong>: A function that estimates the expected cumulative reward from a given state-action pair with the policy $\pi$.</li>
 </ul>
-<p>As it can be seen in <em>Figure 1</em>, the general workflow of RL involves</p>
+<p>As it can be seen in the above figure, the general workflow of RL involves</p>
 <ol>
 <li>Observe the state $s_t$ (and reward $r_t$), the state can be any representation of the current situation or context in which the agent operates.
 Note that the state space $S$ can be either <strong>finite</strong> or <strong>infinite</strong>.</li>
@@ -680,7 +684,7 @@ which builds the connection of the action value function between the current and
 <p>A visualized interpretation of (1.8) and (1.9) are shown in the following backup diagram.</p>
 <p align="center">
     <img src="/rf/backup.png"><br>
-    <em>Figure 2: Backup Diagram</em>
+    <em>Figure 1: Backup Diagram</em>
 </p>
 <h4 id="bellman-optimal-equation" >
 <div>
@@ -876,11 +880,11 @@ Unlike temporal difference (TD) methods, Monte Carlo methods do not bootstrap an
 $$
 V_{\pi}(s) \leftarrow V_{\pi}(s) + \frac{1}{N(s)} (G_t - V_{\pi}(s)) \tag{3.1}
 $$
-So it&rsquo;s updating the value function based on the delta of newly generated reward and current knowledge of value at $s$, with a
-learning rate proportion to the inverse of total visits. (3.1) is a typical formula of stochastic approximation. It is approximating
-the actual reward $G_t$ by updating $v_{\pi}$. However, the updates does not start until the entire episode completes. This may not
-feasible in some cases where the interactive game never ends or more frequent updates are expected. To tackle this, we are happy
-to introduce temporal difference.</p>
+It can be viewed to update the value function with an error term
+$G_t - V_{\pi}(s)$. As $V_{\pi}(s) \rightarrow G_t$, then the error term does not bring too much value and as a result $V(s)$ converges to
+$G_t$. So $G_t$ can somehow be interpreted as the target of the update. In Monte Carlo, the updates does not start until the
+entire episode completes. This may not feasible in some cases where the interactive game never ends or more frequent updates
+are expected. To tackle this, we are happy to introduce temporal difference.</p>
 <h5 id="temporal-difference" >
 <div>
     <a href="#temporal-difference">
@@ -891,7 +895,7 @@ to introduce temporal difference.</p>
 </h5>
 <p>From (1.2), we can see that the Monte Carlo is approximating the target $G_t$ using (3.1). If we only interact with the environment
 one step instead of completing the full episode trajectory. It&rsquo;s equivalent to reformat the (1.2) as (1.6), where the target is
-thus $r_{t} + \gamma V_{\pi}(s_{t+1})$. So the stochastic approximation updates (3.1) can be written as
+thus $r_{t} + \gamma V_{\pi}(s_{t+1})$. So the formula (3.1) can be written as
 $$
 V_{\pi}(s) \leftarrow V_{\pi}(s) + \alpha (r_{t+1} + \gamma V_{\pi}(s_{t+1}) - V_{\pi}(s)) \tag{3.2}
 $$
@@ -915,7 +919,7 @@ other hand, DP computes all the related next states when updating. TD compromise
 for updating.</p>
 <p align="center">
 <img src="/rf/rf_dp_mc_td.png" width="900" height="600"><br>
-<em>Figure 3: Visual Interpretation of DP, TD and MC</em>
+<em>Figure 2: Visual Interpretation of DP, TD and MC</em>
 <p>
 <p><em>Image cited from <sup id="fnref:5"><a href="#fn:5" class="footnote-ref" role="doc-noteref">5</a></sup></em></p>
 <h4 id="sarsa" >
@@ -928,12 +932,12 @@ for updating.</p>
 </h4>
 <p>Now given a policy $\pi$, we have learned TD and MC can help evaluate the value function when the environment is unknown.
 The next natural question is How can we find the optimal policy? We can borrow the policy improvement idea from policy
-iteration in DP. Get the next policy by using the greedy search, i.e. $\pi_{i+1}(s) = \arg \max_a Q_{\pi_i}(s, a)$.
+iteration in DP. Get the next policy by using the greedy search, i.e. $\pi_{i+1}(s) = \arg \max_{a} Q_{\pi_i}(s, a)$.
 Combining the generalized policy evaluation and the greedy policy improvement would allow us to build the generalized policy
 iteration.</p>
 <p align="center">
 <img src="/rf/policy_iteration.png" width="250" height="150"><br>
-<em>Figure 4: Generalized Policy Iteration</em>
+<em>Figure 3: Generalized Policy Iteration</em>
 <p>
 <p>Another difference from the policy iteration in DP is that we may never update some state-action pairs using the pure greedy
 policy improvement strategy. This is because we are now interacting with the environment instead of updating all the states action
@@ -983,7 +987,7 @@ then it&rsquo;s <strong>$n$ step SARSA</strong>.</p>
 </h4>
 <p>If the way of updating the TD policy evaluation in SARSA is changed to
 $$
-Q(s, a) \leftarrow Q(s, a) + \alpha [r + \gamma \max_{a&rsquo;}Q(s&rsquo;, a&rsquo;) - Q(s, a)] \tag{3.3}
+Q(s, a) \leftarrow Q(s, a) + \alpha [r + \gamma \max_{a&rsquo;} Q(s&rsquo;, a&rsquo;) - Q(s, a)] \tag{3.3}
 $$
 Then we would get the Q learning algorithm.</p>
 <ul>
@@ -995,7 +999,7 @@ Then we would get the Q learning algorithm.</p>
 <ul>
 <li>apply the $\epsilon$-greedy strategy to choose the action $a$ based on $s$</li>
 <li>interact with the environment and get reward $r$ and $s'$</li>
-<li>$Q(s, a) \leftarrow Q(s, a) + \alpha [r + \gamma \max_{a&rsquo;}Q(s&rsquo;, a&rsquo;) - Q(s, a)]$</li>
+<li>$Q(s, a) \leftarrow Q(s, a) + \alpha [r + \gamma \max_{a&rsquo;} Q(s&rsquo;, a&rsquo;) - Q(s, a)]$</li>
 <li>$s \leftarrow s'$</li>
 </ul>
 </li>
@@ -1003,11 +1007,11 @@ Then we would get the Q learning algorithm.</p>
 </ul>
 </li>
 <li>end for</li>
-<li>return the value action $Q$</li>
+<li>return the value action $Q$ and derive the optimal policy</li>
 </ul>
 <p>The major difference between Q learning and SARSA is about the way to update the $Q$ value. In (3.3), we are actually
-approximating the target value $r + \gamma \max_{a&rsquo;}Q(s&rsquo;, a&rsquo;)$. So the goal here is to learn
-the optimal policy $\pi(a \mid s) = \max_{a&rsquo;}Q(s, a&rsquo;)$. Let&rsquo;s call the policy used in (3.3) as the target policy.
+approximating the target value $r + \gamma \max_{a&rsquo;} Q(s&rsquo;, a&rsquo;)$. So the goal here is to learn
+the optimal policy $\pi(a \mid s) = \max_{a&rsquo;} Q(s, a&rsquo;)$. Let&rsquo;s call the policy used in (3.3) as the target policy.
 The data used to learn the target policy $(s, a, r, s&rsquo;)$ is however generated from another policy that interacts with the
 environment, called the behavior policy ($\epsilon$-greedy). It&rsquo;s easy to see that the target policy is different from the
 behavior policy. This is also called <strong>off-policy</strong> learning.</p>
@@ -1087,16 +1091,27 @@ more complicated problems.</p>
     
 
     
-        
-        
-            <h3 class="read-next-title noselect">Read next</h3>
-            <ul class="read-next-posts noselect">
-                
-                <li><a href="/posts/2024-06-06-recommendation-model/">Recommendation Models</a></li>
-                
-            </ul>
+
+    
         
     
+    
+    <div class="pagination post-pagination">
+        <div class="left pagination-item ">
+            
+                <a href="/posts/2024-07-15-rf-learning-deep/">A Journey to Reinforcement Learning - Deep RL</a>
+            
+        </div>
+        <div class="right pagination-item ">
+            
+                <a href="/posts/2024-06-06-recommendation-model/">Recommendation Models</a>
+            
+        </div>
+    </div>
+
+
+
+
 
     
 
@@ -1167,7 +1182,7 @@ more complicated problems.</p>
         
 
         <div style="display: flex; align-items: center; gap:8px">
-            © Bing Wang, 2024
+            © Bing Wang, 2025
             
         </div>
         <div style="display:flex;align-items: center">

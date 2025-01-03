@@ -7,9 +7,9 @@ tags: ['Machine learning', 'Reinforcement Learning']
 ---
 <p align="center">
 <img src="/rf/rf.png" width="600" height="400"><br>
-<em>Figure 1: basic RL model</em>
 <p>
 <!--more-->
+
 *Image cited from [^1]*
 
 ## Basic Problem Statement of Reinforcement Learning
@@ -29,7 +29,7 @@ a probability function $\pi: S\times A$ -> $[0, 1]$
 - **Value Function $V_{\pi}(s)$**: A function that estimates the expected cumulative reward from a given state with the policy $\pi$.
 - **Q-Function $Q_{\pi}(s, a)$**: A function that estimates the expected cumulative reward from a given state-action pair with the policy $\pi$.
 
-As it can be seen in *Figure 1*, the general workflow of RL involves 
+As it can be seen in the above figure, the general workflow of RL involves 
 1. Observe the state $s_t$ (and reward $r_t$), the state can be any representation of the current situation or context in which the agent operates.
 Note that the state space $S$ can be either **finite** or **infinite**.
 2. Based on the current policy $\pi$, the agent selects an action $a_t \in A$ to perform. The selection can be **deterministic** 
@@ -126,7 +126,7 @@ which builds the connection of the action value function between the current and
 A visualized interpretation of (1.8) and (1.9) are shown in the following backup diagram. 
 <p align="center">
     <img src="/rf/backup.png"><br>
-    <em>Figure 2: Backup Diagram</em>
+    <em>Figure 1: Backup Diagram</em>
 </p>
 
 #### Bellman Optimal Equation
@@ -245,15 +245,15 @@ It's worth noting that the monte carlo update can also be reformated in an incre
 $$
 V_{\pi}(s) \leftarrow V_{\pi}(s) + \frac{1}{N(s)} (G_t - V_{\pi}(s)) \tag{3.1}
 $$
-So it's updating the value function based on the delta of newly generated reward and current knowledge of value at $s$, with a 
-learning rate proportion to the inverse of total visits. (3.1) is a typical formula of stochastic approximation. It is approximating
-the actual reward $G_t$ by updating $v_{\pi}$. However, the updates does not start until the entire episode completes. This may not 
-feasible in some cases where the interactive game never ends or more frequent updates are expected. To tackle this, we are happy 
-to introduce temporal difference.
+It can be viewed to update the value function with an error term 
+$G_t - V_{\pi}(s)$. As $V_{\pi}(s) \rightarrow G_t$, then the error term does not bring too much value and as a result $V(s)$ converges to
+$G_t$. So $G_t$ can somehow be interpreted as the target of the update. In Monte Carlo, the updates does not start until the 
+entire episode completes. This may not feasible in some cases where the interactive game never ends or more frequent updates 
+are expected. To tackle this, we are happy to introduce temporal difference.
 ##### Temporal Difference
 From (1.2), we can see that the Monte Carlo is approximating the target $G_t$ using (3.1). If we only interact with the environment
 one step instead of completing the full episode trajectory. It's equivalent to reformat the (1.2) as (1.6), where the target is 
-thus $r_{t} + \gamma V_{\pi}(s_{t+1})$. So the stochastic approximation updates (3.1) can be written as
+thus $r_{t} + \gamma V_{\pi}(s_{t+1})$. So the formula (3.1) can be written as
 $$
 V_{\pi}(s) \leftarrow V_{\pi}(s) + \alpha (r_{t+1} + \gamma V_{\pi}(s_{t+1}) - V_{\pi}(s)) \tag{3.2}
 $$
@@ -280,7 +280,7 @@ for updating.
 
 <p align="center">
 <img src="/rf/rf_dp_mc_td.png" width="900" height="600"><br>
-<em>Figure 3: Visual Interpretation of DP, TD and MC</em>
+<em>Figure 2: Visual Interpretation of DP, TD and MC</em>
 <p>
 
 *Image cited from [^2]*
@@ -288,13 +288,13 @@ for updating.
 #### SARSA
 Now given a policy $\pi$, we have learned TD and MC can help evaluate the value function when the environment is unknown. 
 The next natural question is How can we find the optimal policy? We can borrow the policy improvement idea from policy 
-iteration in DP. Get the next policy by using the greedy search, i.e. $\pi_{i+1}(s) = \arg \max_a Q_{\pi_i}(s, a)$. 
+iteration in DP. Get the next policy by using the greedy search, i.e. $\pi_{i+1}(s) = \arg \max_{a} Q_{\pi_i}(s, a)$. 
 Combining the generalized policy evaluation and the greedy policy improvement would allow us to build the generalized policy 
 iteration.
 
 <p align="center">
 <img src="/rf/policy_iteration.png" width="250" height="150"><br>
-<em>Figure 4: Generalized Policy Iteration</em>
+<em>Figure 3: Generalized Policy Iteration</em>
 <p>
 
 Another difference from the policy iteration in DP is that we may never update some state-action pairs using the pure greedy 
@@ -335,7 +335,7 @@ then it's **$n$ step SARSA**.
 #### Q-Learning
 If the way of updating the TD policy evaluation in SARSA is changed to 
 $$ 
-Q(s, a) \leftarrow Q(s, a) + \alpha [r + \gamma \max_{a'}Q(s', a') - Q(s, a)] \tag{3.3}
+Q(s, a) \leftarrow Q(s, a) + \alpha [r + \gamma \max_{a'} Q(s', a') - Q(s, a)] \tag{3.3}
 $$
 Then we would get the Q learning algorithm.
 
@@ -345,15 +345,15 @@ Then we would get the Q learning algorithm.
   - for $t$ from 1 to $T$, do:
       - apply the $\epsilon$-greedy strategy to choose the action $a$ based on $s$
       - interact with the environment and get reward $r$ and $s'$
-      - $Q(s, a) \leftarrow Q(s, a) + \alpha [r + \gamma \max_{a'}Q(s', a') - Q(s, a)]$ 
+      - $Q(s, a) \leftarrow Q(s, a) + \alpha [r + \gamma \max_{a'} Q(s', a') - Q(s, a)]$ 
       - $s \leftarrow s'$
   - end for
 - end for
-- return the value action $Q$
+- return the value action $Q$ and derive the optimal policy
 
 The major difference between Q learning and SARSA is about the way to update the $Q$ value. In (3.3), we are actually 
-approximating the target value $r + \gamma \max_{a'}Q(s', a')$. So the goal here is to learn
-the optimal policy $\pi(a \mid s) = \max_{a'}Q(s, a')$. Let's call the policy used in (3.3) as the target policy. 
+approximating the target value $r + \gamma \max_{a'} Q(s', a')$. So the goal here is to learn
+the optimal policy $\pi(a \mid s) = \max_{a'} Q(s, a')$. Let's call the policy used in (3.3) as the target policy. 
 The data used to learn the target policy $(s, a, r, s')$ is however generated from another policy that interacts with the 
 environment, called the behavior policy ($\epsilon$-greedy). It's easy to see that the target policy is different from the 
 behavior policy. This is also called **off-policy** learning.
@@ -397,4 +397,3 @@ https://bingzw.github.io/posts/2024-07-05-rf-learning-tabular/
 [^3]: [Easy RL](https://datawhalechina.github.io/easy-rl/)
 [^4]: [Hands On RL](https://hrl.boyuai.com/)
 [^5]: [Reinforcement Learning: An Introduction](https://www.andrew.cmu.edu/course/10-703/textbook/BartoSutton.pdf)
-
