@@ -517,7 +517,23 @@ balancing exploration, stability, and scalability in diverse RL environments. Be
 
 *Image cited from [^6]*
 
-
+## Citation
+If you find this post helpful, please consider citing it as:
+```bibtex
+@article{wang2024rflearningdeep,
+  author = "Bing Wang",
+  title = "A Journey to Reinforcement Learning - Deep RL",
+  journal = "bingzw.github.io",
+  year = "2024",
+  month = "July",
+  url = "https://bingzw.github.io/posts/2024-07-15-rf-learning-deep/"
+}
+```
+or 
+```markdown
+Bing Wang. (2024, July). A Journey to Reinforcement Learning - Deep RL. 
+https://bingzw.github.io/posts/2024-07-15-rf-learning-deep/
+```
 
 
 ## Reference
