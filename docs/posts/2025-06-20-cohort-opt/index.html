@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+
+
+<html lang="en-us" data-theme="">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    
+        
+<meta charset="utf-8">
+<meta name="HandheldFriendly" content="True">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="referrer" content="no-referrer-when-downgrade">
+
+<title>User Cohort Optimization in Multi-Task Recommendation Systems - Bingz Learning Blog</title>
+
+<meta name="description" content="Context User cohort optimization in recommendation models is about tailoring the recommendation experience for specific groups of users, rather than applying a one-size-fits-all approach. Users often exhibit diverse behaviors, preferences, and engagement patterns based on various factors like demographics, historical interactions, geographic location, or lifecycle stage (e.g., new users vs. loyal customers) 1.
+This optimization is crucial because generic recommendation models can fall short in delivering truly personalized experiences, especially for heterogeneous user populations.">
+
+
+
+
+
+<link rel="icon" type="image/x-icon" href="http://localhost:1313/favicon.ico">
+<link rel="apple-touch-icon-precomposed" href="http://localhost:1313/favicon.png">
+
+
+
+
+
+
+    
+
+
+
+    
+
+
+
+<style>
+  body {
+    visibility: hidden;
+    opacity: 0;
+  }
+</style>
+
+<noscript>
+  <style>
+    body {
+      visibility: visible;
+      opacity: 1;
+    }
+  </style>
+</noscript>
+
+
+
+
+    
+
+
+
+
+
+    
+    
+    
+
+    
+        <link rel="stylesheet" href="/css/style.03df79c682b91915c7cd261ecd1a6ec4d0fe668c98fa46310d0fbade319b11bd.css" integrity="sha256-A995xoK5GRXHzSYezRpuxND&#43;ZoyY&#43;kYxDQ&#43;63jGbEb0=">
+    
+
+
+
+
+
+    
+
+
+
+
+
+    
+    
+    
+
+    
+        <link rel="stylesheet" href="/css/style.9c1888ebff42c0224ce04dac10cb2c401f1b77f54f78e8d87d73c3bed781c263.css" integrity="sha256-nBiI6/9CwCJM4E2sEMssQB8bd/VPeOjYfXPDvteBwmM=">
+    
+
+
+
+
+
+    
+
+
+
+
+
+    
+    
+    
+
+    
+        <link rel="stylesheet" href="/css/style.acd606c0fce58853afe0248d37bb41acbbcdd8b1aca2412b6c0fa760da0137f3.css" integrity="sha256-rNYGwPzliFOv4CSNN7tBrLvN2LGsokErbA&#43;nYNoBN/M=">
+    
+
+
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+
+
+
+
+
+    
+    
+    
+
+    
+        <script src="/js/script.672e2309c296e07c18bcd08b28d797a56222ff941d65f308fba3158c44885b14.js" type="text/javascript" charset="utf-8" integrity="sha256-Zy4jCcKW4HwYvNCLKNeXpWIi/5QdZfMI&#43;6MVjESIWxQ="></script>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+</head>
+<body>
+    <a class="skip-main" href="#main">Skip to main content</a>
+    <div class="container">
+        <header class="common-header">
+            
+                <div class="header-top">
+    <div class="header-top-left">
+        <h1 class="site-title noselect">
+    <a href="/">Bingz Learning Blog</a>
+</h1>
+
+        
+
+
+
+    
+
+
+
+    
+
+
+
+    
+        <div class="theme-switcher">
+            <span class="inline-svg">
+
+    
+
+
+    
+    
+    
+    
+    
+
+    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-sun-high"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14.828 14.828a4 4 0 1 0 -5.656 -5.656a4 4 0 0 0 5.656 5.656z" /><path d="M6.343 17.657l-1.414 1.414" /><path d="M6.343 6.343l-1.414 -1.414" /><path d="M17.657 6.343l1.414 -1.414" /><path d="M17.657 17.657l1.414 1.414" /><path d="M4 12h-2" /><path d="M12 4v-2" /><path d="M20 12h2" /><path d="M12 20v2" /></svg>
+
+
+</span>
+
+        </div>
+    
+
+    <script>
+        const STORAGE_KEY = 'user-color-scheme'
+        const defaultTheme = "auto"
+
+        let currentTheme
+        let switchButton
+        let autoDefinedScheme = window.matchMedia('(prefers-color-scheme: dark)')
+
+        function switchTheme(e) {
+            currentTheme = (currentTheme === 'dark') ? 'light' : 'dark';
+            if (localStorage) localStorage.setItem(STORAGE_KEY, currentTheme);
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            changeGiscusTheme(currentTheme);
+            document.body.dispatchEvent(new CustomEvent(currentTheme + "-theme-set"));
+        }
+
+        const autoChangeScheme = e => {
+            currentTheme = e.matches ? 'dark' : 'light'
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            changeGiscusTheme(currentTheme);
+            document.body.dispatchEvent(new CustomEvent(currentTheme + "-theme-set"));
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            switchButton = document.querySelector('.theme-switcher')
+            currentTheme = detectCurrentScheme()
+
+            if (currentTheme === 'auto') {
+                autoChangeScheme(autoDefinedScheme);
+                autoDefinedScheme.addListener(autoChangeScheme);
+            } else {
+                document.documentElement.setAttribute('data-theme', currentTheme)
+            }
+
+            if (switchButton) {
+                switchButton.addEventListener('click', switchTheme, false)
+            }
+
+            showContent();
+        })
+
+        function detectCurrentScheme() {
+            if (localStorage !== null && localStorage.getItem(STORAGE_KEY)) {
+                return localStorage.getItem(STORAGE_KEY)
+            }
+            if (defaultTheme) {
+                return defaultTheme
+            }
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+
+        function showContent() {
+            document.body.style.visibility = 'visible';
+            document.body.style.opacity = 1;
+        }
+
+        function changeGiscusTheme (theme) {
+            function sendMessage(message) {
+              const iframe = document.querySelector('iframe.giscus-frame');
+              if (!iframe) return;
+              iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+            }
+
+            sendMessage({
+              setConfig: {
+                theme: theme
+              }
+            });
+        }
+    </script>
+
+
+        <ul class="social-icons noselect">
+
+
+    
+        
+        
+        <li>
+            <a href="https://github.com/bingzw" title="Github" rel="me">
+            <span class="inline-svg">
+
+    
+
+
+    
+    
+    
+    
+    
+
+    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-brand-github"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" /></svg>
+
+
+</span>
+
+            </a>
+        </li>
+    
+
+    
+        <li>
+            <a href="https://www.linkedin.com/in/bingzw/" title="Linkedin" rel="me">
+            <span class="inline-svg">
+
+    
+
+
+    
+    
+    
+    
+    
+
+    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-brand-linkedin"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 4m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z" /><path d="M8 11l0 5" /><path d="M8 8l0 .01" /><path d="M12 16l0 -5" /><path d="M16 16v-3a2 2 0 0 0 -4 0" /></svg>
+
+
+</span>
+
+            </a>
+        </li>
+    
+
+
+
+
+
+
+    <li>
+            <a href="/index.xml" title="RSS" rel="me">
+            <span class="inline-svg">
+
+    
+
+
+    
+    
+    
+    
+    
+
+    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-rss"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 19m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /><path d="M4 4a16 16 0 0 1 16 16" /><path d="M4 11a9 9 0 0 1 9 9" /></svg>
+
+
+</span>
+
+            </a>
+        </li>
+    
+
+</ul>
+
+    </div>
+    <div class="header-top-right">
+
+    </div>
+</div>
+
+
+    <nav class="noselect">
+        
+        
+        <a class="" href="http://localhost:1313/" title="">Home</a>
+        
+        <a class="" href="http://localhost:1313/about/" title="">About</a>
+        
+        <a class="" href="http://localhost:1313/tags/" title="">Tags</a>
+        
+        <a class="" href="http://localhost:1313/posts/" title="">Archive</a>
+        
+    </nav>
+
+
+
+<script>
+  MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$','$$'], ['\\[', '\\]']],
+      processEscapes: true,
+      processEnvironments: true
+    },
+    options: {
+      skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+    }
+  };
+
+  window.addEventListener('load', (event) => {
+      document.querySelectorAll("mjx-container").forEach(function(x){
+        x.parentElement.classList += 'has-jax'})
+    });
+
+</script>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script type="text/javascript" id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+
+
+
+
+            
+        </header>
+        <main id="main" tabindex="-1">
+            
+    
+
+    <article class="post h-entry">
+        <div class="post-header">
+            <header>
+                <h1 class="p-name post-title draft">User Cohort Optimization in Multi-Task Recommendation Systems</h1>
+                
+
+            </header>
+            
+
+
+
+<div class="post-info noselect">
+    
+        <div class="post-date dt-published">
+            <time datetime="2025-06-20">2025-06-20</time>
+            
+        </div>
+    
+
+    <a class="post-hidden-url u-url" href="/posts/2025-06-20-cohort-opt/">/posts/2025-06-20-cohort-opt/</a>
+    <a href="http://localhost:1313/" class="p-name p-author post-hidden-author h-card" rel="me"></a>
+
+
+    <div class="post-taxonomies">
+        
+        
+        
+    </div>
+</div>
+
+        </div>
+        
+
+  
+  
+
+
+
+
+  
+  
+  
+  <details class="toc noselect">
+    <summary>Table of Contents</summary>
+    <div class="inner"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#context">Context</a></li>
+    <li><a href="#strategies">Strategies</a>
+      <ul>
+        <li><a href="#1-dynamic-weighted-sample-training">1. Dynamic Weighted Sample Training</a></li>
+        <li><a href="#2-dedicated-cohort-learning-modules">2. Dedicated Cohort Learning Modules</a>
+          <ul>
+            <li><a href="#21-customized-mixture-of-experts-moemmoe-learning-module">2.1 Customized Mixture-of-Experts (MoE/MMoE) learning module</a></li>
+            <li><a href="#22-lora-for-cohort-specific-fine-tuning">2.2. LoRA for Cohort-Specific Fine-tuning</a></li>
+          </ul>
+        </li>
+        <li><a href="#3-explore-other-approaches">3. Explore Other Approaches</a></li>
+      </ul>
+    </li>
+    <li><a href="#discussion">Discussion</a></li>
+    <li><a href="#direction-extension">Direction Extension</a></li>
+    <li><a href="#references">References</a></li>
+  </ul>
+</nav></div>
+  </details>
+  
+
+
+
+<script>
+  var toc = document.querySelector(".toc");
+  if (toc) {
+    toc.addEventListener("click", function () {
+      if (event.target.tagName !== "A") {
+        event.preventDefault();
+        if (this.open) {
+          this.open = false;
+          this.classList.remove("expanded");
+        } else {
+          this.open = true;
+          this.classList.add("expanded");
+        }
+      }
+    });
+  }
+</script>
+
+        <div class="content e-content">
+            <h2 id="context" >
+<div>
+    <a href="#context">
+        
+    </a>
+    Context
+</div>
+</h2>
+<p><strong>User cohort optimization</strong> in recommendation models is about tailoring the recommendation experience for specific groups
+of users, rather than applying a one-size-fits-all approach. Users often exhibit diverse behaviors, preferences, and
+engagement patterns based on various factors like demographics, historical interactions, geographic location, or
+lifecycle stage (e.g., new users vs. loyal customers) <sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>.</p>
+<p>This optimization is crucial because generic recommendation models can fall short in delivering truly personalized
+experiences, especially for <strong>heterogeneous user populations</strong>. For instance, optimizing for users in <strong>specific markets</strong>
+(e.g., users in emerging markets with different product preferences or price sensitivities compared to those in developed markets)
+would involve understanding their unique needs and ensuring the model performs exceptionally well for them without sacrificing
+overall performance. It&rsquo;s needed when certain cohorts are underserved by the global model, or when there&rsquo;s a strategic business
+goal to improve engagement or monetization within a particular segment <sup id="fnref:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">2</a></sup>.</p>
+<h2 id="strategies" >
+<div>
+    <a href="#strategies">
+        
+    </a>
+    Strategies
+</div>
+</h2>
+<p>Optimizing for specific user cohorts within a multi-task machine learning (MTML) framework can be achieved through several advanced strategies:</p>
+<h3 id="1-dynamic-weighted-sample-training" >
+<div>
+    <a href="#1-dynamic-weighted-sample-training">
+        
+    </a>
+    1. Dynamic Weighted Sample Training
+</div>
+</h3>
+<p>This approach involves assigning different <strong>sample weights</strong> or <strong>task weights</strong> to data points (or tasks) belonging to
+different user cohorts during training. The goal is to make the model pay more attention to the objectives of specific cohorts.</p>
+<ul>
+<li><strong>Rule-Based Weighting:</strong> Weights can be predefined based on business rules or heuristics. For example, a higher weight
+might be assigned to samples from a target cohort (e.g., &ldquo;new users in Market X&rdquo;) or to tasks deemed more critical for that cohort (e.g., conversion prediction for high-value users).</li>
+<li><strong>Model-Based Weighting:</strong> More sophisticated methods dynamically adjust weights during training <sup id="fnref:3"><a href="#fn:3" class="footnote-ref" role="doc-noteref">3</a></sup>. This can involve:
+<ul>
+<li><strong>Gradient Normalization/Balancing:</strong> Techniques like GradNorm or PCGrad adjust loss weights to balance the gradients
+across different tasks (or cohorts acting as implicit tasks), preventing one task&rsquo;s gradients from dominating others <sup id="fnref:4"><a href="#fn:4" class="footnote-ref" role="doc-noteref">4</a></sup>.</li>
+<li><strong>Uncertainty-Based Weighting:</strong> Assigning weights based on the model&rsquo;s uncertainty for each task/cohort, giving
+more weight to tasks where the model is less confident.</li>
+<li><strong>User Lifecycle-Based Adaptation:</strong> Models learn to identify latent user lifecycle stages and adapt task weights
+or representations based on the user&rsquo;s current stage <sup id="fnref:5"><a href="#fn:5" class="footnote-ref" role="doc-noteref">5</a></sup>. This implicitly assigns different &ldquo;importance&rdquo; to samples from users in varying stages (e.g., new vs. mature users).</li>
+</ul>
+</li>
+</ul>
+<h3 id="2-dedicated-cohort-learning-modules" >
+<div>
+    <a href="#2-dedicated-cohort-learning-modules">
+        
+    </a>
+    2. Dedicated Cohort Learning Modules
+</div>
+</h3>
+<h4 id="21-customized-mixture-of-experts-moemmoe-learning-module" >
+<div>
+    <a href="#21-customized-mixture-of-experts-moemmoe-learning-module">
+        
+    </a>
+    2.1 Customized Mixture-of-Experts (MoE/MMoE) learning module
+</div>
+</h4>
+<p>MoE and its variant, Multi-gate Mixture-of-Experts (MMoE), are designed to handle multi-task learning by leveraging specialized &ldquo;experts&rdquo; for different tasks. This architecture can be adapted for user cohort optimization <sup id="fnref:6"><a href="#fn:6" class="footnote-ref" role="doc-noteref">6</a></sup>.</p>
+<ul>
+<li><strong>Mechanism:</strong>
+<ul>
+<li><strong>Architecture:</strong> MoE models consist of multiple <strong>expert networks</strong> (typically feed-forward neural networks) and
+a <strong>gating network</strong>. The gating network learns to route inputs to a combination of experts, and then aggregate their outputs.
+MMoE extends this by using multiple gating networks, each specific to a task, allowing for more flexible expert sharing <sup id="fnref:7"><a href="#fn:7" class="footnote-ref" role="doc-noteref">7</a></sup>.
+<ul>
+<li><strong>Cohort Expert &amp; Global Expert:</strong> In the context of user cohorts, you could assign:
+<ul>
+<li><strong>Cohort Experts:</strong> Dedicated expert networks specifically trained on data from a particular user cohort (e.g.,
+one expert for &ldquo;users in Market A,&rdquo; another for &ldquo;users in Market B&rdquo;). These experts would learn cohort-specific patterns.</li>
+<li><strong>Global Expert(s):</strong> One or more experts trained on the entire user base, capturing general user behaviors or
+shared knowledge across all cohorts.</li>
+</ul>
+</li>
+<li><strong>Fusion Layer:</strong> A final fusion layer (or per-task gating networks in MMoE) learns how to aggregate the outputs from the
+cohort-specific and global experts for each prediction <sup id="fnref1:7"><a href="#fn:7" class="footnote-ref" role="doc-noteref">7</a></sup>. This allows the model to leverage general knowledge while
+also specializing for the specific user&rsquo;s cohort.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>Example:</strong> A user from &ldquo;Market A&rdquo; would be routed more heavily to the &ldquo;Market A expert&rdquo; but still benefit from insights
+from the &ldquo;global expert.&rdquo; MoE architectures can face challenges like expert collapse or polarization, where experts become
+redundant or too specialized, and solutions like expert balance regularization are often employed [^8].</li>
+</ul>
+<h4 id="22-lora-for-cohort-specific-fine-tuning" >
+<div>
+    <a href="#22-lora-for-cohort-specific-fine-tuning">
+        
+    </a>
+    2.2. LoRA for Cohort-Specific Fine-tuning
+</div>
+</h4>
+<p>Low-Rank Adaptation (LoRA) is a parameter-efficient fine-tuning (PEFT) technique that injects small, trainable low-rank
+matrices into the layers of a pre-trained model, effectively allowing for adaptation without updating all original model
+parameters <sup id="fnref:8"><a href="#fn:8" class="footnote-ref" role="doc-noteref">8</a></sup>. While similar to MoE in its specialization goal, LoRA achieves it through adaptation of a base model
+rather than routing to distinct expert sub-networks.</p>
+<ul>
+<li><strong>Mechanism:</strong>
+<ul>
+<li><strong>Architecture:</strong> Instead of training entire separate expert networks, a single powerful base recommendation model is used.
+For each user cohort, a small, trainable <strong>LoRA module</strong> is attached to specific layers (e.g., attention or feed-forward layers)
+of the base model. During training, only the LoRA modules and possibly a small portion of the base model are updated,
+keeping the majority of the base model frozen.
+<ul>
+<li><strong>Cohort-Specific Adaptation:</strong> When a user&rsquo;s input comes in, the model loads the base parameters plus the specific
+LoRA module corresponding to their cohort. This creates a &ldquo;fine-tuned&rdquo; version of the base model on-the-fly for that cohort.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>Similarity to MoE:</strong> Both aim for specialization. MoE uses distinct (though potentially shared) expert networks and a gating
+mechanism. LoRA uses a shared base model adapted by small, cohort-specific add-ons.</li>
+<li><strong>Example (iLoRA):</strong> Instance-wise LoRA (iLoRA) integrates LoRA with MoE for sequential recommendation, where individual LoRA
+modules are adapted for individual instances (which can be interpreted as highly specific &ldquo;cohorts&rdquo; or individual users), showcasing its flexibility for fine-grained adaptation <sup id="fnref:9"><a href="#fn:9" class="footnote-ref" role="doc-noteref">9</a></sup>.</li>
+</ul>
+<h3 id="3-explore-other-approaches" >
+<div>
+    <a href="#3-explore-other-approaches">
+        
+    </a>
+    3. Explore Other Approaches
+</div>
+</h3>
+<p>Beyond the above ideas, several other powerful strategies can facilitate user cohort optimization:</p>
+<ul>
+<li><strong>Personalized Loss Functions:</strong>
+<ul>
+<li><strong>Mechanism:</strong> The very structure of the loss function can be customized for specific cohorts. This might involve
+different regularization terms, specific objective components, or fairness-aware terms designed to ensure equitable
+performance across user groups (e.g., by minimizing disparity in recommendation quality for different demographic cohorts) <sup id="fnref:10"><a href="#fn:10" class="footnote-ref" role="doc-noteref">10</a></sup>.</li>
+<li><strong>Application:</strong> For instance, a &ldquo;new user&rdquo; cohort might have a loss function heavily focused on novelty and exploration,
+while a &ldquo;long-term user&rdquo; cohort&rsquo;s loss might prioritize relevance and diversity.</li>
+</ul>
+</li>
+<li><strong>Hierarchical Models:</strong>
+<ul>
+<li><strong>Mechanism:</strong> These models explicitly represent users at different levels of granularity—from individual users to
+sub-groups, to larger cohorts. Information can flow up and down this hierarchy, allowing for both personalized and group-level learning <sup id="fnref:11"><a href="#fn:11" class="footnote-ref" role="doc-noteref">11</a></sup>.</li>
+<li><strong>Application:</strong> A framework like Hierarchical Group-wise Ranking (GroupCE) learns embeddings for groups (cohorts) and
+users, allowing the model to leverage group-level patterns while still making individual recommendations, addressing heterogeneity and cold-start for new groups <sup id="fnref1:11"><a href="#fn:11" class="footnote-ref" role="doc-noteref">11</a></sup>.</li>
+</ul>
+</li>
+<li><strong>Adaptive Learning (Meta-learning):</strong>
+<ul>
+<li><strong>Mechanism:</strong> Meta-learning (learning to learn) can train a model to quickly adapt to new or specific user cohorts
+with limited data. The model learns a general initialization or a set of update rules that can be rapidly fine-tuned for a particular cohort or even a new user <sup id="fnref:12"><a href="#fn:12" class="footnote-ref" role="doc-noteref">12</a></sup>.</li>
+<li><strong>Application:</strong> Models like MeLON learn to update user embeddings dynamically for online updates, effectively
+allowing the model to adapt its predictions based on recent interactions within a user&rsquo;s current session or short-term behavior (which can define a transient cohort) <sup id="fnref1:12"><a href="#fn:12" class="footnote-ref" role="doc-noteref">12</a></sup>.</li>
+</ul>
+</li>
+<li><strong>Graph Neural Networks (GNNs) for Cohort Identification:</strong>
+<ul>
+<li><strong>Mechanism:</strong> GNNs can model complex relationships between users, items, and features. By leveraging graph-based
+clustering or community detection algorithms on the user-user interaction graph, GNNs can <strong>automatically identify &ldquo;relationship-aware cohorts&rdquo;</strong> based on implicit social connections, shared interests, or interaction patterns <sup id="fnref:13"><a href="#fn:13" class="footnote-ref" role="doc-noteref">13</a></sup>, <sup id="fnref:14"><a href="#fn:14" class="footnote-ref" role="doc-noteref">14</a></sup>.</li>
+<li><strong>Application:</strong> Once identified, these GNN-derived cohorts can then be used as input for any of the above strategies
+(e.g., as explicit cohorts for MoE, or for weighted training). GNNs enhance recommendation accuracy and diversity by capturing high-order relationships and multi-behavior interactions <sup id="fnref:15"><a href="#fn:15" class="footnote-ref" role="doc-noteref">15</a></sup>.</li>
+</ul>
+</li>
+</ul>
+<h2 id="discussion" >
+<div>
+    <a href="#discussion">
+        
+    </a>
+    Discussion
+</div>
+</h2>
+<p>Each strategy offers unique advantages and trade-offs when optimizing for user cohorts in MTL recommendation systems.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Strategy</th>
+<th style="text-align:left">Pros</th>
+<th style="text-align:left">Cons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>Dynamic Weighted Training</strong></td>
+<td style="text-align:left"><strong>Simplicity (Rule-Based):</strong> Easy to implement for basic scenarios. <br/><strong>Flexibility (Model-Based):</strong> Can dynamically adapt to changing cohort needs. <br/><strong>Computational Efficiency:</strong> No major architectural changes, often involves just loss adjustments, reducing computational overhead <sup id="fnref1:3"><a href="#fn:3" class="footnote-ref" role="doc-noteref">3</a></sup>. <br/><strong>Balances Tasks:</strong> Can prevent one task (or cohort&rsquo;s objective) from dominating others, improving generalization <sup id="fnref1:4"><a href="#fn:4" class="footnote-ref" role="doc-noteref">4</a></sup>.</td>
+<td style="text-align:left"><strong>Weight Determination:</strong> Difficult to set optimal rule-based weights. Model-based methods can be complex to design and tune. <br/><strong>Suboptimal Performance:</strong> Improper balancing can lead to poor overall or cohort-specific performance. <br/><strong>No Explicit Specialization:</strong> Model doesn&rsquo;t explicitly specialize per cohort; it only changes attention during training. <br/><strong>Lack of Interpretability:</strong> Why certain weights are chosen can be opaque for model-based methods.</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Mixture-of-Experts (MoE/MMoE)</strong></td>
+<td style="text-align:left"><strong>Explicit Specialization:</strong> Dedicated experts can learn highly specific patterns for each cohort, leading to better performance for diverse groups <sup id="fnref1:6"><a href="#fn:6" class="footnote-ref" role="doc-noteref">6</a></sup>. <br/><strong>Scalability:</strong> Can scale to many cohorts/tasks by adding experts. <br/><strong>Interpretability:</strong> Can potentially observe which experts are active for which cohorts.</td>
+<td style="text-align:left"><strong>Computational Cost:</strong> More parameters than a single model, leading to higher training and inference costs (though can be optimized). <br/><strong>Expert Collapse/Polarization:</strong> Experts might become redundant or specialize too narrowly, leading to poor generalization for some cohorts [^8]. <br/><strong>Routing Complexity:</strong> Gating network needs careful design; poor routing can degrade performance. <br/><strong>Data Requirements:</strong> Each cohort expert needs sufficient data to train effectively.</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>LoRA for Cohort Fine-tuning</strong></td>
+<td style="text-align:left"><strong>Parameter Efficiency:</strong> Significantly fewer trainable parameters than full fine-tuning or MoE (no full expert networks), reducing memory and computation <sup id="fnref1:8"><a href="#fn:8" class="footnote-ref" role="doc-noteref">8</a></sup>. <br/><strong>No Inference Latency:</strong> Once LoRA weights are loaded, inference is as fast as the base model. <br/><strong>Modularity:</strong> Easy to add/remove cohort-specific LoRA modules. <br/><strong>Knowledge Retention:</strong> Leverages a strong pre-trained base model, preventing catastrophic forgetting <sup id="fnref2:8"><a href="#fn:8" class="footnote-ref" role="doc-noteref">8</a></sup>.</td>
+<td style="text-align:left"><strong>Base Model Dependence:</strong> Performance is limited by the capabilities of the base model. <br/><strong>Still Requires Data:</strong> Each LoRA module needs enough cohort-specific data for effective fine-tuning. <br/><strong>Storage:</strong> Storing many LoRA modules for many small cohorts can still accumulate. <br/><strong>Potential Overfitting:</strong> Small modules can potentially overfit if cohort data is too sparse.</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Other Approaches</strong></td>
+<td style="text-align:left"><strong>Personalized Loss:</strong> Direct control over cohort objectives (e.g., fairness, specific metrics). <br/><strong>Hierarchical Models:</strong> Explicitly models group-level patterns, strong for cold-start groups. <br/><strong>Meta-learning:</strong> Fast adaptation to new or small cohorts/users. <br/><strong>GNNs:</strong> Naturally capture complex relationships for implicit cohort identification.</td>
+<td style="text-align:left"><strong>Personalized Loss:</strong> Can be complex to formulate and optimize. <br/><strong>Hierarchical Models:</strong> Designing the hierarchy and information flow can be challenging. <br/><strong>Meta-learning:</strong> Computationally intensive for meta-training; industrial deployment can be complex. <br/><strong>GNNs:</strong> High computational cost for large graphs; defining optimal graph structures can be tricky <sup id="fnref1:15"><a href="#fn:15" class="footnote-ref" role="doc-noteref">15</a></sup>.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="direction-extension" >
+<div>
+    <a href="#direction-extension">
+        
+    </a>
+    Direction Extension
+</div>
+</h2>
+<p>The exploration of user cohort optimization opens up several exciting research directions and practical extensions:</p>
+<ol>
+<li>
+<p><strong>Advanced Model-Based Weighting for Dynamic Training:</strong></p>
+<ul>
+<li><strong>Adaptive Weighting Beyond Gradients:</strong> Develop model-based weighting schemes that consider not just gradient dynamics
+but also long-term performance metrics, business impact, or cohort-specific fairness goals.</li>
+<li><strong>Personalized Weight Prediction:</strong> A sub-network predicts sample weights not just based on the cohort, but on
+individual user characteristics within that cohort.</li>
+</ul>
+</li>
+<li>
+<p><strong>Multi-Cohort Optimization with MoE/MMoE or LoRA:</strong></p>
+<ul>
+<li><strong>Hierarchical Experts/LoRA:</strong> Design multi-level MoE/LoRA architectures where experts/LoRA modules specialize first
+by broad categories (e.g., region) and then further by sub-cohorts (e.g., new vs. old users within a region).</li>
+<li><strong>Dynamic Cohort Assignment to Experts:</strong> Instead of fixed cohort-to-expert mapping, the gating network (in MoE) or a
+separate routing mechanism (for LoRA) could dynamically decide which expert/LoRA module is most relevant for a given user at inference time, based on their real-time behavior.</li>
+<li><strong>Shared LoRA Modules:</strong> Explore mechanisms where LoRA modules are partially shared across related cohorts to further
+improve parameter efficiency and transfer knowledge.</li>
+</ul>
+</li>
+<li>
+<p><strong>Automated Cohort Discovery and Evolution:</strong></p>
+<ul>
+<li><strong>GNN-driven Dynamic Cohorting:</strong> Further research into using GNNs and other unsupervised learning techniques to
+automatically discover emerging user cohorts and their evolving characteristics. This would allow the model to adapt to new user segments without manual definition. <sup id="fnref1:14"><a href="#fn:14" class="footnote-ref" role="doc-noteref">14</a></sup></li>
+<li><strong>Lifecycle Stage Prediction:</strong> Develop more robust models to predict a user&rsquo;s lifecycle stage, which can then inform
+dynamic weighting or expert routing.</li>
+</ul>
+</li>
+<li>
+<p><strong>Hybrid Approaches:</strong></p>
+<ul>
+<li><strong>LoRA with Dynamic Weighting:</strong> Combine the parameter efficiency of LoRA with dynamic weighted training. For example,
+a base model fine-tuned with LoRA for a cohort could then be trained with dynamic weighting to further emphasize certain objectives within that cohort.</li>
+<li><strong>Meta-Learning for Expert Initialization/LoRA Fine-tuning:</strong> Use meta-learning to quickly initialize new MoE experts
+or LoRA modules for newly identified or rare cohorts, overcoming cold-start issues for segments.</li>
+</ul>
+</li>
+<li>
+<p><strong>Interpretability and Explainability for Cohort Models:</strong></p>
+<ul>
+<li>Develop methods to understand why certain experts are activated for specific cohorts or how LoRA modules are adapting
+the base model, enhancing trust and enabling better manual interventions.</li>
+</ul>
+</li>
+</ol>
+<h2 id="references" >
+<div>
+    <a href="#references">
+        
+    </a>
+    References
+</div>
+</h2>
+<div class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1">
+<p><a href="https://clevertap.com/blog/cohort-analysis/">What is Cohort Analysis in Marketing? Definition &amp; Examples</a>&#160;<a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:2">
+<p><a href="https://netcorecloud.com/blog/cohort-retention-analysis/">Cohort Analysis: How to Track User Retention in Your App</a>&#160;<a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:3">
+<p><a href="https://www.numberanalytics.com/blog/efficient-multi-task-learning-strategies-ai-capabilities">Efficient Multi-Task Learning Strategies for Advanced AI Capabilities</a>&#160;<a href="#fnref:3" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a>&#160;<a href="#fnref1:3" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:4">
+<p><a href="https://arxiv.org/pdf/2302.03525">Multi-Task Deep Recommender Systems: A Survey</a>&#160;<a href="#fnref:4" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a>&#160;<a href="#fnref1:4" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:5">
+<p><a href="https://arxiv.org/abs/2306.12232">STAN: Stage-Adaptive Network for Multi-Task Recommendation by Learning User Lifecycle-Based Representation</a>&#160;<a href="#fnref:5" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:6">
+<p><a href="https://arxiv.org/abs/2311.09580">MMoE: Multi-gate Mixture-of-Experts</a>&#160;<a href="#fnref:6" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a>&#160;<a href="#fnref1:6" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:7">
+<p><a href="https://ojs.aaai.org/index.php/AAAI/article/view/34395/36550">Resolving Task Polarization in Multi-Task Learning with Expert Specialization</a>&#160;<a href="#fnref:7" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a>&#160;<a href="#fnref1:7" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:8">
+<p><a href="https://arxiv.org/abs/2106.09685">LoRA: Low-Rank Adaptation of Large Language Models</a>&#160;<a href="#fnref:8" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a>&#160;<a href="#fnref1:8" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a>&#160;<a href="#fnref2:8" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:9">
+<p><a href="https://proceedings.neurips.cc/paper_files/paper/2024/file/cd476d01692c508ddf1cb43c6279a704-Paper-Conference.pdf">iLoRA: Instance-wise Low-Rank Adaptation for Efficient and Personalized Sequential Recommendation</a>&#160;<a href="#fnref:9" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:10">
+<p><a href="https://arxiv.org/pdf/1904.06813">Personalized Re-ranking for Recommendation</a>&#160;<a href="#fnref:10" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:11">
+<p><a href="https://www.themoonlight.io/en/review/hierarchical-group-wise-ranking-framework-for-recommendation-models">Hierarchical Group-wise Ranking Framework for Recommendation Models (GroupCE)</a>&#160;<a href="#fnref:11" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a>&#160;<a href="#fnref1:11" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:12">
+<p><a href="https://arxiv.org/pdf/2203.10354">Meta-Learning Based Online Update for Recommender Systems</a>&#160;<a href="#fnref:12" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a>&#160;<a href="#fnref1:12" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:13">
+<p><a href="https://arxiv.org/pdf/2011.02260">Graph Neural Networks in Recommender Systems: A Survey</a>&#160;<a href="#fnref:13" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:14">
+<p><a href="https://tredence.com/blog/audience-segmentation-with-ai/">Audience Segmentation with AI</a>&#160;<a href="#fnref:14" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a>&#160;<a href="#fnref1:14" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:15">
+<p><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC12040261/">NAH-GNN: A graph-based framework for multi-behavior and high-hop interaction recommendation</a>&#160;<a href="#fnref:15" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a>&#160;<a href="#fnref1:15" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+</ol>
+</div>
+
+        </div>
+
+    </article>
+
+    
+    
+        
+    
+
+    
+
+    
+        
+    
+    
+    <div class="pagination post-pagination">
+        <div class="left pagination-item disabled">
+            
+        </div>
+        <div class="right pagination-item ">
+            
+                <a href="/posts/2024-07-15-rf-learning-deep/">A Journey to Reinforcement Learning - Deep RL</a>
+            
+        </div>
+    </div>
+
+
+
+
+
+    
+
+    
+        
+
+
+
+
+
+
+
+
+            
+
+<script>
+        function detectCurrentScheme2() {
+                const defaultTheme = "auto";
+                if (localStorage !== null && localStorage.getItem("user-color-scheme")) {
+                        return localStorage.getItem("user-color-scheme");
+                }
+                if (defaultTheme === "dark" || defaultTheme === "light") {
+                        return defaultTheme;
+                }
+                return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        }
+
+        let giscusTheme = detectCurrentScheme2();
+        let giscusAttributes = {
+                src: "https://giscus.app/client.js",
+                "data-repo": "Bingzw\/bingzw.github.io",
+                "data-repo-id": "R_kgDOMB8LQg",
+                "data-category": "Announcements",
+                "data-category-id": "DIC_kwDOMB8LQs4CfrMr",
+                "data-mapping": "pathname",
+                "data-strict": "0",
+                "data-reactions-enabled": "1",
+                "data-emit-metadata": "0",
+                "data-input-position": "bottom",
+                "data-theme": giscusTheme,
+                "data-lang": "en",
+                crossorigin: "anonymous",
+                lazyload: "false",
+                async: true,
+        };
+        let main = document.querySelector("main");
+        let giscusScript = document.createElement("script");
+        Object.entries(giscusAttributes).forEach(([key, value]) => giscusScript.setAttribute(key, value));
+        main.appendChild(giscusScript);
+</script>
+
+
+
+
+    
+
+    
+
+    
+
+        </main>
+        
+            <footer class="common-footer noselect">
+    
+    
+
+    <div class="common-footer-bottom">
+        
+
+        <div style="display: flex; align-items: center; gap:8px">
+            © Bing Wang, 2025
+            
+        </div>
+        <div style="display:flex;align-items: center">
+            
+            
+            
+            
+            
+            
+        </div>
+        <div>
+            Powered by <a target="_blank" rel="noopener noreferrer" href="https://gohugo.io/">Hugo</a>, theme <a target="_blank" rel="noopener noreferrer" href="https://github.com/Junyi-99/hugo-theme-anubis2">Anubis2</a>.<br>
+            
+
+        </div>
+    </div>
+
+    <p class="h-card vcard">
+
+    <a href=http://localhost:1313/ class="p-name u-url url fn" rel="me"></a>
+
+    
+
+    
+</p>
+
+</footer>
+
+        
+    </div>
+</body>
+</html>
