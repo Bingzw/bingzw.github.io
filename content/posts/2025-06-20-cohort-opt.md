@@ -1,8 +1,16 @@
 ---
 title: "User Cohort Optimization in Multi-Task Recommendation Systems"
 date: 2025-06-20T20:30:01-07:00
-draft: true
+draft: false
+description: "User cohort optimization in MTML"
+tags: ['Recommendation system', 'deep learning', 'MTML', 'User Understanding', 'Personalization']
 ---
+<p align="center">
+<img src="/cohort_opt/cohort optimization.png" width="600" height="400"><br>
+<p>
+<!--more-->
+
+*Image cited from [^17]*
 
 ## Context
 
@@ -17,6 +25,9 @@ experiences, especially for **heterogeneous user populations**. For instance, op
 would involve understanding their unique needs and ensuring the model performs exceptionally well for them without sacrificing 
 overall performance. It's needed when certain cohorts are underserved by the global model, or when there's a strategic business 
 goal to improve engagement or monetization within a particular segment [^2].
+
+We assume that the user cohort iss prior knowledge abd can be explicitly defined from features. For the cohort discovery case, 
+see the graph neural network for identification in section 3.
 
 ## Strategies
 
@@ -58,6 +69,10 @@ MoE and its variant, Multi-gate Mixture-of-Experts (MMoE), are designed to handl
 from the "global expert." MoE architectures can face challenges like expert collapse or polarization, where experts become 
 redundant or too specialized, and solutions like expert balance regularization are often employed [^8].
 
+<p align="center">
+<img src="/cohort_opt/moe.png" width="600" height="400"><br>
+<em>Figure 1: Cohort Optimization via MOE Architecture</em>
+<p>
 
 #### 2.2. LoRA for Cohort-Specific Fine-tuning
 
@@ -77,6 +92,11 @@ rather than routing to distinct expert sub-networks.
 mechanism. LoRA uses a shared base model adapted by small, cohort-specific add-ons.
 * **Example (iLoRA):** Instance-wise LoRA (iLoRA) integrates LoRA with MoE for sequential recommendation, where individual LoRA 
 modules are adapted for individual instances (which can be interpreted as highly specific "cohorts" or individual users), showcasing its flexibility for fine-grained adaptation [^10].
+
+<p align="center">
+<img src="/cohort_opt/LORA.png" width="600" height="400"><br>
+<em>Figure 2: Cohort Optimization via LORA Architecture</em>
+<p>
 
 ### 3. Explore Other Approaches
 
@@ -148,6 +168,24 @@ The exploration of user cohort optimization opens up several exciting research d
     * Develop methods to understand why certain experts are activated for specific cohorts or how LoRA modules are adapting 
     the base model, enhancing trust and enabling better manual interventions.
 
+## Citation
+If you find this post helpful, please consider citing it as:
+```bibtex
+@article{wang2025cohortopt,
+  author = "Bing Wang",
+  title = "User Cohort Optimization in Multi-Task Recommendation Systems",
+  journal = "bingzw.github.io",
+  year = "2025",
+  month = "June",
+  url = "https://bingzw.github.io/posts/2025-06-20-cohort-opt/"
+}
+```
+or 
+```markdown
+Bing Wang. (2025, June). User Cohort Optimization in Multi-Task Recommendation Systems. 
+https://bingzw.github.io/posts/2025-06-20-cohort-opt/
+```
+
 ## References
 
 [^1]: [What is Cohort Analysis in Marketing? Definition & Examples](https://clevertap.com/blog/cohort-analysis/)
@@ -165,3 +203,4 @@ The exploration of user cohort optimization opens up several exciting research d
 [^14]: [Graph Neural Networks in Recommender Systems: A Survey](https://arxiv.org/pdf/2011.02260)
 [^15]: [Audience Segmentation with AI](https://tredence.com/blog/audience-segmentation-with-ai/)
 [^16]: [NAH-GNN: A graph-based framework for multi-behavior and high-hop interaction recommendation](https://pmc.ncbi.nlm.nih.gov/articles/PMC12040261/)
+[^17]: [How to Create Sustainable Differentiation Through Customer Lifecycle Analytics](https://www.linkedin.com/pulse/how-create-sustainable-differentiation-through-customer-anthony-loya/)
