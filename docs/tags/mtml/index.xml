@@ -20,7 +20,7 @@
       <author>bingwang8878@gamil.com (Bing Wang)</author>
       <guid>/posts/2025-06-20-cohort-opt/</guid>
       <description>&lt;p align=&#34;center&#34;&gt;
-&lt;img src=&#34;http://localhost:1313/cohort_opt/cohort optimization.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+&lt;img src=&#34;https://bingzw.github.io/cohort_opt/cohort optimization.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
 &lt;p&gt;
 &lt;p&gt;&lt;em&gt;Image cited from &lt;sup id=&#34;fnref:1&#34;&gt;&lt;a href=&#34;#fn:1&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;1&lt;/a&gt;&lt;/sup&gt;&lt;/em&gt;&lt;/p&gt;
 &lt;h2 id=&#34;context&#34; &gt;
@@ -120,7 +120,7 @@ from the &amp;ldquo;global expert.&amp;rdquo; MoE architectures can face challen
 redundant or too specialized, and solutions like expert balance regularization are often employed [^8].&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p align=&#34;center&#34;&gt;
-&lt;img src=&#34;http://localhost:1313/cohort_opt/moe.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+&lt;img src=&#34;https://bingzw.github.io/cohort_opt/moe.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
 &lt;em&gt;Figure 1: Cohort Optimization via MOE Architecture&lt;/em&gt;
 &lt;p&gt;
 &lt;h4 id=&#34;22-lora-for-cohort-specific-fine-tuning&#34; &gt;
@@ -155,7 +155,7 @@ mechanism. LoRA uses a shared base model adapted by small, cohort-specific add-o
 modules are adapted for individual instances (which can be interpreted as highly specific &amp;ldquo;cohorts&amp;rdquo; or individual users), showcasing its flexibility for fine-grained adaptation &lt;sup id=&#34;fnref:10&#34;&gt;&lt;a href=&#34;#fn:10&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;10&lt;/a&gt;&lt;/sup&gt;.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p align=&#34;center&#34;&gt;
-&lt;img src=&#34;http://localhost:1313/cohort_opt/LORA.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+&lt;img src=&#34;https://bingzw.github.io/cohort_opt/LORA.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
 &lt;em&gt;Figure 2: Cohort Optimization via LORA Architecture&lt;/em&gt;
 &lt;p&gt;
 &lt;h3 id=&#34;3-explore-other-approaches&#34; &gt;
