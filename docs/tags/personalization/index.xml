@@ -8,10 +8,378 @@
     <language>en-us</language>
     <managingEditor>bingwang8878@gamil.com (Bing Wang)</managingEditor>
     <webMaster>bingwang8878@gamil.com (Bing Wang)</webMaster>
-    <lastBuildDate>Thu, 06 Jun 2024 22:04:53 -0700</lastBuildDate>
+    <lastBuildDate>Fri, 20 Jun 2025 20:30:01 -0700</lastBuildDate>
     
     <atom:link href="/tags/personalization/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>User Cohort Optimization in Multi-Task Recommendation Systems</title>
+      <link>/posts/2025-06-20-cohort-opt/</link>
+      <pubDate>Fri, 20 Jun 2025 20:30:01 -0700</pubDate>
+      <author>bingwang8878@gamil.com (Bing Wang)</author>
+      <guid>/posts/2025-06-20-cohort-opt/</guid>
+      <description>&lt;p align=&#34;center&#34;&gt;
+&lt;img src=&#34;https://bingzw.github.io/cohort_opt/cohort optimization.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+&lt;p&gt;
+&lt;p&gt;&lt;em&gt;Image cited from &lt;sup id=&#34;fnref:1&#34;&gt;&lt;a href=&#34;#fn:1&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;1&lt;/a&gt;&lt;/sup&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;h2 id=&#34;context&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#context&#34;&gt;
+        
+    &lt;/a&gt;
+    Context
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;p&gt;&lt;strong&gt;User cohort optimization&lt;/strong&gt; in recommendation models is about tailoring the recommendation experience for specific groups
+of users, rather than applying a one-size-fits-all approach. Users often exhibit diverse behaviors, preferences, and
+engagement patterns based on various factors like demographics, historical interactions, geographic location, or
+lifecycle stage (e.g., new users vs. loyal customers) &lt;sup id=&#34;fnref:2&#34;&gt;&lt;a href=&#34;#fn:2&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;2&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
+&lt;p&gt;This optimization is crucial because generic recommendation models can fall short in delivering truly personalized
+experiences, especially for &lt;strong&gt;heterogeneous user populations&lt;/strong&gt;. For instance, optimizing for users in &lt;strong&gt;specific markets&lt;/strong&gt;
+(e.g., users in emerging markets with different product preferences or price sensitivities compared to those in developed markets)
+would involve understanding their unique needs and ensuring the model performs exceptionally well for them without sacrificing
+overall performance. It&amp;rsquo;s needed when certain cohorts are underserved by the global model, or when there&amp;rsquo;s a strategic business
+goal to improve engagement or monetization within a particular segment &lt;sup id=&#34;fnref:3&#34;&gt;&lt;a href=&#34;#fn:3&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;3&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
+&lt;p&gt;We assume that the user cohort iss prior knowledge abd can be explicitly defined from features. For the cohort discovery case,
+see the graph neural network for identification in section 3.&lt;/p&gt;
+&lt;h2 id=&#34;strategies&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#strategies&#34;&gt;
+        
+    &lt;/a&gt;
+    Strategies
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;p&gt;Optimizing for specific user cohorts within a multi-task machine learning (MTML) framework can be achieved through several advanced strategies:&lt;/p&gt;
+&lt;h3 id=&#34;1-dynamic-weighted-sample-training&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#1-dynamic-weighted-sample-training&#34;&gt;
+        
+    &lt;/a&gt;
+    1. Dynamic Weighted Sample Training
+&lt;/div&gt;
+&lt;/h3&gt;
+&lt;p&gt;This approach involves assigning different &lt;strong&gt;sample weights&lt;/strong&gt; or &lt;strong&gt;task weights&lt;/strong&gt; to data points (or tasks) belonging to
+different user cohorts during training. The goal is to make the model pay more attention to the objectives of specific cohorts.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Rule-Based Weighting:&lt;/strong&gt; Weights can be predefined based on business rules or heuristics. For example, a higher weight
+might be assigned to samples from a target cohort (e.g., &amp;ldquo;new users in Market X&amp;rdquo;) or to tasks deemed more critical for that cohort (e.g., conversion prediction for high-value users).&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Model-Based Weighting:&lt;/strong&gt; More sophisticated methods dynamically adjust weights during training &lt;sup id=&#34;fnref:4&#34;&gt;&lt;a href=&#34;#fn:4&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;4&lt;/a&gt;&lt;/sup&gt;. This can involve:
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Gradient Normalization/Balancing:&lt;/strong&gt; Techniques like GradNorm or PCGrad adjust loss weights to balance the gradients
+across different tasks (or cohorts acting as implicit tasks), preventing one task&amp;rsquo;s gradients from dominating others &lt;sup id=&#34;fnref:5&#34;&gt;&lt;a href=&#34;#fn:5&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;5&lt;/a&gt;&lt;/sup&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Uncertainty-Based Weighting:&lt;/strong&gt; Assigning weights based on the model&amp;rsquo;s uncertainty for each task/cohort, giving
+more weight to tasks where the model is less confident.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;User Lifecycle-Based Adaptation:&lt;/strong&gt; Models learn to identify latent user lifecycle stages and adapt task weights
+or representations based on the user&amp;rsquo;s current stage &lt;sup id=&#34;fnref:6&#34;&gt;&lt;a href=&#34;#fn:6&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;6&lt;/a&gt;&lt;/sup&gt;. This implicitly assigns different &amp;ldquo;importance&amp;rdquo; to samples from users in varying stages (e.g., new vs. mature users).&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;2-dedicated-cohort-learning-modules&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#2-dedicated-cohort-learning-modules&#34;&gt;
+        
+    &lt;/a&gt;
+    2. Dedicated Cohort Learning Modules
+&lt;/div&gt;
+&lt;/h3&gt;
+&lt;h4 id=&#34;21-customized-mixture-of-experts-moemmoe-learning-module&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#21-customized-mixture-of-experts-moemmoe-learning-module&#34;&gt;
+        
+    &lt;/a&gt;
+    2.1 Customized Mixture-of-Experts (MoE/MMoE) learning module
+&lt;/div&gt;
+&lt;/h4&gt;
+&lt;p&gt;MoE and its variant, Multi-gate Mixture-of-Experts (MMoE), are designed to handle multi-task learning by leveraging specialized &amp;ldquo;experts&amp;rdquo; for different tasks. This architecture can be adapted for user cohort optimization &lt;sup id=&#34;fnref:7&#34;&gt;&lt;a href=&#34;#fn:7&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;7&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Mechanism:&lt;/strong&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Architecture:&lt;/strong&gt; MoE models consist of multiple &lt;strong&gt;expert networks&lt;/strong&gt; (typically feed-forward neural networks) and
+a &lt;strong&gt;gating network&lt;/strong&gt;. The gating network learns to route inputs to a combination of experts, and then aggregate their outputs.
+MMoE extends this by using multiple gating networks, each specific to a task, allowing for more flexible expert sharing &lt;sup id=&#34;fnref:8&#34;&gt;&lt;a href=&#34;#fn:8&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;8&lt;/a&gt;&lt;/sup&gt;.
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Cohort Expert &amp;amp; Global Expert:&lt;/strong&gt; In the context of user cohorts, you could assign:
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Cohort Experts:&lt;/strong&gt; Dedicated expert networks specifically trained on data from a particular user cohort (e.g.,
+one expert for &amp;ldquo;users in Market A,&amp;rdquo; another for &amp;ldquo;users in Market B&amp;rdquo;). These experts would learn cohort-specific patterns.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Global Expert(s):&lt;/strong&gt; One or more experts trained on the entire user base, capturing general user behaviors or
+shared knowledge across all cohorts.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Fusion Layer:&lt;/strong&gt; A final fusion layer (or per-task gating networks in MMoE) learns how to aggregate the outputs from the
+cohort-specific and global experts for each prediction &lt;sup id=&#34;fnref1:8&#34;&gt;&lt;a href=&#34;#fn:8&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;8&lt;/a&gt;&lt;/sup&gt;. This allows the model to leverage general knowledge while
+also specializing for the specific user&amp;rsquo;s cohort.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Example:&lt;/strong&gt; A user from &amp;ldquo;Market A&amp;rdquo; would be routed more heavily to the &amp;ldquo;Market A expert&amp;rdquo; but still benefit from insights
+from the &amp;ldquo;global expert.&amp;rdquo; MoE architectures can face challenges like expert collapse or polarization, where experts become
+redundant or too specialized, and solutions like expert balance regularization are often employed [^8].&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p align=&#34;center&#34;&gt;
+&lt;img src=&#34;https://bingzw.github.io/cohort_opt/moe.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+&lt;em&gt;Figure 1: Cohort Optimization via MOE Architecture&lt;/em&gt;
+&lt;p&gt;
+&lt;h4 id=&#34;22-lora-for-cohort-specific-fine-tuning&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#22-lora-for-cohort-specific-fine-tuning&#34;&gt;
+        
+    &lt;/a&gt;
+    2.2. LoRA for Cohort-Specific Fine-tuning
+&lt;/div&gt;
+&lt;/h4&gt;
+&lt;p&gt;Low-Rank Adaptation (LoRA) is a parameter-efficient fine-tuning (PEFT) technique that injects small, trainable low-rank
+matrices into the layers of a pre-trained model, effectively allowing for adaptation without updating all original model
+parameters &lt;sup id=&#34;fnref:9&#34;&gt;&lt;a href=&#34;#fn:9&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;9&lt;/a&gt;&lt;/sup&gt;. While similar to MoE in its specialization goal, LoRA achieves it through adaptation of a base model
+rather than routing to distinct expert sub-networks.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Mechanism:&lt;/strong&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Architecture:&lt;/strong&gt; Instead of training entire separate expert networks, a single powerful base recommendation model is used.
+For each user cohort, a small, trainable &lt;strong&gt;LoRA module&lt;/strong&gt; is attached to specific layers (e.g., attention or feed-forward layers)
+of the base model. During training, only the LoRA modules and possibly a small portion of the base model are updated,
+keeping the majority of the base model frozen.
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Cohort-Specific Adaptation:&lt;/strong&gt; When a user&amp;rsquo;s input comes in, the model loads the base parameters plus the specific
+LoRA module corresponding to their cohort. This creates a &amp;ldquo;fine-tuned&amp;rdquo; version of the base model on-the-fly for that cohort.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Similarity to MoE:&lt;/strong&gt; Both aim for specialization. MoE uses distinct (though potentially shared) expert networks and a gating
+mechanism. LoRA uses a shared base model adapted by small, cohort-specific add-ons.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Example (iLoRA):&lt;/strong&gt; Instance-wise LoRA (iLoRA) integrates LoRA with MoE for sequential recommendation, where individual LoRA
+modules are adapted for individual instances (which can be interpreted as highly specific &amp;ldquo;cohorts&amp;rdquo; or individual users), showcasing its flexibility for fine-grained adaptation &lt;sup id=&#34;fnref:10&#34;&gt;&lt;a href=&#34;#fn:10&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;10&lt;/a&gt;&lt;/sup&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p align=&#34;center&#34;&gt;
+&lt;img src=&#34;https://bingzw.github.io/cohort_opt/LORA.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+&lt;em&gt;Figure 2: Cohort Optimization via LORA Architecture&lt;/em&gt;
+&lt;p&gt;
+&lt;h3 id=&#34;3-explore-other-approaches&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#3-explore-other-approaches&#34;&gt;
+        
+    &lt;/a&gt;
+    3. Explore Other Approaches
+&lt;/div&gt;
+&lt;/h3&gt;
+&lt;p&gt;Beyond the above ideas, several other powerful strategies can facilitate user cohort optimization:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Personalized Loss Functions:&lt;/strong&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Mechanism:&lt;/strong&gt; The very structure of the loss function can be customized for specific cohorts. This might involve
+different regularization terms, specific objective components, or fairness-aware terms designed to ensure equitable
+performance across user groups (e.g., by minimizing disparity in recommendation quality for different demographic cohorts) &lt;sup id=&#34;fnref:11&#34;&gt;&lt;a href=&#34;#fn:11&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;11&lt;/a&gt;&lt;/sup&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Application:&lt;/strong&gt; For instance, a &amp;ldquo;new user&amp;rdquo; cohort might have a loss function heavily focused on novelty and exploration,
+while a &amp;ldquo;long-term user&amp;rdquo; cohort&amp;rsquo;s loss might prioritize relevance and diversity.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Hierarchical Models:&lt;/strong&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Mechanism:&lt;/strong&gt; These models explicitly represent users at different levels of granularity—from individual users to
+sub-groups, to larger cohorts. Information can flow up and down this hierarchy, allowing for both personalized and group-level learning &lt;sup id=&#34;fnref:12&#34;&gt;&lt;a href=&#34;#fn:12&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;12&lt;/a&gt;&lt;/sup&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Application:&lt;/strong&gt; A framework like Hierarchical Group-wise Ranking (GroupCE) learns embeddings for groups (cohorts) and
+users, allowing the model to leverage group-level patterns while still making individual recommendations, addressing heterogeneity and cold-start for new groups &lt;sup id=&#34;fnref1:12&#34;&gt;&lt;a href=&#34;#fn:12&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;12&lt;/a&gt;&lt;/sup&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Adaptive Learning (Meta-learning):&lt;/strong&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Mechanism:&lt;/strong&gt; Meta-learning (learning to learn) can train a model to quickly adapt to new or specific user cohorts
+with limited data. The model learns a general initialization or a set of update rules that can be rapidly fine-tuned for a particular cohort or even a new user &lt;sup id=&#34;fnref:13&#34;&gt;&lt;a href=&#34;#fn:13&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;13&lt;/a&gt;&lt;/sup&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Application:&lt;/strong&gt; Models like MeLON learn to update user embeddings dynamically for online updates, effectively
+allowing the model to adapt its predictions based on recent interactions within a user&amp;rsquo;s current session or short-term behavior (which can define a transient cohort) &lt;sup id=&#34;fnref1:13&#34;&gt;&lt;a href=&#34;#fn:13&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;13&lt;/a&gt;&lt;/sup&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Graph Neural Networks (GNNs) for Cohort Identification:&lt;/strong&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Mechanism:&lt;/strong&gt; GNNs can model complex relationships between users, items, and features. By leveraging graph-based
+clustering or community detection algorithms on the user-user interaction graph, GNNs can &lt;strong&gt;automatically identify &amp;ldquo;relationship-aware cohorts&amp;rdquo;&lt;/strong&gt; based on implicit social connections, shared interests, or interaction patterns &lt;sup id=&#34;fnref:14&#34;&gt;&lt;a href=&#34;#fn:14&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;14&lt;/a&gt;&lt;/sup&gt;, &lt;sup id=&#34;fnref:15&#34;&gt;&lt;a href=&#34;#fn:15&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;15&lt;/a&gt;&lt;/sup&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Application:&lt;/strong&gt; Once identified, these GNN-derived cohorts can then be used as input for any of the above strategies
+(e.g., as explicit cohorts for MoE, or for weighted training). GNNs enhance recommendation accuracy and diversity by capturing high-order relationships and multi-behavior interactions &lt;sup id=&#34;fnref:16&#34;&gt;&lt;a href=&#34;#fn:16&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;16&lt;/a&gt;&lt;/sup&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;discussion&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#discussion&#34;&gt;
+        
+    &lt;/a&gt;
+    Discussion
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;p&gt;Each strategy offers unique advantages and trade-offs when optimizing for user cohorts in MTL recommendation systems.&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th style=&#34;text-align:left&#34;&gt;Strategy&lt;/th&gt;
+&lt;th style=&#34;text-align:left&#34;&gt;Pros&lt;/th&gt;
+&lt;th style=&#34;text-align:left&#34;&gt;Cons&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;&lt;strong&gt;Dynamic Weighted Training&lt;/strong&gt;&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;&lt;strong&gt;Simplicity (Rule-Based):&lt;/strong&gt; Easy to implement for basic scenarios. &lt;br/&gt;&lt;strong&gt;Flexibility (Model-Based):&lt;/strong&gt; Can dynamically adapt to changing cohort needs. &lt;br/&gt;&lt;strong&gt;Computational Efficiency:&lt;/strong&gt; No major architectural changes, often involves just loss adjustments, reducing computational overhead &lt;sup id=&#34;fnref1:4&#34;&gt;&lt;a href=&#34;#fn:4&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;4&lt;/a&gt;&lt;/sup&gt;. &lt;br/&gt;&lt;strong&gt;Balances Tasks:&lt;/strong&gt; Can prevent one task (or cohort&amp;rsquo;s objective) from dominating others, improving generalization &lt;sup id=&#34;fnref1:5&#34;&gt;&lt;a href=&#34;#fn:5&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;5&lt;/a&gt;&lt;/sup&gt;.&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;&lt;strong&gt;Weight Determination:&lt;/strong&gt; Difficult to set optimal rule-based weights. Model-based methods can be complex to design and tune. &lt;br/&gt;&lt;strong&gt;Suboptimal Performance:&lt;/strong&gt; Improper balancing can lead to poor overall or cohort-specific performance. &lt;br/&gt;&lt;strong&gt;No Explicit Specialization:&lt;/strong&gt; Model doesn&amp;rsquo;t explicitly specialize per cohort; it only changes attention during training. &lt;br/&gt;&lt;strong&gt;Lack of Interpretability:&lt;/strong&gt; Why certain weights are chosen can be opaque for model-based methods.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;&lt;strong&gt;Mixture-of-Experts (MoE/MMoE)&lt;/strong&gt;&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;&lt;strong&gt;Explicit Specialization:&lt;/strong&gt; Dedicated experts can learn highly specific patterns for each cohort, leading to better performance for diverse groups &lt;sup id=&#34;fnref1:7&#34;&gt;&lt;a href=&#34;#fn:7&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;7&lt;/a&gt;&lt;/sup&gt;. &lt;br/&gt;&lt;strong&gt;Scalability:&lt;/strong&gt; Can scale to many cohorts/tasks by adding experts. &lt;br/&gt;&lt;strong&gt;Interpretability:&lt;/strong&gt; Can potentially observe which experts are active for which cohorts.&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;&lt;strong&gt;Computational Cost:&lt;/strong&gt; More parameters than a single model, leading to higher training and inference costs (though can be optimized). &lt;br/&gt;&lt;strong&gt;Expert Collapse/Polarization:&lt;/strong&gt; Experts might become redundant or specialize too narrowly, leading to poor generalization for some cohorts [^8]. &lt;br/&gt;&lt;strong&gt;Routing Complexity:&lt;/strong&gt; Gating network needs careful design; poor routing can degrade performance. &lt;br/&gt;&lt;strong&gt;Data Requirements:&lt;/strong&gt; Each cohort expert needs sufficient data to train effectively.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;&lt;strong&gt;LoRA for Cohort Fine-tuning&lt;/strong&gt;&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;&lt;strong&gt;Parameter Efficiency:&lt;/strong&gt; Significantly fewer trainable parameters than full fine-tuning or MoE (no full expert networks), reducing memory and computation &lt;sup id=&#34;fnref1:9&#34;&gt;&lt;a href=&#34;#fn:9&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;9&lt;/a&gt;&lt;/sup&gt;. &lt;br/&gt;&lt;strong&gt;No Inference Latency:&lt;/strong&gt; Once LoRA weights are loaded, inference is as fast as the base model. &lt;br/&gt;&lt;strong&gt;Modularity:&lt;/strong&gt; Easy to add/remove cohort-specific LoRA modules. &lt;br/&gt;&lt;strong&gt;Knowledge Retention:&lt;/strong&gt; Leverages a strong pre-trained base model, preventing catastrophic forgetting &lt;sup id=&#34;fnref2:9&#34;&gt;&lt;a href=&#34;#fn:9&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;9&lt;/a&gt;&lt;/sup&gt;.&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;&lt;strong&gt;Base Model Dependence:&lt;/strong&gt; Performance is limited by the capabilities of the base model. &lt;br/&gt;&lt;strong&gt;Still Requires Data:&lt;/strong&gt; Each LoRA module needs enough cohort-specific data for effective fine-tuning. &lt;br/&gt;&lt;strong&gt;Storage:&lt;/strong&gt; Storing many LoRA modules for many small cohorts can still accumulate. &lt;br/&gt;&lt;strong&gt;Potential Overfitting:&lt;/strong&gt; Small modules can potentially overfit if cohort data is too sparse.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;&lt;strong&gt;Other Approaches&lt;/strong&gt;&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;&lt;strong&gt;Personalized Loss:&lt;/strong&gt; Direct control over cohort objectives (e.g., fairness, specific metrics). &lt;br/&gt;&lt;strong&gt;Hierarchical Models:&lt;/strong&gt; Explicitly models group-level patterns, strong for cold-start groups. &lt;br/&gt;&lt;strong&gt;Meta-learning:&lt;/strong&gt; Fast adaptation to new or small cohorts/users. &lt;br/&gt;&lt;strong&gt;GNNs:&lt;/strong&gt; Naturally capture complex relationships for implicit cohort identification.&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;&lt;strong&gt;Personalized Loss:&lt;/strong&gt; Can be complex to formulate and optimize. &lt;br/&gt;&lt;strong&gt;Hierarchical Models:&lt;/strong&gt; Designing the hierarchy and information flow can be challenging. &lt;br/&gt;&lt;strong&gt;Meta-learning:&lt;/strong&gt; Computationally intensive for meta-training; industrial deployment can be complex. &lt;br/&gt;&lt;strong&gt;GNNs:&lt;/strong&gt; High computational cost for large graphs; defining optimal graph structures can be tricky &lt;sup id=&#34;fnref1:16&#34;&gt;&lt;a href=&#34;#fn:16&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;16&lt;/a&gt;&lt;/sup&gt;.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h2 id=&#34;direction-extension&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#direction-extension&#34;&gt;
+        
+    &lt;/a&gt;
+    Direction Extension
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;p&gt;The exploration of user cohort optimization opens up several exciting research directions and practical extensions:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Advanced Model-Based Weighting for Dynamic Training:&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Adaptive Weighting Beyond Gradients:&lt;/strong&gt; Develop model-based weighting schemes that consider not just gradient dynamics
+but also long-term performance metrics, business impact, or cohort-specific fairness goals.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Personalized Weight Prediction:&lt;/strong&gt; A sub-network predicts sample weights not just based on the cohort, but on
+individual user characteristics within that cohort.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Multi-Cohort Optimization with MoE/MMoE or LoRA:&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Hierarchical Experts/LoRA:&lt;/strong&gt; Design multi-level MoE/LoRA architectures where experts/LoRA modules specialize first
+by broad categories (e.g., region) and then further by sub-cohorts (e.g., new vs. old users within a region).&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Dynamic Cohort Assignment to Experts:&lt;/strong&gt; Instead of fixed cohort-to-expert mapping, the gating network (in MoE) or a
+separate routing mechanism (for LoRA) could dynamically decide which expert/LoRA module is most relevant for a given user at inference time, based on their real-time behavior.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Shared LoRA Modules:&lt;/strong&gt; Explore mechanisms where LoRA modules are partially shared across related cohorts to further
+improve parameter efficiency and transfer knowledge.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Automated Cohort Discovery and Evolution:&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;GNN-driven Dynamic Cohorting:&lt;/strong&gt; Further research into using GNNs and other unsupervised learning techniques to
+automatically discover emerging user cohorts and their evolving characteristics. This would allow the model to adapt to new user segments without manual definition. &lt;sup id=&#34;fnref1:15&#34;&gt;&lt;a href=&#34;#fn:15&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;15&lt;/a&gt;&lt;/sup&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Lifecycle Stage Prediction:&lt;/strong&gt; Develop more robust models to predict a user&amp;rsquo;s lifecycle stage, which can then inform
+dynamic weighting or expert routing.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Hybrid Approaches:&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;LoRA with Dynamic Weighting:&lt;/strong&gt; Combine the parameter efficiency of LoRA with dynamic weighted training. For example,
+a base model fine-tuned with LoRA for a cohort could then be trained with dynamic weighting to further emphasize certain objectives within that cohort.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Meta-Learning for Expert Initialization/LoRA Fine-tuning:&lt;/strong&gt; Use meta-learning to quickly initialize new MoE experts
+or LoRA modules for newly identified or rare cohorts, overcoming cold-start issues for segments.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Interpretability and Explainability for Cohort Models:&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Develop methods to understand why certain experts are activated for specific cohorts or how LoRA modules are adapting
+the base model, enhancing trust and enabling better manual interventions.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;citation&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#citation&#34;&gt;
+        
+    &lt;/a&gt;
+    Citation
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;p&gt;If you find this post helpful, please consider citing it as:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bibtex&#34; data-lang=&#34;bibtex&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f3f99d&#34;&gt;@article&lt;/span&gt;{&lt;span style=&#34;color:#ff5c57&#34;&gt;wang2025cohortopt&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;author&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;Bing Wang&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;title&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;User Cohort Optimization in Multi-Task Recommendation Systems&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;journal&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;bingzw.github.io&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;year&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;2025&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;month&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;June&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;url&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;https://bingzw.github.io/posts/2025-06-20-cohort-opt/&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;or&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-markdown&#34; data-lang=&#34;markdown&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Bing Wang. (2025, June). User Cohort Optimization in Multi-Task Recommendation Systems. 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;https://bingzw.github.io/posts/2025-06-20-cohort-opt/
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;references&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#references&#34;&gt;
+        
+    &lt;/a&gt;
+    References
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;div class=&#34;footnotes&#34; role=&#34;doc-endnotes&#34;&gt;
+&lt;hr&gt;
+&lt;ol&gt;
+&lt;li id=&#34;fn:1&#34;&gt;
+&lt;p&gt;&lt;a href=&#34;https://www.linkedin.com/pulse/how-create-sustainable-differentiation-through-customer-anthony-loya/&#34;&gt;How to Create Sustainable Differentiation Through Customer Lifecycle Analytics&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:1&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:2&#34;&gt;
+&lt;p&gt;&lt;a href=&#34;https://clevertap.com/blog/cohort-analysis/&#34;&gt;What is Cohort Analysis in Marketing? Definition &amp;amp; Examples&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:2&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:3&#34;&gt;
+&lt;p&gt;&lt;a href=&#34;https://netcorecloud.com/blog/cohort-retention-analysis/&#34;&gt;Cohort Analysis: How to Track User Retention in Your App&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:3&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:4&#34;&gt;
+&lt;p&gt;&lt;a href=&#34;https://www.numberanalytics.com/blog/efficient-multi-task-learning-strategies-ai-capabilities&#34;&gt;Efficient Multi-Task Learning Strategies for Advanced AI Capabilities&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:4&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref1:4&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:5&#34;&gt;
+&lt;p&gt;&lt;a href=&#34;https://arxiv.org/pdf/2302.03525&#34;&gt;Multi-Task Deep Recommender Systems: A Survey&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:5&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref1:5&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:6&#34;&gt;
+&lt;p&gt;&lt;a href=&#34;https://arxiv.org/abs/2306.12232&#34;&gt;STAN: Stage-Adaptive Network for Multi-Task Recommendation by Learning User Lifecycle-Based Representation&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:6&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:7&#34;&gt;
+&lt;p&gt;&lt;a href=&#34;https://arxiv.org/abs/2311.09580&#34;&gt;MMoE: Multi-gate Mixture-of-Experts&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:7&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref1:7&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:8&#34;&gt;
+&lt;p&gt;&lt;a href=&#34;https://ojs.aaai.org/index.php/AAAI/article/view/34395/36550&#34;&gt;Resolving Task Polarization in Multi-Task Learning with Expert Specialization&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:8&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref1:8&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:9&#34;&gt;
+&lt;p&gt;&lt;a href=&#34;https://arxiv.org/abs/2106.09685&#34;&gt;LoRA: Low-Rank Adaptation of Large Language Models&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:9&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref1:9&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref2:9&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:10&#34;&gt;
+&lt;p&gt;&lt;a href=&#34;https://proceedings.neurips.cc/paper_files/paper/2024/file/cd476d01692c508ddf1cb43c6279a704-Paper-Conference.pdf&#34;&gt;iLoRA: Instance-wise Low-Rank Adaptation for Efficient and Personalized Sequential Recommendation&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:10&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:11&#34;&gt;
+&lt;p&gt;&lt;a href=&#34;https://arxiv.org/pdf/1904.06813&#34;&gt;Personalized Re-ranking for Recommendation&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:11&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:12&#34;&gt;
+&lt;p&gt;&lt;a href=&#34;https://www.themoonlight.io/en/review/hierarchical-group-wise-ranking-framework-for-recommendation-models&#34;&gt;Hierarchical Group-wise Ranking Framework for Recommendation Models (GroupCE)&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:12&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref1:12&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:13&#34;&gt;
+&lt;p&gt;&lt;a href=&#34;https://arxiv.org/pdf/2203.10354&#34;&gt;Meta-Learning Based Online Update for Recommender Systems&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:13&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref1:13&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:14&#34;&gt;
+&lt;p&gt;&lt;a href=&#34;https://arxiv.org/pdf/2011.02260&#34;&gt;Graph Neural Networks in Recommender Systems: A Survey&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:14&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:15&#34;&gt;
+&lt;p&gt;&lt;a href=&#34;https://tredence.com/blog/audience-segmentation-with-ai/&#34;&gt;Audience Segmentation with AI&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:15&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref1:15&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:16&#34;&gt;
+&lt;p&gt;&lt;a href=&#34;https://pmc.ncbi.nlm.nih.gov/articles/PMC12040261/&#34;&gt;NAH-GNN: A graph-based framework for multi-behavior and high-hop interaction recommendation&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:16&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref1:16&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/div&gt;</description>
+    </item>
     
     <item>
       <title>Recommendation Models</title>
@@ -20,7 +388,7 @@
       <author>bingwang8878@gamil.com (Bing Wang)</author>
       <guid>/posts/2024-06-06-recommendation-model/</guid>
       <description>&lt;p align=&#34;center&#34;&gt;
-&lt;img src=&#34;http://localhost:1313/recommendation_model/reco.jpeg&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+&lt;img src=&#34;https://bingzw.github.io/recommendation_model/reco.jpeg&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
 &lt;p&gt;
 &lt;p&gt;&lt;em&gt;Image cited from &lt;a href=&#34;https://www.vecteezy.com/&#34;&gt;vecteezy&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
 &lt;h2 id=&#34;introduction-to-recommendation-models&#34; &gt;
@@ -154,7 +522,7 @@ architecture to the collaborative filtering domain. CDAE is designed to handle i
 are inferred from user behavior rather than explicit ratings. The model incorporates both user-specific and item-specific
 factors, leveraging the rich user interaction data to learn better representations for recommendation tasks.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-    &lt;img src=&#34;http://localhost:1313/recommendation_model/autoencoder_mf.png&#34;&gt;&lt;br&gt;
+    &lt;img src=&#34;https://bingzw.github.io/recommendation_model/autoencoder_mf.png&#34;&gt;&lt;br&gt;
     &lt;em&gt;Figure 1: deep auto-encoder&lt;/em&gt;
 &lt;/p&gt;
 &lt;h5 id=&#34;neural-collaborative-filtering3&#34; &gt;
@@ -174,7 +542,7 @@ that learn the interaction between these embeddings. The final output layer pred
 item. This approach not only improves the accuracy of recommendations but also enables the integration of additional
 features, such as user demographics or item attributes, into the model. Refer to the DLRM or DeepFM for more details.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-    &lt;img src=&#34;http://localhost:1313/recommendation_model/ncf_mf.png&#34;&gt;&lt;br&gt;
+    &lt;img src=&#34;https://bingzw.github.io/recommendation_model/ncf_mf.png&#34;&gt;&lt;br&gt;
     &lt;em&gt;Figure 2: neural collaborative filtering&lt;/em&gt;
 &lt;/p&gt;
 &lt;h2 id=&#34;content-based-models-ranking-as-recommendation&#34; &gt;
@@ -229,7 +597,7 @@ $$&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
 &lt;p align=&#34;center&#34;&gt;
-   &lt;img src=&#34;http://localhost:1313/recommendation_model/wide_deep.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
+   &lt;img src=&#34;https://bingzw.github.io/recommendation_model/wide_deep.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
    &lt;em&gt;Figure 3: wide &amp; deep model&lt;/em&gt;
 &lt;/p&gt;
 &lt;h3 id=&#34;deepfm5&#34; &gt;
@@ -272,7 +640,7 @@ activation of the last hidden layer.&lt;/p&gt;
 &lt;p&gt;$$\hat{y} = \sigma(y_{\text{FM}} + y_{\text{deep}})$$&lt;/p&gt;
 &lt;p&gt;where $\sigma$ is the sigmoid function used to squash the output to a probability score.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-   &lt;img src=&#34;http://localhost:1313/recommendation_model/deepfm.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+   &lt;img src=&#34;https://bingzw.github.io/recommendation_model/deepfm.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
    &lt;em&gt;Figure 4: deepfm model&lt;/em&gt;
 &lt;/p&gt;
 &lt;h3 id=&#34;deep-learning-recommendation-model-dlrm6&#34; &gt;
@@ -289,7 +657,7 @@ systems in environments such as social media platforms, e-commerce, and online a
 strengths of collaborative filtering and content-based methods by utilizing both dense and sparse features to provide
 highly accurate and scalable recommendations.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-   &lt;img src=&#34;http://localhost:1313/recommendation_model/dlrm.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+   &lt;img src=&#34;https://bingzw.github.io/recommendation_model/dlrm.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
    &lt;em&gt;Figure 5: deep learning recommendation model&lt;/em&gt;
 &lt;/p&gt;
 &lt;p&gt;Key components of DLRM includes&lt;/p&gt;
@@ -365,7 +733,7 @@ biases of the $l$-th layer, respectively, and $f_{l}$ is the activation function
 &lt;p&gt;The final prediction is a combination of the outputs from either the hidden layer (stacked structure) or the  concatenation
 of cross and deep network outputs.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-   &lt;img src=&#34;http://localhost:1313/recommendation_model/dcn_v2.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+   &lt;img src=&#34;https://bingzw.github.io/recommendation_model/dcn_v2.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
    &lt;em&gt;Figure 6: deep cross network v2&lt;/em&gt;
 &lt;/p&gt;
 &lt;h3 id=&#34;deep-interest-network-din8&#34; &gt;
@@ -382,7 +750,7 @@ DIN leverages a user&amp;rsquo;s historical behavior to make more accurate and c
 innovation in DIN is its ability to capture user interests dynamically and use this information to influence the recommendation
 process.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-   &lt;img src=&#34;http://localhost:1313/recommendation_model/din.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
+   &lt;img src=&#34;https://bingzw.github.io/recommendation_model/din.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
    &lt;em&gt;Figure 7: deep interest network&lt;/em&gt;
 &lt;/p&gt;
 &lt;p&gt;In particular, the DIN contains the following key components:&lt;/p&gt;
@@ -430,7 +798,7 @@ mixture-of-experts models with the flexibility of multi-gate mechanisms, allowin
 computational resources based on the specific needs of each task. This approach is particularly useful in scenarios
 where tasks are interrelated and can benefit from shared learning while maintaining task-specific adaptations.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-   &lt;img src=&#34;http://localhost:1313/recommendation_model/mmoe.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
+   &lt;img src=&#34;https://bingzw.github.io/recommendation_model/mmoe.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
    &lt;em&gt;Figure 8: multi-gate mixture of experts&lt;/em&gt;
 &lt;/p&gt;
 &lt;p&gt;Key components of the model architecture are:&lt;/p&gt;
@@ -477,7 +845,7 @@ sequences in recommendation systems. BST leverages the power of Transformer mode
 success in natural language processing (NLP), to capture the sequential patterns and contextual dependencies in user
 interactions over time. This approach enhances the ability to predict user preferences and improve recommendation accuracy.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-   &lt;img src=&#34;http://localhost:1313/recommendation_model/bst.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
+   &lt;img src=&#34;https://bingzw.github.io/recommendation_model/bst.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
    &lt;em&gt;Figure 9: behavior sequence transformer&lt;/em&gt;
 &lt;/p&gt;
 &lt;p&gt;Key components of BST include:&lt;/p&gt;
