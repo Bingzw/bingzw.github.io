@@ -26,7 +26,7 @@ would involve understanding their unique needs and ensuring the model performs e
 overall performance. It's needed when certain cohorts are underserved by the global model, or when there's a strategic business 
 goal to improve engagement or monetization within a particular segment [^2].
 
-We assume that the user cohort iss prior knowledge abd can be explicitly defined from features. For the cohort discovery case, 
+We assume that the user cohort is prior knowledge and can be explicitly defined from features. For the cohort discovery case, 
 see the graph neural network for identification in section 3.
 
 ## Strategies
@@ -148,7 +148,8 @@ The exploration of user cohort optimization opens up several exciting research d
     * **Hierarchical Experts/LoRA:** Design multi-level MoE/LoRA architectures where experts/LoRA modules specialize first 
     by broad categories (e.g., region) and then further by sub-cohorts (e.g., new vs. old users within a region).
     * **Dynamic Cohort Assignment to Experts:** Instead of fixed cohort-to-expert mapping, the gating network (in MoE) or a 
-    separate routing mechanism (for LoRA) could dynamically decide which expert/LoRA module is most relevant for a given user at inference time, based on their real-time behavior.
+    separate routing mechanism (for LoRA) could dynamically decide which expert/LoRA module is the most relevant given the cohort related features, this fits 
+    the case when cohort prior assignment is unknown but to be learned in model training.
     * **Shared LoRA Modules:** Explore mechanisms where LoRA modules are partially shared across related cohorts to further 
     improve parameter efficiency and transfer knowledge.
 

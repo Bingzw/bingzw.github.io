@@ -561,7 +561,7 @@ experiences, especially for <strong>heterogeneous user populations</strong>. For
 would involve understanding their unique needs and ensuring the model performs exceptionally well for them without sacrificing
 overall performance. It&rsquo;s needed when certain cohorts are underserved by the global model, or when there&rsquo;s a strategic business
 goal to improve engagement or monetization within a particular segment <sup id="fnref:3"><a href="#fn:3" class="footnote-ref" role="doc-noteref">3</a></sup>.</p>
-<p>We assume that the user cohort iss prior knowledge abd can be explicitly defined from features. For the cohort discovery case,
+<p>We assume that the user cohort is prior knowledge and can be explicitly defined from features. For the cohort discovery case,
 see the graph neural network for identification in section 3.</p>
 <h2 id="strategies" >
 <div>
@@ -787,7 +787,8 @@ individual user characteristics within that cohort.</li>
 <li><strong>Hierarchical Experts/LoRA:</strong> Design multi-level MoE/LoRA architectures where experts/LoRA modules specialize first
 by broad categories (e.g., region) and then further by sub-cohorts (e.g., new vs. old users within a region).</li>
 <li><strong>Dynamic Cohort Assignment to Experts:</strong> Instead of fixed cohort-to-expert mapping, the gating network (in MoE) or a
-separate routing mechanism (for LoRA) could dynamically decide which expert/LoRA module is most relevant for a given user at inference time, based on their real-time behavior.</li>
+separate routing mechanism (for LoRA) could dynamically decide which expert/LoRA module is the most relevant given the cohort related features, this fits
+the case when cohort prior assignment is unknown but to be learned in model training.</li>
 <li><strong>Shared LoRA Modules:</strong> Explore mechanisms where LoRA modules are partially shared across related cohorts to further
 improve parameter efficiency and transfer knowledge.</li>
 </ul>
