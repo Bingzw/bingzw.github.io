@@ -41,7 +41,7 @@ experiences, especially for &lt;strong&gt;heterogeneous user populations&lt;/str
 would involve understanding their unique needs and ensuring the model performs exceptionally well for them without sacrificing
 overall performance. It&amp;rsquo;s needed when certain cohorts are underserved by the global model, or when there&amp;rsquo;s a strategic business
 goal to improve engagement or monetization within a particular segment &lt;sup id=&#34;fnref:3&#34;&gt;&lt;a href=&#34;#fn:3&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;3&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
-&lt;p&gt;We assume that the user cohort iss prior knowledge abd can be explicitly defined from features. For the cohort discovery case,
+&lt;p&gt;We assume that the user cohort is prior knowledge and can be explicitly defined from features. For the cohort discovery case,
 see the graph neural network for identification in section 3.&lt;/p&gt;
 &lt;h2 id=&#34;strategies&#34; &gt;
 &lt;div&gt;
@@ -267,7 +267,8 @@ individual user characteristics within that cohort.&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;Hierarchical Experts/LoRA:&lt;/strong&gt; Design multi-level MoE/LoRA architectures where experts/LoRA modules specialize first
 by broad categories (e.g., region) and then further by sub-cohorts (e.g., new vs. old users within a region).&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;Dynamic Cohort Assignment to Experts:&lt;/strong&gt; Instead of fixed cohort-to-expert mapping, the gating network (in MoE) or a
-separate routing mechanism (for LoRA) could dynamically decide which expert/LoRA module is most relevant for a given user at inference time, based on their real-time behavior.&lt;/li&gt;
+separate routing mechanism (for LoRA) could dynamically decide which expert/LoRA module is the most relevant given the cohort related features, this fits
+the case when cohort prior assignment is unknown but to be learned in model training.&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;Shared LoRA Modules:&lt;/strong&gt; Explore mechanisms where LoRA modules are partially shared across related cohorts to further
 improve parameter efficiency and transfer knowledge.&lt;/li&gt;
 &lt;/ul&gt;
