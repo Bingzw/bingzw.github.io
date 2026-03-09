@@ -151,12 +151,10 @@
 
 
     
-  
-    
       <script async src="https://www.googletagmanager.com/gtag/js?id=G-3P52NT65ZQ"></script>
       <script>
         var doNotTrack = false;
-        if ( false ) {
+        if ( true ) {
           var dnt = (navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack);
           var doNotTrack = (dnt == "1" || dnt == "yes");
         }
@@ -167,10 +165,6 @@
           gtag('config', 'G-3P52NT65ZQ');
         }
       </script>
-    
-  
-
-
 
 
 
@@ -386,7 +380,7 @@
     <nav class="noselect">
         
         
-        <a class="" href="https://bingzw.github.io/" title="">Home</a>
+        <a class="" href="https://bingzw.github.io/" title="Bingz Learning Blog">Home</a>
         
         <a class="" href="https://bingzw.github.io/about/" title="">About</a>
         
@@ -460,7 +454,7 @@
             <ul class="post-tags">
                 
                     
-                    <li><a href="/tags/machine-learning/">#Machine Learning</a></li>
+                    <li><a href="/tags/machine-learning/">#Machine-Learning</a></li>
                 
                     
                     <li><a href="/tags/deep-reinforcement-learning/">#Deep Reinforcement Learning</a></li>
@@ -499,7 +493,7 @@
                 <li><a href="#prioritized-experience-replay">Prioritized Experience Replay</a></li>
                 <li><a href="#noisy-nets">Noisy Nets</a></li>
                 <li><a href="#distributional-dqn">Distributional DQN</a></li>
-                <li><a href="#rainbow-dqn-4">Rainbow DQN </a></li>
+                <li><a href="#rainbow-dqn">Rainbow DQN </a></li>
               </ul>
             </li>
           </ul>
@@ -508,8 +502,8 @@
           <ul>
             <li><a href="#policy-gradient">Policy Gradient</a></li>
             <li><a href="#reinforce">REINFORCE</a></li>
-            <li><a href="#trust-region-policy-optimization-trpo-7">Trust Region Policy Optimization (TRPO) </a></li>
-            <li><a href="#proximal-policy-optimization-ppo8">Proximal Policy Optimization (PPO)</a>
+            <li><a href="#trust-region-policy-optimization-trpo">Trust Region Policy Optimization (TRPO) </a></li>
+            <li><a href="#proximal-policy-optimization-ppo">Proximal Policy Optimization (PPO)</a>
               <ul>
                 <li><a href="#ppo-penalty">PPO-penalty</a></li>
                 <li><a href="#ppo-clip">PPO-Clip</a></li>
@@ -519,9 +513,9 @@
         </li>
         <li><a href="#hybrid">Hybrid</a>
           <ul>
-            <li><a href="#actor-critic-ac9">Actor Critic (AC)</a></li>
-            <li><a href="#ddpg11">DDPG</a></li>
-            <li><a href="#sac10">SAC</a></li>
+            <li><a href="#actor-critic-ac">Actor Critic (AC)</a></li>
+            <li><a href="#ddpg">DDPG</a></li>
+            <li><a href="#sac">SAC</a></li>
           </ul>
         </li>
       </ul>
@@ -564,7 +558,7 @@ algorithm in model free setting.</p>
 <h2 id="model-free---when-the-environment-is-unknown" >
 <div>
     <a href="#model-free---when-the-environment-is-unknown">
-        
+        #
     </a>
     Model Free - when the environment is unknown
 </div>
@@ -572,7 +566,7 @@ algorithm in model free setting.</p>
 <h3 id="value-based-continuing-" >
 <div>
     <a href="#value-based-continuing-">
-        
+        ##
     </a>
     Value Based (Continuing &hellip;)
 </div>
@@ -580,7 +574,7 @@ algorithm in model free setting.</p>
 <h4 id="deep-q-network-dqn" >
 <div>
     <a href="#deep-q-network-dqn">
-        
+        ###
     </a>
     Deep Q Network (DQN)
 </div>
@@ -651,7 +645,7 @@ thus also improving the training efficiency.</p>
 <h4 id="advanced-dqn" >
 <div>
     <a href="#advanced-dqn">
-        
+        ###
     </a>
     Advanced DQN
 </div>
@@ -661,7 +655,7 @@ from issues like overestimation. Below lists the efforts to further refine the D
 <h5 id="double-dqn" >
 <div>
     <a href="#double-dqn">
-        
+        ####
     </a>
     Double DQN
 </div>
@@ -673,7 +667,7 @@ the target network to evaluate them. This reduces overestimation bias and leads 
 <h5 id="duel-dqn" >
 <div>
     <a href="#duel-dqn">
-        
+        ####
     </a>
     Duel DQN
 </div>
@@ -686,7 +680,7 @@ leading to improved learning efficiency.</p>
 <h5 id="prioritized-experience-replay" >
 <div>
     <a href="#prioritized-experience-replay">
-        
+        ####
     </a>
     Prioritized Experience Replay
 </div>
@@ -699,7 +693,7 @@ the learning process.</p>
 <h5 id="noisy-nets" >
 <div>
     <a href="#noisy-nets">
-        
+        ####
     </a>
     Noisy Nets
 </div>
@@ -710,7 +704,7 @@ effectively by adding noise directly to the weights. This leads to more effectiv
 <h5 id="distributional-dqn" >
 <div>
     <a href="#distributional-dqn">
-        
+        ####
     </a>
     Distributional DQN
 </div>
@@ -719,10 +713,10 @@ effectively by adding noise directly to the weights. This leads to more effectiv
 information about the returns.</p>
 <p><em>Approach</em>: Instead of estimating the expected value, estimate the distribution of the $Q$ function. This is to capture
 the uncertainty of the $Q$ function. The $Q$ function is then calculated as the expected value of the distribution.</p>
-<h5 id="rainbow-dqn-4" >
+<h5 id="rainbow-dqn" >
 <div>
-    <a href="#rainbow-dqn-4">
-        
+    <a href="#rainbow-dqn">
+        ####
     </a>
     Rainbow DQN <sup id="fnref:4"><a href="#fn:4" class="footnote-ref" role="doc-noteref">4</a></sup>
 </div>
@@ -740,7 +734,7 @@ each approach to achieve superior performance in a unified model.</p>
 <h3 id="policy-based" >
 <div>
     <a href="#policy-based">
-        
+        ##
     </a>
     Policy Based
 </div>
@@ -753,7 +747,7 @@ allowing the agent to choose actions based on the learned distribution.</p>
 <h4 id="policy-gradient" >
 <div>
     <a href="#policy-gradient">
-        
+        ###
     </a>
     Policy Gradient
 </div>
@@ -809,7 +803,7 @@ the $Q_{\pi_{\theta}}(s, a)$ when calculating the gradient, a simple way is to a
 <h4 id="reinforce" >
 <div>
     <a href="#reinforce">
-        
+        ###
     </a>
     REINFORCE
 </div>
@@ -835,10 +829,10 @@ the $Q_{\pi_{\theta}}(s, a)$ when calculating the gradient, a simple way is to a
 <p>This is a &ldquo;policy version&rdquo; monte carlo approach. Like the Monte Carlo algorithm, it&rsquo;s a simple online algorithm but may suffer from issues like
 high variance, delayed rewards, inefficient sampling, noisy updates and non-stationary returns. To tackle these issues, more dedicated tools
 are needed.</p>
-<h4 id="trust-region-policy-optimization-trpo-7" >
+<h4 id="trust-region-policy-optimization-trpo" >
 <div>
-    <a href="#trust-region-policy-optimization-trpo-7">
-        
+    <a href="#trust-region-policy-optimization-trpo">
+        ###
     </a>
     Trust Region Policy Optimization (TRPO) <sup id="fnref:5"><a href="#fn:5" class="footnote-ref" role="doc-noteref">5</a></sup>
 </div>
@@ -912,10 +906,10 @@ $$ L(\omega) = \frac{1}{2} \mathbb{E}_t [G_t - V_{\omega} (s_t)]^2 $$
 <li>end for</li>
 <li>return the policy $\pi_\theta$</li>
 </ul>
-<h4 id="proximal-policy-optimization-ppo8" >
+<h4 id="proximal-policy-optimization-ppo" >
 <div>
-    <a href="#proximal-policy-optimization-ppo8">
-        
+    <a href="#proximal-policy-optimization-ppo">
+        ###
     </a>
     Proximal Policy Optimization (PPO)<sup id="fnref:6"><a href="#fn:6" class="footnote-ref" role="doc-noteref">6</a></sup>
 </div>
@@ -925,7 +919,7 @@ objective (4.7) with the constraint (4.8).</p>
 <h5 id="ppo-penalty" >
 <div>
     <a href="#ppo-penalty">
-        
+        ####
     </a>
     PPO-penalty
 </div>
@@ -949,7 +943,7 @@ else:
 <h5 id="ppo-clip" >
 <div>
     <a href="#ppo-clip">
-        
+        ####
     </a>
     PPO-Clip
 </div>
@@ -987,7 +981,7 @@ $$ L(\omega) = \frac{1}{2} \mathbb{E}_t (G_t - V_{\omega} (s_t))^2 $$
 <h3 id="hybrid" >
 <div>
     <a href="#hybrid">
-        
+        ##
     </a>
     Hybrid
 </div>
@@ -1004,10 +998,10 @@ suffers from high variance in gradient estimation.</li>
 and the policy (to directly optimize actions). Actor-Critic algorithms, like A2C, PPO, and SAC, are popular examples of
 hybrid methods, combining a critic (value function) to evaluate actions and an actor (policy) to select actions. This synergy
 improves learning efficiency, stability, and scalability to complex environments.</p>
-<h4 id="actor-critic-ac9" >
+<h4 id="actor-critic-ac" >
 <div>
-    <a href="#actor-critic-ac9">
-        
+    <a href="#actor-critic-ac">
+        ###
     </a>
     Actor Critic (AC)<sup id="fnref:7"><a href="#fn:7" class="footnote-ref" role="doc-noteref">7</a></sup>
 </div>
@@ -1056,10 +1050,10 @@ are thus optimized by gradient descent.</p>
 <p>Actor-Critic serves as the foundation for many advanced RL algorithms and is widely used in solving complex decision-making problems.
 For example, PPO (Proximal Policy Optimization) is an variant that improves stability by constraining the policy update step.
 SAC (Soft Actor-Critic) extends actor-critic by incorporating entropy regularization to encourage exploration.</p>
-<h4 id="ddpg11" >
+<h4 id="ddpg" >
 <div>
-    <a href="#ddpg11">
-        
+    <a href="#ddpg">
+        ###
     </a>
     DDPG<sup id="fnref:9"><a href="#fn:9" class="footnote-ref" role="doc-noteref">9</a></sup>
 </div>
@@ -1112,10 +1106,10 @@ It combines ideas from Deterministic Policy Gradient (DPG) and Deep Q-Learning (
 </li>
 <li>Repeat until convergence.</li>
 </ul>
-<h4 id="sac10" >
+<h4 id="sac" >
 <div>
-    <a href="#sac10">
-        
+    <a href="#sac">
+        ###
     </a>
     SAC<sup id="fnref:10"><a href="#fn:10" class="footnote-ref" role="doc-noteref">10</a></sup>
 </div>
@@ -1224,13 +1218,13 @@ balancing exploration, stability, and scalability in diverse RL environments. Be
 <h2 id="citation" >
 <div>
     <a href="#citation">
-        
+        #
     </a>
     Citation
 </div>
 </h2>
 <p>If you find this post helpful, please consider citing it as:</p>
-<div class="highlight"><pre tabindex="0" style="color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bibtex" data-lang="bibtex"><span style="display:flex;"><span><span style="color:#f3f99d">@article</span>{<span style="color:#ff5c57">wang2024rflearningdeep</span>,
+<div class="highlight"><pre tabindex="0" style="color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bibtex" data-lang="bibtex"><span style="display:flex;"><span><span style="color:#f3f99d">@article</span>{<span style="color:#ff5c57">wang2024rflearningdeep</span>,
 </span></span><span style="display:flex;"><span>  <span style="color:#57c7ff">author</span> = <span style="color:#5af78e">&#34;Bing Wang&#34;</span>,
 </span></span><span style="display:flex;"><span>  <span style="color:#57c7ff">title</span> = <span style="color:#5af78e">&#34;A Journey to Reinforcement Learning - Deep RL&#34;</span>,
 </span></span><span style="display:flex;"><span>  <span style="color:#57c7ff">journal</span> = <span style="color:#5af78e">&#34;bingzw.github.io&#34;</span>,
@@ -1239,12 +1233,12 @@ balancing exploration, stability, and scalability in diverse RL environments. Be
 </span></span><span style="display:flex;"><span>  <span style="color:#57c7ff">url</span> = <span style="color:#5af78e">&#34;https://bingzw.github.io/posts/2024-07-15-rf-learning-deep/&#34;</span>
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>or</p>
-<div class="highlight"><pre tabindex="0" style="color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-markdown" data-lang="markdown"><span style="display:flex;"><span>Bing Wang. (2024, July). A Journey to Reinforcement Learning - Deep RL. 
+<div class="highlight"><pre tabindex="0" style="color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-markdown" data-lang="markdown"><span style="display:flex;"><span>Bing Wang. (2024, July). A Journey to Reinforcement Learning - Deep RL. 
 </span></span><span style="display:flex;"><span>https://bingzw.github.io/posts/2024-07-15-rf-learning-deep/
 </span></span></code></pre></div><h2 id="reference" >
 <div>
     <a href="#reference">
-        
+        #
     </a>
     Reference
 </div>
@@ -1388,7 +1382,7 @@ balancing exploration, stability, and scalability in diverse RL environments. Be
         
 
         <div style="display: flex; align-items: center; gap:8px">
-            © Bing Wang, 2025
+            © 2026
             
         </div>
         <div style="display:flex;align-items: center">

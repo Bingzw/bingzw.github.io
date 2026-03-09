@@ -151,12 +151,10 @@
 
 
     
-  
-    
       <script async src="https://www.googletagmanager.com/gtag/js?id=G-3P52NT65ZQ"></script>
       <script>
         var doNotTrack = false;
-        if ( false ) {
+        if ( true ) {
           var dnt = (navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack);
           var doNotTrack = (dnt == "1" || dnt == "yes");
         }
@@ -167,10 +165,6 @@
           gtag('config', 'G-3P52NT65ZQ');
         }
       </script>
-    
-  
-
-
 
 
 
@@ -386,7 +380,7 @@
     <nav class="noselect">
         
         
-        <a class="" href="https://bingzw.github.io/" title="">Home</a>
+        <a class="" href="https://bingzw.github.io/" title="Bingz Learning Blog">Home</a>
         
         <a class="" href="https://bingzw.github.io/about/" title="">About</a>
         
@@ -460,7 +454,7 @@
             <ul class="post-tags">
                 
                     
-                    <li><a href="/tags/machine-learning/">#Machine Learning</a></li>
+                    <li><a href="/tags/machine-learning/">#Machine-Learning</a></li>
                 
                     
                     <li><a href="/tags/deep-learning/">#Deep Learning</a></li>
@@ -513,8 +507,8 @@
             <li><a href="#clustering">Clustering</a></li>
             <li><a href="#matrix-factorization">Matrix Factorization</a>
               <ul>
-                <li><a href="#deep-auto-encoders2">Deep Auto-Encoders</a></li>
-                <li><a href="#neural-collaborative-filtering3">Neural Collaborative Filtering</a></li>
+                <li><a href="#deep-auto-encoders">Deep Auto-Encoders</a></li>
+                <li><a href="#neural-collaborative-filtering">Neural Collaborative Filtering</a></li>
               </ul>
             </li>
           </ul>
@@ -523,13 +517,13 @@
     </li>
     <li><a href="#content-based-models-ranking-as-recommendation">Content Based Models (Ranking As Recommendation)</a>
       <ul>
-        <li><a href="#wide--deep4">Wide &amp; Deep</a></li>
-        <li><a href="#deepfm5">DeepFM</a></li>
-        <li><a href="#deep-learning-recommendation-model-dlrm6">Deep Learning Recommendation Model (DLRM)</a></li>
-        <li><a href="#deep--cross-network-v2-dcn-v27">Deep &amp; Cross Network v2 (DCN v2)</a></li>
-        <li><a href="#deep-interest-network-din8">Deep Interest Network (DIN)</a></li>
-        <li><a href="#multi-gate-mixture-of-experts-mmoe9">Multi-gate Mixture of Experts (MMOE)</a></li>
-        <li><a href="#behavior-sequence-transformer-bst10">Behavior Sequence Transformer (BST)</a></li>
+        <li><a href="#wide--deep">Wide &amp; Deep</a></li>
+        <li><a href="#deepfm">DeepFM</a></li>
+        <li><a href="#deep-learning-recommendation-model-dlrm">Deep Learning Recommendation Model (DLRM)</a></li>
+        <li><a href="#deep--cross-network-v2-dcn-v2">Deep &amp; Cross Network v2 (DCN v2)</a></li>
+        <li><a href="#deep-interest-network-din">Deep Interest Network (DIN)</a></li>
+        <li><a href="#multi-gate-mixture-of-experts-mmoe">Multi-gate Mixture of Experts (MMOE)</a></li>
+        <li><a href="#behavior-sequence-transformer-bst">Behavior Sequence Transformer (BST)</a></li>
       </ul>
     </li>
     <li><a href="#summary">Summary</a></li>
@@ -568,7 +562,7 @@
 <h2 id="introduction-to-recommendation-models" >
 <div>
     <a href="#introduction-to-recommendation-models">
-        
+        #
     </a>
     Introduction to Recommendation Models
 </div>
@@ -586,7 +580,7 @@ and revenue generation. Let&rsquo;s take a look at the most popular modeling app
 <h2 id="collaborative-filtering-cf" >
 <div>
     <a href="#collaborative-filtering-cf">
-        
+        #
     </a>
     Collaborative Filtering (CF)
 </div>
@@ -597,7 +591,7 @@ straightforward and only requires user-item interaction history.</p>
 <h3 id="memory-based-cf" >
 <div>
     <a href="#memory-based-cf">
-        
+        ##
     </a>
     Memory Based CF
 </div>
@@ -610,7 +604,7 @@ filtering or item-item filtering.</p>
 <h4 id="user-user-filtering" >
 <div>
     <a href="#user-user-filtering">
-        
+        ###
     </a>
     User User Filtering
 </div>
@@ -625,7 +619,7 @@ and $u&rsquo;$. A common choice is to calculate the cosine similarity between tw
 <h4 id="item-item-filtering" >
 <div>
     <a href="#item-item-filtering">
-        
+        ###
     </a>
     Item Item Filtering
 </div>
@@ -639,7 +633,7 @@ combination of observed ratings. Can we do better than weighted average?</p>
 <h3 id="model-based-cf" >
 <div>
     <a href="#model-based-cf">
-        
+        ##
     </a>
     Model Based CF
 </div>
@@ -653,7 +647,7 @@ space and $n$ denotes the dimension of item space.</p>
 <h4 id="clustering" >
 <div>
     <a href="#clustering">
-        
+        ###
     </a>
     Clustering
 </div>
@@ -663,7 +657,7 @@ items depending on the similarity metrics used.</p>
 <h4 id="matrix-factorization" >
 <div>
     <a href="#matrix-factorization">
-        
+        ###
     </a>
     Matrix Factorization
 </div>
@@ -683,10 +677,10 @@ dominated by one or the other, and $\omega_{i, j}$ is a function of the frequenc
 <p>Common optimization algorithms to minimize the above objective function includes <strong>stochastic gradient descent</strong> and
 <strong>weighted alternating least squares (WALS)</strong>.</p>
 <p>Recently, a few efforts on deep learning have also been proposed on matrix factorization. For example,</p>
-<h5 id="deep-auto-encoders2" >
+<h5 id="deep-auto-encoders" >
 <div>
-    <a href="#deep-auto-encoders2">
-        
+    <a href="#deep-auto-encoders">
+        ####
     </a>
     Deep Auto-Encoders<sup id="fnref:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">2</a></sup>
 </div>
@@ -699,10 +693,10 @@ factors, leveraging the rich user interaction data to learn better representatio
     <img src="/recommendation_model/autoencoder_mf.png"><br>
     <em>Figure 1: deep auto-encoder</em>
 </p>
-<h5 id="neural-collaborative-filtering3" >
+<h5 id="neural-collaborative-filtering" >
 <div>
-    <a href="#neural-collaborative-filtering3">
-        
+    <a href="#neural-collaborative-filtering">
+        ####
     </a>
     Neural Collaborative Filtering<sup id="fnref:3"><a href="#fn:3" class="footnote-ref" role="doc-noteref">3</a></sup>
 </div>
@@ -722,7 +716,7 @@ features, such as user demographics or item attributes, into the model. Refer to
 <h2 id="content-based-models-ranking-as-recommendation" >
 <div>
     <a href="#content-based-models-ranking-as-recommendation">
-        
+        #
     </a>
     Content Based Models (Ranking As Recommendation)
 </div>
@@ -734,10 +728,10 @@ user based on the features of the items they have shown interest in. Compared wi
 to handle the cold start issue when item features are known. However, its recommendation may strictly adheres to the
 user&rsquo;s profile, potentially limiting diversity. There are quite a few popular model frameworks in this area and we would
 focus on the models based on deep neural architecture.</p>
-<h3 id="wide--deep4" >
+<h3 id="wide--deep" >
 <div>
-    <a href="#wide--deep4">
-        
+    <a href="#wide--deep">
+        ##
     </a>
     Wide &amp; Deep<sup id="fnref:4"><a href="#fn:4" class="footnote-ref" role="doc-noteref">4</a></sup>
 </div>
@@ -774,10 +768,10 @@ $$</p>
    <img src="/recommendation_model/wide_deep.png" width="800" height="600"><br>
    <em>Figure 3: wide & deep model</em>
 </p>
-<h3 id="deepfm5" >
+<h3 id="deepfm" >
 <div>
-    <a href="#deepfm5">
-        
+    <a href="#deepfm">
+        ##
     </a>
     DeepFM<sup id="fnref:5"><a href="#fn:5" class="footnote-ref" role="doc-noteref">5</a></sup>
 </div>
@@ -817,10 +811,10 @@ activation of the last hidden layer.</p>
    <img src="/recommendation_model/deepfm.png" width="600" height="400"><br>
    <em>Figure 4: deepfm model</em>
 </p>
-<h3 id="deep-learning-recommendation-model-dlrm6" >
+<h3 id="deep-learning-recommendation-model-dlrm" >
 <div>
-    <a href="#deep-learning-recommendation-model-dlrm6">
-        
+    <a href="#deep-learning-recommendation-model-dlrm">
+        ##
     </a>
     Deep Learning Recommendation Model (DLRM)<sup id="fnref:6"><a href="#fn:6" class="footnote-ref" role="doc-noteref">6</a></sup>
 </div>
@@ -872,10 +866,10 @@ $$
 where $\sigma$ is an activation function, typically a sigmoid function for binary classification tasks.</p>
 </li>
 </ol>
-<h3 id="deep--cross-network-v2-dcn-v27" >
+<h3 id="deep--cross-network-v2-dcn-v2" >
 <div>
-    <a href="#deep--cross-network-v2-dcn-v27">
-        
+    <a href="#deep--cross-network-v2-dcn-v2">
+        ##
     </a>
     Deep &amp; Cross Network v2 (DCN v2)<sup id="fnref:7"><a href="#fn:7" class="footnote-ref" role="doc-noteref">7</a></sup>
 </div>
@@ -910,10 +904,10 @@ of cross and deep network outputs.</p>
    <img src="/recommendation_model/dcn_v2.png" width="600" height="400"><br>
    <em>Figure 6: deep cross network v2</em>
 </p>
-<h3 id="deep-interest-network-din8" >
+<h3 id="deep-interest-network-din" >
 <div>
-    <a href="#deep-interest-network-din8">
-        
+    <a href="#deep-interest-network-din">
+        ##
     </a>
     Deep Interest Network (DIN)<sup id="fnref:8"><a href="#fn:8" class="footnote-ref" role="doc-noteref">8</a></sup>
 </div>
@@ -958,10 +952,10 @@ where $[u, e_{target}, e_{profile}, e_{context}]$ denotes the concatenation of t
 embedding, context embedding and the target item embedding, $W$ is a weight matrix, $b$ is a bias term, and $\sigma$ is an activation function (e.g., sigmoid).</p>
 </li>
 </ol>
-<h3 id="multi-gate-mixture-of-experts-mmoe9" >
+<h3 id="multi-gate-mixture-of-experts-mmoe" >
 <div>
-    <a href="#multi-gate-mixture-of-experts-mmoe9">
-        
+    <a href="#multi-gate-mixture-of-experts-mmoe">
+        ##
     </a>
     Multi-gate Mixture of Experts (MMOE)<sup id="fnref:9"><a href="#fn:9" class="footnote-ref" role="doc-noteref">9</a></sup>
 </div>
@@ -1006,10 +1000,10 @@ $$
 where $f_o^j$ is the task-specific output layer for task $j$, and $\hat{y}^j$ is the predicted output for task $j$.</p>
 </li>
 </ol>
-<h3 id="behavior-sequence-transformer-bst10" >
+<h3 id="behavior-sequence-transformer-bst" >
 <div>
-    <a href="#behavior-sequence-transformer-bst10">
-        
+    <a href="#behavior-sequence-transformer-bst">
+        ##
     </a>
     Behavior Sequence Transformer (BST)<sup id="fnref:10"><a href="#fn:10" class="footnote-ref" role="doc-noteref">10</a></sup>
 </div>
@@ -1070,7 +1064,7 @@ where $\mathbf{W}_o$ is the weight matrix of the output layer, $\mathbf{O}_L$ is
 <h2 id="summary" >
 <div>
     <a href="#summary">
-        
+        #
     </a>
     Summary
 </div>
@@ -1082,13 +1076,13 @@ Users may choose the best model depending on the business requirements and syste
 <h2 id="citation" >
 <div>
     <a href="#citation">
-        
+        #
     </a>
     Citation
 </div>
 </h2>
 <p>If you find this post helpful, please consider citing it as:</p>
-<div class="highlight"><pre tabindex="0" style="color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bibtex" data-lang="bibtex"><span style="display:flex;"><span><span style="color:#f3f99d">@article</span>{<span style="color:#ff5c57">wang2024recommendationmodel</span>,
+<div class="highlight"><pre tabindex="0" style="color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bibtex" data-lang="bibtex"><span style="display:flex;"><span><span style="color:#f3f99d">@article</span>{<span style="color:#ff5c57">wang2024recommendationmodel</span>,
 </span></span><span style="display:flex;"><span>  <span style="color:#57c7ff">author</span> = <span style="color:#5af78e">&#34;Bing Wang&#34;</span>,
 </span></span><span style="display:flex;"><span>  <span style="color:#57c7ff">title</span> = <span style="color:#5af78e">&#34;Recommendation Models&#34;</span>,
 </span></span><span style="display:flex;"><span>  <span style="color:#57c7ff">journal</span> = <span style="color:#5af78e">&#34;bingzw.github.io&#34;</span>,
@@ -1097,12 +1091,12 @@ Users may choose the best model depending on the business requirements and syste
 </span></span><span style="display:flex;"><span>  <span style="color:#57c7ff">url</span> = <span style="color:#5af78e">&#34;https://bingzw.github.io/posts/2024-06-06-recommendation-model/&#34;</span>
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>or</p>
-<div class="highlight"><pre tabindex="0" style="color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-markdown" data-lang="markdown"><span style="display:flex;"><span>Bing Wang. (2024, June). Recommendation Models. 
+<div class="highlight"><pre tabindex="0" style="color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-markdown" data-lang="markdown"><span style="display:flex;"><span>Bing Wang. (2024, June). Recommendation Models. 
 </span></span><span style="display:flex;"><span>https://bingzw.github.io/posts/2024-06-06-recommendation-model/
 </span></span></code></pre></div><h2 id="reference" >
 <div>
     <a href="#reference">
-        
+        #
     </a>
     Reference
 </div>
@@ -1243,7 +1237,7 @@ Users may choose the best model depending on the business requirements and syste
         
 
         <div style="display: flex; align-items: center; gap:8px">
-            © Bing Wang, 2025
+            © 2026
             
         </div>
         <div style="display:flex;align-items: center">

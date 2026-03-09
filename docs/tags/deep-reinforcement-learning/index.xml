@@ -6,8 +6,6 @@
     <description>Bingz Learning Blog (Deep Reinforcement Learning)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <managingEditor>bingwang8878@gamil.com (Bing Wang)</managingEditor>
-    <webMaster>bingwang8878@gamil.com (Bing Wang)</webMaster>
     <lastBuildDate>Mon, 15 Jul 2024 21:40:55 -0700</lastBuildDate>
     
     <atom:link href="/tags/deep-reinforcement-learning/index.xml" rel="self" type="application/rss+xml" />
@@ -17,7 +15,7 @@
       <title>A Journey to Reinforcement Learning - Deep RL</title>
       <link>/posts/2024-07-15-rf-learning-deep/</link>
       <pubDate>Mon, 15 Jul 2024 21:40:55 -0700</pubDate>
-      <author>bingwang8878@gamil.com (Bing Wang)</author>
+      
       <guid>/posts/2024-07-15-rf-learning-deep/</guid>
       <description>&lt;p align=&#34;center&#34;&gt;
 &lt;img src=&#34;https://bingzw.github.io/rf/deeprl.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
@@ -29,7 +27,7 @@ algorithm in model free setting.&lt;/p&gt;
 &lt;h2 id=&#34;model-free---when-the-environment-is-unknown&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#model-free---when-the-environment-is-unknown&#34;&gt;
-        
+        #
     &lt;/a&gt;
     Model Free - when the environment is unknown
 &lt;/div&gt;
@@ -37,7 +35,7 @@ algorithm in model free setting.&lt;/p&gt;
 &lt;h3 id=&#34;value-based-continuing-&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#value-based-continuing-&#34;&gt;
-        
+        ##
     &lt;/a&gt;
     Value Based (Continuing &amp;hellip;)
 &lt;/div&gt;
@@ -45,7 +43,7 @@ algorithm in model free setting.&lt;/p&gt;
 &lt;h4 id=&#34;deep-q-network-dqn&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#deep-q-network-dqn&#34;&gt;
-        
+        ###
     &lt;/a&gt;
     Deep Q Network (DQN)
 &lt;/div&gt;
@@ -116,7 +114,7 @@ thus also improving the training efficiency.&lt;/p&gt;
 &lt;h4 id=&#34;advanced-dqn&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#advanced-dqn&#34;&gt;
-        
+        ###
     &lt;/a&gt;
     Advanced DQN
 &lt;/div&gt;
@@ -126,7 +124,7 @@ from issues like overestimation. Below lists the efforts to further refine the D
 &lt;h5 id=&#34;double-dqn&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#double-dqn&#34;&gt;
-        
+        ####
     &lt;/a&gt;
     Double DQN
 &lt;/div&gt;
@@ -138,7 +136,7 @@ the target network to evaluate them. This reduces overestimation bias and leads 
 &lt;h5 id=&#34;duel-dqn&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#duel-dqn&#34;&gt;
-        
+        ####
     &lt;/a&gt;
     Duel DQN
 &lt;/div&gt;
@@ -151,7 +149,7 @@ leading to improved learning efficiency.&lt;/p&gt;
 &lt;h5 id=&#34;prioritized-experience-replay&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#prioritized-experience-replay&#34;&gt;
-        
+        ####
     &lt;/a&gt;
     Prioritized Experience Replay
 &lt;/div&gt;
@@ -164,7 +162,7 @@ the learning process.&lt;/p&gt;
 &lt;h5 id=&#34;noisy-nets&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#noisy-nets&#34;&gt;
-        
+        ####
     &lt;/a&gt;
     Noisy Nets
 &lt;/div&gt;
@@ -175,7 +173,7 @@ effectively by adding noise directly to the weights. This leads to more effectiv
 &lt;h5 id=&#34;distributional-dqn&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#distributional-dqn&#34;&gt;
-        
+        ####
     &lt;/a&gt;
     Distributional DQN
 &lt;/div&gt;
@@ -184,10 +182,10 @@ effectively by adding noise directly to the weights. This leads to more effectiv
 information about the returns.&lt;/p&gt;
 &lt;p&gt;&lt;em&gt;Approach&lt;/em&gt;: Instead of estimating the expected value, estimate the distribution of the $Q$ function. This is to capture
 the uncertainty of the $Q$ function. The $Q$ function is then calculated as the expected value of the distribution.&lt;/p&gt;
-&lt;h5 id=&#34;rainbow-dqn-4&#34; &gt;
+&lt;h5 id=&#34;rainbow-dqn&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#rainbow-dqn-4&#34;&gt;
-        
+    &lt;a href=&#34;#rainbow-dqn&#34;&gt;
+        ####
     &lt;/a&gt;
     Rainbow DQN &lt;sup id=&#34;fnref:4&#34;&gt;&lt;a href=&#34;#fn:4&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;4&lt;/a&gt;&lt;/sup&gt;
 &lt;/div&gt;
@@ -205,7 +203,7 @@ each approach to achieve superior performance in a unified model.&lt;/p&gt;
 &lt;h3 id=&#34;policy-based&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#policy-based&#34;&gt;
-        
+        ##
     &lt;/a&gt;
     Policy Based
 &lt;/div&gt;
@@ -218,7 +216,7 @@ allowing the agent to choose actions based on the learned distribution.&lt;/p&gt
 &lt;h4 id=&#34;policy-gradient&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#policy-gradient&#34;&gt;
-        
+        ###
     &lt;/a&gt;
     Policy Gradient
 &lt;/div&gt;
@@ -274,7 +272,7 @@ the $Q_{\pi_{\theta}}(s, a)$ when calculating the gradient, a simple way is to a
 &lt;h4 id=&#34;reinforce&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#reinforce&#34;&gt;
-        
+        ###
     &lt;/a&gt;
     REINFORCE
 &lt;/div&gt;
@@ -300,10 +298,10 @@ the $Q_{\pi_{\theta}}(s, a)$ when calculating the gradient, a simple way is to a
 &lt;p&gt;This is a &amp;ldquo;policy version&amp;rdquo; monte carlo approach. Like the Monte Carlo algorithm, it&amp;rsquo;s a simple online algorithm but may suffer from issues like
 high variance, delayed rewards, inefficient sampling, noisy updates and non-stationary returns. To tackle these issues, more dedicated tools
 are needed.&lt;/p&gt;
-&lt;h4 id=&#34;trust-region-policy-optimization-trpo-7&#34; &gt;
+&lt;h4 id=&#34;trust-region-policy-optimization-trpo&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#trust-region-policy-optimization-trpo-7&#34;&gt;
-        
+    &lt;a href=&#34;#trust-region-policy-optimization-trpo&#34;&gt;
+        ###
     &lt;/a&gt;
     Trust Region Policy Optimization (TRPO) &lt;sup id=&#34;fnref:5&#34;&gt;&lt;a href=&#34;#fn:5&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;5&lt;/a&gt;&lt;/sup&gt;
 &lt;/div&gt;
@@ -377,10 +375,10 @@ $$ L(\omega) = \frac{1}{2} \mathbb{E}_t [G_t - V_{\omega} (s_t)]^2 $$
 &lt;li&gt;end for&lt;/li&gt;
 &lt;li&gt;return the policy $\pi_\theta$&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h4 id=&#34;proximal-policy-optimization-ppo8&#34; &gt;
+&lt;h4 id=&#34;proximal-policy-optimization-ppo&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#proximal-policy-optimization-ppo8&#34;&gt;
-        
+    &lt;a href=&#34;#proximal-policy-optimization-ppo&#34;&gt;
+        ###
     &lt;/a&gt;
     Proximal Policy Optimization (PPO)&lt;sup id=&#34;fnref:6&#34;&gt;&lt;a href=&#34;#fn:6&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;6&lt;/a&gt;&lt;/sup&gt;
 &lt;/div&gt;
@@ -390,7 +388,7 @@ objective (4.7) with the constraint (4.8).&lt;/p&gt;
 &lt;h5 id=&#34;ppo-penalty&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#ppo-penalty&#34;&gt;
-        
+        ####
     &lt;/a&gt;
     PPO-penalty
 &lt;/div&gt;
@@ -414,7 +412,7 @@ else:
 &lt;h5 id=&#34;ppo-clip&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#ppo-clip&#34;&gt;
-        
+        ####
     &lt;/a&gt;
     PPO-Clip
 &lt;/div&gt;
@@ -452,7 +450,7 @@ $$ L(\omega) = \frac{1}{2} \mathbb{E}_t (G_t - V_{\omega} (s_t))^2 $$
 &lt;h3 id=&#34;hybrid&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#hybrid&#34;&gt;
-        
+        ##
     &lt;/a&gt;
     Hybrid
 &lt;/div&gt;
@@ -469,10 +467,10 @@ suffers from high variance in gradient estimation.&lt;/li&gt;
 and the policy (to directly optimize actions). Actor-Critic algorithms, like A2C, PPO, and SAC, are popular examples of
 hybrid methods, combining a critic (value function) to evaluate actions and an actor (policy) to select actions. This synergy
 improves learning efficiency, stability, and scalability to complex environments.&lt;/p&gt;
-&lt;h4 id=&#34;actor-critic-ac9&#34; &gt;
+&lt;h4 id=&#34;actor-critic-ac&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#actor-critic-ac9&#34;&gt;
-        
+    &lt;a href=&#34;#actor-critic-ac&#34;&gt;
+        ###
     &lt;/a&gt;
     Actor Critic (AC)&lt;sup id=&#34;fnref:7&#34;&gt;&lt;a href=&#34;#fn:7&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;7&lt;/a&gt;&lt;/sup&gt;
 &lt;/div&gt;
@@ -521,10 +519,10 @@ are thus optimized by gradient descent.&lt;/p&gt;
 &lt;p&gt;Actor-Critic serves as the foundation for many advanced RL algorithms and is widely used in solving complex decision-making problems.
 For example, PPO (Proximal Policy Optimization) is an variant that improves stability by constraining the policy update step.
 SAC (Soft Actor-Critic) extends actor-critic by incorporating entropy regularization to encourage exploration.&lt;/p&gt;
-&lt;h4 id=&#34;ddpg11&#34; &gt;
+&lt;h4 id=&#34;ddpg&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#ddpg11&#34;&gt;
-        
+    &lt;a href=&#34;#ddpg&#34;&gt;
+        ###
     &lt;/a&gt;
     DDPG&lt;sup id=&#34;fnref:9&#34;&gt;&lt;a href=&#34;#fn:9&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;9&lt;/a&gt;&lt;/sup&gt;
 &lt;/div&gt;
@@ -577,10 +575,10 @@ It combines ideas from Deterministic Policy Gradient (DPG) and Deep Q-Learning (
 &lt;/li&gt;
 &lt;li&gt;Repeat until convergence.&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h4 id=&#34;sac10&#34; &gt;
+&lt;h4 id=&#34;sac&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#sac10&#34;&gt;
-        
+    &lt;a href=&#34;#sac&#34;&gt;
+        ###
     &lt;/a&gt;
     SAC&lt;sup id=&#34;fnref:10&#34;&gt;&lt;a href=&#34;#fn:10&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;10&lt;/a&gt;&lt;/sup&gt;
 &lt;/div&gt;
@@ -689,13 +687,13 @@ balancing exploration, stability, and scalability in diverse RL environments. Be
 &lt;h2 id=&#34;citation&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#citation&#34;&gt;
-        
+        #
     &lt;/a&gt;
     Citation
 &lt;/div&gt;
 &lt;/h2&gt;
 &lt;p&gt;If you find this post helpful, please consider citing it as:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bibtex&#34; data-lang=&#34;bibtex&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f3f99d&#34;&gt;@article&lt;/span&gt;{&lt;span style=&#34;color:#ff5c57&#34;&gt;wang2024rflearningdeep&lt;/span&gt;,
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bibtex&#34; data-lang=&#34;bibtex&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f3f99d&#34;&gt;@article&lt;/span&gt;{&lt;span style=&#34;color:#ff5c57&#34;&gt;wang2024rflearningdeep&lt;/span&gt;,
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;author&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;Bing Wang&amp;#34;&lt;/span&gt;,
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;title&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;A Journey to Reinforcement Learning - Deep RL&amp;#34;&lt;/span&gt;,
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;journal&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;bingzw.github.io&amp;#34;&lt;/span&gt;,
@@ -704,12 +702,12 @@ balancing exploration, stability, and scalability in diverse RL environments. Be
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;url&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;https://bingzw.github.io/posts/2024-07-15-rf-learning-deep/&amp;#34;&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;or&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-markdown&#34; data-lang=&#34;markdown&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Bing Wang. (2024, July). A Journey to Reinforcement Learning - Deep RL. 
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-markdown&#34; data-lang=&#34;markdown&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Bing Wang. (2024, July). A Journey to Reinforcement Learning - Deep RL. 
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;https://bingzw.github.io/posts/2024-07-15-rf-learning-deep/
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;reference&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#reference&#34;&gt;
-        
+        #
     &lt;/a&gt;
     Reference
 &lt;/div&gt;

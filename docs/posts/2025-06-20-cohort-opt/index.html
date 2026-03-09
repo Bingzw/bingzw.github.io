@@ -151,12 +151,10 @@
 
 
     
-  
-    
       <script async src="https://www.googletagmanager.com/gtag/js?id=G-3P52NT65ZQ"></script>
       <script>
         var doNotTrack = false;
-        if ( false ) {
+        if ( true ) {
           var dnt = (navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack);
           var doNotTrack = (dnt == "1" || dnt == "yes");
         }
@@ -167,10 +165,6 @@
           gtag('config', 'G-3P52NT65ZQ');
         }
       </script>
-    
-  
-
-
 
 
 
@@ -386,7 +380,7 @@
     <nav class="noselect">
         
         
-        <a class="" href="https://bingzw.github.io/" title="">Home</a>
+        <a class="" href="https://bingzw.github.io/" title="Bingz Learning Blog">Home</a>
         
         <a class="" href="https://bingzw.github.io/about/" title="">About</a>
         
@@ -546,7 +540,7 @@
 <h2 id="context" >
 <div>
     <a href="#context">
-        
+        #
     </a>
     Context
 </div>
@@ -566,7 +560,7 @@ see the graph neural network for identification in section 3.</p>
 <h2 id="strategies" >
 <div>
     <a href="#strategies">
-        
+        #
     </a>
     Strategies
 </div>
@@ -575,7 +569,7 @@ see the graph neural network for identification in section 3.</p>
 <h3 id="1-dynamic-weighted-sample-training" >
 <div>
     <a href="#1-dynamic-weighted-sample-training">
-        
+        ##
     </a>
     1. Dynamic Weighted Sample Training
 </div>
@@ -599,7 +593,7 @@ or representations based on the user&rsquo;s current stage <sup id="fnref:6"><a 
 <h3 id="2-dedicated-cohort-learning-modules" >
 <div>
     <a href="#2-dedicated-cohort-learning-modules">
-        
+        ##
     </a>
     2. Dedicated Cohort Learning Modules
 </div>
@@ -607,7 +601,7 @@ or representations based on the user&rsquo;s current stage <sup id="fnref:6"><a 
 <h4 id="21-customized-mixture-of-experts-moemmoe-learning-module" >
 <div>
     <a href="#21-customized-mixture-of-experts-moemmoe-learning-module">
-        
+        ###
     </a>
     2.1 Customized Mixture-of-Experts (MoE/MMoE) learning module
 </div>
@@ -646,7 +640,7 @@ redundant or too specialized, and solutions like expert balance regularization a
 <h4 id="22-lora-for-cohort-specific-fine-tuning" >
 <div>
     <a href="#22-lora-for-cohort-specific-fine-tuning">
-        
+        ###
     </a>
     2.2. LoRA for Cohort-Specific Fine-tuning
 </div>
@@ -681,7 +675,7 @@ modules are adapted for individual instances (which can be interpreted as highly
 <h3 id="3-explore-other-approaches" >
 <div>
     <a href="#3-explore-other-approaches">
-        
+        ##
     </a>
     3. Explore Other Approaches
 </div>
@@ -725,47 +719,47 @@ clustering or community detection algorithms on the user-user interaction graph,
 <h2 id="discussion" >
 <div>
     <a href="#discussion">
-        
+        #
     </a>
     Discussion
 </div>
 </h2>
 <p>Each strategy offers unique advantages and trade-offs when optimizing for user cohorts in MTL recommendation systems.</p>
 <table>
-<thead>
-<tr>
-<th style="text-align:left">Strategy</th>
-<th style="text-align:left">Pros</th>
-<th style="text-align:left">Cons</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left"><strong>Dynamic Weighted Training</strong></td>
-<td style="text-align:left"><strong>Simplicity (Rule-Based):</strong> Easy to implement for basic scenarios. <br/><strong>Flexibility (Model-Based):</strong> Can dynamically adapt to changing cohort needs. <br/><strong>Computational Efficiency:</strong> No major architectural changes, often involves just loss adjustments, reducing computational overhead <sup id="fnref1:4"><a href="#fn:4" class="footnote-ref" role="doc-noteref">4</a></sup>. <br/><strong>Balances Tasks:</strong> Can prevent one task (or cohort&rsquo;s objective) from dominating others, improving generalization <sup id="fnref1:5"><a href="#fn:5" class="footnote-ref" role="doc-noteref">5</a></sup>.</td>
-<td style="text-align:left"><strong>Weight Determination:</strong> Difficult to set optimal rule-based weights. Model-based methods can be complex to design and tune. <br/><strong>Suboptimal Performance:</strong> Improper balancing can lead to poor overall or cohort-specific performance. <br/><strong>No Explicit Specialization:</strong> Model doesn&rsquo;t explicitly specialize per cohort; it only changes attention during training. <br/><strong>Lack of Interpretability:</strong> Why certain weights are chosen can be opaque for model-based methods.</td>
-</tr>
-<tr>
-<td style="text-align:left"><strong>Mixture-of-Experts (MoE/MMoE)</strong></td>
-<td style="text-align:left"><strong>Explicit Specialization:</strong> Dedicated experts can learn highly specific patterns for each cohort, leading to better performance for diverse groups <sup id="fnref1:7"><a href="#fn:7" class="footnote-ref" role="doc-noteref">7</a></sup>. <br/><strong>Scalability:</strong> Can scale to many cohorts/tasks by adding experts. <br/><strong>Interpretability:</strong> Can potentially observe which experts are active for which cohorts.</td>
-<td style="text-align:left"><strong>Computational Cost:</strong> More parameters than a single model, leading to higher training and inference costs (though can be optimized). <br/><strong>Expert Collapse/Polarization:</strong> Experts might become redundant or specialize too narrowly, leading to poor generalization for some cohorts [^8]. <br/><strong>Routing Complexity:</strong> Gating network needs careful design; poor routing can degrade performance. <br/><strong>Data Requirements:</strong> Each cohort expert needs sufficient data to train effectively.</td>
-</tr>
-<tr>
-<td style="text-align:left"><strong>LoRA for Cohort Fine-tuning</strong></td>
-<td style="text-align:left"><strong>Parameter Efficiency:</strong> Significantly fewer trainable parameters than full fine-tuning or MoE (no full expert networks), reducing memory and computation <sup id="fnref1:9"><a href="#fn:9" class="footnote-ref" role="doc-noteref">9</a></sup>. <br/><strong>No Inference Latency:</strong> Once LoRA weights are loaded, inference is as fast as the base model. <br/><strong>Modularity:</strong> Easy to add/remove cohort-specific LoRA modules. <br/><strong>Knowledge Retention:</strong> Leverages a strong pre-trained base model, preventing catastrophic forgetting <sup id="fnref2:9"><a href="#fn:9" class="footnote-ref" role="doc-noteref">9</a></sup>.</td>
-<td style="text-align:left"><strong>Base Model Dependence:</strong> Performance is limited by the capabilities of the base model. <br/><strong>Still Requires Data:</strong> Each LoRA module needs enough cohort-specific data for effective fine-tuning. <br/><strong>Storage:</strong> Storing many LoRA modules for many small cohorts can still accumulate. <br/><strong>Potential Overfitting:</strong> Small modules can potentially overfit if cohort data is too sparse.</td>
-</tr>
-<tr>
-<td style="text-align:left"><strong>Other Approaches</strong></td>
-<td style="text-align:left"><strong>Personalized Loss:</strong> Direct control over cohort objectives (e.g., fairness, specific metrics). <br/><strong>Hierarchical Models:</strong> Explicitly models group-level patterns, strong for cold-start groups. <br/><strong>Meta-learning:</strong> Fast adaptation to new or small cohorts/users. <br/><strong>GNNs:</strong> Naturally capture complex relationships for implicit cohort identification.</td>
-<td style="text-align:left"><strong>Personalized Loss:</strong> Can be complex to formulate and optimize. <br/><strong>Hierarchical Models:</strong> Designing the hierarchy and information flow can be challenging. <br/><strong>Meta-learning:</strong> Computationally intensive for meta-training; industrial deployment can be complex. <br/><strong>GNNs:</strong> High computational cost for large graphs; defining optimal graph structures can be tricky <sup id="fnref1:16"><a href="#fn:16" class="footnote-ref" role="doc-noteref">16</a></sup>.</td>
-</tr>
-</tbody>
+  <thead>
+      <tr>
+          <th style="text-align: left">Strategy</th>
+          <th style="text-align: left">Pros</th>
+          <th style="text-align: left">Cons</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td style="text-align: left"><strong>Dynamic Weighted Training</strong></td>
+          <td style="text-align: left"><strong>Simplicity (Rule-Based):</strong> Easy to implement for basic scenarios. <br/><strong>Flexibility (Model-Based):</strong> Can dynamically adapt to changing cohort needs. <br/><strong>Computational Efficiency:</strong> No major architectural changes, often involves just loss adjustments, reducing computational overhead <sup id="fnref1:4"><a href="#fn:4" class="footnote-ref" role="doc-noteref">4</a></sup>. <br/><strong>Balances Tasks:</strong> Can prevent one task (or cohort&rsquo;s objective) from dominating others, improving generalization <sup id="fnref1:5"><a href="#fn:5" class="footnote-ref" role="doc-noteref">5</a></sup>.</td>
+          <td style="text-align: left"><strong>Weight Determination:</strong> Difficult to set optimal rule-based weights. Model-based methods can be complex to design and tune. <br/><strong>Suboptimal Performance:</strong> Improper balancing can lead to poor overall or cohort-specific performance. <br/><strong>No Explicit Specialization:</strong> Model doesn&rsquo;t explicitly specialize per cohort; it only changes attention during training. <br/><strong>Lack of Interpretability:</strong> Why certain weights are chosen can be opaque for model-based methods.</td>
+      </tr>
+      <tr>
+          <td style="text-align: left"><strong>Mixture-of-Experts (MoE/MMoE)</strong></td>
+          <td style="text-align: left"><strong>Explicit Specialization:</strong> Dedicated experts can learn highly specific patterns for each cohort, leading to better performance for diverse groups <sup id="fnref1:7"><a href="#fn:7" class="footnote-ref" role="doc-noteref">7</a></sup>. <br/><strong>Scalability:</strong> Can scale to many cohorts/tasks by adding experts. <br/><strong>Interpretability:</strong> Can potentially observe which experts are active for which cohorts.</td>
+          <td style="text-align: left"><strong>Computational Cost:</strong> More parameters than a single model, leading to higher training and inference costs (though can be optimized). <br/><strong>Expert Collapse/Polarization:</strong> Experts might become redundant or specialize too narrowly, leading to poor generalization for some cohorts [^8]. <br/><strong>Routing Complexity:</strong> Gating network needs careful design; poor routing can degrade performance. <br/><strong>Data Requirements:</strong> Each cohort expert needs sufficient data to train effectively.</td>
+      </tr>
+      <tr>
+          <td style="text-align: left"><strong>LoRA for Cohort Fine-tuning</strong></td>
+          <td style="text-align: left"><strong>Parameter Efficiency:</strong> Significantly fewer trainable parameters than full fine-tuning or MoE (no full expert networks), reducing memory and computation <sup id="fnref1:9"><a href="#fn:9" class="footnote-ref" role="doc-noteref">9</a></sup>. <br/><strong>No Inference Latency:</strong> Once LoRA weights are loaded, inference is as fast as the base model. <br/><strong>Modularity:</strong> Easy to add/remove cohort-specific LoRA modules. <br/><strong>Knowledge Retention:</strong> Leverages a strong pre-trained base model, preventing catastrophic forgetting <sup id="fnref2:9"><a href="#fn:9" class="footnote-ref" role="doc-noteref">9</a></sup>.</td>
+          <td style="text-align: left"><strong>Base Model Dependence:</strong> Performance is limited by the capabilities of the base model. <br/><strong>Still Requires Data:</strong> Each LoRA module needs enough cohort-specific data for effective fine-tuning. <br/><strong>Storage:</strong> Storing many LoRA modules for many small cohorts can still accumulate. <br/><strong>Potential Overfitting:</strong> Small modules can potentially overfit if cohort data is too sparse.</td>
+      </tr>
+      <tr>
+          <td style="text-align: left"><strong>Other Approaches</strong></td>
+          <td style="text-align: left"><strong>Personalized Loss:</strong> Direct control over cohort objectives (e.g., fairness, specific metrics). <br/><strong>Hierarchical Models:</strong> Explicitly models group-level patterns, strong for cold-start groups. <br/><strong>Meta-learning:</strong> Fast adaptation to new or small cohorts/users. <br/><strong>GNNs:</strong> Naturally capture complex relationships for implicit cohort identification.</td>
+          <td style="text-align: left"><strong>Personalized Loss:</strong> Can be complex to formulate and optimize. <br/><strong>Hierarchical Models:</strong> Designing the hierarchy and information flow can be challenging. <br/><strong>Meta-learning:</strong> Computationally intensive for meta-training; industrial deployment can be complex. <br/><strong>GNNs:</strong> High computational cost for large graphs; defining optimal graph structures can be tricky <sup id="fnref1:16"><a href="#fn:16" class="footnote-ref" role="doc-noteref">16</a></sup>.</td>
+      </tr>
+  </tbody>
 </table>
 <h2 id="direction-extension" >
 <div>
     <a href="#direction-extension">
-        
+        #
     </a>
     Direction Extension
 </div>
@@ -822,13 +816,13 @@ the base model, enhancing trust and enabling better manual interventions.</li>
 <h2 id="citation" >
 <div>
     <a href="#citation">
-        
+        #
     </a>
     Citation
 </div>
 </h2>
 <p>If you find this post helpful, please consider citing it as:</p>
-<div class="highlight"><pre tabindex="0" style="color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bibtex" data-lang="bibtex"><span style="display:flex;"><span><span style="color:#f3f99d">@article</span>{<span style="color:#ff5c57">wang2025cohortopt</span>,
+<div class="highlight"><pre tabindex="0" style="color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bibtex" data-lang="bibtex"><span style="display:flex;"><span><span style="color:#f3f99d">@article</span>{<span style="color:#ff5c57">wang2025cohortopt</span>,
 </span></span><span style="display:flex;"><span>  <span style="color:#57c7ff">author</span> = <span style="color:#5af78e">&#34;Bing Wang&#34;</span>,
 </span></span><span style="display:flex;"><span>  <span style="color:#57c7ff">title</span> = <span style="color:#5af78e">&#34;User Cohort Optimization in Multi-Task Recommendation Systems&#34;</span>,
 </span></span><span style="display:flex;"><span>  <span style="color:#57c7ff">journal</span> = <span style="color:#5af78e">&#34;bingzw.github.io&#34;</span>,
@@ -837,12 +831,12 @@ the base model, enhancing trust and enabling better manual interventions.</li>
 </span></span><span style="display:flex;"><span>  <span style="color:#57c7ff">url</span> = <span style="color:#5af78e">&#34;https://bingzw.github.io/posts/2025-06-20-cohort-opt/&#34;</span>
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>or</p>
-<div class="highlight"><pre tabindex="0" style="color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-markdown" data-lang="markdown"><span style="display:flex;"><span>Bing Wang. (2025, June). User Cohort Optimization in Multi-Task Recommendation Systems. 
+<div class="highlight"><pre tabindex="0" style="color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-markdown" data-lang="markdown"><span style="display:flex;"><span>Bing Wang. (2025, June). User Cohort Optimization in Multi-Task Recommendation Systems. 
 </span></span><span style="display:flex;"><span>https://bingzw.github.io/posts/2025-06-20-cohort-opt/
 </span></span></code></pre></div><h2 id="references" >
 <div>
     <a href="#references">
-        
+        #
     </a>
     References
 </div>
@@ -916,7 +910,9 @@ the base model, enhancing trust and enabling better manual interventions.</li>
     
     
     <div class="pagination post-pagination">
-        <div class="left pagination-item disabled">
+        <div class="left pagination-item ">
+            
+                <a href="/posts/2026-03-08-mtl-gradient-balancing/">Gradient Balancing in Multi-Task Recommendation: A Systematic Guide</a>
             
         </div>
         <div class="right pagination-item ">
@@ -999,7 +995,7 @@ the base model, enhancing trust and enabling better manual interventions.</li>
         
 
         <div style="display: flex; align-items: center; gap:8px">
-            © Bing Wang, 2025
+            © 2026
             
         </div>
         <div style="display:flex;align-items: center">

@@ -6,8 +6,6 @@
     <description>Bingz Learning Blog (Recommendation)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <managingEditor>bingwang8878@gamil.com (Bing Wang)</managingEditor>
-    <webMaster>bingwang8878@gamil.com (Bing Wang)</webMaster>
     <lastBuildDate>Thu, 06 Jun 2024 22:04:53 -0700</lastBuildDate>
     
     <atom:link href="/tags/recommendation/index.xml" rel="self" type="application/rss+xml" />
@@ -17,7 +15,7 @@
       <title>Recommendation Models</title>
       <link>/posts/2024-06-06-recommendation-model/</link>
       <pubDate>Thu, 06 Jun 2024 22:04:53 -0700</pubDate>
-      <author>bingwang8878@gamil.com (Bing Wang)</author>
+      
       <guid>/posts/2024-06-06-recommendation-model/</guid>
       <description>&lt;p align=&#34;center&#34;&gt;
 &lt;img src=&#34;https://bingzw.github.io/recommendation_model/reco.jpeg&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
@@ -26,7 +24,7 @@
 &lt;h2 id=&#34;introduction-to-recommendation-models&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#introduction-to-recommendation-models&#34;&gt;
-        
+        #
     &lt;/a&gt;
     Introduction to Recommendation Models
 &lt;/div&gt;
@@ -44,7 +42,7 @@ and revenue generation. Let&amp;rsquo;s take a look at the most popular modeling
 &lt;h2 id=&#34;collaborative-filtering-cf&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#collaborative-filtering-cf&#34;&gt;
-        
+        #
     &lt;/a&gt;
     Collaborative Filtering (CF)
 &lt;/div&gt;
@@ -55,7 +53,7 @@ straightforward and only requires user-item interaction history.&lt;/p&gt;
 &lt;h3 id=&#34;memory-based-cf&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#memory-based-cf&#34;&gt;
-        
+        ##
     &lt;/a&gt;
     Memory Based CF
 &lt;/div&gt;
@@ -68,7 +66,7 @@ filtering or item-item filtering.&lt;/p&gt;
 &lt;h4 id=&#34;user-user-filtering&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#user-user-filtering&#34;&gt;
-        
+        ###
     &lt;/a&gt;
     User User Filtering
 &lt;/div&gt;
@@ -83,7 +81,7 @@ and $u&amp;rsquo;$. A common choice is to calculate the cosine similarity betwee
 &lt;h4 id=&#34;item-item-filtering&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#item-item-filtering&#34;&gt;
-        
+        ###
     &lt;/a&gt;
     Item Item Filtering
 &lt;/div&gt;
@@ -97,7 +95,7 @@ combination of observed ratings. Can we do better than weighted average?&lt;/p&g
 &lt;h3 id=&#34;model-based-cf&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#model-based-cf&#34;&gt;
-        
+        ##
     &lt;/a&gt;
     Model Based CF
 &lt;/div&gt;
@@ -111,7 +109,7 @@ space and $n$ denotes the dimension of item space.&lt;/p&gt;
 &lt;h4 id=&#34;clustering&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#clustering&#34;&gt;
-        
+        ###
     &lt;/a&gt;
     Clustering
 &lt;/div&gt;
@@ -121,7 +119,7 @@ items depending on the similarity metrics used.&lt;/p&gt;
 &lt;h4 id=&#34;matrix-factorization&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#matrix-factorization&#34;&gt;
-        
+        ###
     &lt;/a&gt;
     Matrix Factorization
 &lt;/div&gt;
@@ -141,10 +139,10 @@ dominated by one or the other, and $\omega_{i, j}$ is a function of the frequenc
 &lt;p&gt;Common optimization algorithms to minimize the above objective function includes &lt;strong&gt;stochastic gradient descent&lt;/strong&gt; and
 &lt;strong&gt;weighted alternating least squares (WALS)&lt;/strong&gt;.&lt;/p&gt;
 &lt;p&gt;Recently, a few efforts on deep learning have also been proposed on matrix factorization. For example,&lt;/p&gt;
-&lt;h5 id=&#34;deep-auto-encoders2&#34; &gt;
+&lt;h5 id=&#34;deep-auto-encoders&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#deep-auto-encoders2&#34;&gt;
-        
+    &lt;a href=&#34;#deep-auto-encoders&#34;&gt;
+        ####
     &lt;/a&gt;
     Deep Auto-Encoders&lt;sup id=&#34;fnref:2&#34;&gt;&lt;a href=&#34;#fn:2&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;2&lt;/a&gt;&lt;/sup&gt;
 &lt;/div&gt;
@@ -157,10 +155,10 @@ factors, leveraging the rich user interaction data to learn better representatio
     &lt;img src=&#34;https://bingzw.github.io/recommendation_model/autoencoder_mf.png&#34;&gt;&lt;br&gt;
     &lt;em&gt;Figure 1: deep auto-encoder&lt;/em&gt;
 &lt;/p&gt;
-&lt;h5 id=&#34;neural-collaborative-filtering3&#34; &gt;
+&lt;h5 id=&#34;neural-collaborative-filtering&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#neural-collaborative-filtering3&#34;&gt;
-        
+    &lt;a href=&#34;#neural-collaborative-filtering&#34;&gt;
+        ####
     &lt;/a&gt;
     Neural Collaborative Filtering&lt;sup id=&#34;fnref:3&#34;&gt;&lt;a href=&#34;#fn:3&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;3&lt;/a&gt;&lt;/sup&gt;
 &lt;/div&gt;
@@ -180,7 +178,7 @@ features, such as user demographics or item attributes, into the model. Refer to
 &lt;h2 id=&#34;content-based-models-ranking-as-recommendation&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#content-based-models-ranking-as-recommendation&#34;&gt;
-        
+        #
     &lt;/a&gt;
     Content Based Models (Ranking As Recommendation)
 &lt;/div&gt;
@@ -192,10 +190,10 @@ user based on the features of the items they have shown interest in. Compared wi
 to handle the cold start issue when item features are known. However, its recommendation may strictly adheres to the
 user&amp;rsquo;s profile, potentially limiting diversity. There are quite a few popular model frameworks in this area and we would
 focus on the models based on deep neural architecture.&lt;/p&gt;
-&lt;h3 id=&#34;wide--deep4&#34; &gt;
+&lt;h3 id=&#34;wide--deep&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#wide--deep4&#34;&gt;
-        
+    &lt;a href=&#34;#wide--deep&#34;&gt;
+        ##
     &lt;/a&gt;
     Wide &amp;amp; Deep&lt;sup id=&#34;fnref:4&#34;&gt;&lt;a href=&#34;#fn:4&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;4&lt;/a&gt;&lt;/sup&gt;
 &lt;/div&gt;
@@ -232,10 +230,10 @@ $$&lt;/p&gt;
    &lt;img src=&#34;https://bingzw.github.io/recommendation_model/wide_deep.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
    &lt;em&gt;Figure 3: wide &amp; deep model&lt;/em&gt;
 &lt;/p&gt;
-&lt;h3 id=&#34;deepfm5&#34; &gt;
+&lt;h3 id=&#34;deepfm&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#deepfm5&#34;&gt;
-        
+    &lt;a href=&#34;#deepfm&#34;&gt;
+        ##
     &lt;/a&gt;
     DeepFM&lt;sup id=&#34;fnref:5&#34;&gt;&lt;a href=&#34;#fn:5&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;5&lt;/a&gt;&lt;/sup&gt;
 &lt;/div&gt;
@@ -275,10 +273,10 @@ activation of the last hidden layer.&lt;/p&gt;
    &lt;img src=&#34;https://bingzw.github.io/recommendation_model/deepfm.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
    &lt;em&gt;Figure 4: deepfm model&lt;/em&gt;
 &lt;/p&gt;
-&lt;h3 id=&#34;deep-learning-recommendation-model-dlrm6&#34; &gt;
+&lt;h3 id=&#34;deep-learning-recommendation-model-dlrm&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#deep-learning-recommendation-model-dlrm6&#34;&gt;
-        
+    &lt;a href=&#34;#deep-learning-recommendation-model-dlrm&#34;&gt;
+        ##
     &lt;/a&gt;
     Deep Learning Recommendation Model (DLRM)&lt;sup id=&#34;fnref:6&#34;&gt;&lt;a href=&#34;#fn:6&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;6&lt;/a&gt;&lt;/sup&gt;
 &lt;/div&gt;
@@ -330,10 +328,10 @@ $$
 where $\sigma$ is an activation function, typically a sigmoid function for binary classification tasks.&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
-&lt;h3 id=&#34;deep--cross-network-v2-dcn-v27&#34; &gt;
+&lt;h3 id=&#34;deep--cross-network-v2-dcn-v2&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#deep--cross-network-v2-dcn-v27&#34;&gt;
-        
+    &lt;a href=&#34;#deep--cross-network-v2-dcn-v2&#34;&gt;
+        ##
     &lt;/a&gt;
     Deep &amp;amp; Cross Network v2 (DCN v2)&lt;sup id=&#34;fnref:7&#34;&gt;&lt;a href=&#34;#fn:7&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;7&lt;/a&gt;&lt;/sup&gt;
 &lt;/div&gt;
@@ -368,10 +366,10 @@ of cross and deep network outputs.&lt;/p&gt;
    &lt;img src=&#34;https://bingzw.github.io/recommendation_model/dcn_v2.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
    &lt;em&gt;Figure 6: deep cross network v2&lt;/em&gt;
 &lt;/p&gt;
-&lt;h3 id=&#34;deep-interest-network-din8&#34; &gt;
+&lt;h3 id=&#34;deep-interest-network-din&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#deep-interest-network-din8&#34;&gt;
-        
+    &lt;a href=&#34;#deep-interest-network-din&#34;&gt;
+        ##
     &lt;/a&gt;
     Deep Interest Network (DIN)&lt;sup id=&#34;fnref:8&#34;&gt;&lt;a href=&#34;#fn:8&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;8&lt;/a&gt;&lt;/sup&gt;
 &lt;/div&gt;
@@ -416,10 +414,10 @@ where $[u, e_{target}, e_{profile}, e_{context}]$ denotes the concatenation of t
 embedding, context embedding and the target item embedding, $W$ is a weight matrix, $b$ is a bias term, and $\sigma$ is an activation function (e.g., sigmoid).&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
-&lt;h3 id=&#34;multi-gate-mixture-of-experts-mmoe9&#34; &gt;
+&lt;h3 id=&#34;multi-gate-mixture-of-experts-mmoe&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#multi-gate-mixture-of-experts-mmoe9&#34;&gt;
-        
+    &lt;a href=&#34;#multi-gate-mixture-of-experts-mmoe&#34;&gt;
+        ##
     &lt;/a&gt;
     Multi-gate Mixture of Experts (MMOE)&lt;sup id=&#34;fnref:9&#34;&gt;&lt;a href=&#34;#fn:9&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;9&lt;/a&gt;&lt;/sup&gt;
 &lt;/div&gt;
@@ -464,10 +462,10 @@ $$
 where $f_o^j$ is the task-specific output layer for task $j$, and $\hat{y}^j$ is the predicted output for task $j$.&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
-&lt;h3 id=&#34;behavior-sequence-transformer-bst10&#34; &gt;
+&lt;h3 id=&#34;behavior-sequence-transformer-bst&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#behavior-sequence-transformer-bst10&#34;&gt;
-        
+    &lt;a href=&#34;#behavior-sequence-transformer-bst&#34;&gt;
+        ##
     &lt;/a&gt;
     Behavior Sequence Transformer (BST)&lt;sup id=&#34;fnref:10&#34;&gt;&lt;a href=&#34;#fn:10&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;10&lt;/a&gt;&lt;/sup&gt;
 &lt;/div&gt;
@@ -528,7 +526,7 @@ where $\mathbf{W}_o$ is the weight matrix of the output layer, $\mathbf{O}_L$ is
 &lt;h2 id=&#34;summary&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#summary&#34;&gt;
-        
+        #
     &lt;/a&gt;
     Summary
 &lt;/div&gt;
@@ -540,13 +538,13 @@ Users may choose the best model depending on the business requirements and syste
 &lt;h2 id=&#34;citation&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#citation&#34;&gt;
-        
+        #
     &lt;/a&gt;
     Citation
 &lt;/div&gt;
 &lt;/h2&gt;
 &lt;p&gt;If you find this post helpful, please consider citing it as:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bibtex&#34; data-lang=&#34;bibtex&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f3f99d&#34;&gt;@article&lt;/span&gt;{&lt;span style=&#34;color:#ff5c57&#34;&gt;wang2024recommendationmodel&lt;/span&gt;,
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bibtex&#34; data-lang=&#34;bibtex&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f3f99d&#34;&gt;@article&lt;/span&gt;{&lt;span style=&#34;color:#ff5c57&#34;&gt;wang2024recommendationmodel&lt;/span&gt;,
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;author&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;Bing Wang&amp;#34;&lt;/span&gt;,
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;title&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;Recommendation Models&amp;#34;&lt;/span&gt;,
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;journal&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;bingzw.github.io&amp;#34;&lt;/span&gt;,
@@ -555,12 +553,12 @@ Users may choose the best model depending on the business requirements and syste
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;url&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;https://bingzw.github.io/posts/2024-06-06-recommendation-model/&amp;#34;&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;or&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-markdown&#34; data-lang=&#34;markdown&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Bing Wang. (2024, June). Recommendation Models. 
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-markdown&#34; data-lang=&#34;markdown&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Bing Wang. (2024, June). Recommendation Models. 
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;https://bingzw.github.io/posts/2024-06-06-recommendation-model/
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;reference&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#reference&#34;&gt;
-        
+        #
     &lt;/a&gt;
     Reference
 &lt;/div&gt;

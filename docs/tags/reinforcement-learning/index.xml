@@ -6,8 +6,6 @@
     <description>Bingz Learning Blog (Reinforcement Learning)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <managingEditor>bingwang8878@gamil.com (Bing Wang)</managingEditor>
-    <webMaster>bingwang8878@gamil.com (Bing Wang)</webMaster>
     <lastBuildDate>Fri, 05 Jul 2024 20:59:39 -0700</lastBuildDate>
     
     <atom:link href="/tags/reinforcement-learning/index.xml" rel="self" type="application/rss+xml" />
@@ -17,7 +15,7 @@
       <title>A Journey to Reinforcement Learning - Tabular Methods</title>
       <link>/posts/2024-07-05-rf-learning-tabular/</link>
       <pubDate>Fri, 05 Jul 2024 20:59:39 -0700</pubDate>
-      <author>bingwang8878@gamil.com (Bing Wang)</author>
+      
       <guid>/posts/2024-07-05-rf-learning-tabular/</guid>
       <description>&lt;p align=&#34;center&#34;&gt;
 &lt;img src=&#34;https://bingzw.github.io/rf/rf.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
@@ -26,7 +24,7 @@
 &lt;h2 id=&#34;basic-problem-statement-of-reinforcement-learning&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#basic-problem-statement-of-reinforcement-learning&#34;&gt;
-        
+        #
     &lt;/a&gt;
     Basic Problem Statement of Reinforcement Learning
 &lt;/div&gt;
@@ -75,7 +73,7 @@ Note that the below algorithms and equations are cited from &lt;sup id=&#34;fnre
 &lt;h3 id=&#34;markov-decision-process-mdp&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#markov-decision-process-mdp&#34;&gt;
-        
+        ##
     &lt;/a&gt;
     Markov Decision Process (MDP)
 &lt;/div&gt;
@@ -115,7 +113,7 @@ Q_{\pi}(s, a) &amp;= \mathbb{E}_{\pi}[G_t \mid s_t=s, a_t=a] \\
 &lt;h4 id=&#34;bellman-expectation-equation&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#bellman-expectation-equation&#34;&gt;
-        
+        ###
     &lt;/a&gt;
     Bellman Expectation Equation
 &lt;/div&gt;
@@ -156,7 +154,7 @@ which builds the connection of the action value function between the current and
 &lt;h4 id=&#34;bellman-optimal-equation&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#bellman-optimal-equation&#34;&gt;
-        
+        ###
     &lt;/a&gt;
     Bellman Optimal Equation
 &lt;/div&gt;
@@ -188,7 +186,7 @@ and get the best policy? What trade-offs have to be made in each scenario? Let&a
 &lt;h2 id=&#34;model-based---when-the-environment-is-given&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#model-based---when-the-environment-is-given&#34;&gt;
-        
+        #
     &lt;/a&gt;
     Model Based - when the environment is given
 &lt;/div&gt;
@@ -199,7 +197,7 @@ This is usually known as dynamic programming.&lt;/p&gt;
 &lt;h3 id=&#34;dynamic-programming&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#dynamic-programming&#34;&gt;
-        
+        ##
     &lt;/a&gt;
     Dynamic Programming
 &lt;/div&gt;
@@ -207,7 +205,7 @@ This is usually known as dynamic programming.&lt;/p&gt;
 &lt;h4 id=&#34;policy-iteration&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#policy-iteration&#34;&gt;
-        
+        ###
     &lt;/a&gt;
     policy iteration
 &lt;/div&gt;
@@ -249,7 +247,7 @@ the greedy approach.&lt;/p&gt;
 &lt;h4 id=&#34;value-iteration&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#value-iteration&#34;&gt;
-        
+        ###
     &lt;/a&gt;
     value iteration
 &lt;/div&gt;
@@ -279,7 +277,7 @@ to update the Bellman optimal equation (1.13).&lt;/p&gt;
 &lt;h2 id=&#34;model-free---when-the-environment-is-unknown&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#model-free---when-the-environment-is-unknown&#34;&gt;
-        
+        #
     &lt;/a&gt;
     Model Free - when the environment is unknown
 &lt;/div&gt;
@@ -289,7 +287,7 @@ iteration &amp;amp; value iteration) might not helpful. In this section, we will
 &lt;h3 id=&#34;value-based&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#value-based&#34;&gt;
-        
+        ##
     &lt;/a&gt;
     Value Based
 &lt;/div&gt;
@@ -303,7 +301,7 @@ value based methods usually require extensive exploration to accurately estimate
 &lt;h4 id=&#34;model-free-policy-evaluation-monte-carlo--temporal-difference-td&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#model-free-policy-evaluation-monte-carlo--temporal-difference-td&#34;&gt;
-        
+        ###
     &lt;/a&gt;
     Model Free Policy Evaluation: Monte Carlo &amp;amp; Temporal Difference (TD)
 &lt;/div&gt;
@@ -316,7 +314,7 @@ environment, we have the Monte Carlo and Temporal difference method.&lt;/p&gt;
 &lt;h5 id=&#34;monte-carlo&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#monte-carlo&#34;&gt;
-        
+        ####
     &lt;/a&gt;
     Monte Carlo
 &lt;/div&gt;
@@ -355,7 +353,7 @@ are expected. To tackle this, we are happy to introduce temporal difference.&lt;
 &lt;h5 id=&#34;temporal-difference&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#temporal-difference&#34;&gt;
-        
+        ####
     &lt;/a&gt;
     Temporal Difference
 &lt;/div&gt;
@@ -392,7 +390,7 @@ for updating.&lt;/p&gt;
 &lt;h4 id=&#34;sarsa&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#sarsa&#34;&gt;
-        
+        ###
     &lt;/a&gt;
     SARSA
 &lt;/div&gt;
@@ -447,7 +445,7 @@ then it&amp;rsquo;s &lt;strong&gt;$n$ step SARSA&lt;/strong&gt;.&lt;/p&gt;
 &lt;h4 id=&#34;q-learning&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#q-learning&#34;&gt;
-        
+        ###
     &lt;/a&gt;
     Q-Learning
 &lt;/div&gt;
@@ -491,7 +489,7 @@ these algorithms are also called &lt;strong&gt;tabular methods&lt;/strong&gt;.&l
 &lt;h2 id=&#34;summary&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#summary&#34;&gt;
-        
+        #
     &lt;/a&gt;
     Summary
 &lt;/div&gt;
@@ -503,13 +501,13 @@ more complicated problems.&lt;/p&gt;
 &lt;h2 id=&#34;citation&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#citation&#34;&gt;
-        
+        #
     &lt;/a&gt;
     Citation
 &lt;/div&gt;
 &lt;/h2&gt;
 &lt;p&gt;If you find this post helpful, please consider citing it as:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bibtex&#34; data-lang=&#34;bibtex&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f3f99d&#34;&gt;@article&lt;/span&gt;{&lt;span style=&#34;color:#ff5c57&#34;&gt;wang2024rflearningtabular&lt;/span&gt;,
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bibtex&#34; data-lang=&#34;bibtex&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f3f99d&#34;&gt;@article&lt;/span&gt;{&lt;span style=&#34;color:#ff5c57&#34;&gt;wang2024rflearningtabular&lt;/span&gt;,
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;author&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;Bing Wang&amp;#34;&lt;/span&gt;,
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;title&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;A Journey to Reinforcement Learning - Tabular Methods&amp;#34;&lt;/span&gt;,
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;journal&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;bingzw.github.io&amp;#34;&lt;/span&gt;,
@@ -518,12 +516,12 @@ more complicated problems.&lt;/p&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;url&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;https://bingzw.github.io/posts/2024-07-05-rf-learning-tabular/&amp;#34;&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;or&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-markdown&#34; data-lang=&#34;markdown&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Bing Wang. (2024, June). A Journey to Reinforcement Learning - Tabular Methods. 
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-markdown&#34; data-lang=&#34;markdown&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Bing Wang. (2024, June). A Journey to Reinforcement Learning - Tabular Methods. 
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;https://bingzw.github.io/posts/2024-07-05-rf-learning-tabular/
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;reference&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#reference&#34;&gt;
-        
+        #
     &lt;/a&gt;
     Reference
 &lt;/div&gt;
