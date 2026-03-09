@@ -70,6 +70,12 @@ endLevel = 5
 [markup.goldmark.renderer]
 unsafe = true # true | false; Enable unsafe mode to have a better experience
 
+[markup.goldmark.extensions.passthrough]
+enable = true
+[markup.goldmark.extensions.passthrough.delimiters]
+block = [['$$', '$$']]
+inline = [['$', '$']]
+
 [markup.highlight]
 anchorLineNos = false
 codeFences = true # tested with true and false. Both work.

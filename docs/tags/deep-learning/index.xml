@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Deep Learning on Bingz Learning Blog</title>
+    <title>Deep-Learning on Bingz Learning Blog</title>
     <link>/tags/deep-learning/</link>
-    <description>Bingz Learning Blog (Deep Learning)</description>
+    <description>Bingz Learning Blog (Deep-Learning)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Sun, 08 Mar 2026 10:00:00 -0700</lastBuildDate>
@@ -40,14 +40,8 @@
 &lt;/div&gt;
 &lt;/h3&gt;
 &lt;p&gt;Let $T$ be the number of tasks and $\mathcal{L}_i$ the loss for task $i$. The standard multi-task objective is:&lt;/p&gt;
-&lt;p&gt;$$
-\mathcal{L}&lt;em&gt;{total} = \sum&lt;/em&gt;{i=1}^{T} w_i \mathcal{L}_i
-$$&lt;/p&gt;
-&lt;p&gt;where $w_i \geq 0$ are scalar task weights. The parameter update follows:&lt;/p&gt;
-&lt;p&gt;$$
-\theta \leftarrow \theta - \eta \nabla_\theta \mathcal{L}&lt;em&gt;{total} = \theta - \eta \sum&lt;/em&gt;{i=1}^{T} w_i \mathbf{g}_i
-$$&lt;/p&gt;
-&lt;p&gt;where $\mathbf{g}&lt;em&gt;i = \nabla&lt;/em&gt;\theta \mathcal{L}_i$ is the gradient of task $i$ with respect to shared parameters $\theta$.&lt;/p&gt;
+$$\mathcal{L}_{total} = \sum_{i=1}^{T} w_i \mathcal{L}_i$$&lt;p&gt;where $w_i \geq 0$ are scalar task weights. The parameter update follows:&lt;/p&gt;
+$$\theta \leftarrow \theta - \eta \nabla_\theta \mathcal{L}_{total} = \theta - \eta \sum_{i=1}^{T} w_i \mathbf{g}_i$$&lt;p&gt;where $\mathbf{g}_i = \nabla_\theta \mathcal{L}_i$ is the gradient of task $i$ with respect to shared parameters $\theta$.&lt;/p&gt;
 &lt;h3 id=&#34;the-three-primary-failure-modes&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#the-three-primary-failure-modes&#34;&gt;
@@ -57,11 +51,8 @@ $$&lt;/p&gt;
 &lt;/div&gt;
 &lt;/h3&gt;
 &lt;p&gt;&lt;strong&gt;Gradient Conflict.&lt;/strong&gt; When two task gradients point in opposing directions, their combination partially or fully cancels. Formally, conflict occurs when the cosine similarity is negative:&lt;/p&gt;
-&lt;p&gt;$$
-\cos(\mathbf{g}_i, \mathbf{g}_j) = \frac{\mathbf{g}_i \cdot \mathbf{g}_j}{|\mathbf{g}_i| |\mathbf{g}_j|} &amp;lt; 0
-$$&lt;/p&gt;
-&lt;p&gt;This directly causes negative transfer: progress on task $i$ undoes progress on task $j$.&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Magnitude Imbalance.&lt;/strong&gt; Tasks with high-frequency labels (e.g., clicks) naturally produce larger gradient norms than sparse objectives (e.g., purchases). If $|\mathbf{g}&lt;em&gt;{CTR}| \gg |\mathbf{g}&lt;/em&gt;{CVR}|$, the dense task dominates the parameter update regardless of the scalar weight $w_i$. This is the &lt;strong&gt;seesaw effect&lt;/strong&gt; in recommendation: improving CTR degrades CVR, or vice versa, because the shared backbone is pulled predominantly by one objective.&lt;/p&gt;
+$$\cos(\mathbf{g}_i, \mathbf{g}_j) = \frac{\mathbf{g}_i \cdot \mathbf{g}_j}{\|\mathbf{g}_i\| \|\mathbf{g}_j\|} &lt; 0$$&lt;p&gt;This directly causes negative transfer: progress on task $i$ undoes progress on task $j$.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Magnitude Imbalance.&lt;/strong&gt; Tasks with high-frequency labels (e.g., clicks) naturally produce larger gradient norms than sparse objectives (e.g., purchases). If $\|\mathbf{g}_{CTR}\| \gg \|\mathbf{g}_{CVR}\|$, the dense task dominates the parameter update regardless of the scalar weight $w_i$. This is the &lt;strong&gt;seesaw effect&lt;/strong&gt; in recommendation: improving CTR degrades CVR, or vice versa, because the shared backbone is pulled predominantly by one objective.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Curvature Sensitivity.&lt;/strong&gt; In curved loss landscapes, the gradient magnitude at a given point reflects both the learning signal and the local curvature. High positive curvature along one task&amp;rsquo;s direction means even a moderate step causes large loss changes for other tasks. Tasks whose loss surfaces have sharply different curvature will be misweighted by any method that only looks at first-order gradient information.&lt;/p&gt;
 &lt;h3 id=&#34;notation-summary&#34; &gt;
 &lt;div&gt;
@@ -120,29 +111,17 @@ $$&lt;/p&gt;
 &lt;/h3&gt;
 &lt;p&gt;&lt;strong&gt;Intuition.&lt;/strong&gt; Imagine a relay race where some runners are sprinting and others are jogging. GradNorm is the coach who watches pace and tells the sprinters to slow down, or the joggers to speed up, so the team arrives in formation. Concretely, it maintains a running estimate of each task&amp;rsquo;s training speed and adjusts $w_i$ so that faster-learning tasks do not crowd out slower ones.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Math.&lt;/strong&gt; At training step $t$, define the weighted gradient norm for task $i$:&lt;/p&gt;
-&lt;p&gt;$$
-G_W^{(i)}(t) = |w_i(t) \nabla_W \mathcal{L}_i(t)|_2
-$$&lt;/p&gt;
-&lt;p&gt;where $W$ denotes the parameters of the final shared layer (a proxy for the full network). The &lt;strong&gt;relative inverse training rate&lt;/strong&gt; measures how fast task $i$ learns relative to the average:&lt;/p&gt;
-&lt;p&gt;$$
-\tilde{\mathcal{L}}_i(t) = \frac{\mathcal{L}_i(t)}{\mathcal{L}_i(0)}
-$$&lt;/p&gt;
-&lt;p&gt;The average rate is $\bar{\mathcal{L}}(t) = \frac{1}{T} \sum_i \tilde{\mathcal{L}}_i(t)$.&lt;/p&gt;
+$$G_W^{(i)}(t) = \|w_i(t) \nabla_W \mathcal{L}_i(t)\|_2$$&lt;p&gt;where $W$ denotes the parameters of the final shared layer (a proxy for the full network). The &lt;strong&gt;relative inverse training rate&lt;/strong&gt; measures how fast task $i$ learns relative to the average:&lt;/p&gt;
+$$\tilde{\mathcal{L}}_i(t) = \frac{\mathcal{L}_i(t)}{\mathcal{L}_i(0)}$$&lt;p&gt;The average rate is $\bar{\mathcal{L}}(t) = \frac{1}{T} \sum_i \tilde{\mathcal{L}}_i(t)$.&lt;/p&gt;
 &lt;p&gt;The target gradient norm for task $i$ is:&lt;/p&gt;
-&lt;p&gt;$$
-G_W^{target}(t) = \bar{G}_W(t) \cdot \left[\frac{\tilde{\mathcal{L}}_i(t)}{\bar{\mathcal{L}}(t)}\right]^\alpha
-$$&lt;/p&gt;
-&lt;p&gt;where $\bar{G}_W(t) = \frac{1}{T} \sum_i G_W^{(i)}(t)$ is the mean gradient norm. The hyperparameter $\alpha \geq 0$ controls how aggressively slow learners are prioritized:&lt;/p&gt;
+$$G_W^{target}(t) = \bar{G}_W(t) \cdot \left[\frac{\tilde{\mathcal{L}}_i(t)}{\bar{\mathcal{L}}(t)}\right]^\alpha$$&lt;p&gt;where $\bar{G}_W(t) = \frac{1}{T} \sum_i G_W^{(i)}(t)$ is the mean gradient norm. The hyperparameter $\alpha \geq 0$ controls how aggressively slow learners are prioritized:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;$\alpha = 0$: all tasks receive equal gradient norm (full equalization).&lt;/li&gt;
 &lt;li&gt;$\alpha \to \infty$: tasks that are falling behind receive disproportionately large boosts.&lt;/li&gt;
 &lt;li&gt;Typical value: $\alpha \in [0.5, 2.0]$.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;The GradNorm auxiliary loss, minimized with respect to $w_i$ only (treating the network parameters as constants), is:&lt;/p&gt;
-&lt;p&gt;$$
-\mathcal{L}&lt;em&gt;{grad}(t; {w_i}) = \sum&lt;/em&gt;{i=1}^{T} \left| G_W^{(i)}(t) - G_W^{target}(t) \right|
-$$&lt;/p&gt;
-&lt;p&gt;After each update to $w_i$, the weights are renormalized so $\sum_i w_i = T$ (preserving total loss scale).&lt;/p&gt;
+$$\mathcal{L}_{grad}(t; \{w_i\}) = \sum_{i=1}^{T} \left| G_W^{(i)}(t) - G_W^{target}(t) \right|$$&lt;p&gt;After each update to $w_i$, the weights are renormalized so $\sum_i w_i = T$ (preserving total loss scale).&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Pseudocode.&lt;/strong&gt;&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;# GradNorm Training Step&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;# Inputs: model, tasks, alpha hyperparameter&lt;/span&gt;
@@ -197,24 +176,12 @@ $$&lt;/p&gt;
 &lt;/h3&gt;
 &lt;p&gt;&lt;strong&gt;Intuition.&lt;/strong&gt; Picture two hikers trying to climb different hills. If they are roped together, one pulling north while the other pulls south, they cancel each other out. PCGrad (Projecting Conflicting Gradients) cuts the rope and instead lets each hiker only keep the component of their pull that does not drag the other backward. Geometrically, if task $i$&amp;rsquo;s gradient has a negative projection onto task $j$&amp;rsquo;s gradient, that conflicting component is removed.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Math.&lt;/strong&gt; For two tasks $i$ and $j$, a conflict exists when:&lt;/p&gt;
-&lt;p&gt;$$
-\mathbf{g}_i \cdot \mathbf{g}_j &amp;lt; 0
-$$&lt;/p&gt;
-&lt;p&gt;In this case, project out the component of $\mathbf{g}_i$ that lies along $\mathbf{g}_j$:&lt;/p&gt;
-&lt;p&gt;$$
-\mathbf{g}_i^{PC} = \mathbf{g}_i - \frac{\mathbf{g}_i \cdot \mathbf{g}_j}{|\mathbf{g}_j|^2} \mathbf{g}_j
-$$&lt;/p&gt;
-&lt;p&gt;The subtracted term $\frac{\mathbf{g}_i \cdot \mathbf{g}_j}{|\mathbf{g}_j|^2} \mathbf{g}_j$ is exactly the component of $\mathbf{g}_i$ in the direction of $\mathbf{g}_j$. When the dot product is negative, this component points anti-parallel to $\mathbf{g}_j$, so removing it prevents $\mathbf{g}_i$ from harming task $j$.&lt;/p&gt;
-&lt;p&gt;Why does this work geometrically? Recall that $\mathbf{g}_i \cdot \mathbf{g}_j = |\mathbf{g}_i||\mathbf{g}_j|\cos\theta$. When $\theta &amp;gt; 90°$, the projection of $\mathbf{g}_i$ onto $\hat{\mathbf{g}}_j$ is negative. After surgery, the modified $\mathbf{g}_i^{PC}$ satisfies:&lt;/p&gt;
-&lt;p&gt;$$
-\mathbf{g}_i^{PC} \cdot \mathbf{g}_j = \mathbf{g}_i \cdot \mathbf{g}_j - \frac{(\mathbf{g}_i \cdot \mathbf{g}_j)(\mathbf{g}_j \cdot \mathbf{g}_j)}{|\mathbf{g}_j|^2} = \mathbf{g}_i \cdot \mathbf{g}_j - \mathbf{g}_i \cdot \mathbf{g}_j = 0
-$$&lt;/p&gt;
-&lt;p&gt;So the modified gradient is orthogonal to $\mathbf{g}_j$ — it no longer conflicts.&lt;/p&gt;
+$$\mathbf{g}_i \cdot \mathbf{g}_j &lt; 0$$&lt;p&gt;In this case, project out the component of $\mathbf{g}_i$ that lies along $\mathbf{g}_j$:&lt;/p&gt;
+$$\mathbf{g}_i^{PC} = \mathbf{g}_i - \frac{\mathbf{g}_i \cdot \mathbf{g}_j}{\|\mathbf{g}_j\|^2} \mathbf{g}_j$$&lt;p&gt;The subtracted term $\frac{\mathbf{g}_i \cdot \mathbf{g}_j}{\|\mathbf{g}_j\|^2} \mathbf{g}_j$ is exactly the component of $\mathbf{g}_i$ in the direction of $\mathbf{g}_j$. When the dot product is negative, this component points anti-parallel to $\mathbf{g}_j$, so removing it prevents $\mathbf{g}_i$ from harming task $j$.&lt;/p&gt;
+&lt;p&gt;Why does this work geometrically? Recall that $\mathbf{g}_i \cdot \mathbf{g}_j = \|\mathbf{g}_i\|\|\mathbf{g}_j\|\cos\theta$. When $\theta &gt; 90°$, the projection of $\mathbf{g}_i$ onto $\hat{\mathbf{g}}_j$ is negative. After surgery, the modified $\mathbf{g}_i^{PC}$ satisfies:&lt;/p&gt;
+$$\mathbf{g}_i^{PC} \cdot \mathbf{g}_j = \mathbf{g}_i \cdot \mathbf{g}_j - \frac{(\mathbf{g}_i \cdot \mathbf{g}_j)(\mathbf{g}_j \cdot \mathbf{g}_j)}{\|\mathbf{g}_j\|^2} = \mathbf{g}_i \cdot \mathbf{g}_j - \mathbf{g}_i \cdot \mathbf{g}_j = 0$$&lt;p&gt;So the modified gradient is orthogonal to $\mathbf{g}_j$ — it no longer conflicts.&lt;/p&gt;
 &lt;p&gt;For $T$ tasks, the procedure applies pairwise: for task $i$, iterate over all $j \neq i$ and sequentially project out each conflicting direction. The final update is:&lt;/p&gt;
-&lt;p&gt;$$
-\mathbf{g}^{final} = \sum_{i=1}^{T} \mathbf{g}_i^{PC}
-$$&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Pseudocode.&lt;/strong&gt;&lt;/p&gt;
+$$\mathbf{g}^{final} = \sum_{i=1}^{T} \mathbf{g}_i^{PC}$$&lt;p&gt;&lt;strong&gt;Pseudocode.&lt;/strong&gt;&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;# PCGrad (Gradient Surgery)&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#57c7ff&#34;&gt;pcgrad&lt;/span&gt;(gradients):
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#78787e&#34;&gt;# gradients: list of T gradient vectors, one per task&lt;/span&gt;
@@ -237,7 +204,7 @@ $$&lt;/p&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    grads &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; [compute_gradient(loss_i, model) &lt;span style=&#34;color:#ff6ac1&#34;&gt;for&lt;/span&gt; loss_i &lt;span style=&#34;color:#ff6ac1&#34;&gt;in&lt;/span&gt; task_losses]
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    combined_grad &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; pcgrad(grads)
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    apply_gradient(model, combined_grad)
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;strong&gt;Complexity.&lt;/strong&gt; The pairwise loop is $O(T^2)$ in gradient computations and $O(T^2 \cdot d)$ in memory where $d$ is the parameter dimension. This becomes prohibitive for $T &amp;gt; 10$ tasks.&lt;/p&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;strong&gt;Complexity.&lt;/strong&gt; The pairwise loop is $O(T^2)$ in gradient computations and $O(T^2 \cdot d)$ in memory where $d$ is the parameter dimension. This becomes prohibitive for $T &gt; 10$ tasks.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Pros and Cons.&lt;/strong&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Pros: Principled geometric solution; no scalar hyperparameters; prevents destructive interference directly.&lt;/li&gt;
@@ -254,14 +221,8 @@ $$&lt;/p&gt;
 &lt;/h3&gt;
 &lt;p&gt;&lt;strong&gt;Intuition.&lt;/strong&gt; MGDA reframes multi-task learning as a &lt;strong&gt;multi-objective optimization&lt;/strong&gt; (MOO) problem. Rather than combining gradients with fixed weights, it searches for a descent direction that simultaneously reduces all task losses — a Pareto-improving step. Think of it as finding the direction in gradient space that every task can agree on.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Math.&lt;/strong&gt; A point $\theta$ is &lt;strong&gt;Pareto-stationary&lt;/strong&gt; if no single update direction can improve all objectives simultaneously. MGDA finds the minimum-norm point in the convex hull of task gradients:&lt;/p&gt;
-&lt;p&gt;$$
-\mathbf{g}^* = \sum_{i=1}^{T} \alpha_i \mathbf{g}&lt;em&gt;i, \quad \alpha_i \geq 0, \quad \sum&lt;/em&gt;{i=1}^{T} \alpha_i = 1
-$$&lt;/p&gt;
-&lt;p&gt;$$
-{\alpha_i^*} = \arg\min_{\alpha} \left| \sum_{i=1}^{T} \alpha_i \mathbf{g}_i \right|^2
-$$&lt;/p&gt;
-&lt;p&gt;If $\mathbf{g}^* = \mathbf{0}$, the current point is already Pareto-stationary. Otherwise, taking a step in the direction $-\mathbf{g}^*$ guarantees a reduction in every task loss (to first order).&lt;/p&gt;
-&lt;p&gt;The optimization over ${\alpha_i}$ is a quadratic program (QP) over the simplex, solvable efficiently with the Frank-Wolfe algorithm or the dual form. The computational cost is $O(T^2 \cdot d)$ per step.&lt;/p&gt;
+$$\mathbf{g}^* = \sum_{i=1}^{T} \alpha_i \mathbf{g}_i, \quad \alpha_i \geq 0, \quad \sum_{i=1}^{T} \alpha_i = 1$$$$\{\alpha_i^*\} = \arg\min_{\alpha} \left\| \sum_{i=1}^{T} \alpha_i \mathbf{g}_i \right\|^2$$&lt;p&gt;If $\mathbf{g}^* = \mathbf{0}$, the current point is already Pareto-stationary. Otherwise, taking a step in the direction $-\mathbf{g}^*$ guarantees a reduction in every task loss (to first order).&lt;/p&gt;
+&lt;p&gt;The optimization over $\{\alpha_i\}$ is a quadratic program (QP) over the simplex, solvable efficiently with the Frank-Wolfe algorithm or the dual form. The computational cost is $O(T^2 \cdot d)$ per step.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Pros and Cons.&lt;/strong&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Pros: Principled MOO framework; theoretical convergence guarantees to Pareto-stationary points; no task weighting hyperparameters.&lt;/li&gt;
@@ -278,23 +239,14 @@ $$&lt;/p&gt;
 &lt;/h3&gt;
 &lt;p&gt;&lt;strong&gt;Intuition.&lt;/strong&gt; CAGrad (Conflict-Averse Gradient Descent) unifies vanilla gradient descent and MGDA by introducing a tunable constraint. The key insight is: rather than minimizing all tasks equally (MGDA) or ignoring conflicts (plain sum), CAGrad maximizes the &lt;em&gt;worst-case&lt;/em&gt; task improvement while staying close to the average gradient. This is the multi-task analogue of max-min fairness.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Math.&lt;/strong&gt; Let the average gradient be:&lt;/p&gt;
-&lt;p&gt;$$
-\bar{\mathbf{g}} = \frac{1}{T} \sum_{i=1}^{T} \mathbf{g}_i
-$$&lt;/p&gt;
-&lt;p&gt;CAGrad solves:&lt;/p&gt;
-&lt;p&gt;$$
-\mathbf{g}^* = \arg\max_{\mathbf{g}} \min_{i \in [T]} \langle \mathbf{g}_i, \mathbf{g} \rangle \quad \text{s.t.} \quad |\mathbf{g} - \bar{\mathbf{g}}| \leq c |\bar{\mathbf{g}}|
-$$&lt;/p&gt;
-&lt;p&gt;The constraint ball of radius $c |\bar{\mathbf{g}}|$ centered at $\bar{\mathbf{g}}$ controls how far from the average gradient we are allowed to deviate. Two limiting cases:&lt;/p&gt;
+$$\bar{\mathbf{g}} = \frac{1}{T} \sum_{i=1}^{T} \mathbf{g}_i$$&lt;p&gt;CAGrad solves:&lt;/p&gt;
+$$\mathbf{g}^* = \arg\max_{\mathbf{g}} \min_{i \in [T]} \langle \mathbf{g}_i, \mathbf{g} \rangle \quad \text{s.t.} \quad \|\mathbf{g} - \bar{\mathbf{g}}\| \leq c \|\bar{\mathbf{g}}\|$$&lt;p&gt;The constraint ball of radius $c \|\bar{\mathbf{g}}\|$ centered at $\bar{\mathbf{g}}$ controls how far from the average gradient we are allowed to deviate. Two limiting cases:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;$c = 0$: The only feasible point is $\bar{\mathbf{g}}$ itself — recovers vanilla gradient descent.&lt;/li&gt;
 &lt;li&gt;$c \to \infty$: The constraint is vacuous and the solution recovers MGDA (min-norm in convex hull).&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;For a general $c$, the Lagrangian of the inner max-min is:&lt;/p&gt;
-&lt;p&gt;$$
-\mathcal{L}(\mathbf{g}, \lambda) = \min_i \langle \mathbf{g}_i, \mathbf{g} \rangle - \lambda (|\mathbf{g} - \bar{\mathbf{g}}|^2 - c^2 |\bar{\mathbf{g}}|^2)
-$$&lt;/p&gt;
-&lt;p&gt;At the optimum, the gradient $\mathbf{g}^*$ lies on the boundary of the constraint sphere and maximizes the minimum inner product with task gradients. This guarantees that the update direction does not decrease any task&amp;rsquo;s objective by more than the worst-case minimum.&lt;/p&gt;
+$$\mathcal{L}(\mathbf{g}, \lambda) = \min_i \langle \mathbf{g}_i, \mathbf{g} \rangle - \lambda (\|\mathbf{g} - \bar{\mathbf{g}}\|^2 - c^2 \|\bar{\mathbf{g}}\|^2)$$&lt;p&gt;At the optimum, the gradient $\mathbf{g}^*$ lies on the boundary of the constraint sphere and maximizes the minimum inner product with task gradients. This guarantees that the update direction does not decrease any task&amp;rsquo;s objective by more than the worst-case minimum.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Pseudocode.&lt;/strong&gt;&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;# CAGrad&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#57c7ff&#34;&gt;cagrad&lt;/span&gt;(gradients, c&lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ff9f43&#34;&gt;0.5&lt;/span&gt;):
@@ -342,14 +294,11 @@ $$&lt;/p&gt;
 &lt;/div&gt;
 &lt;/h3&gt;
 &lt;p&gt;&lt;strong&gt;Intuition.&lt;/strong&gt; In recommendation systems, there is often a natural hierarchy: a primary task (e.g., CTR) that we care most about, and auxiliary tasks (e.g., dwell time, likes) that provide helpful regularization. MetaBalance takes this hierarchy seriously and rescales auxiliary gradients to match the primary task&amp;rsquo;s gradient norm — layer by layer, iteration by iteration.&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Math.&lt;/strong&gt; For the primary task gradient $\mathbf{g}&lt;em&gt;{target}$ and auxiliary task gradient $\mathbf{g}&lt;/em&gt;{aux}$, the scaled auxiliary gradient is:&lt;/p&gt;
-&lt;p&gt;$$
-\mathbf{g}&lt;em&gt;{aux}^{scaled} = \mathbf{g}&lt;/em&gt;{aux} \cdot \frac{|\mathbf{g}&lt;em&gt;{target}|}{|\mathbf{g}&lt;/em&gt;{aux}|} \cdot r
-$$&lt;/p&gt;
-&lt;p&gt;where $r \in (0, 1]$ is a rescaling ratio. Three strategies govern when to apply scaling:&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Math.&lt;/strong&gt; For the primary task gradient $\mathbf{g}_{target}$ and auxiliary task gradient $\mathbf{g}_{aux}$, the scaled auxiliary gradient is:&lt;/p&gt;
+$$\mathbf{g}_{aux}^{scaled} = \mathbf{g}_{aux} \cdot \frac{\|\mathbf{g}_{target}\|}{\|\mathbf{g}_{aux}\|} \cdot r$$&lt;p&gt;where $r \in (0, 1]$ is a rescaling ratio. Three strategies govern when to apply scaling:&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;Strategy A (Reduce)&lt;/strong&gt;: Only scale down when $|\mathbf{g}&lt;em&gt;{aux}| &amp;gt; |\mathbf{g}&lt;/em&gt;{target}|$ — prevents auxiliary tasks from overwhelming the primary.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Strategy B (Enlarge)&lt;/strong&gt;: Only scale up when $|\mathbf{g}&lt;em&gt;{aux}| &amp;lt; |\mathbf{g}&lt;/em&gt;{target}|$ — ensures auxiliary tasks contribute meaningfully.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Strategy A (Reduce)&lt;/strong&gt;: Only scale down when $\|\mathbf{g}_{aux}\| &gt; \|\mathbf{g}_{target}\|$ — prevents auxiliary tasks from overwhelming the primary.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Strategy B (Enlarge)&lt;/strong&gt;: Only scale up when $\|\mathbf{g}_{aux}\| &lt; \|\mathbf{g}_{target}\|$ — ensures auxiliary tasks contribute meaningfully.&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;Strategy C (Flexible)&lt;/strong&gt;: Always rescale, combining A and B.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;The key distinction from GradNorm is &lt;strong&gt;granularity&lt;/strong&gt;: MetaBalance applies per-layer, per-step control, adjusting the ratio of norms at each layer of the network independently. This captures the fact that gradient imbalances may differ across layers.&lt;/p&gt;
@@ -409,10 +358,7 @@ $$&lt;/p&gt;
 &lt;/h3&gt;
 &lt;p&gt;&lt;strong&gt;Intuition.&lt;/strong&gt; Even within a single auxiliary task, different training samples contribute differently to the primary objective. Some auxiliary samples genuinely help the primary task; others introduce noise or conflict. SLGrad operates at the finest possible granularity — individual samples — assigning weights based on how well each sample&amp;rsquo;s gradient aligns with the primary task&amp;rsquo;s validation gradient.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Math.&lt;/strong&gt; Let $\mathbf{g}_{val}^{primary}$ be the gradient of the primary task on a held-out validation set. For each sample $s$ in the auxiliary task batch, compute the cosine similarity:&lt;/p&gt;
-&lt;p&gt;$$
-w_s = \cos(\mathbf{g}&lt;em&gt;s, \mathbf{g}&lt;/em&gt;{val}^{primary}) = \frac{\mathbf{g}&lt;em&gt;s \cdot \mathbf{g}&lt;/em&gt;{val}^{primary}}{|\mathbf{g}&lt;em&gt;s| |\mathbf{g}&lt;/em&gt;{val}^{primary}|}
-$$&lt;/p&gt;
-&lt;p&gt;Samples with $w_s &amp;gt; 0$ push in a direction compatible with the primary objective; samples with $w_s &amp;lt; 0$ conflict. SLGrad reweights the auxiliary loss by $\max(0, w_s)$ or uses $w_s$ directly as a soft weight to suppress conflicting samples.&lt;/p&gt;
+$$w_s = \cos(\mathbf{g}_s, \mathbf{g}_{val}^{primary}) = \frac{\mathbf{g}_s \cdot \mathbf{g}_{val}^{primary}}{\|\mathbf{g}_s\| \|\mathbf{g}_{val}^{primary}\|}$$&lt;p&gt;Samples with $w_s &gt; 0$ push in a direction compatible with the primary objective; samples with $w_s &lt; 0$ conflict. SLGrad reweights the auxiliary loss by $\max(0, w_s)$ or uses $w_s$ directly as a soft weight to suppress conflicting samples.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Pros and Cons.&lt;/strong&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Pros: Finest possible granularity; directly suppresses noisy auxiliary samples; interpretable per-sample weights.&lt;/li&gt;
@@ -430,14 +376,11 @@ $$&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Intuition.&lt;/strong&gt; Rather than fixing gradient conflicts after the fact, PLE prevents them architecturally. It partitions model capacity into shared experts and task-specific experts, organized in hierarchical layers. Task-specific experts receive gradients only from their own task, eliminating cross-task gradient interference at the source.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Math.&lt;/strong&gt; Let $L$ be the number of extraction layers. At layer $l$:&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;Shared experts ${E_s^{(l)}}$: receive gradients from all tasks via gating.&lt;/li&gt;
-&lt;li&gt;Task-specific experts ${E_k^{(l)}}$ for task $k$: receive gradients only from task $k$.&lt;/li&gt;
+&lt;li&gt;Shared experts $\{E_s^{(l)}\}$: receive gradients from all tasks via gating.&lt;/li&gt;
+&lt;li&gt;Task-specific experts $\{E_k^{(l)}\}$ for task $k$: receive gradients only from task $k$.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;The output for task $k$ at layer $l$ is:&lt;/p&gt;
-&lt;p&gt;$$
-\mathbf{h}&lt;em&gt;k^{(l)} = \sum_j g&lt;/em&gt;{k,j}^{(l)} E_j^{(l)}(\mathbf{h}_k^{(l-1)})
-$$&lt;/p&gt;
-&lt;p&gt;where $g_{k,j}^{(l)}$ are gating weights that blend shared and task-specific expert outputs. Crucially, the gating ensures that gradients flowing backward through task-specific experts are isolated from other tasks.&lt;/p&gt;
+$$\mathbf{h}_k^{(l)} = \sum_j g_{k,j}^{(l)} E_j^{(l)}(\mathbf{h}_k^{(l-1)})$$&lt;p&gt;where $g_{k,j}^{(l)}$ are gating weights that blend shared and task-specific expert outputs. Crucially, the gating ensures that gradients flowing backward through task-specific experts are isolated from other tasks.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Pros and Cons.&lt;/strong&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Pros: Structural separation eliminates gradient conflict by design; well-validated in large-scale production settings; no optimization-time overhead.&lt;/li&gt;
@@ -459,10 +402,7 @@ $$&lt;/p&gt;
 &lt;li&gt;A globally shared embedding table $\mathbf{E}_{shared}$&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;The final representation for task $i$ is:&lt;/p&gt;
-&lt;p&gt;$$
-\mathbf{h}_i = f_i!\left(\mathbf{E}&lt;em&gt;i(\mathbf{x}),\ \text{stop_grad}!\left(\mathbf{E}&lt;/em&gt;{shared}(\mathbf{x})\right)\right)
-$$&lt;/p&gt;
-&lt;p&gt;The &lt;strong&gt;All Forward Task-specific Backward (AFTB)&lt;/strong&gt; gating mechanism allows all embeddings to contribute during the forward pass (maximizing information flow) while blocking gradient flow from task $i$&amp;rsquo;s loss to task $j$&amp;rsquo;s embedding table (preventing conflict). This is implemented via &lt;code&gt;stop_gradient&lt;/code&gt; operators that zero out gradients selectively.&lt;/p&gt;
+$$\mathbf{h}_i = f_i\!\left(\mathbf{E}_i(\mathbf{x}),\ \text{stop\_grad}\!\left(\mathbf{E}_{shared}(\mathbf{x})\right)\right)$$&lt;p&gt;The &lt;strong&gt;All Forward Task-specific Backward (AFTB)&lt;/strong&gt; gating mechanism allows all embeddings to contribute during the forward pass (maximizing information flow) while blocking gradient flow from task $i$&amp;rsquo;s loss to task $j$&amp;rsquo;s embedding table (preventing conflict). This is implemented via &lt;code&gt;stop_gradient&lt;/code&gt; operators that zero out gradients selectively.&lt;/p&gt;
 &lt;p&gt;STEM-Net is particularly effective for &lt;strong&gt;comparable samples&lt;/strong&gt; — users with balanced multi-task feedback (e.g., users who both click and purchase). For such users, conflicting embedding gradients are most damaging.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Pros and Cons.&lt;/strong&gt;&lt;/p&gt;
 &lt;ul&gt;
@@ -480,18 +420,9 @@ $$&lt;/p&gt;
 &lt;/h3&gt;
 &lt;p&gt;&lt;strong&gt;Intuition.&lt;/strong&gt; GradNorm and PCGrad operate on the full parameter gradient $\mathbf{g}_i \in \mathbb{R}^d$ where $d$ can be in the billions. This is computationally expensive and often noisy. MultiBalance observes that in representation-based recommenders, all task heads attach to a shared bottleneck $\mathbf{h}$. Balancing gradients at the bottleneck — a much smaller vector — achieves most of the benefit at a fraction of the cost.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Math.&lt;/strong&gt; Let the shared representation be $\mathbf{h} = g(\mathbf{x})$ and task $i$&amp;rsquo;s head be $\hat{y}_i = f_i(\mathbf{h})$. The representation-level gradient for task $i$ is:&lt;/p&gt;
-&lt;p&gt;$$
-\mathbf{g}_i^{rep} = \frac{\partial \mathcal{L}_i}{\partial \mathbf{h}}
-$$&lt;/p&gt;
-&lt;p&gt;MultiBalance applies gradient balancing at $\mathbf{h}$ rather than at $\theta$. The balancing weights are computed using a moving average of $|\mathbf{g}_i^{rep}|$ for stability:&lt;/p&gt;
-&lt;p&gt;$$
-w_i^{rep}(t) = \frac{\bar{G}^{rep}(t)}{\text{EMA}(|\mathbf{g}_i^{rep}|, t)}
-$$&lt;/p&gt;
-&lt;p&gt;where $\bar{G}^{rep}(t)$ is the mean norm across tasks and EMA is an exponential moving average. The balanced representation gradient is:&lt;/p&gt;
-&lt;p&gt;$$
-\mathbf{g}&lt;em&gt;{balanced}^{rep} = \sum&lt;/em&gt;{i=1}^{T} w_i^{rep} \cdot \mathbf{g}_i^{rep}
-$$&lt;/p&gt;
-&lt;p&gt;Critically, this requires only a &lt;strong&gt;single backward pass&lt;/strong&gt; through the encoder $g(\cdot)$, since all task head gradients $\mathbf{g}_i^{rep}$ can be accumulated at $\mathbf{h}$ before backpropagating through the shared trunk.&lt;/p&gt;
+$$\mathbf{g}_i^{rep} = \frac{\partial \mathcal{L}_i}{\partial \mathbf{h}}$$&lt;p&gt;MultiBalance applies gradient balancing at $\mathbf{h}$ rather than at $\theta$. The balancing weights are computed using a moving average of $\|\mathbf{g}_i^{rep}\|$ for stability:&lt;/p&gt;
+$$w_i^{rep}(t) = \frac{\bar{G}^{rep}(t)}{\text{EMA}(\|\mathbf{g}_i^{rep}\|, t)}$$&lt;p&gt;where $\bar{G}^{rep}(t)$ is the mean norm across tasks and EMA is an exponential moving average. The balanced representation gradient is:&lt;/p&gt;
+$$\mathbf{g}_{balanced}^{rep} = \sum_{i=1}^{T} w_i^{rep} \cdot \mathbf{g}_i^{rep}$$&lt;p&gt;Critically, this requires only a &lt;strong&gt;single backward pass&lt;/strong&gt; through the encoder $g(\cdot)$, since all task head gradients $\mathbf{g}_i^{rep}$ can be accumulated at $\mathbf{h}$ before backpropagating through the shared trunk.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Pseudocode.&lt;/strong&gt;&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;# MultiBalance: Representation-level gradient balancing&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#57c7ff&#34;&gt;multibalance_update&lt;/span&gt;(model, task_heads, task_losses, targets, optimizer,
@@ -542,15 +473,9 @@ $$&lt;/p&gt;
 &lt;/h3&gt;
 &lt;p&gt;&lt;strong&gt;Intuition.&lt;/strong&gt; Previous methods address either magnitude (GradNorm, MetaBalance) or direction (PCGrad, MGDA) — but rarely both simultaneously. GradCraft takes a holistic two-stage approach: first equalize gradient magnitudes, then enforce that all pairs of adjusted gradients have non-negative dot products (global synergy). This combines the benefits of norm balancing and conflict resolution in a single unified procedure.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Math.&lt;/strong&gt; &lt;strong&gt;Stage 1 (Magnitude Balancing).&lt;/strong&gt; Rescale each task gradient to match the maximum norm:&lt;/p&gt;
-&lt;p&gt;$$
-\mathbf{g}_i^{mag} = \mathbf{g}_i \cdot \frac{\max_j |\mathbf{g}_j|}{|\mathbf{g}_i|}
-$$&lt;/p&gt;
-&lt;p&gt;After this step, all $|\mathbf{g}_i^{mag}| = \max_j |\mathbf{g}_j|$ — a level playing field.&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Stage 2 (Direction Alignment).&lt;/strong&gt; Enforce global pairwise non-negativity: find adjusted gradients ${\mathbf{g}_i^{final}}$ such that:&lt;/p&gt;
-&lt;p&gt;$$
-\langle \mathbf{g}_i^{final}, \mathbf{g}_j^{final} \rangle \geq 0 \quad \forall i, j
-$$&lt;/p&gt;
-&lt;p&gt;Unlike PCGrad which handles this pairwise (and can create inconsistencies), GradCraft solves a global optimization problem to find the smallest adjustments to ${\mathbf{g}_i^{mag}}$ that achieve universal non-negativity. This is a more expensive but more internally consistent operation.&lt;/p&gt;
+$$\mathbf{g}_i^{mag} = \mathbf{g}_i \cdot \frac{\max_j \|\mathbf{g}_j\|}{\|\mathbf{g}_i\|}$$&lt;p&gt;After this step, all $\|\mathbf{g}_i^{mag}\| = \max_j \|\mathbf{g}_j\|$ — a level playing field.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Stage 2 (Direction Alignment).&lt;/strong&gt; Enforce global pairwise non-negativity: find adjusted gradients $\{\mathbf{g}_i^{final}\}$ such that:&lt;/p&gt;
+$$\langle \mathbf{g}_i^{final}, \mathbf{g}_j^{final} \rangle \geq 0 \quad \forall i, j$$&lt;p&gt;Unlike PCGrad which handles this pairwise (and can create inconsistencies), GradCraft solves a global optimization problem to find the smallest adjustments to $\{\mathbf{g}_i^{mag}\}$ that achieve universal non-negativity. This is a more expensive but more internally consistent operation.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Pseudocode.&lt;/strong&gt;&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;# GradCraft&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#57c7ff&#34;&gt;gradcraft&lt;/span&gt;(gradients):
@@ -597,14 +522,8 @@ $$&lt;/p&gt;
 &lt;/h3&gt;
 &lt;p&gt;&lt;strong&gt;Intuition.&lt;/strong&gt; All gradient balancing methods so far operate on raw gradients $\mathbf{g}_i$. But in practice, models are trained with Adam, not vanilla SGD. Adam&amp;rsquo;s adaptive moment estimates transform gradients before applying them: $\mathbf{g}_i^{Adam} \neq \mathbf{g}_i$. PUB makes a critical observation: &lt;strong&gt;gradient balancing does not equal update balancing under Adam&lt;/strong&gt;. Two tasks with balanced gradients can still have highly imbalanced actual parameter updates once Adam applies its per-parameter learning rates. PUB closes this &amp;ldquo;momentum gap&amp;rdquo; by balancing the actual Adam updates, not the raw gradients.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Math.&lt;/strong&gt; For each task $i$, compute the Adam-adjusted update:&lt;/p&gt;
-&lt;p&gt;$$
-\Delta\theta_i = \text{Adam}(\mathbf{g}_i, m_i, v_i) = \frac{\hat{m}_i}{\sqrt{\hat{v}_i} + \epsilon}
-$$&lt;/p&gt;
-&lt;p&gt;where $m_i, v_i$ are the first and second moment estimates for task $i$&amp;rsquo;s gradients. PUB then finds the joint update direction:&lt;/p&gt;
-&lt;p&gt;$$
-\Delta\theta^* = \arg\max_{\Delta\theta} \min_{i \in [T]} \langle \Delta\theta_i, \Delta\theta \rangle \quad \text{s.t.} \quad \Delta\theta \in \text{conv}({\Delta\theta_i})
-$$&lt;/p&gt;
-&lt;p&gt;This is the CAGrad/MGDA framework applied to Adam updates rather than raw gradients. The constraint that $\Delta\theta$ lies in the convex hull of task updates ensures the final step is a mixture of individually valid Adam steps.&lt;/p&gt;
+$$\Delta\theta_i = \text{Adam}(\mathbf{g}_i, m_i, v_i) = \frac{\hat{m}_i}{\sqrt{\hat{v}_i} + \epsilon}$$&lt;p&gt;where $m_i, v_i$ are the first and second moment estimates for task $i$&amp;rsquo;s gradients. PUB then finds the joint update direction:&lt;/p&gt;
+$$\Delta\theta^* = \arg\max_{\Delta\theta} \min_{i \in [T]} \langle \Delta\theta_i, \Delta\theta \rangle \quad \text{s.t.} \quad \Delta\theta \in \text{conv}(\{\Delta\theta_i\})$$&lt;p&gt;This is the CAGrad/MGDA framework applied to Adam updates rather than raw gradients. The constraint that $\Delta\theta$ lies in the convex hull of task updates ensures the final step is a mixture of individually valid Adam steps.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Pseudocode.&lt;/strong&gt;&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;# PUB: Parameter Update Balancing (closes the momentum gap)&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#57c7ff&#34;&gt;pub_update&lt;/span&gt;(model, task_losses, optimizer):
@@ -657,15 +576,9 @@ $$&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Intuition.&lt;/strong&gt; Even within a single task, different users generate gradients with varying compatibility with the primary objective. DRGrad operates at the finest recommendation-specific granularity: individual users. For each user, it routes gradients from auxiliary tasks only when they are likely to be cooperative with the primary task&amp;rsquo;s objective for that specific user.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Math.&lt;/strong&gt; DRGrad consists of three components:&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Router&lt;/strong&gt;: Estimates the compatibility of auxiliary task gradients for a given user $u$:&lt;/p&gt;
-&lt;p&gt;$$
-r_u^{(i)} = \sigma(W_r \mathbf{h}_u + b_r)
-$$&lt;/p&gt;
-&lt;p&gt;where $\mathbf{h}_u$ is the user representation. A high $r_u^{(i)}$ means task $i$&amp;rsquo;s gradient is likely helpful for user $u$.&lt;/p&gt;
+$$r_u^{(i)} = \sigma(W_r \mathbf{h}_u + b_r)$$&lt;p&gt;where $\mathbf{h}_u$ is the user representation. A high $r_u^{(i)}$ means task $i$&amp;rsquo;s gradient is likely helpful for user $u$.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Updater&lt;/strong&gt;: Computes a balanced gradient using only the routed (cooperative) gradients:&lt;/p&gt;
-&lt;p&gt;$$
-\mathbf{g}_u^{balanced} = \mathbf{g}&lt;em&gt;u^{primary} + \sum&lt;/em&gt;{i \neq \text{primary}} r_u^{(i)} \cdot \mathbf{g}_u^{(i)}
-$$&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Personalized Gate Network&lt;/strong&gt;: Learns per-user routing policies that adapt over training, allowing the system to identify which auxiliary tasks benefit which user segments.&lt;/p&gt;
+$$\mathbf{g}_u^{balanced} = \mathbf{g}_u^{primary} + \sum_{i \neq \text{primary}} r_u^{(i)} \cdot \mathbf{g}_u^{(i)}$$&lt;p&gt;&lt;strong&gt;Personalized Gate Network&lt;/strong&gt;: Learns per-user routing policies that adapt over training, allowing the system to identify which auxiliary tasks benefit which user segments.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Pros and Cons.&lt;/strong&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Pros: Most fine-grained method available (user-level gradient routing); directly addresses the heterogeneous user population in recommendation.&lt;/li&gt;
@@ -1415,8 +1328,8 @@ average from ratings of similar users:&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
 $r_{u,i} = \bar{r}_u + \frac{\sum_{u&#39;\in S_u}sim(u, u&#39;) * (r_{u&#39;,i} - \bar{r}_{u&#39;})}{\sum_{u&#39;\in S_u}sim(u, u&#39;)}$
 &lt;p&gt;
-&lt;p&gt;where $\bar{r}_u$ is the average rating of user $u$ and $sim(u, u&amp;rsquo;)$ represents the similarity score between user $u$
-and $u&amp;rsquo;$. A common choice is to calculate the cosine similarity between two user rating vectors.&lt;/p&gt;
+&lt;p&gt;where $\bar{r}_u$ is the average rating of user $u$ and $sim(u, u&#39;)$ represents the similarity score between user $u$
+and $u&#39;$. A common choice is to calculate the cosine similarity between two user rating vectors.&lt;/p&gt;
 &lt;h4 id=&#34;item-item-filtering&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#item-item-filtering&#34;&gt;
@@ -1427,8 +1340,7 @@ and $u&amp;rsquo;$. A common choice is to calculate the cosine similarity betwee
 &lt;/h4&gt;
 &lt;p&gt;Assume that the customers will prefer products that share a high similarity with those already well appreciated. The
 missing rating is thus predicted as the weighted average of a set of similar products:&lt;/p&gt;
-&lt;p&gt;$$r_{u,i} = \frac{\sum_{j \in P_i}sim(j, i) * r_{u,j}}{\sum_{j \in P_i}sim(j, i)}$$&lt;/p&gt;
-&lt;p&gt;It&amp;rsquo;s straightforward to observe that user-based filtering is to check what other users think of the same product, while
+$$r_{u,i} = \frac{\sum_{j \in P_i}sim(j, i) * r_{u,j}}{\sum_{j \in P_i}sim(j, i)}$$&lt;p&gt;It&amp;rsquo;s straightforward to observe that user-based filtering is to check what other users think of the same product, while
 item-based filtering is aggregating what the user thinks of other items. Essentially, both are weighted linear
 combination of observed ratings. Can we do better than weighted average?&lt;/p&gt;
 &lt;h3 id=&#34;model-based-cf&#34; &gt;
@@ -1471,9 +1383,8 @@ of the latent space.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;The interaction matrix $R$ is approximated as the product of these two matrices: $R \approx U \cdot V^T$. In practice, we
 are usually optimizing for a weighted matrix factorization objective&lt;sup id=&#34;fnref:1&#34;&gt;&lt;a href=&#34;#fn:1&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;1&lt;/a&gt;&lt;/sup&gt;&lt;/p&gt;
-&lt;p&gt;$$L(\theta) = \sum_{(i, j)\in obs} \omega_{i, j} (R_{i, j} - U_i \cdot V_{j}^{T})^2 + \omega_{0} \sum_{(i, j) \notin obs}
-(U_i \cdot V_{j}^{T})^2$$&lt;/p&gt;
-&lt;p&gt;where $\omega_0$ is a hyper-parameter that weights the two terms so that the objective is not
+$$L(\theta) = \sum_{(i, j)\in obs} \omega_{i, j} (R_{i, j} - U_i \cdot V_{j}^{T})^2 + \omega_{0} \sum_{(i, j) \notin obs}
+(U_i \cdot V_{j}^{T})^2$$&lt;p&gt;where $\omega_0$ is a hyper-parameter that weights the two terms so that the objective is not
 dominated by one or the other, and $\omega_{i, j}$ is a function of the frequency of user $i$ and item $j$.&lt;/p&gt;
 &lt;p&gt;Common optimization algorithms to minimize the above objective function includes &lt;strong&gt;stochastic gradient descent&lt;/strong&gt; and
 &lt;strong&gt;weighted alternating least squares (WALS)&lt;/strong&gt;.&lt;/p&gt;
@@ -1544,25 +1455,21 @@ The model consists of two components:&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Wide Component&lt;/strong&gt;: This part is a generalized linear model (GLM) that excels at memorization by capturing feature
 interactions using cross-product feature transformations. The wide component is effective at handling sparse features
 and explicitly memorizing frequent co-occurrence patterns. It can be represented as:&lt;/p&gt;
-&lt;p&gt;$$y_{\text{wide}} = \mathbf{w}^T \mathbf{x} + b $$&lt;/p&gt;
-&lt;p&gt;where $\mathbf{x}$ represents the input features, $\mathbf{w}$ represents the learned weights, and $b$ is
+$$y_{\text{wide}} = \mathbf{w}^T \mathbf{x} + b $$&lt;p&gt;where $\mathbf{x}$ represents the input features, $\mathbf{w}$ represents the learned weights, and $b$ is
 the bias term.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Deep Component&lt;/strong&gt;: This part is a feed-forward neural network that excels at generalization by capturing high-level
 and non-linear feature interactions. The deep component uses dense embeddings to represent categorical features, and it
 learns implicit interactions through multiple hidden layers. The output of the deep component can be represented as:&lt;/p&gt;
-&lt;p&gt;$$\mathbf{h}^L = f^L(\mathbf{W}^L \mathbf{h}^{L-1} + \mathbf{b}^L)$$&lt;/p&gt;
-&lt;p&gt;where $\mathbf{h}^L$ is the activation of the $L$-th layer, $\mathbf{W}^L$ and $\mathbf{b}^L$ are the weights and biases
+$$\mathbf{h}^L = f^L(\mathbf{W}^L \mathbf{h}^{L-1} + \mathbf{b}^L)$$&lt;p&gt;where $\mathbf{h}^L$ is the activation of the $L$-th layer, $\mathbf{W}^L$ and $\mathbf{b}^L$ are the weights and biases
 of the $L$-th layer, respectively, and $f^L$ is the activation function.
 The final output of the deep component, $ y_{\text{deep}} $, is the output of the last layer of the deep neural network. It is given by:&lt;/p&gt;
-&lt;p&gt;$$
-y_{\text{deep}} = \mathbf{W}^O \mathbf{h}^{L} + \mathbf{b}^O
-$$&lt;/p&gt;
-&lt;p&gt;where $ \mathbf{W}^O $ and $ \mathbf{b}^O $ are the weights and bias of the output layer, and $ \mathbf{h}^L $ is the activation of the last hidden layer.&lt;/p&gt;
+$$
+   y_{\text{deep}} = \mathbf{W}^O \mathbf{h}^{L} + \mathbf{b}^O
+   $$&lt;p&gt;where $ \mathbf{W}^O $ and $ \mathbf{b}^O $ are the weights and bias of the output layer, and $ \mathbf{h}^L $ is the activation of the last hidden layer.&lt;/p&gt;
 &lt;p&gt;The final prediction is a weighted sum of the outputs from the wide and deep components:&lt;/p&gt;
-&lt;p&gt;$$\hat{y} = \sigma(y_{\text{wide}} + y_{\text{deep}})$$&lt;/p&gt;
-&lt;p&gt;where $\sigma$ is the sigmoid function used to squash the output to a probability score.&lt;/p&gt;
+$$\hat{y} = \sigma(y_{\text{wide}} + y_{\text{deep}})$$&lt;p&gt;where $\sigma$ is the sigmoid function used to squash the output to a probability score.&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
 &lt;p align=&#34;center&#34;&gt;
@@ -1584,30 +1491,26 @@ The model consists of two interconnected components:&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;FM Component&lt;/strong&gt;: This part captures low-order feature interactions using Factorization Machines, which are effective
 for handling sparse data and modeling pairwise feature interactions without manual feature engineering. The FM component
 can be represented as:&lt;/p&gt;
-&lt;p&gt;$$
-y_{\text{FM}} = w_0 + \sum_{i=1}^n w_i x_i + \sum_{i=1}^n \sum_{j=i+1}^n \langle \mathbf{v}_i, \mathbf{v}_j \rangle x_i x_j
-$$&lt;/p&gt;
-&lt;p&gt;where $w_0$ is the global bias, $w_i$ is the weight of the $i$-th feature, $\mathbf{v}_i$ and $\mathbf{v}_j$ are
+$$
+   y_{\text{FM}} = w_0 + \sum_{i=1}^n w_i x_i + \sum_{i=1}^n \sum_{j=i+1}^n \langle \mathbf{v}_i, \mathbf{v}_j \rangle x_i x_j
+   $$&lt;p&gt;where $w_0$ is the global bias, $w_i$ is the weight of the $i$-th feature, $\mathbf{v}_i$ and $\mathbf{v}_j$ are
 latent vectors for the $i$-th and $j$-th features, respectively, and $x_i$ and $x_j$ are input feature values.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Deep Component&lt;/strong&gt;: This part captures high-order feature interactions through a deep neural network. The deep
 component uses embeddings to represent input features and learns complex interactions through multiple hidden layers.
 The output of the deep component can be represented as:&lt;/p&gt;
-&lt;p&gt;$$\mathbf{h}^L = f^L(\mathbf{W}^L \mathbf{h}^{L-1} + \mathbf{b}^L)$$&lt;/p&gt;
-&lt;p&gt;where $\mathbf{h}^L$ is the activation of the $L$-th layer, $\mathbf{W}^L$ and $\mathbf{b}^L$ are the weights and
+$$\mathbf{h}^L = f^L(\mathbf{W}^L \mathbf{h}^{L-1} + \mathbf{b}^L)$$&lt;p&gt;where $\mathbf{h}^L$ is the activation of the $L$-th layer, $\mathbf{W}^L$ and $\mathbf{b}^L$ are the weights and
 biases of the $L$-th layer, respectively, and $f^L$ is the activation function.
 The final output of the deep component, $ y_{\text{deep}} $, is the output of the last layer of the deep neural network. It is given by:&lt;/p&gt;
-&lt;p&gt;$$
-y_{\text{deep}} = \mathbf{W}^O \mathbf{h}^{L} + \mathbf{b}^O
-$$&lt;/p&gt;
-&lt;p&gt;where $ \mathbf{W}^O $ and $ \mathbf{b}^O $ are the weights and bias of the output layer, and $ \mathbf{h}^L $ is the
+$$
+   y_{\text{deep}} = \mathbf{W}^O \mathbf{h}^{L} + \mathbf{b}^O
+   $$&lt;p&gt;where $ \mathbf{W}^O $ and $ \mathbf{b}^O $ are the weights and bias of the output layer, and $ \mathbf{h}^L $ is the
 activation of the last hidden layer.&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
 &lt;p&gt;The final prediction is a combination of the outputs from the FM and deep components:&lt;/p&gt;
-&lt;p&gt;$$\hat{y} = \sigma(y_{\text{FM}} + y_{\text{deep}})$$&lt;/p&gt;
-&lt;p&gt;where $\sigma$ is the sigmoid function used to squash the output to a probability score.&lt;/p&gt;
+$$\hat{y} = \sigma(y_{\text{FM}} + y_{\text{deep}})$$&lt;p&gt;where $\sigma$ is the sigmoid function used to squash the output to a probability score.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
    &lt;img src=&#34;https://bingzw.github.io/recommendation_model/deepfm.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
    &lt;em&gt;Figure 4: deepfm model&lt;/em&gt;
@@ -1636,9 +1539,10 @@ highly accurate and scalable recommendations.&lt;/p&gt;
 embeddings. Embeddings transform sparse categorical data into dense vectors of continuous numbers, making them suitable
 for neural network processing, denoted as $\mathbf{x}_s[i]$.
 The raw sparse features are transformed to sparse embeddings as follows. Let
+&lt;/p&gt;
 $$
 \mathbf{e}_i = \text{Embedding}(\mathbf{x}_s[i])
-$$
+$$&lt;p&gt;
 where $\mathbf{e}_i$ is the embedding vector for the $i$-th sparse feature, $\text{Embedding}$ denotes an embedding lookup table&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
@@ -1647,23 +1551,25 @@ form or normalized form, denoted as $\mathbf{x}_d$.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Bottom MLP (Multilayer Perceptron)&lt;/strong&gt;: Processes the dense features to capture high-level representations.
+&lt;/p&gt;
 $$
 \mathbf{h}_d = \text{BottomMLP}(\mathbf{x}_d)
-$$&lt;/p&gt;
-&lt;/li&gt;
+$$&lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Interaction Layer&lt;/strong&gt;: This layer captures the interactions between different features (both sparse and dense). It
 uses a dot product to compute the pairwise interactions among features.
+&lt;/p&gt;
 $$
 \mathbf{z} = \left[ \mathbf{h}_d, \mathbf{e}_1, \mathbf{e}_2, \ldots, \mathbf{e}_n \right]
-$$
+$$&lt;p&gt;
 where $\mathbf{z}$ is the concatenated vector of dense feature representation and embeddings.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Top MLP&lt;/strong&gt;: Combines the processed dense features and interactions from the interaction layer to make the final prediction.
+&lt;/p&gt;
 $$
 \hat{y} = \sigma(\text{TopMLP}(\mathbf{z}))
-$$
+$$&lt;p&gt;
 where $\sigma$ is an activation function, typically a sigmoid function for binary classification tasks.&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
@@ -1683,19 +1589,17 @@ two ways to combine the cross network with the deep network: (1) stacked and (2)
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Cross Component&lt;/strong&gt;: The Cross Network V2 enhances the original cross network by introducing a more flexible mechanism
 to capture feature interactions. The cross layer in DCN V2 can be represented as:&lt;/p&gt;
-&lt;p&gt;$$
-x_{l+1} = x_0 \odot (W_l \cdot x_l + b_l) + x_l
-$$&lt;/p&gt;
-&lt;p&gt;where $x_l$ is the input to the l-th cross layer. $W_l$ and $b_l$ are the weight matrix and bias vector of the l-th
+$$
+   x_{l+1} = x_0 \odot (W_l \cdot x_l + b_l) + x_l
+   $$&lt;p&gt;where $x_l$ is the input to the l-th cross layer. $W_l$ and $b_l$ are the weight matrix and bias vector of the l-th
 cross layer. $x_{l+1}$ is the output of the $l+1$-th cross layer. $\odot$ is the Hadamard product.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Deep Component&lt;/strong&gt;: The deep network in DCN V2 captures high-order feature interactions through a series of dense layers.
 This part of the network learns abstract representations of the input features, enabling the model to generalize well.&lt;/p&gt;
-&lt;p&gt;$$
-h_{l} = f_{l}(W_{l} h_{l-1} + b_{l})
-$$&lt;/p&gt;
-&lt;p&gt;where $h_{l}$ is the activation of the $l$-th layer, $W_{l}$ and $b_{l}$ are the weights and
+$$ 
+   h_{l} = f_{l}(W_{l} h_{l-1} + b_{l})
+   $$&lt;p&gt;where $h_{l}$ is the activation of the $l$-th layer, $W_{l}$ and $b_{l}$ are the weights and
 biases of the $l$-th layer, respectively, and $f_{l}$ is the activation function.&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
@@ -1726,29 +1630,31 @@ process.&lt;/p&gt;
 &lt;ol&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Embedding Layer&lt;/strong&gt;: User behaviors and items are represented as dense vectors through an embedding layer. Let
-$({e_{1}, e_{2}, \ldots, e_{n}})$ be the sequence of embeddings for user behaviors, and $e_{target}$ be the embedding of the target item.&lt;/p&gt;
+$(\{e_{1}, e_{2}, \ldots, e_{n}\})$ be the sequence of embeddings for user behaviors, and $e_{target}$ be the embedding of the target item.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Local Activation Unit&lt;/strong&gt;: This unit applies the attention mechanism to compute the relevance of each user behavior
 in the sequence with respect to the target item.
 Let
+&lt;/p&gt;
 $$
 \alpha_{i} = \frac{\exp(\text{score}(e_{i}, e_{target}))}{\sum_{j=1}^{n} \exp(\text{score}(e_{j}, e_{target}))}
-$$
+$$&lt;p&gt;
 where $\text{score}(e_{i}, e_{target})$ is the activation weight output from a feed-forward
 network measuring the relevance of behavior $e_{i}$ to the target item.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Interest Extractor Layer&lt;/strong&gt;: Combines the weighted behavior embeddings to form a user interest representation.
+&lt;/p&gt;
 $$
 u = \sum_{i=1}^{n} \alpha_{i} e_{i}
-$$&lt;/p&gt;
-&lt;/li&gt;
+$$&lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Prediction Layer&lt;/strong&gt;: The user interest representation is concatenated with the target item embedding and fed into a neural network to predict the user&amp;rsquo;s interaction with the target item.
+&lt;/p&gt;
 $$
 \hat{y} = \sigma(W[u, e_{target}, e_{profile}, e_{context}] + b)
-$$
+$$&lt;p&gt;
 where $[u, e_{target}, e_{profile}, e_{context}]$ denotes the concatenation of the user interest representation, profile
 embedding, context embedding and the target item embedding, $W$ is a weight matrix, $b$ is a bias term, and $\sigma$ is an activation function (e.g., sigmoid).&lt;/p&gt;
 &lt;/li&gt;
@@ -1776,28 +1682,32 @@ where tasks are interrelated and can benefit from shared learning while maintain
 &lt;p&gt;&lt;strong&gt;Experts&lt;/strong&gt;: A set of neural network sub-models that serve as specialized units for feature extraction. Each expert
 is trained to capture different aspects of the input data. Let $\mathbf{x}$ represent the input data, $E$ represent
 the number of experts, and $T$ represent the number of tasks. The output from expert is represented as
+&lt;/p&gt;
 $$
 \mathbf{h}^i = f_e^i(\mathbf{x}), \quad \text{for } i = 1, 2, \ldots, E
-$$
+$$&lt;p&gt;
 where $f_e^i$ is the function of the $i$-th expert, and $\mathbf{h}^i$ is the output of the $i$-th expert.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Multi-gate Mechanism&lt;/strong&gt;: Separate gating networks for each task that dynamically select and weight the contributions
 of different experts based on the input data and task requirements.
+&lt;/p&gt;
 $$
 \mathbf{g}^j = \sigma(\mathbf{W}^j \mathbf{x}), \quad \text{for } j = 1, 2, \ldots, T
-$$
+$$&lt;p&gt;
 where $\mathbf{W}^j$ are the parameters of the gating network for task $j$, and $g^j$ is the gating output distribution
 of gating weights to each expert assigned by task $j$. To combine the experts output and gating weights, we have
-$$\mathbf{t}^j = \sum_{i=1}^{E} g_i^j \cdot \mathbf{h}^i$$
+&lt;/p&gt;
+$$\mathbf{t}^j = \sum_{i=1}^{E} g_i^j \cdot \mathbf{h}^i$$&lt;p&gt;
 where $\mathbf{t}^j$ is the combined output for task $j$, and $g_i^j$ is the weight for the $i$-th expert assigned by
 the gating network of task $j$.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Task-specific Layers&lt;/strong&gt;: Layers that process the combined outputs from the experts, tailored to the specific requirements of each task.
+&lt;/p&gt;
 $$
 \hat{y}^j = f_o^j(\mathbf{t}^j)
-$$
+$$&lt;p&gt;
 where $f_o^j$ is the task-specific output layer for task $j$, and $\hat{y}^j$ is the predicted output for task $j$.&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
@@ -1828,37 +1738,42 @@ interactions over time. This approach enhances the ability to predict user prefe
 &lt;ol start=&#34;2&#34;&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Embedding Layer&lt;/strong&gt;:
+&lt;/p&gt;
 $$
 \mathbf{E}_x = \mathbf{W}_e \cdot \mathbf{x}
-$$
+$$&lt;p&gt;
 where $\mathbf{W}_e$ is the embedding matrix and $\mathbf{x}$ is the input feature vector.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Positional Encoding&lt;/strong&gt;:
+&lt;/p&gt;
 $$
 \mathbf{E}_p = \text{PE}(pos)
-$$
+$$&lt;p&gt;
 where $\text{PE}(pos)$ is the positional encoding function that adds position-specific information to the embeddings.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Transformer Encoder&lt;/strong&gt;:
+&lt;/p&gt;
 $$
 \mathbf{H}_i = \text{LayerNorm}(\text{MultiHeadAttention}(\mathbf{Q}, \mathbf{K}, \mathbf{V}) + \mathbf{E}_i)
-$$
+$$&lt;p&gt;
 where $\mathbf{Q}$, $\mathbf{K}$, and $\mathbf{V}$ are the query, key, and value matrices, and $\mathbf{E}_i$ is the
 input embedding at layer $i$. A Feed-Forward Networks ($\text{FFN}$) is added on top of the self attention layer to further enhance the
 model with non-linearity.
+&lt;/p&gt;
 $$
 \mathbf{O}_i = \text{LayerNorm}(\text{FFN}(\mathbf{H}_i) + \mathbf{H}_i)
-$$
+$$&lt;p&gt;
 In practice, we usually stack multiple transformer layers. So the output of last layer is thus fed as the input of the
 next layer.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Output Layer&lt;/strong&gt;:
+&lt;/p&gt;
 $$
 \hat{y} = \sigma(\mathbf{W}_o \cdot \mathbf{O}_L)
-$$
+$$&lt;p&gt;
 where $\mathbf{W}_o$ is the weight matrix of the output layer, $\mathbf{O}_L$ is the output of the last Transformer encoder layer, and $\sigma$ is the activation function.&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;

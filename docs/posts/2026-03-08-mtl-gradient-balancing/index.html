@@ -466,7 +466,7 @@
                     <li><a href="/tags/optimization/">#Optimization</a></li>
                 
                     
-                    <li><a href="/tags/deep-learning/">#Deep Learning</a></li>
+                    <li><a href="/tags/deep-learning/">#Deep-Learning</a></li>
                 
             </ul>
         
@@ -569,14 +569,8 @@
 </div>
 </h3>
 <p>Let $T$ be the number of tasks and $\mathcal{L}_i$ the loss for task $i$. The standard multi-task objective is:</p>
-<p>$$
-\mathcal{L}<em>{total} = \sum</em>{i=1}^{T} w_i \mathcal{L}_i
-$$</p>
-<p>where $w_i \geq 0$ are scalar task weights. The parameter update follows:</p>
-<p>$$
-\theta \leftarrow \theta - \eta \nabla_\theta \mathcal{L}<em>{total} = \theta - \eta \sum</em>{i=1}^{T} w_i \mathbf{g}_i
-$$</p>
-<p>where $\mathbf{g}<em>i = \nabla</em>\theta \mathcal{L}_i$ is the gradient of task $i$ with respect to shared parameters $\theta$.</p>
+$$\mathcal{L}_{total} = \sum_{i=1}^{T} w_i \mathcal{L}_i$$<p>where $w_i \geq 0$ are scalar task weights. The parameter update follows:</p>
+$$\theta \leftarrow \theta - \eta \nabla_\theta \mathcal{L}_{total} = \theta - \eta \sum_{i=1}^{T} w_i \mathbf{g}_i$$<p>where $\mathbf{g}_i = \nabla_\theta \mathcal{L}_i$ is the gradient of task $i$ with respect to shared parameters $\theta$.</p>
 <h3 id="the-three-primary-failure-modes" >
 <div>
     <a href="#the-three-primary-failure-modes">
@@ -586,11 +580,8 @@ $$</p>
 </div>
 </h3>
 <p><strong>Gradient Conflict.</strong> When two task gradients point in opposing directions, their combination partially or fully cancels. Formally, conflict occurs when the cosine similarity is negative:</p>
-<p>$$
-\cos(\mathbf{g}_i, \mathbf{g}_j) = \frac{\mathbf{g}_i \cdot \mathbf{g}_j}{|\mathbf{g}_i| |\mathbf{g}_j|} &lt; 0
-$$</p>
-<p>This directly causes negative transfer: progress on task $i$ undoes progress on task $j$.</p>
-<p><strong>Magnitude Imbalance.</strong> Tasks with high-frequency labels (e.g., clicks) naturally produce larger gradient norms than sparse objectives (e.g., purchases). If $|\mathbf{g}<em>{CTR}| \gg |\mathbf{g}</em>{CVR}|$, the dense task dominates the parameter update regardless of the scalar weight $w_i$. This is the <strong>seesaw effect</strong> in recommendation: improving CTR degrades CVR, or vice versa, because the shared backbone is pulled predominantly by one objective.</p>
+$$\cos(\mathbf{g}_i, \mathbf{g}_j) = \frac{\mathbf{g}_i \cdot \mathbf{g}_j}{\|\mathbf{g}_i\| \|\mathbf{g}_j\|} < 0$$<p>This directly causes negative transfer: progress on task $i$ undoes progress on task $j$.</p>
+<p><strong>Magnitude Imbalance.</strong> Tasks with high-frequency labels (e.g., clicks) naturally produce larger gradient norms than sparse objectives (e.g., purchases). If $\|\mathbf{g}_{CTR}\| \gg \|\mathbf{g}_{CVR}\|$, the dense task dominates the parameter update regardless of the scalar weight $w_i$. This is the <strong>seesaw effect</strong> in recommendation: improving CTR degrades CVR, or vice versa, because the shared backbone is pulled predominantly by one objective.</p>
 <p><strong>Curvature Sensitivity.</strong> In curved loss landscapes, the gradient magnitude at a given point reflects both the learning signal and the local curvature. High positive curvature along one task&rsquo;s direction means even a moderate step causes large loss changes for other tasks. Tasks whose loss surfaces have sharply different curvature will be misweighted by any method that only looks at first-order gradient information.</p>
 <h3 id="notation-summary" >
 <div>
@@ -649,29 +640,17 @@ $$</p>
 </h3>
 <p><strong>Intuition.</strong> Imagine a relay race where some runners are sprinting and others are jogging. GradNorm is the coach who watches pace and tells the sprinters to slow down, or the joggers to speed up, so the team arrives in formation. Concretely, it maintains a running estimate of each task&rsquo;s training speed and adjusts $w_i$ so that faster-learning tasks do not crowd out slower ones.</p>
 <p><strong>Math.</strong> At training step $t$, define the weighted gradient norm for task $i$:</p>
-<p>$$
-G_W^{(i)}(t) = |w_i(t) \nabla_W \mathcal{L}_i(t)|_2
-$$</p>
-<p>where $W$ denotes the parameters of the final shared layer (a proxy for the full network). The <strong>relative inverse training rate</strong> measures how fast task $i$ learns relative to the average:</p>
-<p>$$
-\tilde{\mathcal{L}}_i(t) = \frac{\mathcal{L}_i(t)}{\mathcal{L}_i(0)}
-$$</p>
-<p>The average rate is $\bar{\mathcal{L}}(t) = \frac{1}{T} \sum_i \tilde{\mathcal{L}}_i(t)$.</p>
+$$G_W^{(i)}(t) = \|w_i(t) \nabla_W \mathcal{L}_i(t)\|_2$$<p>where $W$ denotes the parameters of the final shared layer (a proxy for the full network). The <strong>relative inverse training rate</strong> measures how fast task $i$ learns relative to the average:</p>
+$$\tilde{\mathcal{L}}_i(t) = \frac{\mathcal{L}_i(t)}{\mathcal{L}_i(0)}$$<p>The average rate is $\bar{\mathcal{L}}(t) = \frac{1}{T} \sum_i \tilde{\mathcal{L}}_i(t)$.</p>
 <p>The target gradient norm for task $i$ is:</p>
-<p>$$
-G_W^{target}(t) = \bar{G}_W(t) \cdot \left[\frac{\tilde{\mathcal{L}}_i(t)}{\bar{\mathcal{L}}(t)}\right]^\alpha
-$$</p>
-<p>where $\bar{G}_W(t) = \frac{1}{T} \sum_i G_W^{(i)}(t)$ is the mean gradient norm. The hyperparameter $\alpha \geq 0$ controls how aggressively slow learners are prioritized:</p>
+$$G_W^{target}(t) = \bar{G}_W(t) \cdot \left[\frac{\tilde{\mathcal{L}}_i(t)}{\bar{\mathcal{L}}(t)}\right]^\alpha$$<p>where $\bar{G}_W(t) = \frac{1}{T} \sum_i G_W^{(i)}(t)$ is the mean gradient norm. The hyperparameter $\alpha \geq 0$ controls how aggressively slow learners are prioritized:</p>
 <ul>
 <li>$\alpha = 0$: all tasks receive equal gradient norm (full equalization).</li>
 <li>$\alpha \to \infty$: tasks that are falling behind receive disproportionately large boosts.</li>
 <li>Typical value: $\alpha \in [0.5, 2.0]$.</li>
 </ul>
 <p>The GradNorm auxiliary loss, minimized with respect to $w_i$ only (treating the network parameters as constants), is:</p>
-<p>$$
-\mathcal{L}<em>{grad}(t; {w_i}) = \sum</em>{i=1}^{T} \left| G_W^{(i)}(t) - G_W^{target}(t) \right|
-$$</p>
-<p>After each update to $w_i$, the weights are renormalized so $\sum_i w_i = T$ (preserving total loss scale).</p>
+$$\mathcal{L}_{grad}(t; \{w_i\}) = \sum_{i=1}^{T} \left| G_W^{(i)}(t) - G_W^{target}(t) \right|$$<p>After each update to $w_i$, the weights are renormalized so $\sum_i w_i = T$ (preserving total loss scale).</p>
 <p><strong>Pseudocode.</strong></p>
 <div class="highlight"><pre tabindex="0" style="color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#78787e"># GradNorm Training Step</span>
 </span></span><span style="display:flex;"><span><span style="color:#78787e"># Inputs: model, tasks, alpha hyperparameter</span>
@@ -726,24 +705,12 @@ $$</p>
 </h3>
 <p><strong>Intuition.</strong> Picture two hikers trying to climb different hills. If they are roped together, one pulling north while the other pulls south, they cancel each other out. PCGrad (Projecting Conflicting Gradients) cuts the rope and instead lets each hiker only keep the component of their pull that does not drag the other backward. Geometrically, if task $i$&rsquo;s gradient has a negative projection onto task $j$&rsquo;s gradient, that conflicting component is removed.</p>
 <p><strong>Math.</strong> For two tasks $i$ and $j$, a conflict exists when:</p>
-<p>$$
-\mathbf{g}_i \cdot \mathbf{g}_j &lt; 0
-$$</p>
-<p>In this case, project out the component of $\mathbf{g}_i$ that lies along $\mathbf{g}_j$:</p>
-<p>$$
-\mathbf{g}_i^{PC} = \mathbf{g}_i - \frac{\mathbf{g}_i \cdot \mathbf{g}_j}{|\mathbf{g}_j|^2} \mathbf{g}_j
-$$</p>
-<p>The subtracted term $\frac{\mathbf{g}_i \cdot \mathbf{g}_j}{|\mathbf{g}_j|^2} \mathbf{g}_j$ is exactly the component of $\mathbf{g}_i$ in the direction of $\mathbf{g}_j$. When the dot product is negative, this component points anti-parallel to $\mathbf{g}_j$, so removing it prevents $\mathbf{g}_i$ from harming task $j$.</p>
-<p>Why does this work geometrically? Recall that $\mathbf{g}_i \cdot \mathbf{g}_j = |\mathbf{g}_i||\mathbf{g}_j|\cos\theta$. When $\theta &gt; 90°$, the projection of $\mathbf{g}_i$ onto $\hat{\mathbf{g}}_j$ is negative. After surgery, the modified $\mathbf{g}_i^{PC}$ satisfies:</p>
-<p>$$
-\mathbf{g}_i^{PC} \cdot \mathbf{g}_j = \mathbf{g}_i \cdot \mathbf{g}_j - \frac{(\mathbf{g}_i \cdot \mathbf{g}_j)(\mathbf{g}_j \cdot \mathbf{g}_j)}{|\mathbf{g}_j|^2} = \mathbf{g}_i \cdot \mathbf{g}_j - \mathbf{g}_i \cdot \mathbf{g}_j = 0
-$$</p>
-<p>So the modified gradient is orthogonal to $\mathbf{g}_j$ — it no longer conflicts.</p>
+$$\mathbf{g}_i \cdot \mathbf{g}_j < 0$$<p>In this case, project out the component of $\mathbf{g}_i$ that lies along $\mathbf{g}_j$:</p>
+$$\mathbf{g}_i^{PC} = \mathbf{g}_i - \frac{\mathbf{g}_i \cdot \mathbf{g}_j}{\|\mathbf{g}_j\|^2} \mathbf{g}_j$$<p>The subtracted term $\frac{\mathbf{g}_i \cdot \mathbf{g}_j}{\|\mathbf{g}_j\|^2} \mathbf{g}_j$ is exactly the component of $\mathbf{g}_i$ in the direction of $\mathbf{g}_j$. When the dot product is negative, this component points anti-parallel to $\mathbf{g}_j$, so removing it prevents $\mathbf{g}_i$ from harming task $j$.</p>
+<p>Why does this work geometrically? Recall that $\mathbf{g}_i \cdot \mathbf{g}_j = \|\mathbf{g}_i\|\|\mathbf{g}_j\|\cos\theta$. When $\theta > 90°$, the projection of $\mathbf{g}_i$ onto $\hat{\mathbf{g}}_j$ is negative. After surgery, the modified $\mathbf{g}_i^{PC}$ satisfies:</p>
+$$\mathbf{g}_i^{PC} \cdot \mathbf{g}_j = \mathbf{g}_i \cdot \mathbf{g}_j - \frac{(\mathbf{g}_i \cdot \mathbf{g}_j)(\mathbf{g}_j \cdot \mathbf{g}_j)}{\|\mathbf{g}_j\|^2} = \mathbf{g}_i \cdot \mathbf{g}_j - \mathbf{g}_i \cdot \mathbf{g}_j = 0$$<p>So the modified gradient is orthogonal to $\mathbf{g}_j$ — it no longer conflicts.</p>
 <p>For $T$ tasks, the procedure applies pairwise: for task $i$, iterate over all $j \neq i$ and sequentially project out each conflicting direction. The final update is:</p>
-<p>$$
-\mathbf{g}^{final} = \sum_{i=1}^{T} \mathbf{g}_i^{PC}
-$$</p>
-<p><strong>Pseudocode.</strong></p>
+$$\mathbf{g}^{final} = \sum_{i=1}^{T} \mathbf{g}_i^{PC}$$<p><strong>Pseudocode.</strong></p>
 <div class="highlight"><pre tabindex="0" style="color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#78787e"># PCGrad (Gradient Surgery)</span>
 </span></span><span style="display:flex;"><span><span style="color:#ff6ac1">def</span> <span style="color:#57c7ff">pcgrad</span>(gradients):
 </span></span><span style="display:flex;"><span>    <span style="color:#78787e"># gradients: list of T gradient vectors, one per task</span>
@@ -766,7 +733,7 @@ $$</p>
 </span></span><span style="display:flex;"><span>    grads <span style="color:#ff6ac1">=</span> [compute_gradient(loss_i, model) <span style="color:#ff6ac1">for</span> loss_i <span style="color:#ff6ac1">in</span> task_losses]
 </span></span><span style="display:flex;"><span>    combined_grad <span style="color:#ff6ac1">=</span> pcgrad(grads)
 </span></span><span style="display:flex;"><span>    apply_gradient(model, combined_grad)
-</span></span></code></pre></div><p><strong>Complexity.</strong> The pairwise loop is $O(T^2)$ in gradient computations and $O(T^2 \cdot d)$ in memory where $d$ is the parameter dimension. This becomes prohibitive for $T &gt; 10$ tasks.</p>
+</span></span></code></pre></div><p><strong>Complexity.</strong> The pairwise loop is $O(T^2)$ in gradient computations and $O(T^2 \cdot d)$ in memory where $d$ is the parameter dimension. This becomes prohibitive for $T > 10$ tasks.</p>
 <p><strong>Pros and Cons.</strong></p>
 <ul>
 <li>Pros: Principled geometric solution; no scalar hyperparameters; prevents destructive interference directly.</li>
@@ -783,14 +750,8 @@ $$</p>
 </h3>
 <p><strong>Intuition.</strong> MGDA reframes multi-task learning as a <strong>multi-objective optimization</strong> (MOO) problem. Rather than combining gradients with fixed weights, it searches for a descent direction that simultaneously reduces all task losses — a Pareto-improving step. Think of it as finding the direction in gradient space that every task can agree on.</p>
 <p><strong>Math.</strong> A point $\theta$ is <strong>Pareto-stationary</strong> if no single update direction can improve all objectives simultaneously. MGDA finds the minimum-norm point in the convex hull of task gradients:</p>
-<p>$$
-\mathbf{g}^* = \sum_{i=1}^{T} \alpha_i \mathbf{g}<em>i, \quad \alpha_i \geq 0, \quad \sum</em>{i=1}^{T} \alpha_i = 1
-$$</p>
-<p>$$
-{\alpha_i^*} = \arg\min_{\alpha} \left| \sum_{i=1}^{T} \alpha_i \mathbf{g}_i \right|^2
-$$</p>
-<p>If $\mathbf{g}^* = \mathbf{0}$, the current point is already Pareto-stationary. Otherwise, taking a step in the direction $-\mathbf{g}^*$ guarantees a reduction in every task loss (to first order).</p>
-<p>The optimization over ${\alpha_i}$ is a quadratic program (QP) over the simplex, solvable efficiently with the Frank-Wolfe algorithm or the dual form. The computational cost is $O(T^2 \cdot d)$ per step.</p>
+$$\mathbf{g}^* = \sum_{i=1}^{T} \alpha_i \mathbf{g}_i, \quad \alpha_i \geq 0, \quad \sum_{i=1}^{T} \alpha_i = 1$$$$\{\alpha_i^*\} = \arg\min_{\alpha} \left\| \sum_{i=1}^{T} \alpha_i \mathbf{g}_i \right\|^2$$<p>If $\mathbf{g}^* = \mathbf{0}$, the current point is already Pareto-stationary. Otherwise, taking a step in the direction $-\mathbf{g}^*$ guarantees a reduction in every task loss (to first order).</p>
+<p>The optimization over $\{\alpha_i\}$ is a quadratic program (QP) over the simplex, solvable efficiently with the Frank-Wolfe algorithm or the dual form. The computational cost is $O(T^2 \cdot d)$ per step.</p>
 <p><strong>Pros and Cons.</strong></p>
 <ul>
 <li>Pros: Principled MOO framework; theoretical convergence guarantees to Pareto-stationary points; no task weighting hyperparameters.</li>
@@ -807,23 +768,14 @@ $$</p>
 </h3>
 <p><strong>Intuition.</strong> CAGrad (Conflict-Averse Gradient Descent) unifies vanilla gradient descent and MGDA by introducing a tunable constraint. The key insight is: rather than minimizing all tasks equally (MGDA) or ignoring conflicts (plain sum), CAGrad maximizes the <em>worst-case</em> task improvement while staying close to the average gradient. This is the multi-task analogue of max-min fairness.</p>
 <p><strong>Math.</strong> Let the average gradient be:</p>
-<p>$$
-\bar{\mathbf{g}} = \frac{1}{T} \sum_{i=1}^{T} \mathbf{g}_i
-$$</p>
-<p>CAGrad solves:</p>
-<p>$$
-\mathbf{g}^* = \arg\max_{\mathbf{g}} \min_{i \in [T]} \langle \mathbf{g}_i, \mathbf{g} \rangle \quad \text{s.t.} \quad |\mathbf{g} - \bar{\mathbf{g}}| \leq c |\bar{\mathbf{g}}|
-$$</p>
-<p>The constraint ball of radius $c |\bar{\mathbf{g}}|$ centered at $\bar{\mathbf{g}}$ controls how far from the average gradient we are allowed to deviate. Two limiting cases:</p>
+$$\bar{\mathbf{g}} = \frac{1}{T} \sum_{i=1}^{T} \mathbf{g}_i$$<p>CAGrad solves:</p>
+$$\mathbf{g}^* = \arg\max_{\mathbf{g}} \min_{i \in [T]} \langle \mathbf{g}_i, \mathbf{g} \rangle \quad \text{s.t.} \quad \|\mathbf{g} - \bar{\mathbf{g}}\| \leq c \|\bar{\mathbf{g}}\|$$<p>The constraint ball of radius $c \|\bar{\mathbf{g}}\|$ centered at $\bar{\mathbf{g}}$ controls how far from the average gradient we are allowed to deviate. Two limiting cases:</p>
 <ul>
 <li>$c = 0$: The only feasible point is $\bar{\mathbf{g}}$ itself — recovers vanilla gradient descent.</li>
 <li>$c \to \infty$: The constraint is vacuous and the solution recovers MGDA (min-norm in convex hull).</li>
 </ul>
 <p>For a general $c$, the Lagrangian of the inner max-min is:</p>
-<p>$$
-\mathcal{L}(\mathbf{g}, \lambda) = \min_i \langle \mathbf{g}_i, \mathbf{g} \rangle - \lambda (|\mathbf{g} - \bar{\mathbf{g}}|^2 - c^2 |\bar{\mathbf{g}}|^2)
-$$</p>
-<p>At the optimum, the gradient $\mathbf{g}^*$ lies on the boundary of the constraint sphere and maximizes the minimum inner product with task gradients. This guarantees that the update direction does not decrease any task&rsquo;s objective by more than the worst-case minimum.</p>
+$$\mathcal{L}(\mathbf{g}, \lambda) = \min_i \langle \mathbf{g}_i, \mathbf{g} \rangle - \lambda (\|\mathbf{g} - \bar{\mathbf{g}}\|^2 - c^2 \|\bar{\mathbf{g}}\|^2)$$<p>At the optimum, the gradient $\mathbf{g}^*$ lies on the boundary of the constraint sphere and maximizes the minimum inner product with task gradients. This guarantees that the update direction does not decrease any task&rsquo;s objective by more than the worst-case minimum.</p>
 <p><strong>Pseudocode.</strong></p>
 <div class="highlight"><pre tabindex="0" style="color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#78787e"># CAGrad</span>
 </span></span><span style="display:flex;"><span><span style="color:#ff6ac1">def</span> <span style="color:#57c7ff">cagrad</span>(gradients, c<span style="color:#ff6ac1">=</span><span style="color:#ff9f43">0.5</span>):
@@ -871,14 +823,11 @@ $$</p>
 </div>
 </h3>
 <p><strong>Intuition.</strong> In recommendation systems, there is often a natural hierarchy: a primary task (e.g., CTR) that we care most about, and auxiliary tasks (e.g., dwell time, likes) that provide helpful regularization. MetaBalance takes this hierarchy seriously and rescales auxiliary gradients to match the primary task&rsquo;s gradient norm — layer by layer, iteration by iteration.</p>
-<p><strong>Math.</strong> For the primary task gradient $\mathbf{g}<em>{target}$ and auxiliary task gradient $\mathbf{g}</em>{aux}$, the scaled auxiliary gradient is:</p>
-<p>$$
-\mathbf{g}<em>{aux}^{scaled} = \mathbf{g}</em>{aux} \cdot \frac{|\mathbf{g}<em>{target}|}{|\mathbf{g}</em>{aux}|} \cdot r
-$$</p>
-<p>where $r \in (0, 1]$ is a rescaling ratio. Three strategies govern when to apply scaling:</p>
+<p><strong>Math.</strong> For the primary task gradient $\mathbf{g}_{target}$ and auxiliary task gradient $\mathbf{g}_{aux}$, the scaled auxiliary gradient is:</p>
+$$\mathbf{g}_{aux}^{scaled} = \mathbf{g}_{aux} \cdot \frac{\|\mathbf{g}_{target}\|}{\|\mathbf{g}_{aux}\|} \cdot r$$<p>where $r \in (0, 1]$ is a rescaling ratio. Three strategies govern when to apply scaling:</p>
 <ul>
-<li><strong>Strategy A (Reduce)</strong>: Only scale down when $|\mathbf{g}<em>{aux}| &gt; |\mathbf{g}</em>{target}|$ — prevents auxiliary tasks from overwhelming the primary.</li>
-<li><strong>Strategy B (Enlarge)</strong>: Only scale up when $|\mathbf{g}<em>{aux}| &lt; |\mathbf{g}</em>{target}|$ — ensures auxiliary tasks contribute meaningfully.</li>
+<li><strong>Strategy A (Reduce)</strong>: Only scale down when $\|\mathbf{g}_{aux}\| > \|\mathbf{g}_{target}\|$ — prevents auxiliary tasks from overwhelming the primary.</li>
+<li><strong>Strategy B (Enlarge)</strong>: Only scale up when $\|\mathbf{g}_{aux}\| < \|\mathbf{g}_{target}\|$ — ensures auxiliary tasks contribute meaningfully.</li>
 <li><strong>Strategy C (Flexible)</strong>: Always rescale, combining A and B.</li>
 </ul>
 <p>The key distinction from GradNorm is <strong>granularity</strong>: MetaBalance applies per-layer, per-step control, adjusting the ratio of norms at each layer of the network independently. This captures the fact that gradient imbalances may differ across layers.</p>
@@ -938,10 +887,7 @@ $$</p>
 </h3>
 <p><strong>Intuition.</strong> Even within a single auxiliary task, different training samples contribute differently to the primary objective. Some auxiliary samples genuinely help the primary task; others introduce noise or conflict. SLGrad operates at the finest possible granularity — individual samples — assigning weights based on how well each sample&rsquo;s gradient aligns with the primary task&rsquo;s validation gradient.</p>
 <p><strong>Math.</strong> Let $\mathbf{g}_{val}^{primary}$ be the gradient of the primary task on a held-out validation set. For each sample $s$ in the auxiliary task batch, compute the cosine similarity:</p>
-<p>$$
-w_s = \cos(\mathbf{g}<em>s, \mathbf{g}</em>{val}^{primary}) = \frac{\mathbf{g}<em>s \cdot \mathbf{g}</em>{val}^{primary}}{|\mathbf{g}<em>s| |\mathbf{g}</em>{val}^{primary}|}
-$$</p>
-<p>Samples with $w_s &gt; 0$ push in a direction compatible with the primary objective; samples with $w_s &lt; 0$ conflict. SLGrad reweights the auxiliary loss by $\max(0, w_s)$ or uses $w_s$ directly as a soft weight to suppress conflicting samples.</p>
+$$w_s = \cos(\mathbf{g}_s, \mathbf{g}_{val}^{primary}) = \frac{\mathbf{g}_s \cdot \mathbf{g}_{val}^{primary}}{\|\mathbf{g}_s\| \|\mathbf{g}_{val}^{primary}\|}$$<p>Samples with $w_s > 0$ push in a direction compatible with the primary objective; samples with $w_s < 0$ conflict. SLGrad reweights the auxiliary loss by $\max(0, w_s)$ or uses $w_s$ directly as a soft weight to suppress conflicting samples.</p>
 <p><strong>Pros and Cons.</strong></p>
 <ul>
 <li>Pros: Finest possible granularity; directly suppresses noisy auxiliary samples; interpretable per-sample weights.</li>
@@ -959,14 +905,11 @@ $$</p>
 <p><strong>Intuition.</strong> Rather than fixing gradient conflicts after the fact, PLE prevents them architecturally. It partitions model capacity into shared experts and task-specific experts, organized in hierarchical layers. Task-specific experts receive gradients only from their own task, eliminating cross-task gradient interference at the source.</p>
 <p><strong>Math.</strong> Let $L$ be the number of extraction layers. At layer $l$:</p>
 <ul>
-<li>Shared experts ${E_s^{(l)}}$: receive gradients from all tasks via gating.</li>
-<li>Task-specific experts ${E_k^{(l)}}$ for task $k$: receive gradients only from task $k$.</li>
+<li>Shared experts $\{E_s^{(l)}\}$: receive gradients from all tasks via gating.</li>
+<li>Task-specific experts $\{E_k^{(l)}\}$ for task $k$: receive gradients only from task $k$.</li>
 </ul>
 <p>The output for task $k$ at layer $l$ is:</p>
-<p>$$
-\mathbf{h}<em>k^{(l)} = \sum_j g</em>{k,j}^{(l)} E_j^{(l)}(\mathbf{h}_k^{(l-1)})
-$$</p>
-<p>where $g_{k,j}^{(l)}$ are gating weights that blend shared and task-specific expert outputs. Crucially, the gating ensures that gradients flowing backward through task-specific experts are isolated from other tasks.</p>
+$$\mathbf{h}_k^{(l)} = \sum_j g_{k,j}^{(l)} E_j^{(l)}(\mathbf{h}_k^{(l-1)})$$<p>where $g_{k,j}^{(l)}$ are gating weights that blend shared and task-specific expert outputs. Crucially, the gating ensures that gradients flowing backward through task-specific experts are isolated from other tasks.</p>
 <p><strong>Pros and Cons.</strong></p>
 <ul>
 <li>Pros: Structural separation eliminates gradient conflict by design; well-validated in large-scale production settings; no optimization-time overhead.</li>
@@ -988,10 +931,7 @@ $$</p>
 <li>A globally shared embedding table $\mathbf{E}_{shared}$</li>
 </ul>
 <p>The final representation for task $i$ is:</p>
-<p>$$
-\mathbf{h}_i = f_i!\left(\mathbf{E}<em>i(\mathbf{x}),\ \text{stop_grad}!\left(\mathbf{E}</em>{shared}(\mathbf{x})\right)\right)
-$$</p>
-<p>The <strong>All Forward Task-specific Backward (AFTB)</strong> gating mechanism allows all embeddings to contribute during the forward pass (maximizing information flow) while blocking gradient flow from task $i$&rsquo;s loss to task $j$&rsquo;s embedding table (preventing conflict). This is implemented via <code>stop_gradient</code> operators that zero out gradients selectively.</p>
+$$\mathbf{h}_i = f_i\!\left(\mathbf{E}_i(\mathbf{x}),\ \text{stop\_grad}\!\left(\mathbf{E}_{shared}(\mathbf{x})\right)\right)$$<p>The <strong>All Forward Task-specific Backward (AFTB)</strong> gating mechanism allows all embeddings to contribute during the forward pass (maximizing information flow) while blocking gradient flow from task $i$&rsquo;s loss to task $j$&rsquo;s embedding table (preventing conflict). This is implemented via <code>stop_gradient</code> operators that zero out gradients selectively.</p>
 <p>STEM-Net is particularly effective for <strong>comparable samples</strong> — users with balanced multi-task feedback (e.g., users who both click and purchase). For such users, conflicting embedding gradients are most damaging.</p>
 <p><strong>Pros and Cons.</strong></p>
 <ul>
@@ -1009,18 +949,9 @@ $$</p>
 </h3>
 <p><strong>Intuition.</strong> GradNorm and PCGrad operate on the full parameter gradient $\mathbf{g}_i \in \mathbb{R}^d$ where $d$ can be in the billions. This is computationally expensive and often noisy. MultiBalance observes that in representation-based recommenders, all task heads attach to a shared bottleneck $\mathbf{h}$. Balancing gradients at the bottleneck — a much smaller vector — achieves most of the benefit at a fraction of the cost.</p>
 <p><strong>Math.</strong> Let the shared representation be $\mathbf{h} = g(\mathbf{x})$ and task $i$&rsquo;s head be $\hat{y}_i = f_i(\mathbf{h})$. The representation-level gradient for task $i$ is:</p>
-<p>$$
-\mathbf{g}_i^{rep} = \frac{\partial \mathcal{L}_i}{\partial \mathbf{h}}
-$$</p>
-<p>MultiBalance applies gradient balancing at $\mathbf{h}$ rather than at $\theta$. The balancing weights are computed using a moving average of $|\mathbf{g}_i^{rep}|$ for stability:</p>
-<p>$$
-w_i^{rep}(t) = \frac{\bar{G}^{rep}(t)}{\text{EMA}(|\mathbf{g}_i^{rep}|, t)}
-$$</p>
-<p>where $\bar{G}^{rep}(t)$ is the mean norm across tasks and EMA is an exponential moving average. The balanced representation gradient is:</p>
-<p>$$
-\mathbf{g}<em>{balanced}^{rep} = \sum</em>{i=1}^{T} w_i^{rep} \cdot \mathbf{g}_i^{rep}
-$$</p>
-<p>Critically, this requires only a <strong>single backward pass</strong> through the encoder $g(\cdot)$, since all task head gradients $\mathbf{g}_i^{rep}$ can be accumulated at $\mathbf{h}$ before backpropagating through the shared trunk.</p>
+$$\mathbf{g}_i^{rep} = \frac{\partial \mathcal{L}_i}{\partial \mathbf{h}}$$<p>MultiBalance applies gradient balancing at $\mathbf{h}$ rather than at $\theta$. The balancing weights are computed using a moving average of $\|\mathbf{g}_i^{rep}\|$ for stability:</p>
+$$w_i^{rep}(t) = \frac{\bar{G}^{rep}(t)}{\text{EMA}(\|\mathbf{g}_i^{rep}\|, t)}$$<p>where $\bar{G}^{rep}(t)$ is the mean norm across tasks and EMA is an exponential moving average. The balanced representation gradient is:</p>
+$$\mathbf{g}_{balanced}^{rep} = \sum_{i=1}^{T} w_i^{rep} \cdot \mathbf{g}_i^{rep}$$<p>Critically, this requires only a <strong>single backward pass</strong> through the encoder $g(\cdot)$, since all task head gradients $\mathbf{g}_i^{rep}$ can be accumulated at $\mathbf{h}$ before backpropagating through the shared trunk.</p>
 <p><strong>Pseudocode.</strong></p>
 <div class="highlight"><pre tabindex="0" style="color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#78787e"># MultiBalance: Representation-level gradient balancing</span>
 </span></span><span style="display:flex;"><span><span style="color:#ff6ac1">def</span> <span style="color:#57c7ff">multibalance_update</span>(model, task_heads, task_losses, targets, optimizer,
@@ -1071,15 +1002,9 @@ $$</p>
 </h3>
 <p><strong>Intuition.</strong> Previous methods address either magnitude (GradNorm, MetaBalance) or direction (PCGrad, MGDA) — but rarely both simultaneously. GradCraft takes a holistic two-stage approach: first equalize gradient magnitudes, then enforce that all pairs of adjusted gradients have non-negative dot products (global synergy). This combines the benefits of norm balancing and conflict resolution in a single unified procedure.</p>
 <p><strong>Math.</strong> <strong>Stage 1 (Magnitude Balancing).</strong> Rescale each task gradient to match the maximum norm:</p>
-<p>$$
-\mathbf{g}_i^{mag} = \mathbf{g}_i \cdot \frac{\max_j |\mathbf{g}_j|}{|\mathbf{g}_i|}
-$$</p>
-<p>After this step, all $|\mathbf{g}_i^{mag}| = \max_j |\mathbf{g}_j|$ — a level playing field.</p>
-<p><strong>Stage 2 (Direction Alignment).</strong> Enforce global pairwise non-negativity: find adjusted gradients ${\mathbf{g}_i^{final}}$ such that:</p>
-<p>$$
-\langle \mathbf{g}_i^{final}, \mathbf{g}_j^{final} \rangle \geq 0 \quad \forall i, j
-$$</p>
-<p>Unlike PCGrad which handles this pairwise (and can create inconsistencies), GradCraft solves a global optimization problem to find the smallest adjustments to ${\mathbf{g}_i^{mag}}$ that achieve universal non-negativity. This is a more expensive but more internally consistent operation.</p>
+$$\mathbf{g}_i^{mag} = \mathbf{g}_i \cdot \frac{\max_j \|\mathbf{g}_j\|}{\|\mathbf{g}_i\|}$$<p>After this step, all $\|\mathbf{g}_i^{mag}\| = \max_j \|\mathbf{g}_j\|$ — a level playing field.</p>
+<p><strong>Stage 2 (Direction Alignment).</strong> Enforce global pairwise non-negativity: find adjusted gradients $\{\mathbf{g}_i^{final}\}$ such that:</p>
+$$\langle \mathbf{g}_i^{final}, \mathbf{g}_j^{final} \rangle \geq 0 \quad \forall i, j$$<p>Unlike PCGrad which handles this pairwise (and can create inconsistencies), GradCraft solves a global optimization problem to find the smallest adjustments to $\{\mathbf{g}_i^{mag}\}$ that achieve universal non-negativity. This is a more expensive but more internally consistent operation.</p>
 <p><strong>Pseudocode.</strong></p>
 <div class="highlight"><pre tabindex="0" style="color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#78787e"># GradCraft</span>
 </span></span><span style="display:flex;"><span><span style="color:#ff6ac1">def</span> <span style="color:#57c7ff">gradcraft</span>(gradients):
@@ -1126,14 +1051,8 @@ $$</p>
 </h3>
 <p><strong>Intuition.</strong> All gradient balancing methods so far operate on raw gradients $\mathbf{g}_i$. But in practice, models are trained with Adam, not vanilla SGD. Adam&rsquo;s adaptive moment estimates transform gradients before applying them: $\mathbf{g}_i^{Adam} \neq \mathbf{g}_i$. PUB makes a critical observation: <strong>gradient balancing does not equal update balancing under Adam</strong>. Two tasks with balanced gradients can still have highly imbalanced actual parameter updates once Adam applies its per-parameter learning rates. PUB closes this &ldquo;momentum gap&rdquo; by balancing the actual Adam updates, not the raw gradients.</p>
 <p><strong>Math.</strong> For each task $i$, compute the Adam-adjusted update:</p>
-<p>$$
-\Delta\theta_i = \text{Adam}(\mathbf{g}_i, m_i, v_i) = \frac{\hat{m}_i}{\sqrt{\hat{v}_i} + \epsilon}
-$$</p>
-<p>where $m_i, v_i$ are the first and second moment estimates for task $i$&rsquo;s gradients. PUB then finds the joint update direction:</p>
-<p>$$
-\Delta\theta^* = \arg\max_{\Delta\theta} \min_{i \in [T]} \langle \Delta\theta_i, \Delta\theta \rangle \quad \text{s.t.} \quad \Delta\theta \in \text{conv}({\Delta\theta_i})
-$$</p>
-<p>This is the CAGrad/MGDA framework applied to Adam updates rather than raw gradients. The constraint that $\Delta\theta$ lies in the convex hull of task updates ensures the final step is a mixture of individually valid Adam steps.</p>
+$$\Delta\theta_i = \text{Adam}(\mathbf{g}_i, m_i, v_i) = \frac{\hat{m}_i}{\sqrt{\hat{v}_i} + \epsilon}$$<p>where $m_i, v_i$ are the first and second moment estimates for task $i$&rsquo;s gradients. PUB then finds the joint update direction:</p>
+$$\Delta\theta^* = \arg\max_{\Delta\theta} \min_{i \in [T]} \langle \Delta\theta_i, \Delta\theta \rangle \quad \text{s.t.} \quad \Delta\theta \in \text{conv}(\{\Delta\theta_i\})$$<p>This is the CAGrad/MGDA framework applied to Adam updates rather than raw gradients. The constraint that $\Delta\theta$ lies in the convex hull of task updates ensures the final step is a mixture of individually valid Adam steps.</p>
 <p><strong>Pseudocode.</strong></p>
 <div class="highlight"><pre tabindex="0" style="color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#78787e"># PUB: Parameter Update Balancing (closes the momentum gap)</span>
 </span></span><span style="display:flex;"><span><span style="color:#ff6ac1">def</span> <span style="color:#57c7ff">pub_update</span>(model, task_losses, optimizer):
@@ -1186,15 +1105,9 @@ $$</p>
 <p><strong>Intuition.</strong> Even within a single task, different users generate gradients with varying compatibility with the primary objective. DRGrad operates at the finest recommendation-specific granularity: individual users. For each user, it routes gradients from auxiliary tasks only when they are likely to be cooperative with the primary task&rsquo;s objective for that specific user.</p>
 <p><strong>Math.</strong> DRGrad consists of three components:</p>
 <p><strong>Router</strong>: Estimates the compatibility of auxiliary task gradients for a given user $u$:</p>
-<p>$$
-r_u^{(i)} = \sigma(W_r \mathbf{h}_u + b_r)
-$$</p>
-<p>where $\mathbf{h}_u$ is the user representation. A high $r_u^{(i)}$ means task $i$&rsquo;s gradient is likely helpful for user $u$.</p>
+$$r_u^{(i)} = \sigma(W_r \mathbf{h}_u + b_r)$$<p>where $\mathbf{h}_u$ is the user representation. A high $r_u^{(i)}$ means task $i$&rsquo;s gradient is likely helpful for user $u$.</p>
 <p><strong>Updater</strong>: Computes a balanced gradient using only the routed (cooperative) gradients:</p>
-<p>$$
-\mathbf{g}_u^{balanced} = \mathbf{g}<em>u^{primary} + \sum</em>{i \neq \text{primary}} r_u^{(i)} \cdot \mathbf{g}_u^{(i)}
-$$</p>
-<p><strong>Personalized Gate Network</strong>: Learns per-user routing policies that adapt over training, allowing the system to identify which auxiliary tasks benefit which user segments.</p>
+$$\mathbf{g}_u^{balanced} = \mathbf{g}_u^{primary} + \sum_{i \neq \text{primary}} r_u^{(i)} \cdot \mathbf{g}_u^{(i)}$$<p><strong>Personalized Gate Network</strong>: Learns per-user routing policies that adapt over training, allowing the system to identify which auxiliary tasks benefit which user segments.</p>
 <p><strong>Pros and Cons.</strong></p>
 <ul>
 <li>Pros: Most fine-grained method available (user-level gradient routing); directly addresses the heterogeneous user population in recommendation.</li>

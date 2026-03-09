@@ -76,8 +76,8 @@ average from ratings of similar users:&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
 $r_{u,i} = \bar{r}_u + \frac{\sum_{u&#39;\in S_u}sim(u, u&#39;) * (r_{u&#39;,i} - \bar{r}_{u&#39;})}{\sum_{u&#39;\in S_u}sim(u, u&#39;)}$
 &lt;p&gt;
-&lt;p&gt;where $\bar{r}_u$ is the average rating of user $u$ and $sim(u, u&amp;rsquo;)$ represents the similarity score between user $u$
-and $u&amp;rsquo;$. A common choice is to calculate the cosine similarity between two user rating vectors.&lt;/p&gt;
+&lt;p&gt;where $\bar{r}_u$ is the average rating of user $u$ and $sim(u, u&#39;)$ represents the similarity score between user $u$
+and $u&#39;$. A common choice is to calculate the cosine similarity between two user rating vectors.&lt;/p&gt;
 &lt;h4 id=&#34;item-item-filtering&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#item-item-filtering&#34;&gt;
@@ -88,8 +88,7 @@ and $u&amp;rsquo;$. A common choice is to calculate the cosine similarity betwee
 &lt;/h4&gt;
 &lt;p&gt;Assume that the customers will prefer products that share a high similarity with those already well appreciated. The
 missing rating is thus predicted as the weighted average of a set of similar products:&lt;/p&gt;
-&lt;p&gt;$$r_{u,i} = \frac{\sum_{j \in P_i}sim(j, i) * r_{u,j}}{\sum_{j \in P_i}sim(j, i)}$$&lt;/p&gt;
-&lt;p&gt;It&amp;rsquo;s straightforward to observe that user-based filtering is to check what other users think of the same product, while
+$$r_{u,i} = \frac{\sum_{j \in P_i}sim(j, i) * r_{u,j}}{\sum_{j \in P_i}sim(j, i)}$$&lt;p&gt;It&amp;rsquo;s straightforward to observe that user-based filtering is to check what other users think of the same product, while
 item-based filtering is aggregating what the user thinks of other items. Essentially, both are weighted linear
 combination of observed ratings. Can we do better than weighted average?&lt;/p&gt;
 &lt;h3 id=&#34;model-based-cf&#34; &gt;
@@ -132,9 +131,8 @@ of the latent space.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;The interaction matrix $R$ is approximated as the product of these two matrices: $R \approx U \cdot V^T$. In practice, we
 are usually optimizing for a weighted matrix factorization objective&lt;sup id=&#34;fnref:1&#34;&gt;&lt;a href=&#34;#fn:1&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;1&lt;/a&gt;&lt;/sup&gt;&lt;/p&gt;
-&lt;p&gt;$$L(\theta) = \sum_{(i, j)\in obs} \omega_{i, j} (R_{i, j} - U_i \cdot V_{j}^{T})^2 + \omega_{0} \sum_{(i, j) \notin obs}
-(U_i \cdot V_{j}^{T})^2$$&lt;/p&gt;
-&lt;p&gt;where $\omega_0$ is a hyper-parameter that weights the two terms so that the objective is not
+$$L(\theta) = \sum_{(i, j)\in obs} \omega_{i, j} (R_{i, j} - U_i \cdot V_{j}^{T})^2 + \omega_{0} \sum_{(i, j) \notin obs}
+(U_i \cdot V_{j}^{T})^2$$&lt;p&gt;where $\omega_0$ is a hyper-parameter that weights the two terms so that the objective is not
 dominated by one or the other, and $\omega_{i, j}$ is a function of the frequency of user $i$ and item $j$.&lt;/p&gt;
 &lt;p&gt;Common optimization algorithms to minimize the above objective function includes &lt;strong&gt;stochastic gradient descent&lt;/strong&gt; and
 &lt;strong&gt;weighted alternating least squares (WALS)&lt;/strong&gt;.&lt;/p&gt;
@@ -205,25 +203,21 @@ The model consists of two components:&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Wide Component&lt;/strong&gt;: This part is a generalized linear model (GLM) that excels at memorization by capturing feature
 interactions using cross-product feature transformations. The wide component is effective at handling sparse features
 and explicitly memorizing frequent co-occurrence patterns. It can be represented as:&lt;/p&gt;
-&lt;p&gt;$$y_{\text{wide}} = \mathbf{w}^T \mathbf{x} + b $$&lt;/p&gt;
-&lt;p&gt;where $\mathbf{x}$ represents the input features, $\mathbf{w}$ represents the learned weights, and $b$ is
+$$y_{\text{wide}} = \mathbf{w}^T \mathbf{x} + b $$&lt;p&gt;where $\mathbf{x}$ represents the input features, $\mathbf{w}$ represents the learned weights, and $b$ is
 the bias term.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Deep Component&lt;/strong&gt;: This part is a feed-forward neural network that excels at generalization by capturing high-level
 and non-linear feature interactions. The deep component uses dense embeddings to represent categorical features, and it
 learns implicit interactions through multiple hidden layers. The output of the deep component can be represented as:&lt;/p&gt;
-&lt;p&gt;$$\mathbf{h}^L = f^L(\mathbf{W}^L \mathbf{h}^{L-1} + \mathbf{b}^L)$$&lt;/p&gt;
-&lt;p&gt;where $\mathbf{h}^L$ is the activation of the $L$-th layer, $\mathbf{W}^L$ and $\mathbf{b}^L$ are the weights and biases
+$$\mathbf{h}^L = f^L(\mathbf{W}^L \mathbf{h}^{L-1} + \mathbf{b}^L)$$&lt;p&gt;where $\mathbf{h}^L$ is the activation of the $L$-th layer, $\mathbf{W}^L$ and $\mathbf{b}^L$ are the weights and biases
 of the $L$-th layer, respectively, and $f^L$ is the activation function.
 The final output of the deep component, $ y_{\text{deep}} $, is the output of the last layer of the deep neural network. It is given by:&lt;/p&gt;
-&lt;p&gt;$$
-y_{\text{deep}} = \mathbf{W}^O \mathbf{h}^{L} + \mathbf{b}^O
-$$&lt;/p&gt;
-&lt;p&gt;where $ \mathbf{W}^O $ and $ \mathbf{b}^O $ are the weights and bias of the output layer, and $ \mathbf{h}^L $ is the activation of the last hidden layer.&lt;/p&gt;
+$$
+   y_{\text{deep}} = \mathbf{W}^O \mathbf{h}^{L} + \mathbf{b}^O
+   $$&lt;p&gt;where $ \mathbf{W}^O $ and $ \mathbf{b}^O $ are the weights and bias of the output layer, and $ \mathbf{h}^L $ is the activation of the last hidden layer.&lt;/p&gt;
 &lt;p&gt;The final prediction is a weighted sum of the outputs from the wide and deep components:&lt;/p&gt;
-&lt;p&gt;$$\hat{y} = \sigma(y_{\text{wide}} + y_{\text{deep}})$$&lt;/p&gt;
-&lt;p&gt;where $\sigma$ is the sigmoid function used to squash the output to a probability score.&lt;/p&gt;
+$$\hat{y} = \sigma(y_{\text{wide}} + y_{\text{deep}})$$&lt;p&gt;where $\sigma$ is the sigmoid function used to squash the output to a probability score.&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
 &lt;p align=&#34;center&#34;&gt;
@@ -245,30 +239,26 @@ The model consists of two interconnected components:&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;FM Component&lt;/strong&gt;: This part captures low-order feature interactions using Factorization Machines, which are effective
 for handling sparse data and modeling pairwise feature interactions without manual feature engineering. The FM component
 can be represented as:&lt;/p&gt;
-&lt;p&gt;$$
-y_{\text{FM}} = w_0 + \sum_{i=1}^n w_i x_i + \sum_{i=1}^n \sum_{j=i+1}^n \langle \mathbf{v}_i, \mathbf{v}_j \rangle x_i x_j
-$$&lt;/p&gt;
-&lt;p&gt;where $w_0$ is the global bias, $w_i$ is the weight of the $i$-th feature, $\mathbf{v}_i$ and $\mathbf{v}_j$ are
+$$
+   y_{\text{FM}} = w_0 + \sum_{i=1}^n w_i x_i + \sum_{i=1}^n \sum_{j=i+1}^n \langle \mathbf{v}_i, \mathbf{v}_j \rangle x_i x_j
+   $$&lt;p&gt;where $w_0$ is the global bias, $w_i$ is the weight of the $i$-th feature, $\mathbf{v}_i$ and $\mathbf{v}_j$ are
 latent vectors for the $i$-th and $j$-th features, respectively, and $x_i$ and $x_j$ are input feature values.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Deep Component&lt;/strong&gt;: This part captures high-order feature interactions through a deep neural network. The deep
 component uses embeddings to represent input features and learns complex interactions through multiple hidden layers.
 The output of the deep component can be represented as:&lt;/p&gt;
-&lt;p&gt;$$\mathbf{h}^L = f^L(\mathbf{W}^L \mathbf{h}^{L-1} + \mathbf{b}^L)$$&lt;/p&gt;
-&lt;p&gt;where $\mathbf{h}^L$ is the activation of the $L$-th layer, $\mathbf{W}^L$ and $\mathbf{b}^L$ are the weights and
+$$\mathbf{h}^L = f^L(\mathbf{W}^L \mathbf{h}^{L-1} + \mathbf{b}^L)$$&lt;p&gt;where $\mathbf{h}^L$ is the activation of the $L$-th layer, $\mathbf{W}^L$ and $\mathbf{b}^L$ are the weights and
 biases of the $L$-th layer, respectively, and $f^L$ is the activation function.
 The final output of the deep component, $ y_{\text{deep}} $, is the output of the last layer of the deep neural network. It is given by:&lt;/p&gt;
-&lt;p&gt;$$
-y_{\text{deep}} = \mathbf{W}^O \mathbf{h}^{L} + \mathbf{b}^O
-$$&lt;/p&gt;
-&lt;p&gt;where $ \mathbf{W}^O $ and $ \mathbf{b}^O $ are the weights and bias of the output layer, and $ \mathbf{h}^L $ is the
+$$
+   y_{\text{deep}} = \mathbf{W}^O \mathbf{h}^{L} + \mathbf{b}^O
+   $$&lt;p&gt;where $ \mathbf{W}^O $ and $ \mathbf{b}^O $ are the weights and bias of the output layer, and $ \mathbf{h}^L $ is the
 activation of the last hidden layer.&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
 &lt;p&gt;The final prediction is a combination of the outputs from the FM and deep components:&lt;/p&gt;
-&lt;p&gt;$$\hat{y} = \sigma(y_{\text{FM}} + y_{\text{deep}})$$&lt;/p&gt;
-&lt;p&gt;where $\sigma$ is the sigmoid function used to squash the output to a probability score.&lt;/p&gt;
+$$\hat{y} = \sigma(y_{\text{FM}} + y_{\text{deep}})$$&lt;p&gt;where $\sigma$ is the sigmoid function used to squash the output to a probability score.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
    &lt;img src=&#34;https://bingzw.github.io/recommendation_model/deepfm.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
    &lt;em&gt;Figure 4: deepfm model&lt;/em&gt;
@@ -297,9 +287,10 @@ highly accurate and scalable recommendations.&lt;/p&gt;
 embeddings. Embeddings transform sparse categorical data into dense vectors of continuous numbers, making them suitable
 for neural network processing, denoted as $\mathbf{x}_s[i]$.
 The raw sparse features are transformed to sparse embeddings as follows. Let
+&lt;/p&gt;
 $$
 \mathbf{e}_i = \text{Embedding}(\mathbf{x}_s[i])
-$$
+$$&lt;p&gt;
 where $\mathbf{e}_i$ is the embedding vector for the $i$-th sparse feature, $\text{Embedding}$ denotes an embedding lookup table&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
@@ -308,23 +299,25 @@ form or normalized form, denoted as $\mathbf{x}_d$.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Bottom MLP (Multilayer Perceptron)&lt;/strong&gt;: Processes the dense features to capture high-level representations.
+&lt;/p&gt;
 $$
 \mathbf{h}_d = \text{BottomMLP}(\mathbf{x}_d)
-$$&lt;/p&gt;
-&lt;/li&gt;
+$$&lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Interaction Layer&lt;/strong&gt;: This layer captures the interactions between different features (both sparse and dense). It
 uses a dot product to compute the pairwise interactions among features.
+&lt;/p&gt;
 $$
 \mathbf{z} = \left[ \mathbf{h}_d, \mathbf{e}_1, \mathbf{e}_2, \ldots, \mathbf{e}_n \right]
-$$
+$$&lt;p&gt;
 where $\mathbf{z}$ is the concatenated vector of dense feature representation and embeddings.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Top MLP&lt;/strong&gt;: Combines the processed dense features and interactions from the interaction layer to make the final prediction.
+&lt;/p&gt;
 $$
 \hat{y} = \sigma(\text{TopMLP}(\mathbf{z}))
-$$
+$$&lt;p&gt;
 where $\sigma$ is an activation function, typically a sigmoid function for binary classification tasks.&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
@@ -344,19 +337,17 @@ two ways to combine the cross network with the deep network: (1) stacked and (2)
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Cross Component&lt;/strong&gt;: The Cross Network V2 enhances the original cross network by introducing a more flexible mechanism
 to capture feature interactions. The cross layer in DCN V2 can be represented as:&lt;/p&gt;
-&lt;p&gt;$$
-x_{l+1} = x_0 \odot (W_l \cdot x_l + b_l) + x_l
-$$&lt;/p&gt;
-&lt;p&gt;where $x_l$ is the input to the l-th cross layer. $W_l$ and $b_l$ are the weight matrix and bias vector of the l-th
+$$
+   x_{l+1} = x_0 \odot (W_l \cdot x_l + b_l) + x_l
+   $$&lt;p&gt;where $x_l$ is the input to the l-th cross layer. $W_l$ and $b_l$ are the weight matrix and bias vector of the l-th
 cross layer. $x_{l+1}$ is the output of the $l+1$-th cross layer. $\odot$ is the Hadamard product.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Deep Component&lt;/strong&gt;: The deep network in DCN V2 captures high-order feature interactions through a series of dense layers.
 This part of the network learns abstract representations of the input features, enabling the model to generalize well.&lt;/p&gt;
-&lt;p&gt;$$
-h_{l} = f_{l}(W_{l} h_{l-1} + b_{l})
-$$&lt;/p&gt;
-&lt;p&gt;where $h_{l}$ is the activation of the $l$-th layer, $W_{l}$ and $b_{l}$ are the weights and
+$$ 
+   h_{l} = f_{l}(W_{l} h_{l-1} + b_{l})
+   $$&lt;p&gt;where $h_{l}$ is the activation of the $l$-th layer, $W_{l}$ and $b_{l}$ are the weights and
 biases of the $l$-th layer, respectively, and $f_{l}$ is the activation function.&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
@@ -387,29 +378,31 @@ process.&lt;/p&gt;
 &lt;ol&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Embedding Layer&lt;/strong&gt;: User behaviors and items are represented as dense vectors through an embedding layer. Let
-$({e_{1}, e_{2}, \ldots, e_{n}})$ be the sequence of embeddings for user behaviors, and $e_{target}$ be the embedding of the target item.&lt;/p&gt;
+$(\{e_{1}, e_{2}, \ldots, e_{n}\})$ be the sequence of embeddings for user behaviors, and $e_{target}$ be the embedding of the target item.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Local Activation Unit&lt;/strong&gt;: This unit applies the attention mechanism to compute the relevance of each user behavior
 in the sequence with respect to the target item.
 Let
+&lt;/p&gt;
 $$
 \alpha_{i} = \frac{\exp(\text{score}(e_{i}, e_{target}))}{\sum_{j=1}^{n} \exp(\text{score}(e_{j}, e_{target}))}
-$$
+$$&lt;p&gt;
 where $\text{score}(e_{i}, e_{target})$ is the activation weight output from a feed-forward
 network measuring the relevance of behavior $e_{i}$ to the target item.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Interest Extractor Layer&lt;/strong&gt;: Combines the weighted behavior embeddings to form a user interest representation.
+&lt;/p&gt;
 $$
 u = \sum_{i=1}^{n} \alpha_{i} e_{i}
-$$&lt;/p&gt;
-&lt;/li&gt;
+$$&lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Prediction Layer&lt;/strong&gt;: The user interest representation is concatenated with the target item embedding and fed into a neural network to predict the user&amp;rsquo;s interaction with the target item.
+&lt;/p&gt;
 $$
 \hat{y} = \sigma(W[u, e_{target}, e_{profile}, e_{context}] + b)
-$$
+$$&lt;p&gt;
 where $[u, e_{target}, e_{profile}, e_{context}]$ denotes the concatenation of the user interest representation, profile
 embedding, context embedding and the target item embedding, $W$ is a weight matrix, $b$ is a bias term, and $\sigma$ is an activation function (e.g., sigmoid).&lt;/p&gt;
 &lt;/li&gt;
@@ -437,28 +430,32 @@ where tasks are interrelated and can benefit from shared learning while maintain
 &lt;p&gt;&lt;strong&gt;Experts&lt;/strong&gt;: A set of neural network sub-models that serve as specialized units for feature extraction. Each expert
 is trained to capture different aspects of the input data. Let $\mathbf{x}$ represent the input data, $E$ represent
 the number of experts, and $T$ represent the number of tasks. The output from expert is represented as
+&lt;/p&gt;
 $$
 \mathbf{h}^i = f_e^i(\mathbf{x}), \quad \text{for } i = 1, 2, \ldots, E
-$$
+$$&lt;p&gt;
 where $f_e^i$ is the function of the $i$-th expert, and $\mathbf{h}^i$ is the output of the $i$-th expert.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Multi-gate Mechanism&lt;/strong&gt;: Separate gating networks for each task that dynamically select and weight the contributions
 of different experts based on the input data and task requirements.
+&lt;/p&gt;
 $$
 \mathbf{g}^j = \sigma(\mathbf{W}^j \mathbf{x}), \quad \text{for } j = 1, 2, \ldots, T
-$$
+$$&lt;p&gt;
 where $\mathbf{W}^j$ are the parameters of the gating network for task $j$, and $g^j$ is the gating output distribution
 of gating weights to each expert assigned by task $j$. To combine the experts output and gating weights, we have
-$$\mathbf{t}^j = \sum_{i=1}^{E} g_i^j \cdot \mathbf{h}^i$$
+&lt;/p&gt;
+$$\mathbf{t}^j = \sum_{i=1}^{E} g_i^j \cdot \mathbf{h}^i$$&lt;p&gt;
 where $\mathbf{t}^j$ is the combined output for task $j$, and $g_i^j$ is the weight for the $i$-th expert assigned by
 the gating network of task $j$.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Task-specific Layers&lt;/strong&gt;: Layers that process the combined outputs from the experts, tailored to the specific requirements of each task.
+&lt;/p&gt;
 $$
 \hat{y}^j = f_o^j(\mathbf{t}^j)
-$$
+$$&lt;p&gt;
 where $f_o^j$ is the task-specific output layer for task $j$, and $\hat{y}^j$ is the predicted output for task $j$.&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
@@ -489,37 +486,42 @@ interactions over time. This approach enhances the ability to predict user prefe
 &lt;ol start=&#34;2&#34;&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Embedding Layer&lt;/strong&gt;:
+&lt;/p&gt;
 $$
 \mathbf{E}_x = \mathbf{W}_e \cdot \mathbf{x}
-$$
+$$&lt;p&gt;
 where $\mathbf{W}_e$ is the embedding matrix and $\mathbf{x}$ is the input feature vector.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Positional Encoding&lt;/strong&gt;:
+&lt;/p&gt;
 $$
 \mathbf{E}_p = \text{PE}(pos)
-$$
+$$&lt;p&gt;
 where $\text{PE}(pos)$ is the positional encoding function that adds position-specific information to the embeddings.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Transformer Encoder&lt;/strong&gt;:
+&lt;/p&gt;
 $$
 \mathbf{H}_i = \text{LayerNorm}(\text{MultiHeadAttention}(\mathbf{Q}, \mathbf{K}, \mathbf{V}) + \mathbf{E}_i)
-$$
+$$&lt;p&gt;
 where $\mathbf{Q}$, $\mathbf{K}$, and $\mathbf{V}$ are the query, key, and value matrices, and $\mathbf{E}_i$ is the
 input embedding at layer $i$. A Feed-Forward Networks ($\text{FFN}$) is added on top of the self attention layer to further enhance the
 model with non-linearity.
+&lt;/p&gt;
 $$
 \mathbf{O}_i = \text{LayerNorm}(\text{FFN}(\mathbf{H}_i) + \mathbf{H}_i)
-$$
+$$&lt;p&gt;
 In practice, we usually stack multiple transformer layers. So the output of last layer is thus fed as the input of the
 next layer.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Output Layer&lt;/strong&gt;:
+&lt;/p&gt;
 $$
 \hat{y} = \sigma(\mathbf{W}_o \cdot \mathbf{O}_L)
-$$
+$$&lt;p&gt;
 where $\mathbf{W}_o$ is the weight matrix of the output layer, $\mathbf{O}_L$ is the output of the last Transformer encoder layer, and $\sigma$ is the activation function.&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;

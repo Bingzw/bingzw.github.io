@@ -571,7 +571,7 @@ describe the causal relations.</p>
 <li>$X_i$: a set of covariates that may affect both the treatment assignment and the outcome. For example, health status,
 age, gender etc</li>
 <li>$U_i$: unobserved factors that may affect both the treatment assignment and the outcome. For example, genetic factors.</li>
-<li>$Y_i^{a}$: the potential outcome of individual $i$ if he/she received the treatment $A = a, a \in \{0, 1\}$. For
+<li>$Y_i^{a}$: the potential outcome of individual $i$ if he/she received the treatment $A = a, a \in \\{0, 1\\}$. For
 example, the health status of a patient if he/she received the new drug ($a=1$).</li>
 </ul>
 <p>In practice, the data $(Y_i, A_i, X_i)$ is usually drawn i.i.d from a population and they are formulated into a causal
@@ -850,7 +850,7 @@ compare the results to ensure the robustness of the conclusions.</p>
 </h2>
 <p>In the above sections, we designed a hypothetical causality problem of estimating the effect of taking a new drug. The
 treatment variable $A$ can be defined as $A_i = 1$ if the patient takes the new drug and $A_i = 0$ if the patient does not.
-More generally, the treatment variable can be formulated in this way $A = 1_{{f(\theta) &lt; \mu}}$, where $f(\theta)$ is
+More generally, the treatment variable can be formulated in this way $A = 1_{\{f(\theta) < \mu\}}$, where $f(\theta)$ is
 the function that maps the treatment parameters $\theta$ to the treatment assignment, and $\mu$ is the threshold that
 determines the treatment assignment. $f(\theta)$ is often a known metric since causal inference usually starts with some
 suspected causal mechanisms. However, the threshold $\mu$ is often unknown and needs to be optimized to maximize the

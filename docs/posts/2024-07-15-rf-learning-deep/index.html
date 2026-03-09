@@ -592,25 +592,25 @@ be approximated by fitting a neural network where the state is fed into the netw
 <p>
 <p><em>Image cited from <sup id="fnref:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">2</a></sup></em></p>
 <p>Given the network, what&rsquo;s the loss function? From the basic $Q$ learning, the $Q$ value is updated
-via $Q(s, a) \leftarrow Q(s, a) + \alpha [r + \gamma \max_{a&rsquo;}Q(s&rsquo;, a&rsquo;) - Q(s, a)]$. This indicates that we are actually
-&ldquo;learning&rdquo; the target $r + \gamma \max_{a&rsquo;}Q(s&rsquo;, a&rsquo;)$. Therefore, the loss function can be defined as
+via $Q(s, a) \leftarrow Q(s, a) + \alpha [r + \gamma \max_{a'}Q(s', a') - Q(s, a)]$. This indicates that we are actually
+&ldquo;learning&rdquo; the target $r + \gamma \max_{a'}Q(s', a')$. Therefore, the loss function can be defined as
+</p>
 $$
-L(\theta, x) = \frac{1}{N}\sum_{i=1}^N[Q_{\theta}(s_i, a_i) - (r_i + \arg \max_{a&rsquo;}Q_{\theta}(s&rsquo;, a&rsquo;))]^2 \tag{3.4}
-$$
-given a sample $x = (s_i, a_i, r_i, s&rsquo;_i)$.</p>
+L(\theta, x) = \frac{1}{N}\sum_{i=1}^N[Q_{\theta}(s_i, a_i) - (r_i + \arg \max_{a'}Q_{\theta}(s', a'))]^2 \tag{3.4}
+$$<p>
+given a sample $x = (s_i, a_i, r_i, s'_i)$.</p>
 <p>When applying the backpropagation on (3.4), the target value is changing since it also depends on the parameter $\theta$
 to be optimized. This differs from the typical deep learning where the label is given and fixed. Learning from a changing label
 problem may be very unstable and loss may fluctuate. To tackle this, the target $Q$ network is introduced.</p>
 <p>The idea is to maintain two $Q$ neural nets: $Q_\theta$ and $Q_{\theta ^ *}$. The target net $Q_{\theta ^ *}$ is originally cloned from
 the net $Q_\theta$ and the (3.4) is reformatted as</p>
-<p>$$
-L(\theta, x) = \frac{1}{N}\sum_{i=1}^N[Q_{\theta}(s_i, a_i) - (r_i + \arg \max_{a&rsquo;}Q_{\theta ^ *}(s&rsquo;, a&rsquo;))]^2 \tag{3.5}
-$$</p>
-<p>The parameter $\theta ^ *$ is fixed in (3.5) and only copied from $Q_\theta$ periodically after a few gradient descent runs. In
+$$
+L(\theta, x) = \frac{1}{N}\sum_{i=1}^N[Q_{\theta}(s_i, a_i) - (r_i + \arg \max_{a'}Q_{\theta ^ *}(s', a'))]^2 \tag{3.5}
+$$<p>The parameter $\theta ^ *$ is fixed in (3.5) and only copied from $Q_\theta$ periodically after a few gradient descent runs. In
 this way, the loss function is firstly optimized towards a fixed label (only $\theta$ is updated), then labels are updated (copy
 $\theta$ to $\theta ^ *$) and optimization continues.</p>
 <p>Gathering the training samples purely from interacting with the system results in dependent samples due to the Markov property. In DQN,
-An <strong>experience replay</strong> (ER) component introduce a <em>replay buffer</em> that is sampling independent samples $x = (s_i, a_i, r_i, s&rsquo;_i)$,
+An <strong>experience replay</strong> (ER) component introduce a <em>replay buffer</em> that is sampling independent samples $x = (s_i, a_i, r_i, s'_i)$,
 thus also improving the training efficiency.</p>
 <p>A general structure of DQN is</p>
 <p align="center">
@@ -630,7 +630,7 @@ thus also improving the training efficiency.</p>
 <li>apply the $\epsilon$-greedy strategy to $Q_{\theta}$ to choose the action $a$ based on $s$</li>
 <li>take the action and interact with the environment to get reward $r$ and $s'$</li>
 <li>save the sample (s, a, r, s&rsquo;) to the replay buffer</li>
-<li>if there are enough samples in the replay buffer, sample N data points $\{(s_i, s_i, r_i, s_{i+1})\}_{i=1,\dots,N}$</li>
+<li>if there are enough samples in the replay buffer, sample N data points $\\{(s_i, s_i, r_i, s_{i+1})\\}_{i=1,\dots,N}$</li>
 <li>for each sample, calculate the target $y_i = r_i + \gamma \arg\max_{a} Q_{\theta ^ *}(s_{i+1}, a)$</li>
 <li>minimize the loss function $L(\theta, x) = \frac{1}{N}\sum_{i=1}^N[y_i - Q_{\theta}(s_i, a_i)]^2$, update $Q_\theta$</li>
 <li>Update $Q_{\theta ^ *}$ every $M$ steps</li>
@@ -770,7 +770,7 @@ $$
 \end{aligned}
 </p>
 <p>Let&rsquo;s define $\phi(s) = \sum_{a \in A} \nabla_{\theta} \pi_{\theta}(a \mid s)Q_{\pi_{\theta}}(s, a)$ and denote the probability
-of getting state $s&rsquo;$ after $k$ steps from state $s$ under the policy $\pi_{\theta}$ as $d_{\pi_{\theta}}(s \rightarrow s&rsquo;, k)$, then continue
+of getting state $s'$ after $k$ steps from state $s$ under the policy $\pi_{\theta}$ as $d_{\pi_{\theta}}(s \rightarrow s', k)$, then continue
 with equation (4.2) as</p>
 <p align="center">
 \begin{aligned}
@@ -815,8 +815,8 @@ the $Q_{\pi_{\theta}}(s, a)$ when calculating the gradient, a simple way is to a
 <li>Initialize the state $s$</li>
 <li>for $t$ from 1 to $T$, do:
 <ul>
-<li>sample the trajectories $\{s_1, a_1, r_1, \dots, s_T, a_T, r_T\}$ under the policy $\pi_{\theta}$</li>
-<li>For any $t \in [1, T]$, calculate the total reward since time $t$, $\psi_t = \sum_{t&rsquo;=t}^T \gamma^{t&rsquo;-t}r_{t&rsquo;}$</li>
+<li>sample the trajectories $\\{s_1, a_1, r_1, \dots, s_T, a_T, r_T\\}$ under the policy $\pi_{\theta}$</li>
+<li>For any $t \in [1, T]$, calculate the total reward since time $t$, $\psi_t = \sum_{t'=t}^T \gamma^{t'-t}r_{t'}$</li>
 <li>apply gradient ascent to update $\theta$, i.e. $\theta = \theta + \alpha \sum_t^T \psi_t \nabla_{\theta} \pi_{\theta}(a_t \mid s_t)$</li>
 </ul>
 </li>
@@ -840,7 +840,7 @@ are needed.</p>
 <p>When using a deep neural network to fit the policy network, the policy gradient updates can be noisy with high variance. Thus resulting in
 worse policy updates due to the fluctuation parameters. Is there any way to guarantee the monotonicity of the parameter updates?</p>
 <p>Let&rsquo;s rephrase the problem as something like this: Suppose the current policy is $\pi_{\theta}$ with parameter $\theta$, we would like
-to search for a new parameter $\theta&rsquo;$ such that $J(\theta&rsquo;) \geq J(\theta)$.</p>
+to search for a new parameter $\theta'$ such that $J(\theta') \geq J(\theta)$.</p>
 <p align="center">
 \begin{aligned}
 J(\theta') - J(\theta) &= \mathbb{E}_{s_0}[V_{\pi_{\theta'}}(s_0)] - \mathbb{E}_{s_0}[V_{\pi_{\theta}}(s_0)] \\
@@ -855,7 +855,7 @@ J(\theta') - J(\theta) &= \mathbb{E}_{s_0}[V_{\pi_{\theta'}}(s_0)] - \mathbb{E}_
 where the equation (4.5) holds because the start state $s_0$ does not depend on policy $\pi_{\theta'}$, thus the expectation can be 
 rewritten under the policy $\pi_{\theta'}$. In (4.6), we applied that $\nu_{t}^{\pi_{\theta}} = (1 - \gamma) \sum_{t=0}^{\infty} \gamma^{t} P_{t}^{\pi_{\theta}}$.
 <p>Therefore, the goal is to find a new policy such that equation (4.6) is non-negative to guarantee the monotonicity property.</p>
-<p>However, it&rsquo;s challenging to solve (4.6) directly as $\pi_{\theta&rsquo;}$ are being used to update policy strategy and sampling states simultaneously. A simple trick is to apply importance sampling using
+<p>However, it&rsquo;s challenging to solve (4.6) directly as $\pi_{\theta'}$ are being used to update policy strategy and sampling states simultaneously. A simple trick is to apply importance sampling using
 the old policy assuming new policy is kind of &ldquo;similar&rdquo; to the old one. Thus, the objective function in TPRO is</p>
 <p align="center">
 \begin{aligned}
@@ -892,11 +892,11 @@ the following formula $\theta_{k+1} = \theta_k + \sqrt{\frac{2\delta}{x^T Hx}}x$
 <li>initialize the policy network parameters $\theta$ and value network parameters $\omega$</li>
 <li>for episode $e$ from 1 to $E$, do:
 <ul>
-<li>sample the trajectories $\{s_1, a_1, r_1, \dots, \}$ under the policy $\pi_{\theta}$</li>
+<li>sample the trajectories $\\{s_1, a_1, r_1, \dots, \\}$ under the policy $\pi_{\theta}$</li>
 <li>calculate the advantage $A(s_t, a_t)$ for each state, action pair. $A_t^{GAE} = \sum_{l=0}^{\infty} (\gamma \lambda)^l (r_{t+1} + \gamma V_{\omega}(s_{t+2}) - V_{\omega}(s_{t+1})), \lambda \in [0, 1]$</li>
 <li>calculate the gradient $g$ of the objective function</li>
 <li>calculate the $x = H^{-1}g$</li>
-<li>Find $i \in \{1,2,\dots,K\}$ and update the policy network parameter $\theta_{k+1} = \theta_k + \alpha^{i}\sqrt{\frac{2\delta}{x^T Hx}}x, \alpha \in (0, 1)$</li>
+<li>Find $i \in \\{1,2,\dots,K\\}$ and update the policy network parameter $\theta_{k+1} = \theta_k + \alpha^{i}\sqrt{\frac{2\delta}{x^T Hx}}x, \alpha \in (0, 1)$</li>
 <li>Update the value network parameters by minimizing the square error:</li>
 </ul>
 <p align="center">
@@ -962,7 +962,7 @@ where $clip(x, a, b) = max(min(x, b), a)$ and $\epsilon$ is a hyper-parameter. T
 <li>initialize the policy network parameters $\theta$ and value network parameters $\omega$</li>
 <li>for episode $e$ from 1 to $E$, do:
 <ul>
-<li>sample the trajectories $\{s_1, a_1, r_1, \dots, \}$ under the policy $\pi_{\theta}$</li>
+<li>sample the trajectories $\\{s_1, a_1, r_1, \dots, \\}$ under the policy $\pi_{\theta}$</li>
 <li>calculate the advantage $A(s_t, a_t)$ for each state, action pair. $A_t^{GAE} = \sum_{l=0}^{\infty} (\gamma \lambda)^l (r_{t+1} + \gamma V_{\omega}(s_{t+2}) - V_{\omega}(s_{t+1})), \lambda \in [0, 1]$</li>
 <li>Compute discounted cumulative rewards:$ G_t = r_t + \gamma r_{t+1} + \gamma^2 r_{t+2} + \dots$</li>
 <li>calculate the gradient $g$ of the objective function</li>
@@ -1026,7 +1026,8 @@ Common choices for the value function:</p>
 </ul>
 <p>The critic guides the actor by providing feedback on its actions. When updating the critic net, the loss can be defined by temporal difference, i.e.
 $L_\omega = \frac{1}{2}(r_t + \gamma V_\omega(s_{t+1}) - V_\omega(s_t))^2$. Therefore the gradient of critic loss
-is $$\nabla_\omega L_\omega = -(r_t + \gamma V_\omega(s_{t+1}) - V_\omega(s_t))\nabla_\omega V_\omega(s_t) \tag{4.14}$$ Both the actor and critic loss
+is </p>
+$$\nabla_\omega L_\omega = -(r_t + \gamma V_\omega(s_{t+1}) - V_\omega(s_t))\nabla_\omega V_\omega(s_t) \tag{4.14}$$<p> Both the actor and critic loss
 are thus optimized by gradient descent.</p>
 <p align="center">
 <img src="/rf/ac.png" width="300" height="150"><br>
@@ -1038,7 +1039,7 @@ are thus optimized by gradient descent.</p>
 <li>initialize the policy network parameters $\theta$ and value network parameters $\omega$</li>
 <li>for episode $e$ from 1 to $E$, do:
 <ul>
-<li>sample the trajectories $\{s_1, a_1, r_1, \dots, \}$ under the policy $\pi_{\theta}$</li>
+<li>sample the trajectories $\\{s_1, a_1, r_1, \dots, \\}$ under the policy $\pi_{\theta}$</li>
 <li>calculate the temporal difference by $\delta_t = r_t + \gamma V_\omega(s_{t+1}) - V_\omega(s_t)$</li>
 <li>calculate the gradient (4.13) and update the policy net parameters by $\theta$</li>
 <li>calculate the gradient (4.14) and update the value net parameters by $\omega$</li>
@@ -1070,7 +1071,7 @@ It combines ideas from Deterministic Policy Gradient (DPG) and Deep Q-Learning (
 <p>Critic: Estimates the action-value function $Q(s, a)$, which evaluates the quality of actions.</p>
 </li>
 <li>
-<p>Off-Policy Learning: Uses a replay buffer to store past experiences $(s, a, r, s&rsquo;)$, enabling sample efficiency and breaking correlations between samples.</p>
+<p>Off-Policy Learning: Uses a replay buffer to store past experiences $(s, a, r, s')$, enabling sample efficiency and breaking correlations between samples.</p>
 </li>
 <li>
 <p>Target Networks: Employs target networks for both the actor and critic to stabilize learning by slowly updating their parameters towards the current networks.</p>
@@ -1082,8 +1083,8 @@ It combines ideas from Deterministic Policy Gradient (DPG) and Deep Q-Learning (
 <p>DDPG sudo Algorithm:</p>
 <ul>
 <li>Initialize the actor network $\mu_\theta(s)$ and the critic network $Q_\phi(s, a)$ with random weights.</li>
-<li>Create target networks $\mu_{\theta&rsquo;}(s)$ and $Q_{\phi&rsquo;}(s, a)$ by copying the weights of the actor and critic networks.</li>
-<li>Initialize a replay buffer to store transitions $(s, a, r, s&rsquo;)$.</li>
+<li>Create target networks $\mu_{\theta'}(s)$ and $Q_{\phi'}(s, a)$ by copying the weights of the actor and critic networks.</li>
+<li>Initialize a replay buffer to store transitions $(s, a, r, s')$.</li>
 <li>For each episode:
 <ul>
 <li>At each step:
@@ -1092,12 +1093,12 @@ It combines ideas from Deterministic Policy Gradient (DPG) and Deep Q-Learning (
 <li>Execute the action, observe reward $r_t$ and the next state $s_{t+1}$.</li>
 <li>Store the transition $(s_t, a_t, r_t, s_{t+1})$ in the replay buffer.</li>
 <li>Sample a minibatch of transitions from the replay buffer.</li>
-<li>Update the critic by minimizing the Bellman error: $\mathcal{L}(\phi) = \mathbb{E}\left[\left(Q_\phi(s, a) - \left(r + \gamma Q_{\phi&rsquo;}(s&rsquo;, \mu_{\theta&rsquo;}(s&rsquo;))\right)\right)^2\right]$</li>
+<li>Update the critic by minimizing the Bellman error: $\mathcal{L}(\phi) = \mathbb{E}\left[\left(Q_\phi(s, a) - \left(r + \gamma Q_{\phi'}(s', \mu_{\theta'}(s'))\right)\right)^2\right]$</li>
 <li>Update the actor using the deterministic policy gradient: $\nabla_\theta J = \mathbb{E}\left[\nabla_\theta \mu_\theta(s) \nabla_a Q_\phi(s, a) \big|{a=\mu_\theta(s)} \right]$</li>
 <li>Update the target networks:
 <ul>
-<li>$\phi&rsquo; \leftarrow \tau \phi + (1 - \tau) \phi'$</li>
-<li>$\theta&rsquo; \leftarrow \tau \theta + (1 - \tau) \theta'$</li>
+<li>$\phi' \leftarrow \tau \phi + (1 - \tau) \phi'$</li>
+<li>$\theta' \leftarrow \tau \theta + (1 - \tau) \theta'$</li>
 </ul>
 </li>
 </ul>
@@ -1148,7 +1149,7 @@ where $\mathcal{H}(\pi(\cdot|s_t))$ is the entropy of the policy, and $\alpha$ i
 <li>
 <p>Target Networks:</p>
 <ul>
-<li>Slowly updated target Q-networks ($Q_{\theta_1&rsquo;}$ and $Q_{\theta_2&rsquo;}$) improve training stability.</li>
+<li>Slowly updated target Q-networks ($Q_{\theta_1'}$ and $Q_{\theta_2'}$) improve training stability.</li>
 </ul>
 </li>
 </ol>
@@ -1158,7 +1159,7 @@ where $\mathcal{H}(\pi(\cdot|s_t))$ is the entropy of the policy, and $\alpha$ i
 <ul>
 <li>Policy network $\pi_\phi(a|s)$.</li>
 <li>Two Q-value networks $Q_{\theta_1}(s, a)$ and $Q_{\theta_2}(s, a)$.</li>
-<li>Target Q-value networks $Q_{\theta_1&rsquo;}$ and $Q_{\theta_2&rsquo;}$.</li>
+<li>Target Q-value networks $Q_{\theta_1'}$ and $Q_{\theta_2'}$.</li>
 <li>Replay buffer $\mathcal{D}$.</li>
 </ul>
 </li>
@@ -1170,10 +1171,10 @@ where $\mathcal{H}(\pi(\cdot|s_t))$ is the entropy of the policy, and $\alpha$ i
 <li>Sample an action $a_t \sim \pi_\phi(a|s_t)$.</li>
 <li>Execute the action, observe reward $r_t$ and next state $s_{t+1}$.</li>
 <li>Store the transition $(s_t, a_t, r_t, s_{t+1})$ in the replay buffer.</li>
-<li>Sample a minibatch of transitions $(s, a, r, s&rsquo;)$ from the replay buffer.</li>
+<li>Sample a minibatch of transitions $(s, a, r, s')$ from the replay buffer.</li>
 <li>Compute the target Q-value:
-$ y = r + \gamma \left[\min_{i=1,2} Q_{\theta_i&rsquo;}(s&rsquo;, a&rsquo;) - \alpha \log \pi_\phi(a&rsquo;|s&rsquo;)\right]$
-where $a&rsquo; \sim \pi_\phi(\cdot|s&rsquo;)$.</li>
+$ y = r + \gamma \left[\min_{i=1,2} Q_{\theta_i'}(s', a') - \alpha \log \pi_\phi(a'|s')\right]$
+where $a' \sim \pi_\phi(\cdot|s')$.</li>
 <li>Update the Q-value networks by minimizing:</li>
 </ul>
  <p align="center">
