@@ -835,58 +835,84 @@ $$\mathbf{d}^* = \mathbf{g}_0 + \frac{\sqrt{\varphi}}{\|\mathbf{g}_{\mathbf{w}^*
 </div>
 </h3>
 <p><strong>Intuition.</strong> In recommendation systems, there is often a natural hierarchy: a primary task (e.g., CTR) that we care most about, and auxiliary tasks (e.g., dwell time, likes) that provide helpful regularization. MetaBalance takes this hierarchy seriously and rescales auxiliary gradients to match the primary task&rsquo;s gradient norm — layer by layer, iteration by iteration <sup id="fnref:5"><a href="#fn:5" class="footnote-ref" role="doc-noteref">5</a></sup>.</p>
-<p><strong>Math.</strong> For the primary task gradient $\mathbf{g}_{target}$ and auxiliary task gradient $\mathbf{g}_{aux}$, the scaled auxiliary gradient is:</p>
-$$\mathbf{g}_{aux}^{scaled} = \mathbf{g}_{aux} \cdot \frac{\|\mathbf{g}_{target}\|}{\|\mathbf{g}_{aux}\|} \cdot r$$<p>where $r \in (0, 1]$ is a rescaling ratio. Three strategies govern when to apply scaling:</p>
+<p><strong>Math.</strong> Let $\mathbf{G}_{tar}$ be the target task gradient and $\mathbf{G}_{aux,i}$ the $i$-th auxiliary gradient, both w.r.t. a shared parameter block $\theta$.</p>
+<p><strong>Step 1 — Exponential moving averages of gradient norms</strong> (Algorithm 2, the complete version):</p>
+$$m_{tar}^t = \beta\, m_{tar}^{t-1} + (1-\beta)\,\|\mathbf{G}_{tar}^t\|$$$$m_{aux,i}^t = \beta\, m_{aux,i}^{t-1} + (1-\beta)\,\|\mathbf{G}_{aux,i}^t\|$$<p>with $\beta = 0.9$ and $m^0 = 0$. Using moving averages instead of instantaneous norms removes noise from per-batch gradient variance.</p>
+<p><strong>Step 2 — Strategy selection.</strong> Choose which auxiliary gradients to rescale:</p>
 <ul>
-<li><strong>Strategy A (Reduce)</strong>: Only scale down when $\|\mathbf{g}_{aux}\| > \|\mathbf{g}_{target}\|$ — prevents auxiliary tasks from overwhelming the primary.</li>
-<li><strong>Strategy B (Enlarge)</strong>: Only scale up when $\|\mathbf{g}_{aux}\| < \|\mathbf{g}_{target}\|$ — ensures auxiliary tasks contribute meaningfully.</li>
-<li><strong>Strategy C (Flexible)</strong>: Always rescale, combining A and B.</li>
+<li><strong>Strategy A (Reduce)</strong>: rescale only when $m_{aux,i}^t > m_{tar}^t$ — the auxiliary is overpowering the target.</li>
+<li><strong>Strategy B (Enlarge)</strong>: rescale only when $m_{aux,i}^t < m_{tar}^t$ — the auxiliary is too weak to transfer useful signal.</li>
+<li><strong>Strategy C (Flexible)</strong>: rescale always (A ∪ B). Empirically best across benchmarks.</li>
 </ul>
-<p>The key distinction from GradNorm is <strong>granularity</strong>: MetaBalance applies per-layer, per-step control, adjusting the ratio of norms at each layer of the network independently. This captures the fact that gradient imbalances may differ across layers.</p>
-<p><strong>Pseudocode.</strong></p>
-<div class="highlight"><pre tabindex="0" style="color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#78787e"># MetaBalance: Per-layer auxiliary gradient magnitude scaling</span>
-</span></span><span style="display:flex;"><span><span style="color:#ff6ac1">def</span> <span style="color:#57c7ff">metabalance_update</span>(model, target_loss, aux_losses, relax_factor<span style="color:#ff6ac1">=</span><span style="color:#ff9f43">0.4</span>):
-</span></span><span style="display:flex;"><span>    <span style="color:#78787e"># Compute target task gradients per layer</span>
+<p><strong>Step 3 — Gradient rescaling with relax factor $r$.</strong> Rather than hard norm-matching (which forces $\|\mathbf{G}_{aux,i}\| = \|\mathbf{G}_{tar}\|$ and over-suppresses useful signal), MetaBalance uses a partial interpolation:</p>
+$$\mathbf{G}_{aux,i}^t \leftarrow \mathbf{G}_{aux,i}^t \cdot \underbrace{\left[\left(\frac{m_{tar}^t}{m_{aux,i}^t} - 1\right) r + 1\right]}_{w_{aux,i}^t}$$<p>The effective dynamic weight $w_{aux,i}^t$ has two intuitive limits:</p>
+<ul>
+<li>$r = 0$: $w_{aux,i}^t = 1$, no rescaling (vanilla multi-task).</li>
+<li>$r = 1$: $w_{aux,i}^t = m_{tar}^t / m_{aux,i}^t$, full norm-matching.</li>
+</ul>
+<p>Intermediate $r$ (e.g., $r = 0.7$) balances convergence speed and stability. Since gradient imbalances vary across layers, MetaBalance applies this independently <strong>per parameter block</strong> $\theta$ of the shared network.</p>
+<p><strong>Pseudocode (Algorithm 2 — complete version).</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#78787e"># MetaBalance: Complete version with moving averages and relax factor</span>
+</span></span><span style="display:flex;"><span><span style="color:#78787e"># Applied independently per shared parameter block (e.g., each MLP layer)</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#ff6ac1">def</span> <span style="color:#57c7ff">metabalance_update</span>(model, target_loss, aux_losses, optimizer,
+</span></span><span style="display:flex;"><span>                       r<span style="color:#ff6ac1">=</span><span style="color:#ff9f43">0.7</span>, beta<span style="color:#ff6ac1">=</span><span style="color:#ff9f43">0.9</span>, m_tar<span style="color:#ff6ac1">=</span><span style="color:#ff6ac1">None</span>, m_aux<span style="color:#ff6ac1">=</span><span style="color:#ff6ac1">None</span>, strategy<span style="color:#ff6ac1">=</span><span style="color:#5af78e">&#39;C&#39;</span>):
+</span></span><span style="display:flex;"><span>    K <span style="color:#ff6ac1">=</span> <span style="color:#ff5c57">len</span>(aux_losses)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#78787e"># Lazily initialize moving average accumulators per layer</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ff6ac1">if</span> m_tar <span style="color:#ff6ac1">is</span> <span style="color:#ff6ac1">None</span>:
+</span></span><span style="display:flex;"><span>        m_tar  <span style="color:#ff6ac1">=</span> {name: <span style="color:#ff9f43">0.0</span> <span style="color:#ff6ac1">for</span> name, _ <span style="color:#ff6ac1">in</span> model<span style="color:#ff6ac1">.</span>shared_params()}
+</span></span><span style="display:flex;"><span>        m_aux  <span style="color:#ff6ac1">=</span> [{name: <span style="color:#ff9f43">0.0</span> <span style="color:#ff6ac1">for</span> name, _ <span style="color:#ff6ac1">in</span> model<span style="color:#ff6ac1">.</span>shared_params()} <span style="color:#ff6ac1">for</span> _ <span style="color:#ff6ac1">in</span> <span style="color:#ff5c57">range</span>(K)]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#78787e"># --- Compute target gradients ---</span>
+</span></span><span style="display:flex;"><span>    optimizer<span style="color:#ff6ac1">.</span>zero_grad()
 </span></span><span style="display:flex;"><span>    target_loss<span style="color:#ff6ac1">.</span>backward(retain_graph<span style="color:#ff6ac1">=</span><span style="color:#ff6ac1">True</span>)
-</span></span><span style="display:flex;"><span>    target_grads <span style="color:#ff6ac1">=</span> {name: p<span style="color:#ff6ac1">.</span>grad<span style="color:#ff6ac1">.</span>clone() <span style="color:#ff6ac1">for</span> name, p <span style="color:#ff6ac1">in</span> model<span style="color:#ff6ac1">.</span>shared_params()}
+</span></span><span style="display:flex;"><span>    G_tar <span style="color:#ff6ac1">=</span> {name: p<span style="color:#ff6ac1">.</span>grad<span style="color:#ff6ac1">.</span>clone() <span style="color:#ff6ac1">for</span> name, p <span style="color:#ff6ac1">in</span> model<span style="color:#ff6ac1">.</span>shared_params()}
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#78787e"># Zero gradients</span>
-</span></span><span style="display:flex;"><span>    model<span style="color:#ff6ac1">.</span>zero_grad()
+</span></span><span style="display:flex;"><span>    <span style="color:#78787e"># Update target moving average per layer</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ff6ac1">for</span> name <span style="color:#ff6ac1">in</span> G_tar:
+</span></span><span style="display:flex;"><span>        m_tar[name] <span style="color:#ff6ac1">=</span> beta <span style="color:#ff6ac1">*</span> m_tar[name] <span style="color:#ff6ac1">+</span> (<span style="color:#ff9f43">1</span> <span style="color:#ff6ac1">-</span> beta) <span style="color:#ff6ac1">*</span> G_tar[name]<span style="color:#ff6ac1">.</span>norm()<span style="color:#ff6ac1">.</span>item()
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#78787e"># Compute auxiliary task gradients per layer</span>
-</span></span><span style="display:flex;"><span>    total_aux_grad <span style="color:#ff6ac1">=</span> {}
-</span></span><span style="display:flex;"><span>    <span style="color:#ff6ac1">for</span> aux_loss <span style="color:#ff6ac1">in</span> aux_losses:
+</span></span><span style="display:flex;"><span>    <span style="color:#78787e"># --- Compute and rescale auxiliary gradients ---</span>
+</span></span><span style="display:flex;"><span>    G_aux_total <span style="color:#ff6ac1">=</span> {name: torch<span style="color:#ff6ac1">.</span>zeros_like(G_tar[name]) <span style="color:#ff6ac1">for</span> name <span style="color:#ff6ac1">in</span> G_tar}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ff6ac1">for</span> i, aux_loss <span style="color:#ff6ac1">in</span> <span style="color:#ff5c57">enumerate</span>(aux_losses):
+</span></span><span style="display:flex;"><span>        optimizer<span style="color:#ff6ac1">.</span>zero_grad()
 </span></span><span style="display:flex;"><span>        aux_loss<span style="color:#ff6ac1">.</span>backward(retain_graph<span style="color:#ff6ac1">=</span><span style="color:#ff6ac1">True</span>)
+</span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>        <span style="color:#ff6ac1">for</span> name, p <span style="color:#ff6ac1">in</span> model<span style="color:#ff6ac1">.</span>shared_params():
-</span></span><span style="display:flex;"><span>            g_aux <span style="color:#ff6ac1">=</span> p<span style="color:#ff6ac1">.</span>grad<span style="color:#ff6ac1">.</span>clone()
-</span></span><span style="display:flex;"><span>            g_target <span style="color:#ff6ac1">=</span> target_grads[name]
+</span></span><span style="display:flex;"><span>            G_i <span style="color:#ff6ac1">=</span> p<span style="color:#ff6ac1">.</span>grad<span style="color:#ff6ac1">.</span>clone()
+</span></span><span style="display:flex;"><span>            norm_i <span style="color:#ff6ac1">=</span> G_i<span style="color:#ff6ac1">.</span>norm()<span style="color:#ff6ac1">.</span>item()
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>            norm_aux <span style="color:#ff6ac1">=</span> g_aux<span style="color:#ff6ac1">.</span>norm()
-</span></span><span style="display:flex;"><span>            norm_target <span style="color:#ff6ac1">=</span> g_target<span style="color:#ff6ac1">.</span>norm()
+</span></span><span style="display:flex;"><span>            <span style="color:#78787e"># Update auxiliary moving average</span>
+</span></span><span style="display:flex;"><span>            m_aux[i][name] <span style="color:#ff6ac1">=</span> beta <span style="color:#ff6ac1">*</span> m_aux[i][name] <span style="color:#ff6ac1">+</span> (<span style="color:#ff9f43">1</span> <span style="color:#ff6ac1">-</span> beta) <span style="color:#ff6ac1">*</span> norm_i
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>            <span style="color:#ff6ac1">if</span> norm_aux <span style="color:#ff6ac1">&lt;</span> <span style="color:#ff9f43">1e-8</span>:
-</span></span><span style="display:flex;"><span>                model<span style="color:#ff6ac1">.</span>zero_grad()
-</span></span><span style="display:flex;"><span>                <span style="color:#ff6ac1">continue</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#78787e"># Apply strategy condition using moving averages</span>
+</span></span><span style="display:flex;"><span>            m_t <span style="color:#ff6ac1">=</span> m_tar[name]
+</span></span><span style="display:flex;"><span>            m_a <span style="color:#ff6ac1">=</span> m_aux[i][name] <span style="color:#ff6ac1">+</span> <span style="color:#ff9f43">1e-8</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>            <span style="color:#78787e"># Strategy A: aux dominates target — scale down</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#78787e"># Strategy B: aux smaller than target — scale up</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#78787e"># Strategy C: always scale toward target norm</span>
-</span></span><span style="display:flex;"><span>            scale <span style="color:#ff6ac1">=</span> (norm_target <span style="color:#ff6ac1">/</span> norm_aux) <span style="color:#ff6ac1">*</span> relax_factor
-</span></span><span style="display:flex;"><span>            g_aux_scaled <span style="color:#ff6ac1">=</span> g_aux <span style="color:#ff6ac1">*</span> scale
+</span></span><span style="display:flex;"><span>            apply <span style="color:#ff6ac1">=</span> (strategy <span style="color:#ff6ac1">==</span> <span style="color:#5af78e">&#39;A&#39;</span> <span style="color:#ff6ac1">and</span> m_a <span style="color:#ff6ac1">&gt;</span> m_t) <span style="color:#ff6ac1">or</span> \
+</span></span><span style="display:flex;"><span>                    (strategy <span style="color:#ff6ac1">==</span> <span style="color:#5af78e">&#39;B&#39;</span> <span style="color:#ff6ac1">and</span> m_a <span style="color:#ff6ac1">&lt;</span> m_t) <span style="color:#ff6ac1">or</span> \
+</span></span><span style="display:flex;"><span>                    (strategy <span style="color:#ff6ac1">==</span> <span style="color:#5af78e">&#39;C&#39;</span>)
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>            total_aux_grad[name] <span style="color:#ff6ac1">=</span> total_aux_grad<span style="color:#ff6ac1">.</span>get(name, <span style="color:#ff9f43">0</span>) <span style="color:#ff6ac1">+</span> g_aux_scaled
-</span></span><span style="display:flex;"><span>        model<span style="color:#ff6ac1">.</span>zero_grad()
+</span></span><span style="display:flex;"><span>            <span style="color:#ff6ac1">if</span> apply:
+</span></span><span style="display:flex;"><span>                <span style="color:#78787e"># Eq. (4): dynamic weight with relax factor</span>
+</span></span><span style="display:flex;"><span>                w <span style="color:#ff6ac1">=</span> (m_t <span style="color:#ff6ac1">/</span> m_a <span style="color:#ff6ac1">-</span> <span style="color:#ff9f43">1.0</span>) <span style="color:#ff6ac1">*</span> r <span style="color:#ff6ac1">+</span> <span style="color:#ff9f43">1.0</span>
+</span></span><span style="display:flex;"><span>                G_i <span style="color:#ff6ac1">=</span> G_i <span style="color:#ff6ac1">*</span> w
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#78787e"># Apply combined gradient: target + scaled auxiliary</span>
+</span></span><span style="display:flex;"><span>            G_aux_total[name] <span style="color:#ff6ac1">+=</span> G_i
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#78787e"># --- Combine and apply ---</span>
+</span></span><span style="display:flex;"><span>    optimizer<span style="color:#ff6ac1">.</span>zero_grad()
 </span></span><span style="display:flex;"><span>    <span style="color:#ff6ac1">for</span> name, p <span style="color:#ff6ac1">in</span> model<span style="color:#ff6ac1">.</span>shared_params():
-</span></span><span style="display:flex;"><span>        p<span style="color:#ff6ac1">.</span>grad <span style="color:#ff6ac1">=</span> target_grads[name] <span style="color:#ff6ac1">+</span> total_aux_grad<span style="color:#ff6ac1">.</span>get(name, <span style="color:#ff9f43">0</span>)
-</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        p<span style="color:#ff6ac1">.</span>grad <span style="color:#ff6ac1">=</span> G_tar[name] <span style="color:#ff6ac1">+</span> G_aux_total[name]
 </span></span><span style="display:flex;"><span>    optimizer<span style="color:#ff6ac1">.</span>step()
-</span></span><span style="display:flex;"><span>    model<span style="color:#ff6ac1">.</span>zero_grad()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ff6ac1">return</span> m_tar, m_aux  <span style="color:#78787e"># pass back for next iteration</span>
 </span></span></code></pre></div><p><strong>Pros and Cons.</strong></p>
 <ul>
-<li>Pros: Fine-grained per-layer control; recommendation-specific design validated on large-scale Alibaba datasets (+8.34% NDCG@10 <sup id="fnref1:5"><a href="#fn:5" class="footnote-ref" role="doc-noteref">5</a></sup>); intuitive hyperparameter $r$.</li>
-<li>Cons: Requires explicit primary/auxiliary task hierarchy (not all systems have a clear primary); per-layer computation adds overhead compared to loss-level methods.</li>
+<li>Pros: Per-layer per-step control; moving averages stabilize rescaling; single hyperparameter $r$ regardless of number of auxiliary tasks; optimizer-agnostic (works with Adam, Adagrad, etc.); validated on Alibaba datasets (+8.34% NDCG@10 <sup id="fnref1:5"><a href="#fn:5" class="footnote-ref" role="doc-noteref">5</a></sup>).</li>
+<li>Cons: Requires an explicit primary/auxiliary task hierarchy; per-layer backward passes add compute overhead; does not address gradient direction conflicts, only magnitude.</li>
 </ul>
 <hr>
 <h3 id="26-slgrad-2023" >

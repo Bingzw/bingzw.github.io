@@ -328,67 +328,101 @@ apply_gradient(model, update)
 
 **Intuition.** In recommendation systems, there is often a natural hierarchy: a primary task (e.g., CTR) that we care most about, and auxiliary tasks (e.g., dwell time, likes) that provide helpful regularization. MetaBalance takes this hierarchy seriously and rescales auxiliary gradients to match the primary task's gradient norm — layer by layer, iteration by iteration [^5].
 
-**Math.** For the primary task gradient $\mathbf{g}_{target}$ and auxiliary task gradient $\mathbf{g}_{aux}$, the scaled auxiliary gradient is:
+**Math.** Let $\mathbf{G}_{tar}$ be the target task gradient and $\mathbf{G}_{aux,i}$ the $i$-th auxiliary gradient, both w.r.t. a shared parameter block $\theta$.
+
+**Step 1 — Exponential moving averages of gradient norms** (Algorithm 2, the complete version):
 
 
-$$\mathbf{g}_{aux}^{scaled} = \mathbf{g}_{aux} \cdot \frac{\|\mathbf{g}_{target}\|}{\|\mathbf{g}_{aux}\|} \cdot r$$
+$$m_{tar}^t = \beta\, m_{tar}^{t-1} + (1-\beta)\,\|\mathbf{G}_{tar}^t\|$$
+
+$$m_{aux,i}^t = \beta\, m_{aux,i}^{t-1} + (1-\beta)\,\|\mathbf{G}_{aux,i}^t\|$$
 
 
-where $r \in (0, 1]$ is a rescaling ratio. Three strategies govern when to apply scaling:
+with $\beta = 0.9$ and $m^0 = 0$. Using moving averages instead of instantaneous norms removes noise from per-batch gradient variance.
 
-- **Strategy A (Reduce)**: Only scale down when $\|\mathbf{g}_{aux}\| > \|\mathbf{g}_{target}\|$ — prevents auxiliary tasks from overwhelming the primary.
-- **Strategy B (Enlarge)**: Only scale up when $\|\mathbf{g}_{aux}\| < \|\mathbf{g}_{target}\|$ — ensures auxiliary tasks contribute meaningfully.
-- **Strategy C (Flexible)**: Always rescale, combining A and B.
+**Step 2 — Strategy selection.** Choose which auxiliary gradients to rescale:
 
-The key distinction from GradNorm is **granularity**: MetaBalance applies per-layer, per-step control, adjusting the ratio of norms at each layer of the network independently. This captures the fact that gradient imbalances may differ across layers.
+- **Strategy A (Reduce)**: rescale only when $m_{aux,i}^t > m_{tar}^t$ — the auxiliary is overpowering the target.
+- **Strategy B (Enlarge)**: rescale only when $m_{aux,i}^t < m_{tar}^t$ — the auxiliary is too weak to transfer useful signal.
+- **Strategy C (Flexible)**: rescale always (A ∪ B). Empirically best across benchmarks.
 
-**Pseudocode.**
+**Step 3 — Gradient rescaling with relax factor $r$.** Rather than hard norm-matching (which forces $\|\mathbf{G}_{aux,i}\| = \|\mathbf{G}_{tar}\|$ and over-suppresses useful signal), MetaBalance uses a partial interpolation:
+
+
+$$\mathbf{G}_{aux,i}^t \leftarrow \mathbf{G}_{aux,i}^t \cdot \underbrace{\left[\left(\frac{m_{tar}^t}{m_{aux,i}^t} - 1\right) r + 1\right]}_{w_{aux,i}^t}$$
+
+
+The effective dynamic weight $w_{aux,i}^t$ has two intuitive limits:
+- $r = 0$: $w_{aux,i}^t = 1$, no rescaling (vanilla multi-task).
+- $r = 1$: $w_{aux,i}^t = m_{tar}^t / m_{aux,i}^t$, full norm-matching.
+
+Intermediate $r$ (e.g., $r = 0.7$) balances convergence speed and stability. Since gradient imbalances vary across layers, MetaBalance applies this independently **per parameter block** $\theta$ of the shared network.
+
+**Pseudocode (Algorithm 2 — complete version).**
 
 ```python
-# MetaBalance: Per-layer auxiliary gradient magnitude scaling
-def metabalance_update(model, target_loss, aux_losses, relax_factor=0.4):
-    # Compute target task gradients per layer
+# MetaBalance: Complete version with moving averages and relax factor
+# Applied independently per shared parameter block (e.g., each MLP layer)
+
+def metabalance_update(model, target_loss, aux_losses, optimizer,
+                       r=0.7, beta=0.9, m_tar=None, m_aux=None, strategy='C'):
+    K = len(aux_losses)
+
+    # Lazily initialize moving average accumulators per layer
+    if m_tar is None:
+        m_tar  = {name: 0.0 for name, _ in model.shared_params()}
+        m_aux  = [{name: 0.0 for name, _ in model.shared_params()} for _ in range(K)]
+
+    # --- Compute target gradients ---
+    optimizer.zero_grad()
     target_loss.backward(retain_graph=True)
-    target_grads = {name: p.grad.clone() for name, p in model.shared_params()}
+    G_tar = {name: p.grad.clone() for name, p in model.shared_params()}
 
-    # Zero gradients
-    model.zero_grad()
+    # Update target moving average per layer
+    for name in G_tar:
+        m_tar[name] = beta * m_tar[name] + (1 - beta) * G_tar[name].norm().item()
 
-    # Compute auxiliary task gradients per layer
-    total_aux_grad = {}
-    for aux_loss in aux_losses:
+    # --- Compute and rescale auxiliary gradients ---
+    G_aux_total = {name: torch.zeros_like(G_tar[name]) for name in G_tar}
+
+    for i, aux_loss in enumerate(aux_losses):
+        optimizer.zero_grad()
         aux_loss.backward(retain_graph=True)
+
         for name, p in model.shared_params():
-            g_aux = p.grad.clone()
-            g_target = target_grads[name]
+            G_i = p.grad.clone()
+            norm_i = G_i.norm().item()
 
-            norm_aux = g_aux.norm()
-            norm_target = g_target.norm()
+            # Update auxiliary moving average
+            m_aux[i][name] = beta * m_aux[i][name] + (1 - beta) * norm_i
 
-            if norm_aux < 1e-8:
-                model.zero_grad()
-                continue
+            # Apply strategy condition using moving averages
+            m_t = m_tar[name]
+            m_a = m_aux[i][name] + 1e-8
 
-            # Strategy A: aux dominates target — scale down
-            # Strategy B: aux smaller than target — scale up
-            # Strategy C: always scale toward target norm
-            scale = (norm_target / norm_aux) * relax_factor
-            g_aux_scaled = g_aux * scale
+            apply = (strategy == 'A' and m_a > m_t) or \
+                    (strategy == 'B' and m_a < m_t) or \
+                    (strategy == 'C')
 
-            total_aux_grad[name] = total_aux_grad.get(name, 0) + g_aux_scaled
-        model.zero_grad()
+            if apply:
+                # Eq. (4): dynamic weight with relax factor
+                w = (m_t / m_a - 1.0) * r + 1.0
+                G_i = G_i * w
 
-    # Apply combined gradient: target + scaled auxiliary
+            G_aux_total[name] += G_i
+
+    # --- Combine and apply ---
+    optimizer.zero_grad()
     for name, p in model.shared_params():
-        p.grad = target_grads[name] + total_aux_grad.get(name, 0)
-
+        p.grad = G_tar[name] + G_aux_total[name]
     optimizer.step()
-    model.zero_grad()
+
+    return m_tar, m_aux  # pass back for next iteration
 ```
 
 **Pros and Cons.**
-- Pros: Fine-grained per-layer control; recommendation-specific design validated on large-scale Alibaba datasets (+8.34% NDCG@10 [^5]); intuitive hyperparameter $r$.
-- Cons: Requires explicit primary/auxiliary task hierarchy (not all systems have a clear primary); per-layer computation adds overhead compared to loss-level methods.
+- Pros: Per-layer per-step control; moving averages stabilize rescaling; single hyperparameter $r$ regardless of number of auxiliary tasks; optimizer-agnostic (works with Adam, Adagrad, etc.); validated on Alibaba datasets (+8.34% NDCG@10 [^5]).
+- Cons: Requires an explicit primary/auxiliary task hierarchy; per-layer backward passes add compute overhead; does not address gradient direction conflicts, only magnitude.
 
 ---
 
