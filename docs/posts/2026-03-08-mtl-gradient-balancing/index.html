@@ -986,48 +986,71 @@ $$\mathbf{h}_i = f_i\!\left(\mathbf{E}_i(\mathbf{x}),\ \text{stop\_grad}\!\left(
 </div>
 </h3>
 <p><strong>Intuition.</strong> GradNorm and PCGrad operate on the full parameter gradient $\mathbf{g}_i \in \mathbb{R}^d$ where $d$ can be in the billions. This is computationally expensive and often noisy. MultiBalance observes that in representation-based recommenders, all task heads attach to a shared bottleneck $\mathbf{h}$. Balancing gradients at the bottleneck — a much smaller vector — achieves most of the benefit at a fraction of the cost <sup id="fnref:9"><a href="#fn:9" class="footnote-ref" role="doc-noteref">9</a></sup>.</p>
-<p><strong>Math.</strong> Let the shared representation be $\mathbf{h} = g(\mathbf{x})$ and task $i$&rsquo;s head be $\hat{y}_i = f_i(\mathbf{h})$. The representation-level gradient for task $i$ is:</p>
-$$\mathbf{g}_i^{rep} = \frac{\partial \mathcal{L}_i}{\partial \mathbf{h}}$$<p>MultiBalance applies gradient balancing at $\mathbf{h}$ rather than at $\theta$. The balancing weights are computed using a moving average of $\|\mathbf{g}_i^{rep}\|$ for stability:</p>
-$$w_i^{rep}(t) = \frac{\bar{G}^{rep}(t)}{\text{EMA}(\|\mathbf{g}_i^{rep}\|, t)}$$<p>where $\bar{G}^{rep}(t)$ is the mean norm across tasks and EMA is an exponential moving average. The balanced representation gradient is:</p>
-$$\mathbf{g}_{balanced}^{rep} = \sum_{i=1}^{T} w_i^{rep} \cdot \mathbf{g}_i^{rep}$$<p>Critically, this requires only a <strong>single backward pass</strong> through the encoder $g(\cdot)$, since all task head gradients $\mathbf{g}_i^{rep}$ can be accumulated at $\mathbf{h}$ before backpropagating through the shared trunk.</p>
-<p><strong>Pseudocode.</strong></p>
-<div class="highlight"><pre tabindex="0" style="color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#78787e"># MultiBalance: Representation-level gradient balancing</span>
-</span></span><span style="display:flex;"><span><span style="color:#ff6ac1">def</span> <span style="color:#57c7ff">multibalance_update</span>(model, task_heads, task_losses, targets, optimizer,
-</span></span><span style="display:flex;"><span>                         moving_avg_norms, beta<span style="color:#ff6ac1">=</span><span style="color:#ff9f43">0.9</span>):
-</span></span><span style="display:flex;"><span>    <span style="color:#78787e"># Forward: shared representation</span>
-</span></span><span style="display:flex;"><span>    h <span style="color:#ff6ac1">=</span> model<span style="color:#ff6ac1">.</span>shared_bottom(inputs)
-</span></span><span style="display:flex;"><span>    h<span style="color:#ff6ac1">.</span>retain_grad()
+<p><strong>Math.</strong> MultiBalance has two components: (1) a copy-and-fork architecture to obtain per-task representation gradients in a single backward pass, and (2) an MGDA-style min-norm balancing with EMA stabilization.</p>
+<p><strong>Step 1 — EMA-rescaled representation gradients.</strong> In the forward pass, the shared representation $\Phi$ is copied $M$ times — one per task head. A single backward pass then yields $M$ separate representation gradients $g_{k+1,m} = \nabla_\Phi f_m$. These are stabilized with an exponential moving average of their norms:</p>
+$$u_{k+1,m} = (1 - \gamma)\, u_{k,m} + \gamma\, \|g_{k+1,m}\|$$<p>The EMA-rescaled gradient (smoothed direction at historical average magnitude) is:</p>
+$$v_{k+1,m} = \frac{u_{k+1,m}}{\|g_{k+1,m}\|}\, g_{k+1,m}$$<p>Without this rescaling, noisy per-batch spikes in gradient norms destabilize the balancing weights.</p>
+<p><strong>Step 2 — MGDA min-norm objective over representation gradients.</strong> Let $V_{k+1}$ be the matrix stacking $\{v_{k+1,m}\}$. MultiBalance solves the surrogate min-norm problem (MGDA at the representation level):</p>
+$$\min_{\lambda \in \Delta^M} \|V_{k+1}\,\lambda\|$$<p>Theorem 1 in the paper shows this cheap $O(M^2 n')$ objective (where $n'$ is representation dim) guarantees approximate Pareto stationarity at the full parameter level, avoiding the infeasible $O(M^2 n)$ cost of parameter-space MGDA (where $n \sim 10^9$).</p>
+<p><strong>Step 3 — λ update via projected gradient descent with prior regularization:</strong></p>
+$$\lambda_{k+1} = \Pi_{\Delta^M}\!\left(\lambda_k - \beta_k\, V_{k+1}^\top \bigl(V_{k+1}\lambda_k + \rho\, V_{k+1}\lambda_0\bigr)\right)$$<p>where $\lambda_0 = \frac{1}{M}\mathbf{1}$ is a uniform prior, $\rho = 0.1$ regularizes toward equal weighting, and $\Pi_{\Delta^M}$ projects onto the probability simplex. The final balanced gradient $V_{k+1}\lambda_{k+1}$ is injected back into the autograd graph and propagated through the shared bottom layers.</p>
+<p><strong>Pseudocode (Algorithm 3).</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#78787e"># MultiBalance: MGDA-style balancing at the representation level</span>
+</span></span><span style="display:flex;"><span><span style="color:#78787e"># Single backward pass via copy-and-fork architecture</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#78787e"># Collect per-task representation gradients</span>
-</span></span><span style="display:flex;"><span>    rep_grads <span style="color:#ff6ac1">=</span> []
-</span></span><span style="display:flex;"><span>    <span style="color:#ff6ac1">for</span> i, (head, loss_fn) <span style="color:#ff6ac1">in</span> <span style="color:#ff5c57">enumerate</span>(<span style="color:#ff5c57">zip</span>(task_heads, task_losses)):
-</span></span><span style="display:flex;"><span>        optimizer<span style="color:#ff6ac1">.</span>zero_grad()
-</span></span><span style="display:flex;"><span>        pred <span style="color:#ff6ac1">=</span> head(h<span style="color:#ff6ac1">.</span>detach()<span style="color:#ff6ac1">.</span>requires_grad_(<span style="color:#ff6ac1">True</span>))
-</span></span><span style="display:flex;"><span>        loss <span style="color:#ff6ac1">=</span> loss_fn(pred, targets[i])
+</span></span><span style="display:flex;"><span><span style="color:#ff6ac1">def</span> <span style="color:#57c7ff">multibalance_step</span>(model, task_losses, optimizer,
+</span></span><span style="display:flex;"><span>                      u, lam, rho<span style="color:#ff6ac1">=</span><span style="color:#ff9f43">0.1</span>, gamma<span style="color:#ff6ac1">=</span><span style="color:#ff9f43">0.01</span>, lr_lam<span style="color:#ff6ac1">=</span><span style="color:#ff9f43">1.0</span>):
+</span></span><span style="display:flex;"><span>    <span style="color:#5af78e">&#34;&#34;&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#5af78e">    u   : list of M EMA norm scalars (initialized to 0)
+</span></span></span><span style="display:flex;"><span><span style="color:#5af78e">    lam : task weight vector on simplex (initialized to 1/M each)
+</span></span></span><span style="display:flex;"><span><span style="color:#5af78e">    &#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    M <span style="color:#ff6ac1">=</span> <span style="color:#ff5c57">len</span>(task_losses)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#78787e"># --- Forward: shared representation copied M times ---</span>
+</span></span><span style="display:flex;"><span>    h <span style="color:#ff6ac1">=</span> model<span style="color:#ff6ac1">.</span>shared_bottom(inputs)            <span style="color:#78787e"># [batch, n&#39;]</span>
+</span></span><span style="display:flex;"><span>    h_copies <span style="color:#ff6ac1">=</span> [h<span style="color:#ff6ac1">.</span>clone()<span style="color:#ff6ac1">.</span>requires_grad_(<span style="color:#ff6ac1">True</span>) <span style="color:#ff6ac1">for</span> _ <span style="color:#ff6ac1">in</span> <span style="color:#ff5c57">range</span>(M)]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#78787e"># --- Single backward: get M representation gradients ---</span>
+</span></span><span style="display:flex;"><span>    raw_grads <span style="color:#ff6ac1">=</span> []
+</span></span><span style="display:flex;"><span>    <span style="color:#ff6ac1">for</span> m, (h_m, loss_fn) <span style="color:#ff6ac1">in</span> <span style="color:#ff5c57">enumerate</span>(<span style="color:#ff5c57">zip</span>(h_copies, task_losses)):
+</span></span><span style="display:flex;"><span>        pred <span style="color:#ff6ac1">=</span> model<span style="color:#ff6ac1">.</span>task_heads[m](h_m)
+</span></span><span style="display:flex;"><span>        loss <span style="color:#ff6ac1">=</span> loss_fn(pred, targets[m])
 </span></span><span style="display:flex;"><span>        loss<span style="color:#ff6ac1">.</span>backward()
-</span></span><span style="display:flex;"><span>        rep_grads<span style="color:#ff6ac1">.</span>append(h<span style="color:#ff6ac1">.</span>grad<span style="color:#ff6ac1">.</span>clone())
+</span></span><span style="display:flex;"><span>        raw_grads<span style="color:#ff6ac1">.</span>append(h_m<span style="color:#ff6ac1">.</span>grad<span style="color:#ff6ac1">.</span>detach())    <span style="color:#78787e"># g_{k+1,m}: [batch, n&#39;]</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#78787e"># Update moving average of gradient norms (for stability)</span>
-</span></span><span style="display:flex;"><span>    norms <span style="color:#ff6ac1">=</span> [g<span style="color:#ff6ac1">.</span>norm()<span style="color:#ff6ac1">.</span>item() <span style="color:#ff6ac1">for</span> g <span style="color:#ff6ac1">in</span> rep_grads]
-</span></span><span style="display:flex;"><span>    <span style="color:#ff6ac1">for</span> i <span style="color:#ff6ac1">in</span> <span style="color:#ff5c57">range</span>(<span style="color:#ff5c57">len</span>(norms)):
-</span></span><span style="display:flex;"><span>        moving_avg_norms[i] <span style="color:#ff6ac1">=</span> beta <span style="color:#ff6ac1">*</span> moving_avg_norms[i] <span style="color:#ff6ac1">+</span> (<span style="color:#ff9f43">1</span> <span style="color:#ff6ac1">-</span> beta) <span style="color:#ff6ac1">*</span> norms[i]
+</span></span><span style="display:flex;"><span>    <span style="color:#78787e"># --- EMA rescaling ---</span>
+</span></span><span style="display:flex;"><span>    v <span style="color:#ff6ac1">=</span> []
+</span></span><span style="display:flex;"><span>    <span style="color:#ff6ac1">for</span> m <span style="color:#ff6ac1">in</span> <span style="color:#ff5c57">range</span>(M):
+</span></span><span style="display:flex;"><span>        norm_m <span style="color:#ff6ac1">=</span> raw_grads[m]<span style="color:#ff6ac1">.</span>norm()<span style="color:#ff6ac1">.</span>item()
+</span></span><span style="display:flex;"><span>        u[m] <span style="color:#ff6ac1">=</span> (<span style="color:#ff9f43">1</span> <span style="color:#ff6ac1">-</span> gamma) <span style="color:#ff6ac1">*</span> u[m] <span style="color:#ff6ac1">+</span> gamma <span style="color:#ff6ac1">*</span> norm_m
+</span></span><span style="display:flex;"><span>        v_m <span style="color:#ff6ac1">=</span> (u[m] <span style="color:#ff6ac1">/</span> (norm_m <span style="color:#ff6ac1">+</span> <span style="color:#ff9f43">1e-8</span>)) <span style="color:#ff6ac1">*</span> raw_grads[m]
+</span></span><span style="display:flex;"><span>        v<span style="color:#ff6ac1">.</span>append(v_m)
+</span></span><span style="display:flex;"><span>    V <span style="color:#ff6ac1">=</span> torch<span style="color:#ff6ac1">.</span>stack(v)                         <span style="color:#78787e"># [M, batch, n&#39;]</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#78787e"># Balance representation gradients by magnitude</span>
-</span></span><span style="display:flex;"><span>    ref_norm <span style="color:#ff6ac1">=</span> moving_avg_norms[<span style="color:#ff9f43">0</span>]  <span style="color:#78787e"># use primary task as reference</span>
-</span></span><span style="display:flex;"><span>    balanced_grad <span style="color:#ff6ac1">=</span> <span style="color:#ff5c57">sum</span>(
-</span></span><span style="display:flex;"><span>        g <span style="color:#ff6ac1">*</span> (ref_norm <span style="color:#ff6ac1">/</span> (moving_avg_norms[i] <span style="color:#ff6ac1">+</span> <span style="color:#ff9f43">1e-8</span>))
-</span></span><span style="display:flex;"><span>        <span style="color:#ff6ac1">for</span> i, g <span style="color:#ff6ac1">in</span> <span style="color:#ff5c57">enumerate</span>(rep_grads)
-</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>    <span style="color:#78787e"># --- MGDA update for lambda (one projected gradient step) ---</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ff6ac1">with</span> torch<span style="color:#ff6ac1">.</span>no_grad():
+</span></span><span style="display:flex;"><span>        Vlam <span style="color:#ff6ac1">=</span> (lam<span style="color:#ff6ac1">.</span>view(M, <span style="color:#ff9f43">1</span>, <span style="color:#ff9f43">1</span>) <span style="color:#ff6ac1">*</span> V)<span style="color:#ff6ac1">.</span>sum(<span style="color:#ff9f43">0</span>)         <span style="color:#78787e"># V @ lam: [batch, n&#39;]</span>
+</span></span><span style="display:flex;"><span>        lam0 <span style="color:#ff6ac1">=</span> torch<span style="color:#ff6ac1">.</span>full((M,), <span style="color:#ff9f43">1.0</span> <span style="color:#ff6ac1">/</span> M)
+</span></span><span style="display:flex;"><span>        Vlam0 <span style="color:#ff6ac1">=</span> (lam0<span style="color:#ff6ac1">.</span>view(M, <span style="color:#ff9f43">1</span>, <span style="color:#ff9f43">1</span>) <span style="color:#ff6ac1">*</span> V)<span style="color:#ff6ac1">.</span>sum(<span style="color:#ff9f43">0</span>)       <span style="color:#78787e"># V @ lam0</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#78787e"># Single backward pass with balanced representation gradient</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#78787e"># Gradient of objective w.r.t. lambda (use cosine similarity in practice)</span>
+</span></span><span style="display:flex;"><span>        grad_lam <span style="color:#ff6ac1">=</span> torch<span style="color:#ff6ac1">.</span>stack([(V[m] <span style="color:#ff6ac1">*</span> (Vlam <span style="color:#ff6ac1">+</span> rho <span style="color:#ff6ac1">*</span> Vlam0))<span style="color:#ff6ac1">.</span>sum() <span style="color:#ff6ac1">for</span> m <span style="color:#ff6ac1">in</span> <span style="color:#ff5c57">range</span>(M)])
+</span></span><span style="display:flex;"><span>        lam <span style="color:#ff6ac1">=</span> lam <span style="color:#ff6ac1">-</span> lr_lam <span style="color:#ff6ac1">*</span> grad_lam
+</span></span><span style="display:flex;"><span>        <span style="color:#78787e"># Project onto simplex</span>
+</span></span><span style="display:flex;"><span>        lam <span style="color:#ff6ac1">=</span> simplex_projection(lam)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#78787e"># --- Inject balanced gradient back into shared trunk ---</span>
+</span></span><span style="display:flex;"><span>    balanced_rep_grad <span style="color:#ff6ac1">=</span> (lam<span style="color:#ff6ac1">.</span>view(M, <span style="color:#ff9f43">1</span>, <span style="color:#ff9f43">1</span>) <span style="color:#ff6ac1">*</span> V)<span style="color:#ff6ac1">.</span>sum(<span style="color:#ff9f43">0</span>)  <span style="color:#78787e"># [batch, n&#39;]</span>
 </span></span><span style="display:flex;"><span>    optimizer<span style="color:#ff6ac1">.</span>zero_grad()
-</span></span><span style="display:flex;"><span>    h_fresh <span style="color:#ff6ac1">=</span> model<span style="color:#ff6ac1">.</span>shared_bottom(inputs)
-</span></span><span style="display:flex;"><span>    h_fresh<span style="color:#ff6ac1">.</span>backward(balanced_grad)
+</span></span><span style="display:flex;"><span>    h_final <span style="color:#ff6ac1">=</span> model<span style="color:#ff6ac1">.</span>shared_bottom(inputs)
+</span></span><span style="display:flex;"><span>    h_final<span style="color:#ff6ac1">.</span>backward(balanced_rep_grad)        <span style="color:#78787e"># single pass through shared params</span>
 </span></span><span style="display:flex;"><span>    optimizer<span style="color:#ff6ac1">.</span>step()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ff6ac1">return</span> u, lam
 </span></span></code></pre></div><p><strong>Pros and Cons.</strong></p>
 <ul>
-<li>Pros: Near-zero computational overhead; single backward pass through shared trunk; validated at Meta scale with neutral QPS impact.</li>
-<li>Cons: Operates only at the representation bottleneck; weaker theoretical guarantees than full-gradient methods; does not address conflicts within task-specific subnetworks.</li>
+<li>Pros: Only ~0.42% QPS overhead vs. 68–82% for parameter-space MGDA; single backward pass via copy-and-fork; EMA prevents norm spike instability; theoretically grounded (Theorem 1 bounds parameter-level Pareto gap); validated at Meta on Feeds and Ads models.</li>
+<li>Cons: Balancing is confined to the shared representation bottleneck — conflicts inside task-specific subnetworks are not addressed; the copy-and-fork architecture requires refactoring existing model code; $\rho$ and $\gamma$ are additional hyperparameters.</li>
 </ul>
 <hr>
 <h3 id="210-gradcraft-kdd-2024" >

@@ -494,67 +494,98 @@ STEM-Net is particularly effective for **comparable samples** — users with bal
 
 **Intuition.** GradNorm and PCGrad operate on the full parameter gradient $\mathbf{g}_i \in \mathbb{R}^d$ where $d$ can be in the billions. This is computationally expensive and often noisy. MultiBalance observes that in representation-based recommenders, all task heads attach to a shared bottleneck $\mathbf{h}$. Balancing gradients at the bottleneck — a much smaller vector — achieves most of the benefit at a fraction of the cost [^9].
 
-**Math.** Let the shared representation be $\mathbf{h} = g(\mathbf{x})$ and task $i$'s head be $\hat{y}_i = f_i(\mathbf{h})$. The representation-level gradient for task $i$ is:
+**Math.** MultiBalance has two components: (1) a copy-and-fork architecture to obtain per-task representation gradients in a single backward pass, and (2) an MGDA-style min-norm balancing with EMA stabilization.
+
+**Step 1 — EMA-rescaled representation gradients.** In the forward pass, the shared representation $\Phi$ is copied $M$ times — one per task head. A single backward pass then yields $M$ separate representation gradients $g_{k+1,m} = \nabla_\Phi f_m$. These are stabilized with an exponential moving average of their norms:
 
 
-$$\mathbf{g}_i^{rep} = \frac{\partial \mathcal{L}_i}{\partial \mathbf{h}}$$
+$$u_{k+1,m} = (1 - \gamma)\, u_{k,m} + \gamma\, \|g_{k+1,m}\|$$
 
 
-MultiBalance applies gradient balancing at $\mathbf{h}$ rather than at $\theta$. The balancing weights are computed using a moving average of $\|\mathbf{g}_i^{rep}\|$ for stability:
+The EMA-rescaled gradient (smoothed direction at historical average magnitude) is:
 
 
-$$w_i^{rep}(t) = \frac{\bar{G}^{rep}(t)}{\text{EMA}(\|\mathbf{g}_i^{rep}\|, t)}$$
+$$v_{k+1,m} = \frac{u_{k+1,m}}{\|g_{k+1,m}\|}\, g_{k+1,m}$$
 
 
-where $\bar{G}^{rep}(t)$ is the mean norm across tasks and EMA is an exponential moving average. The balanced representation gradient is:
+Without this rescaling, noisy per-batch spikes in gradient norms destabilize the balancing weights.
+
+**Step 2 — MGDA min-norm objective over representation gradients.** Let $V_{k+1}$ be the matrix stacking $\{v_{k+1,m}\}$. MultiBalance solves the surrogate min-norm problem (MGDA at the representation level):
 
 
-$$\mathbf{g}_{balanced}^{rep} = \sum_{i=1}^{T} w_i^{rep} \cdot \mathbf{g}_i^{rep}$$
+$$\min_{\lambda \in \Delta^M} \|V_{k+1}\,\lambda\|$$
 
 
-Critically, this requires only a **single backward pass** through the encoder $g(\cdot)$, since all task head gradients $\mathbf{g}_i^{rep}$ can be accumulated at $\mathbf{h}$ before backpropagating through the shared trunk.
+Theorem 1 in the paper shows this cheap $O(M^2 n')$ objective (where $n'$ is representation dim) guarantees approximate Pareto stationarity at the full parameter level, avoiding the infeasible $O(M^2 n)$ cost of parameter-space MGDA (where $n \sim 10^9$).
 
-**Pseudocode.**
+**Step 3 — λ update via projected gradient descent with prior regularization:**
+
+
+$$\lambda_{k+1} = \Pi_{\Delta^M}\!\left(\lambda_k - \beta_k\, V_{k+1}^\top \bigl(V_{k+1}\lambda_k + \rho\, V_{k+1}\lambda_0\bigr)\right)$$
+
+
+where $\lambda_0 = \frac{1}{M}\mathbf{1}$ is a uniform prior, $\rho = 0.1$ regularizes toward equal weighting, and $\Pi_{\Delta^M}$ projects onto the probability simplex. The final balanced gradient $V_{k+1}\lambda_{k+1}$ is injected back into the autograd graph and propagated through the shared bottom layers.
+
+**Pseudocode (Algorithm 3).**
 
 ```python
-# MultiBalance: Representation-level gradient balancing
-def multibalance_update(model, task_heads, task_losses, targets, optimizer,
-                         moving_avg_norms, beta=0.9):
-    # Forward: shared representation
-    h = model.shared_bottom(inputs)
-    h.retain_grad()
+# MultiBalance: MGDA-style balancing at the representation level
+# Single backward pass via copy-and-fork architecture
 
-    # Collect per-task representation gradients
-    rep_grads = []
-    for i, (head, loss_fn) in enumerate(zip(task_heads, task_losses)):
-        optimizer.zero_grad()
-        pred = head(h.detach().requires_grad_(True))
-        loss = loss_fn(pred, targets[i])
+def multibalance_step(model, task_losses, optimizer,
+                      u, lam, rho=0.1, gamma=0.01, lr_lam=1.0):
+    """
+    u   : list of M EMA norm scalars (initialized to 0)
+    lam : task weight vector on simplex (initialized to 1/M each)
+    """
+    M = len(task_losses)
+
+    # --- Forward: shared representation copied M times ---
+    h = model.shared_bottom(inputs)            # [batch, n']
+    h_copies = [h.clone().requires_grad_(True) for _ in range(M)]
+
+    # --- Single backward: get M representation gradients ---
+    raw_grads = []
+    for m, (h_m, loss_fn) in enumerate(zip(h_copies, task_losses)):
+        pred = model.task_heads[m](h_m)
+        loss = loss_fn(pred, targets[m])
         loss.backward()
-        rep_grads.append(h.grad.clone())
+        raw_grads.append(h_m.grad.detach())    # g_{k+1,m}: [batch, n']
 
-    # Update moving average of gradient norms (for stability)
-    norms = [g.norm().item() for g in rep_grads]
-    for i in range(len(norms)):
-        moving_avg_norms[i] = beta * moving_avg_norms[i] + (1 - beta) * norms[i]
+    # --- EMA rescaling ---
+    v = []
+    for m in range(M):
+        norm_m = raw_grads[m].norm().item()
+        u[m] = (1 - gamma) * u[m] + gamma * norm_m
+        v_m = (u[m] / (norm_m + 1e-8)) * raw_grads[m]
+        v.append(v_m)
+    V = torch.stack(v)                         # [M, batch, n']
 
-    # Balance representation gradients by magnitude
-    ref_norm = moving_avg_norms[0]  # use primary task as reference
-    balanced_grad = sum(
-        g * (ref_norm / (moving_avg_norms[i] + 1e-8))
-        for i, g in enumerate(rep_grads)
-    )
+    # --- MGDA update for lambda (one projected gradient step) ---
+    with torch.no_grad():
+        Vlam = (lam.view(M, 1, 1) * V).sum(0)         # V @ lam: [batch, n']
+        lam0 = torch.full((M,), 1.0 / M)
+        Vlam0 = (lam0.view(M, 1, 1) * V).sum(0)       # V @ lam0
 
-    # Single backward pass with balanced representation gradient
+        # Gradient of objective w.r.t. lambda (use cosine similarity in practice)
+        grad_lam = torch.stack([(V[m] * (Vlam + rho * Vlam0)).sum() for m in range(M)])
+        lam = lam - lr_lam * grad_lam
+        # Project onto simplex
+        lam = simplex_projection(lam)
+
+    # --- Inject balanced gradient back into shared trunk ---
+    balanced_rep_grad = (lam.view(M, 1, 1) * V).sum(0)  # [batch, n']
     optimizer.zero_grad()
-    h_fresh = model.shared_bottom(inputs)
-    h_fresh.backward(balanced_grad)
+    h_final = model.shared_bottom(inputs)
+    h_final.backward(balanced_rep_grad)        # single pass through shared params
     optimizer.step()
+
+    return u, lam
 ```
 
 **Pros and Cons.**
-- Pros: Near-zero computational overhead; single backward pass through shared trunk; validated at Meta scale with neutral QPS impact.
-- Cons: Operates only at the representation bottleneck; weaker theoretical guarantees than full-gradient methods; does not address conflicts within task-specific subnetworks.
+- Pros: Only ~0.42% QPS overhead vs. 68–82% for parameter-space MGDA; single backward pass via copy-and-fork; EMA prevents norm spike instability; theoretically grounded (Theorem 1 bounds parameter-level Pareto gap); validated at Meta on Feeds and Ads models.
+- Cons: Balancing is confined to the shared representation bottleneck — conflicts inside task-specific subnetworks are not addressed; the copy-and-fork architecture requires refactoring existing model code; $\rho$ and $\gamma$ are additional hyperparameters.
 
 ---
 
