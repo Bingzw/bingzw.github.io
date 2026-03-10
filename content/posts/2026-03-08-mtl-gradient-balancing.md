@@ -245,56 +245,72 @@ The optimization over $\{\alpha_i\}$ is a quadratic program (QP) over the simple
 **Math.** Let the average gradient be:
 
 
-$$\bar{\mathbf{g}} = \frac{1}{T} \sum_{i=1}^{T} \mathbf{g}_i$$
+$$\mathbf{g}_0 = \frac{1}{T} \sum_{i=1}^{T} \mathbf{g}_i$$
 
 
-CAGrad solves:
+CAGrad's primal problem at each step is:
 
 
-$$\mathbf{g}^* = \arg\max_{\mathbf{g}} \min_{i \in [T]} \langle \mathbf{g}_i, \mathbf{g} \rangle \quad \text{s.t.} \quad \|\mathbf{g} - \bar{\mathbf{g}}\| \leq c \|\bar{\mathbf{g}}\|$$
+$$\mathbf{d}^* = \arg\max_{\mathbf{d}} \min_{i \in [T]} \langle \mathbf{g}_i, \mathbf{d} \rangle \quad \text{s.t.} \quad \|\mathbf{d} - \mathbf{g}_0\| \leq c \|\mathbf{g}_0\|$$
 
 
-The constraint ball of radius $c \|\bar{\mathbf{g}}\|$ centered at $\bar{\mathbf{g}}$ controls how far from the average gradient we are allowed to deviate. Two limiting cases:
-- $c = 0$: The only feasible point is $\bar{\mathbf{g}}$ itself — recovers vanilla gradient descent.
+The constraint ball of radius $c \|\mathbf{g}_0\|$ centered at $\mathbf{g}_0$ controls how far from the average gradient we are allowed to deviate:
+- $c = 0$: The only feasible point is $\mathbf{g}_0$ itself — recovers vanilla gradient descent.
 - $c \to \infty$: The constraint is vacuous and the solution recovers MGDA (min-norm in convex hull).
 
-For a general $c$, the Lagrangian of the inner max-min is:
+Rather than solving the primal directly, the paper derives a **dual problem** over task weights $\mathbf{w}$ on the probability simplex $\mathcal{W} = \{\mathbf{w} : \sum_i w_i = 1,\ w_i \geq 0\}$. Let $\mathbf{g}_\mathbf{w} = \sum_{i=1}^T w_i \mathbf{g}_i$ and $\varphi = c^2 \|\mathbf{g}_0\|^2$. The dual objective is:
 
 
-$$\mathcal{L}(\mathbf{g}, \lambda) = \min_i \langle \mathbf{g}_i, \mathbf{g} \rangle - \lambda (\|\mathbf{g} - \bar{\mathbf{g}}\|^2 - c^2 \|\bar{\mathbf{g}}\|^2)$$
+$$\mathbf{w}^* = \arg\min_{\mathbf{w} \in \mathcal{W}}\ F(\mathbf{w}) := \mathbf{g}_\mathbf{w}^\top \mathbf{g}_0 + \sqrt{\varphi}\, \|\mathbf{g}_\mathbf{w}\|$$
 
 
-At the optimum, the gradient $\mathbf{g}^*$ lies on the boundary of the constraint sphere and maximizes the minimum inner product with task gradients. This guarantees that the update direction does not decrease any task's objective by more than the worst-case minimum.
+The optimal Lagrange multiplier is $\lambda^* = \|\mathbf{g}_{\mathbf{w}^*}\| / \sqrt{\varphi}$, and the final parameter update direction combines the average gradient with a scaled weighted component:
+
+
+$$\mathbf{d}^* = \mathbf{g}_0 + \frac{\sqrt{\varphi}}{\|\mathbf{g}_{\mathbf{w}^*}\|}\, \mathbf{g}_{\mathbf{w}^*}$$
+
 
 **Pseudocode.**
 
 ```python
-# CAGrad
-def cagrad(gradients, c=0.5):
+import torch
+
+def cagrad(gradients, c=0.5, num_iters=20, lr_w=0.01):
+    """
+    CAGrad: Conflict-Averse Gradient Descent (Liu et al., NeurIPS 2021)
+    Solves the dual: min_{w in simplex} g_w.T @ g0 + sqrt(phi) * ||g_w||
+    Returns the update direction d* = g0 + (sqrt(phi)/||g_w*||) * g_w*
+    """
     T = len(gradients)
-    g_bar = mean(gradients)          # average gradient
-    norm_g_bar = g_bar.norm()
+    # Stack gradients: shape [T, d]
+    G = torch.stack(gradients)               # [T, d]
+    g0 = G.mean(dim=0)                       # average gradient
+    phi = (c * g0.norm()) ** 2               # c^2 * ||g0||^2
+    sqrt_phi = phi ** 0.5
 
-    # Initialize at g_bar, then solve the constrained max-min problem
-    # via projected gradient ascent on the task weights lambda_i
-    alpha = [1.0 / T] * T            # uniform initialization
-    radius = c * norm_g_bar
+    # Initialize uniform weights on the simplex
+    w = torch.full((T,), 1.0 / T, requires_grad=True)
 
-    for iteration in range(max_iters):
-        g_candidate = sum(alpha[i] * gradients[i] for i in range(T))
+    optimizer_w = torch.optim.SGD([w], lr=lr_w)
 
-        # Project g_candidate onto sphere of radius `radius` around g_bar
-        diff = g_candidate - g_bar
-        if diff.norm() > radius:
-            g_candidate = g_bar + radius * diff / diff.norm()
+    for _ in range(num_iters):
+        optimizer_w.zero_grad()
 
-        # Update alpha to maximize minimum inner product (Frank-Wolfe step)
-        scores = [torch.dot(g_candidate, gradients[i]) for i in range(T)]
-        worst_task = argmin(scores)
-        alpha = [(1 - step) * a for a in alpha]
-        alpha[worst_task] += step
+        w_simplex = torch.softmax(w, dim=0)  # project onto simplex
+        g_w = (w_simplex.unsqueeze(1) * G).sum(dim=0)  # weighted gradient
 
-    return g_candidate
+        # Dual objective: g_w.T @ g0 + sqrt(phi) * ||g_w||
+        loss_dual = g_w @ g0 + sqrt_phi * g_w.norm()
+        loss_dual.backward()
+        optimizer_w.step()
+
+    with torch.no_grad():
+        w_star = torch.softmax(w, dim=0)
+        g_w_star = (w_star.unsqueeze(1) * G).sum(dim=0)
+        # Final update direction
+        d_star = g0 + (sqrt_phi / (g_w_star.norm() + 1e-8)) * g_w_star
+
+    return d_star
 
 # In training loop:
 grads = [compute_gradient(loss_i, model) for loss_i in task_losses]
@@ -303,8 +319,8 @@ apply_gradient(model, update)
 ```
 
 **Pros and Cons.**
-- Pros: Unifies vanilla GD and MGDA under a single framework; guarantees improvement on the worst-performing task; $c$ gives intuitive control.
-- Cons: Requires tuning $c$; inner optimization adds overhead; like MGDA, can be expensive for many tasks.
+- Pros: Unifies vanilla GD and MGDA under one framework; convergence to a stationary point of the average loss is guaranteed (Theorem 3.2 in the paper); $c$ gives intuitive control.
+- Cons: Requires tuning $c \in [0, 1)$; solving the dual subproblem per step adds overhead; for very large $T$, the per-step cost grows.
 
 ---
 

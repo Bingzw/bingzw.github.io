@@ -768,41 +768,53 @@ $$\mathbf{g}^* = \sum_{i=1}^{T} \alpha_i \mathbf{g}_i, \quad \alpha_i \geq 0, \q
 </h3>
 <p><strong>Intuition.</strong> CAGrad (Conflict-Averse Gradient Descent) unifies vanilla gradient descent and MGDA by introducing a tunable constraint. The key insight is: rather than minimizing all tasks equally (MGDA) or ignoring conflicts (plain sum), CAGrad maximizes the <em>worst-case</em> task improvement while staying close to the average gradient. This is the multi-task analogue of max-min fairness <sup id="fnref:4"><a href="#fn:4" class="footnote-ref" role="doc-noteref">4</a></sup>.</p>
 <p><strong>Math.</strong> Let the average gradient be:</p>
-$$\bar{\mathbf{g}} = \frac{1}{T} \sum_{i=1}^{T} \mathbf{g}_i$$<p>CAGrad solves:</p>
-$$\mathbf{g}^* = \arg\max_{\mathbf{g}} \min_{i \in [T]} \langle \mathbf{g}_i, \mathbf{g} \rangle \quad \text{s.t.} \quad \|\mathbf{g} - \bar{\mathbf{g}}\| \leq c \|\bar{\mathbf{g}}\|$$<p>The constraint ball of radius $c \|\bar{\mathbf{g}}\|$ centered at $\bar{\mathbf{g}}$ controls how far from the average gradient we are allowed to deviate. Two limiting cases:</p>
+$$\mathbf{g}_0 = \frac{1}{T} \sum_{i=1}^{T} \mathbf{g}_i$$<p>CAGrad&rsquo;s primal problem at each step is:</p>
+$$\mathbf{d}^* = \arg\max_{\mathbf{d}} \min_{i \in [T]} \langle \mathbf{g}_i, \mathbf{d} \rangle \quad \text{s.t.} \quad \|\mathbf{d} - \mathbf{g}_0\| \leq c \|\mathbf{g}_0\|$$<p>The constraint ball of radius $c \|\mathbf{g}_0\|$ centered at $\mathbf{g}_0$ controls how far from the average gradient we are allowed to deviate:</p>
 <ul>
-<li>$c = 0$: The only feasible point is $\bar{\mathbf{g}}$ itself — recovers vanilla gradient descent.</li>
+<li>$c = 0$: The only feasible point is $\mathbf{g}_0$ itself — recovers vanilla gradient descent.</li>
 <li>$c \to \infty$: The constraint is vacuous and the solution recovers MGDA (min-norm in convex hull).</li>
 </ul>
-<p>For a general $c$, the Lagrangian of the inner max-min is:</p>
-$$\mathcal{L}(\mathbf{g}, \lambda) = \min_i \langle \mathbf{g}_i, \mathbf{g} \rangle - \lambda (\|\mathbf{g} - \bar{\mathbf{g}}\|^2 - c^2 \|\bar{\mathbf{g}}\|^2)$$<p>At the optimum, the gradient $\mathbf{g}^*$ lies on the boundary of the constraint sphere and maximizes the minimum inner product with task gradients. This guarantees that the update direction does not decrease any task&rsquo;s objective by more than the worst-case minimum.</p>
-<p><strong>Pseudocode.</strong></p>
-<div class="highlight"><pre tabindex="0" style="color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#78787e"># CAGrad</span>
-</span></span><span style="display:flex;"><span><span style="color:#ff6ac1">def</span> <span style="color:#57c7ff">cagrad</span>(gradients, c<span style="color:#ff6ac1">=</span><span style="color:#ff9f43">0.5</span>):
+<p>Rather than solving the primal directly, the paper derives a <strong>dual problem</strong> over task weights $\mathbf{w}$ on the probability simplex $\mathcal{W} = \{\mathbf{w} : \sum_i w_i = 1,\ w_i \geq 0\}$. Let $\mathbf{g}_\mathbf{w} = \sum_{i=1}^T w_i \mathbf{g}_i$ and $\varphi = c^2 \|\mathbf{g}_0\|^2$. The dual objective is:</p>
+$$\mathbf{w}^* = \arg\min_{\mathbf{w} \in \mathcal{W}}\ F(\mathbf{w}) := \mathbf{g}_\mathbf{w}^\top \mathbf{g}_0 + \sqrt{\varphi}\, \|\mathbf{g}_\mathbf{w}\|$$<p>The optimal Lagrange multiplier is $\lambda^* = \|\mathbf{g}_{\mathbf{w}^*}\| / \sqrt{\varphi}$, and the final parameter update direction combines the average gradient with a scaled weighted component:</p>
+$$\mathbf{d}^* = \mathbf{g}_0 + \frac{\sqrt{\varphi}}{\|\mathbf{g}_{\mathbf{w}^*}\|}\, \mathbf{g}_{\mathbf{w}^*}$$<p><strong>Pseudocode.</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#ff6ac1">import</span> torch
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#ff6ac1">def</span> <span style="color:#57c7ff">cagrad</span>(gradients, c<span style="color:#ff6ac1">=</span><span style="color:#ff9f43">0.5</span>, num_iters<span style="color:#ff6ac1">=</span><span style="color:#ff9f43">20</span>, lr_w<span style="color:#ff6ac1">=</span><span style="color:#ff9f43">0.01</span>):
+</span></span><span style="display:flex;"><span>    <span style="color:#5af78e">&#34;&#34;&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#5af78e">    CAGrad: Conflict-Averse Gradient Descent (Liu et al., NeurIPS 2021)
+</span></span></span><span style="display:flex;"><span><span style="color:#5af78e">    Solves the dual: min_{w in simplex} g_w.T @ g0 + sqrt(phi) * ||g_w||
+</span></span></span><span style="display:flex;"><span><span style="color:#5af78e">    Returns the update direction d* = g0 + (sqrt(phi)/||g_w*||) * g_w*
+</span></span></span><span style="display:flex;"><span><span style="color:#5af78e">    &#34;&#34;&#34;</span>
 </span></span><span style="display:flex;"><span>    T <span style="color:#ff6ac1">=</span> <span style="color:#ff5c57">len</span>(gradients)
-</span></span><span style="display:flex;"><span>    g_bar <span style="color:#ff6ac1">=</span> mean(gradients)          <span style="color:#78787e"># average gradient</span>
-</span></span><span style="display:flex;"><span>    norm_g_bar <span style="color:#ff6ac1">=</span> g_bar<span style="color:#ff6ac1">.</span>norm()
+</span></span><span style="display:flex;"><span>    <span style="color:#78787e"># Stack gradients: shape [T, d]</span>
+</span></span><span style="display:flex;"><span>    G <span style="color:#ff6ac1">=</span> torch<span style="color:#ff6ac1">.</span>stack(gradients)               <span style="color:#78787e"># [T, d]</span>
+</span></span><span style="display:flex;"><span>    g0 <span style="color:#ff6ac1">=</span> G<span style="color:#ff6ac1">.</span>mean(dim<span style="color:#ff6ac1">=</span><span style="color:#ff9f43">0</span>)                       <span style="color:#78787e"># average gradient</span>
+</span></span><span style="display:flex;"><span>    phi <span style="color:#ff6ac1">=</span> (c <span style="color:#ff6ac1">*</span> g0<span style="color:#ff6ac1">.</span>norm()) <span style="color:#ff6ac1">**</span> <span style="color:#ff9f43">2</span>               <span style="color:#78787e"># c^2 * ||g0||^2</span>
+</span></span><span style="display:flex;"><span>    sqrt_phi <span style="color:#ff6ac1">=</span> phi <span style="color:#ff6ac1">**</span> <span style="color:#ff9f43">0.5</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#78787e"># Initialize at g_bar, then solve the constrained max-min problem</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#78787e"># via projected gradient ascent on the task weights lambda_i</span>
-</span></span><span style="display:flex;"><span>    alpha <span style="color:#ff6ac1">=</span> [<span style="color:#ff9f43">1.0</span> <span style="color:#ff6ac1">/</span> T] <span style="color:#ff6ac1">*</span> T            <span style="color:#78787e"># uniform initialization</span>
-</span></span><span style="display:flex;"><span>    radius <span style="color:#ff6ac1">=</span> c <span style="color:#ff6ac1">*</span> norm_g_bar
+</span></span><span style="display:flex;"><span>    <span style="color:#78787e"># Initialize uniform weights on the simplex</span>
+</span></span><span style="display:flex;"><span>    w <span style="color:#ff6ac1">=</span> torch<span style="color:#ff6ac1">.</span>full((T,), <span style="color:#ff9f43">1.0</span> <span style="color:#ff6ac1">/</span> T, requires_grad<span style="color:#ff6ac1">=</span><span style="color:#ff6ac1">True</span>)
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#ff6ac1">for</span> iteration <span style="color:#ff6ac1">in</span> <span style="color:#ff5c57">range</span>(max_iters):
-</span></span><span style="display:flex;"><span>        g_candidate <span style="color:#ff6ac1">=</span> <span style="color:#ff5c57">sum</span>(alpha[i] <span style="color:#ff6ac1">*</span> gradients[i] <span style="color:#ff6ac1">for</span> i <span style="color:#ff6ac1">in</span> <span style="color:#ff5c57">range</span>(T))
+</span></span><span style="display:flex;"><span>    optimizer_w <span style="color:#ff6ac1">=</span> torch<span style="color:#ff6ac1">.</span>optim<span style="color:#ff6ac1">.</span>SGD([w], lr<span style="color:#ff6ac1">=</span>lr_w)
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#78787e"># Project g_candidate onto sphere of radius `radius` around g_bar</span>
-</span></span><span style="display:flex;"><span>        diff <span style="color:#ff6ac1">=</span> g_candidate <span style="color:#ff6ac1">-</span> g_bar
-</span></span><span style="display:flex;"><span>        <span style="color:#ff6ac1">if</span> diff<span style="color:#ff6ac1">.</span>norm() <span style="color:#ff6ac1">&gt;</span> radius:
-</span></span><span style="display:flex;"><span>            g_candidate <span style="color:#ff6ac1">=</span> g_bar <span style="color:#ff6ac1">+</span> radius <span style="color:#ff6ac1">*</span> diff <span style="color:#ff6ac1">/</span> diff<span style="color:#ff6ac1">.</span>norm()
+</span></span><span style="display:flex;"><span>    <span style="color:#ff6ac1">for</span> _ <span style="color:#ff6ac1">in</span> <span style="color:#ff5c57">range</span>(num_iters):
+</span></span><span style="display:flex;"><span>        optimizer_w<span style="color:#ff6ac1">.</span>zero_grad()
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#78787e"># Update alpha to maximize minimum inner product (Frank-Wolfe step)</span>
-</span></span><span style="display:flex;"><span>        scores <span style="color:#ff6ac1">=</span> [torch<span style="color:#ff6ac1">.</span>dot(g_candidate, gradients[i]) <span style="color:#ff6ac1">for</span> i <span style="color:#ff6ac1">in</span> <span style="color:#ff5c57">range</span>(T)]
-</span></span><span style="display:flex;"><span>        worst_task <span style="color:#ff6ac1">=</span> argmin(scores)
-</span></span><span style="display:flex;"><span>        alpha <span style="color:#ff6ac1">=</span> [(<span style="color:#ff9f43">1</span> <span style="color:#ff6ac1">-</span> step) <span style="color:#ff6ac1">*</span> a <span style="color:#ff6ac1">for</span> a <span style="color:#ff6ac1">in</span> alpha]
-</span></span><span style="display:flex;"><span>        alpha[worst_task] <span style="color:#ff6ac1">+=</span> step
+</span></span><span style="display:flex;"><span>        w_simplex <span style="color:#ff6ac1">=</span> torch<span style="color:#ff6ac1">.</span>softmax(w, dim<span style="color:#ff6ac1">=</span><span style="color:#ff9f43">0</span>)  <span style="color:#78787e"># project onto simplex</span>
+</span></span><span style="display:flex;"><span>        g_w <span style="color:#ff6ac1">=</span> (w_simplex<span style="color:#ff6ac1">.</span>unsqueeze(<span style="color:#ff9f43">1</span>) <span style="color:#ff6ac1">*</span> G)<span style="color:#ff6ac1">.</span>sum(dim<span style="color:#ff6ac1">=</span><span style="color:#ff9f43">0</span>)  <span style="color:#78787e"># weighted gradient</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#ff6ac1">return</span> g_candidate
+</span></span><span style="display:flex;"><span>        <span style="color:#78787e"># Dual objective: g_w.T @ g0 + sqrt(phi) * ||g_w||</span>
+</span></span><span style="display:flex;"><span>        loss_dual <span style="color:#ff6ac1">=</span> g_w <span style="color:#ff6ac1">@</span> g0 <span style="color:#ff6ac1">+</span> sqrt_phi <span style="color:#ff6ac1">*</span> g_w<span style="color:#ff6ac1">.</span>norm()
+</span></span><span style="display:flex;"><span>        loss_dual<span style="color:#ff6ac1">.</span>backward()
+</span></span><span style="display:flex;"><span>        optimizer_w<span style="color:#ff6ac1">.</span>step()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ff6ac1">with</span> torch<span style="color:#ff6ac1">.</span>no_grad():
+</span></span><span style="display:flex;"><span>        w_star <span style="color:#ff6ac1">=</span> torch<span style="color:#ff6ac1">.</span>softmax(w, dim<span style="color:#ff6ac1">=</span><span style="color:#ff9f43">0</span>)
+</span></span><span style="display:flex;"><span>        g_w_star <span style="color:#ff6ac1">=</span> (w_star<span style="color:#ff6ac1">.</span>unsqueeze(<span style="color:#ff9f43">1</span>) <span style="color:#ff6ac1">*</span> G)<span style="color:#ff6ac1">.</span>sum(dim<span style="color:#ff6ac1">=</span><span style="color:#ff9f43">0</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#78787e"># Final update direction</span>
+</span></span><span style="display:flex;"><span>        d_star <span style="color:#ff6ac1">=</span> g0 <span style="color:#ff6ac1">+</span> (sqrt_phi <span style="color:#ff6ac1">/</span> (g_w_star<span style="color:#ff6ac1">.</span>norm() <span style="color:#ff6ac1">+</span> <span style="color:#ff9f43">1e-8</span>)) <span style="color:#ff6ac1">*</span> g_w_star
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ff6ac1">return</span> d_star
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#78787e"># In training loop:</span>
 </span></span><span style="display:flex;"><span>grads <span style="color:#ff6ac1">=</span> [compute_gradient(loss_i, model) <span style="color:#ff6ac1">for</span> loss_i <span style="color:#ff6ac1">in</span> task_losses]
@@ -810,8 +822,8 @@ $$\mathcal{L}(\mathbf{g}, \lambda) = \min_i \langle \mathbf{g}_i, \mathbf{g} \ra
 </span></span><span style="display:flex;"><span>apply_gradient(model, update)
 </span></span></code></pre></div><p><strong>Pros and Cons.</strong></p>
 <ul>
-<li>Pros: Unifies vanilla GD and MGDA under a single framework; guarantees improvement on the worst-performing task; $c$ gives intuitive control.</li>
-<li>Cons: Requires tuning $c$; inner optimization adds overhead; like MGDA, can be expensive for many tasks.</li>
+<li>Pros: Unifies vanilla GD and MGDA under one framework; convergence to a stationary point of the average loss is guaranteed (Theorem 3.2 in the paper); $c$ gives intuitive control.</li>
+<li>Cons: Requires tuning $c \in [0, 1)$; solving the dual subproblem per step adds overhead; for very large $T$, the per-step cost grows.</li>
 </ul>
 <hr>
 <h3 id="25-metabalance-www-2022" >
