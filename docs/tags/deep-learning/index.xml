@@ -1,32 +1,1005 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Deep Learning on Bingz Learning Blog</title>
+    <title>Deep-Learning on Bingz Learning Blog</title>
     <link>/tags/deep-learning/</link>
-    <description>Bingz Learning Blog (Deep Learning)</description>
+    <description>Bingz Learning Blog (Deep-Learning)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <managingEditor>bingwang8878@gamil.com (Bing Wang)</managingEditor>
-    <webMaster>bingwang8878@gamil.com (Bing Wang)</webMaster>
-    <lastBuildDate>Fri, 20 Jun 2025 20:30:01 -0700</lastBuildDate>
+    <lastBuildDate>Sun, 08 Mar 2026 10:00:00 -0700</lastBuildDate>
     
     <atom:link href="/tags/deep-learning/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
+      <title>Gradient Balancing in Multi-Task Recommendation: A Systematic Guide</title>
+      <link>/posts/2026-03-08-mtl-gradient-balancing/</link>
+      <pubDate>Sun, 08 Mar 2026 10:00:00 -0700</pubDate>
+      
+      <guid>/posts/2026-03-08-mtl-gradient-balancing/</guid>
+      <description>&lt;p align=&#34;center&#34;&gt;
+&lt;img src=&#34;http://localhost:65293/mtml_balancing/MTML.png&#34; width=&#34;600&#34; height=&#34;300&#34;&gt;&lt;br&gt;
+&lt;p&gt;
+&lt;p&gt;Modern recommendation systems rarely optimize a single objective. A typical industrial system simultaneously optimizes click-through rate (CTR), conversion rate (CVR), dwell time, and downstream revenue signals — all through a shared model backbone. When these tasks compete rather than cooperate during training, the result is &lt;strong&gt;negative transfer&lt;/strong&gt;: the multi-task model performs worse than individually trained single-task models on one or more objectives. The root cause almost always traces back to poorly balanced gradients.&lt;/p&gt;
+&lt;p&gt;This post surveys the major gradient balancing methods developed between 2018 and 2025, grouped by contribution type. For each method we cover the core intuition, the mathematical formulation, pseudocode for implementation, and a frank assessment of its trade-offs. The goal is to give practitioners a navigable reference for deciding which technique to apply in their own systems.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;1-problem-formulation&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#1-problem-formulation&#34;&gt;
+        #
+    &lt;/a&gt;
+    1. Problem Formulation
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;h3 id=&#34;the-multi-task-loss&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#the-multi-task-loss&#34;&gt;
+        ##
+    &lt;/a&gt;
+    The Multi-Task Loss
+&lt;/div&gt;
+&lt;/h3&gt;
+&lt;p&gt;Let $T$ be the number of tasks and $\mathcal{L}_i$ the loss for task $i$. The standard multi-task objective is:&lt;/p&gt;
+$$\mathcal{L}_{total} = \sum_{i=1}^{T} w_i \mathcal{L}_i$$&lt;p&gt;where $w_i \geq 0$ are scalar task weights. The parameter update follows:&lt;/p&gt;
+$$\theta \leftarrow \theta - \eta \nabla_\theta \mathcal{L}_{total} = \theta - \eta \sum_{i=1}^{T} w_i \mathbf{g}_i$$&lt;p&gt;where $\mathbf{g}_i = \nabla_\theta \mathcal{L}_i$ is the gradient of task $i$ with respect to shared parameters $\theta$.&lt;/p&gt;
+&lt;h3 id=&#34;the-three-primary-failure-modes&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#the-three-primary-failure-modes&#34;&gt;
+        ##
+    &lt;/a&gt;
+    The Three Primary Failure Modes
+&lt;/div&gt;
+&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;Gradient Conflict.&lt;/strong&gt; When two task gradients point in opposing directions, their combination partially or fully cancels. Formally, conflict occurs when the cosine similarity is negative:&lt;/p&gt;
+$$\cos(\mathbf{g}_i, \mathbf{g}_j) = \frac{\mathbf{g}_i \cdot \mathbf{g}_j}{\|\mathbf{g}_i\| \|\mathbf{g}_j\|} &lt; 0$$&lt;p&gt;This directly causes negative transfer: progress on task $i$ undoes progress on task $j$.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Magnitude Imbalance.&lt;/strong&gt; Tasks with high-frequency labels (e.g., clicks) naturally produce larger gradient norms than sparse objectives (e.g., purchases). If $\|\mathbf{g}_{CTR}\| \gg \|\mathbf{g}_{CVR}\|$, the dense task dominates the parameter update regardless of the scalar weight $w_i$. This is the &lt;strong&gt;seesaw effect&lt;/strong&gt; in recommendation: improving CTR degrades CVR, or vice versa, because the shared backbone is pulled predominantly by one objective.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Curvature Sensitivity.&lt;/strong&gt; In curved loss landscapes, the gradient magnitude at a given point reflects both the learning signal and the local curvature. High positive curvature along one task&amp;rsquo;s direction means even a moderate step causes large loss changes for other tasks. Tasks whose loss surfaces have sharply different curvature will be misweighted by any method that only looks at first-order gradient information.&lt;/p&gt;
+&lt;h3 id=&#34;notation-summary&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#notation-summary&#34;&gt;
+        ##
+    &lt;/a&gt;
+    Notation Summary
+&lt;/div&gt;
+&lt;/h3&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;Symbol&lt;/th&gt;
+          &lt;th&gt;Meaning&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;$T$&lt;/td&gt;
+          &lt;td&gt;Number of tasks&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;$\mathbf{g}_i$&lt;/td&gt;
+          &lt;td&gt;Gradient of task $i$ w.r.t. shared parameters&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;$w_i$&lt;/td&gt;
+          &lt;td&gt;Scalar weight for task $i$&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;$\mathbf{h}$&lt;/td&gt;
+          &lt;td&gt;Shared representation / bottleneck&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;$\alpha$&lt;/td&gt;
+          &lt;td&gt;Hyperparameter controlling aggressiveness of balancing&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;2-methods&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#2-methods&#34;&gt;
+        #
+    &lt;/a&gt;
+    2. Methods
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;h3 id=&#34;21-gradnorm-icml-2018&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#21-gradnorm-icml-2018&#34;&gt;
+        ##
+    &lt;/a&gt;
+    2.1 GradNorm (ICML 2018)
+&lt;/div&gt;
+&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;Intuition.&lt;/strong&gt; Imagine a relay race where some runners are sprinting and others are jogging. GradNorm is the coach who watches pace and tells the sprinters to slow down, or the joggers to speed up, so the team arrives in formation &lt;sup id=&#34;fnref:1&#34;&gt;&lt;a href=&#34;#fn:1&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;1&lt;/a&gt;&lt;/sup&gt;. Concretely, it maintains a running estimate of each task&amp;rsquo;s training speed and adjusts $w_i$ so that faster-learning tasks do not crowd out slower ones.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Math.&lt;/strong&gt; At training step $t$, define the weighted gradient norm for task $i$:&lt;/p&gt;
+$$G_W^{(i)}(t) = \|w_i(t) \nabla_W \mathcal{L}_i(t)\|_2$$&lt;p&gt;where $W$ denotes the parameters of the final shared layer (a proxy for the full network). The &lt;strong&gt;relative inverse training rate&lt;/strong&gt; measures how fast task $i$ learns relative to the average:&lt;/p&gt;
+$$\tilde{\mathcal{L}}_i(t) = \frac{\mathcal{L}_i(t)}{\mathcal{L}_i(0)}$$&lt;p&gt;The average rate is $\bar{\mathcal{L}}(t) = \frac{1}{T} \sum_i \tilde{\mathcal{L}}_i(t)$.&lt;/p&gt;
+&lt;p&gt;The target gradient norm for task $i$ is:&lt;/p&gt;
+$$G_W^{target}(t) = \bar{G}_W(t) \cdot \left[\frac{\tilde{\mathcal{L}}_i(t)}{\bar{\mathcal{L}}(t)}\right]^\alpha$$&lt;p&gt;where $\bar{G}_W(t) = \frac{1}{T} \sum_i G_W^{(i)}(t)$ is the mean gradient norm. The hyperparameter $\alpha \geq 0$ controls how aggressively slow learners are prioritized:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;$\alpha = 0$: all tasks receive equal gradient norm (full equalization).&lt;/li&gt;
+&lt;li&gt;$\alpha \to \infty$: tasks that are falling behind receive disproportionately large boosts.&lt;/li&gt;
+&lt;li&gt;Typical value: $\alpha \in [0.5, 2.0]$.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The GradNorm auxiliary loss, minimized with respect to $w_i$ only (treating the network parameters as constants), is:&lt;/p&gt;
+$$\mathcal{L}_{grad}(t; \{w_i\}) = \sum_{i=1}^{T} \left| G_W^{(i)}(t) - G_W^{target}(t) \right|$$&lt;p&gt;After each update to $w_i$, the weights are renormalized so $\sum_i w_i = T$ (preserving total loss scale).&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Pseudocode.&lt;/strong&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;# GradNorm Training Step&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;# Inputs: model, tasks, alpha hyperparameter&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;# W = parameters of the shared last layer&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;L0 &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; [compute_loss(task_i, model) &lt;span style=&#34;color:#ff6ac1&#34;&gt;for&lt;/span&gt; task_i &lt;span style=&#34;color:#ff6ac1&#34;&gt;in&lt;/span&gt; tasks]  &lt;span style=&#34;color:#78787e&#34;&gt;# initial losses&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;for&lt;/span&gt; step &lt;span style=&#34;color:#ff6ac1&#34;&gt;in&lt;/span&gt; training_steps:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    losses &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; [compute_loss(task_i, model) &lt;span style=&#34;color:#ff6ac1&#34;&gt;for&lt;/span&gt; task_i &lt;span style=&#34;color:#ff6ac1&#34;&gt;in&lt;/span&gt; tasks]
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    L_total &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;sum&lt;/span&gt;(w[i] &lt;span style=&#34;color:#ff6ac1&#34;&gt;*&lt;/span&gt; losses[i] &lt;span style=&#34;color:#ff6ac1&#34;&gt;for&lt;/span&gt; i &lt;span style=&#34;color:#ff6ac1&#34;&gt;in&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;range&lt;/span&gt;(T))
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#78787e&#34;&gt;# Standard backward for network parameters&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    optimizer_net&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;zero_grad()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    L_total&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;backward(retain_graph&lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;True&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#78787e&#34;&gt;# Compute gradient norms at shared layer W&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    G &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; [grad_norm(W, losses[i], w[i]) &lt;span style=&#34;color:#ff6ac1&#34;&gt;for&lt;/span&gt; i &lt;span style=&#34;color:#ff6ac1&#34;&gt;in&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;range&lt;/span&gt;(T)]
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    G_bar &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; mean(G)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#78787e&#34;&gt;# Relative inverse training rates&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    L_tilde &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; [losses[i] &lt;span style=&#34;color:#ff6ac1&#34;&gt;/&lt;/span&gt; L0[i] &lt;span style=&#34;color:#ff6ac1&#34;&gt;for&lt;/span&gt; i &lt;span style=&#34;color:#ff6ac1&#34;&gt;in&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;range&lt;/span&gt;(T)]
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    L_tilde_bar &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; mean(L_tilde)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#78787e&#34;&gt;# Target norms&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    G_target &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; [G_bar &lt;span style=&#34;color:#ff6ac1&#34;&gt;*&lt;/span&gt; (L_tilde[i] &lt;span style=&#34;color:#ff6ac1&#34;&gt;/&lt;/span&gt; L_tilde_bar) &lt;span style=&#34;color:#ff6ac1&#34;&gt;**&lt;/span&gt; alpha &lt;span style=&#34;color:#ff6ac1&#34;&gt;for&lt;/span&gt; i &lt;span style=&#34;color:#ff6ac1&#34;&gt;in&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;range&lt;/span&gt;(T)]
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#78787e&#34;&gt;# GradNorm loss (stop gradient through G_target)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    L_grad &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;sum&lt;/span&gt;(&lt;span style=&#34;color:#ff5c57&#34;&gt;abs&lt;/span&gt;(G[i] &lt;span style=&#34;color:#ff6ac1&#34;&gt;-&lt;/span&gt; stop_gradient(G_target[i])) &lt;span style=&#34;color:#ff6ac1&#34;&gt;for&lt;/span&gt; i &lt;span style=&#34;color:#ff6ac1&#34;&gt;in&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;range&lt;/span&gt;(T))
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#78787e&#34;&gt;# Update task weights&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    optimizer_w&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;zero_grad()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    L_grad&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;backward()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    optimizer_w&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;step()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#78787e&#34;&gt;# Renormalize weights&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    w &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; w &lt;span style=&#34;color:#ff6ac1&#34;&gt;/&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;sum&lt;/span&gt;(w) &lt;span style=&#34;color:#ff6ac1&#34;&gt;*&lt;/span&gt; T
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    optimizer_net&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;step()
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;strong&gt;Pros and Cons.&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Pros: Simple to implement; prevents any single task from dominating; well-validated on vision benchmarks.&lt;/li&gt;
+&lt;li&gt;Cons: Uses gradient norms at a single shared layer as a proxy — not per-parameter direction balancing; sensitive to the choice of $\alpha$ and initialization of $w_i$; does not directly address gradient direction conflicts.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h3 id=&#34;22-pcgrad--gradient-surgery-neurips-2020&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#22-pcgrad--gradient-surgery-neurips-2020&#34;&gt;
+        ##
+    &lt;/a&gt;
+    2.2 PCGrad / Gradient Surgery (NeurIPS 2020)
+&lt;/div&gt;
+&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;Intuition.&lt;/strong&gt; Picture two hikers trying to climb different hills. If they are roped together, one pulling north while the other pulls south, they cancel each other out. PCGrad (Projecting Conflicting Gradients) cuts the rope and instead lets each hiker only keep the component of their pull that does not drag the other backward &lt;sup id=&#34;fnref:2&#34;&gt;&lt;a href=&#34;#fn:2&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;2&lt;/a&gt;&lt;/sup&gt;. Geometrically, if task $i$&amp;rsquo;s gradient has a negative projection onto task $j$&amp;rsquo;s gradient, that conflicting component is removed.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Math.&lt;/strong&gt; For two tasks $i$ and $j$, a conflict exists when:&lt;/p&gt;
+$$\mathbf{g}_i \cdot \mathbf{g}_j &lt; 0$$&lt;p&gt;In this case, project out the component of $\mathbf{g}_i$ that lies along $\mathbf{g}_j$:&lt;/p&gt;
+$$\mathbf{g}_i^{PC} = \mathbf{g}_i - \frac{\mathbf{g}_i \cdot \mathbf{g}_j}{\|\mathbf{g}_j\|^2} \mathbf{g}_j$$&lt;p&gt;The subtracted term $\frac{\mathbf{g}_i \cdot \mathbf{g}_j}{\|\mathbf{g}_j\|^2} \mathbf{g}_j$ is exactly the component of $\mathbf{g}_i$ in the direction of $\mathbf{g}_j$. When the dot product is negative, this component points anti-parallel to $\mathbf{g}_j$, so removing it prevents $\mathbf{g}_i$ from harming task $j$.&lt;/p&gt;
+&lt;p&gt;Why does this work geometrically? Recall that $\mathbf{g}_i \cdot \mathbf{g}_j = \|\mathbf{g}_i\|\|\mathbf{g}_j\|\cos\theta$. When $\theta &gt; 90°$, the projection of $\mathbf{g}_i$ onto $\hat{\mathbf{g}}_j$ is negative. After surgery, the modified $\mathbf{g}_i^{PC}$ satisfies:&lt;/p&gt;
+$$\mathbf{g}_i^{PC} \cdot \mathbf{g}_j = \mathbf{g}_i \cdot \mathbf{g}_j - \frac{(\mathbf{g}_i \cdot \mathbf{g}_j)(\mathbf{g}_j \cdot \mathbf{g}_j)}{\|\mathbf{g}_j\|^2} = \mathbf{g}_i \cdot \mathbf{g}_j - \mathbf{g}_i \cdot \mathbf{g}_j = 0$$&lt;p&gt;So the modified gradient is orthogonal to $\mathbf{g}_j$ — it no longer conflicts.&lt;/p&gt;
+&lt;p&gt;For $T$ tasks, the procedure applies pairwise: for task $i$, iterate over all $j \neq i$ and sequentially project out each conflicting direction. The final update is:&lt;/p&gt;
+$$\mathbf{g}^{final} = \sum_{i=1}^{T} \mathbf{g}_i^{PC}$$&lt;p&gt;&lt;strong&gt;Pseudocode.&lt;/strong&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;# PCGrad (Gradient Surgery)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#57c7ff&#34;&gt;pcgrad&lt;/span&gt;(gradients):
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#78787e&#34;&gt;# gradients: list of T gradient vectors, one per task&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    T &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;len&lt;/span&gt;(gradients)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    projected &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; [g&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;clone() &lt;span style=&#34;color:#ff6ac1&#34;&gt;for&lt;/span&gt; g &lt;span style=&#34;color:#ff6ac1&#34;&gt;in&lt;/span&gt; gradients]
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#ff6ac1&#34;&gt;for&lt;/span&gt; i &lt;span style=&#34;color:#ff6ac1&#34;&gt;in&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;range&lt;/span&gt;(T):
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#ff6ac1&#34;&gt;for&lt;/span&gt; j &lt;span style=&#34;color:#ff6ac1&#34;&gt;in&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;range&lt;/span&gt;(T):
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            &lt;span style=&#34;color:#ff6ac1&#34;&gt;if&lt;/span&gt; i &lt;span style=&#34;color:#ff6ac1&#34;&gt;==&lt;/span&gt; j:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                &lt;span style=&#34;color:#ff6ac1&#34;&gt;continue&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            dot &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; torch&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;dot(projected[i], gradients[j])
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            &lt;span style=&#34;color:#ff6ac1&#34;&gt;if&lt;/span&gt; dot &lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#ff9f43&#34;&gt;0&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                &lt;span style=&#34;color:#78787e&#34;&gt;# Remove conflicting component&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                projected[i] &lt;span style=&#34;color:#ff6ac1&#34;&gt;-=&lt;/span&gt; (dot &lt;span style=&#34;color:#ff6ac1&#34;&gt;/&lt;/span&gt; (gradients[j]&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;norm() &lt;span style=&#34;color:#ff6ac1&#34;&gt;**&lt;/span&gt; &lt;span style=&#34;color:#ff9f43&#34;&gt;2&lt;/span&gt;)) &lt;span style=&#34;color:#ff6ac1&#34;&gt;*&lt;/span&gt; gradients[j]
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#ff6ac1&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;sum&lt;/span&gt;(projected)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;# In training loop:&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;for&lt;/span&gt; batch &lt;span style=&#34;color:#ff6ac1&#34;&gt;in&lt;/span&gt; dataloader:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    grads &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; [compute_gradient(loss_i, model) &lt;span style=&#34;color:#ff6ac1&#34;&gt;for&lt;/span&gt; loss_i &lt;span style=&#34;color:#ff6ac1&#34;&gt;in&lt;/span&gt; task_losses]
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    combined_grad &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; pcgrad(grads)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    apply_gradient(model, combined_grad)
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;strong&gt;Complexity.&lt;/strong&gt; The pairwise loop is $O(T^2)$ in gradient computations and $O(T^2 \cdot d)$ in memory where $d$ is the parameter dimension. This becomes prohibitive for $T &gt; 10$ tasks.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Pros and Cons.&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Pros: Principled geometric solution; no scalar hyperparameters; prevents destructive interference directly.&lt;/li&gt;
+&lt;li&gt;Cons: $O(T^2)$ complexity is unscalable; only addresses gradient direction, not magnitude imbalance; order of pairwise projections can matter.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h3 id=&#34;23-mgda--multiple-gradient-descent-algorithm-neurips-2018&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#23-mgda--multiple-gradient-descent-algorithm-neurips-2018&#34;&gt;
+        ##
+    &lt;/a&gt;
+    2.3 MGDA — Multiple Gradient Descent Algorithm (NeurIPS 2018)
+&lt;/div&gt;
+&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;Intuition.&lt;/strong&gt; MGDA reframes multi-task learning as a &lt;strong&gt;multi-objective optimization&lt;/strong&gt; (MOO) problem &lt;sup id=&#34;fnref:3&#34;&gt;&lt;a href=&#34;#fn:3&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;3&lt;/a&gt;&lt;/sup&gt;. Rather than combining gradients with fixed weights, it searches for a descent direction that simultaneously reduces all task losses — a Pareto-improving step. Think of it as finding the direction in gradient space that every task can agree on.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Math.&lt;/strong&gt; A point $\theta$ is &lt;strong&gt;Pareto-stationary&lt;/strong&gt; if no single update direction can improve all objectives simultaneously. MGDA finds the minimum-norm point in the convex hull of task gradients:&lt;/p&gt;
+$$\mathbf{g}^* = \sum_{i=1}^{T} \alpha_i \mathbf{g}_i, \quad \alpha_i \geq 0, \quad \sum_{i=1}^{T} \alpha_i = 1$$$$\{\alpha_i^*\} = \arg\min_{\alpha} \left\| \sum_{i=1}^{T} \alpha_i \mathbf{g}_i \right\|^2$$&lt;p&gt;If $\mathbf{g}^* = \mathbf{0}$, the current point is already Pareto-stationary. Otherwise, taking a step in the direction $-\mathbf{g}^*$ guarantees a reduction in every task loss (to first order).&lt;/p&gt;
+&lt;p&gt;The optimization over $\{\alpha_i\}$ is a quadratic program (QP) over the simplex, solvable efficiently with the Frank-Wolfe algorithm or the dual form. The computational cost is $O(T^2 \cdot d)$ per step.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Pros and Cons.&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Pros: Principled MOO framework; theoretical convergence guarantees to Pareto-stationary points; no task weighting hyperparameters.&lt;/li&gt;
+&lt;li&gt;Cons: Can stall at poor Pareto points (e.g., a saddle in the objectives); expensive QP per step; the Pareto-stationary criterion may not align with practical task priorities.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h3 id=&#34;24-cagrad-neurips-2021&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#24-cagrad-neurips-2021&#34;&gt;
+        ##
+    &lt;/a&gt;
+    2.4 CAGrad (NeurIPS 2021)
+&lt;/div&gt;
+&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;Intuition.&lt;/strong&gt; CAGrad (Conflict-Averse Gradient Descent) unifies vanilla gradient descent and MGDA by introducing a tunable constraint. The key insight is: rather than minimizing all tasks equally (MGDA) or ignoring conflicts (plain sum), CAGrad maximizes the &lt;em&gt;worst-case&lt;/em&gt; task improvement while staying close to the average gradient. This is the multi-task analogue of max-min fairness &lt;sup id=&#34;fnref:4&#34;&gt;&lt;a href=&#34;#fn:4&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;4&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Math.&lt;/strong&gt; Let the average gradient be:&lt;/p&gt;
+$$\mathbf{g}_0 = \frac{1}{T} \sum_{i=1}^{T} \mathbf{g}_i$$&lt;p&gt;CAGrad&amp;rsquo;s primal problem at each step is:&lt;/p&gt;
+$$\mathbf{d}^* = \arg\max_{\mathbf{d}} \min_{i \in [T]} \langle \mathbf{g}_i, \mathbf{d} \rangle \quad \text{s.t.} \quad \|\mathbf{d} - \mathbf{g}_0\| \leq c \|\mathbf{g}_0\|$$&lt;p&gt;The constraint ball of radius $c \|\mathbf{g}_0\|$ centered at $\mathbf{g}_0$ controls how far from the average gradient we are allowed to deviate:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;$c = 0$: The only feasible point is $\mathbf{g}_0$ itself — recovers vanilla gradient descent.&lt;/li&gt;
+&lt;li&gt;$c \to \infty$: The constraint is vacuous and the solution recovers MGDA (min-norm in convex hull).&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Rather than solving the primal directly, the paper derives a &lt;strong&gt;dual problem&lt;/strong&gt; over task weights $\mathbf{w}$ on the probability simplex $\mathcal{W} = \{\mathbf{w} : \sum_i w_i = 1,\ w_i \geq 0\}$. Let $\mathbf{g}_\mathbf{w} = \sum_{i=1}^T w_i \mathbf{g}_i$ and $\varphi = c^2 \|\mathbf{g}_0\|^2$. The dual objective is:&lt;/p&gt;
+$$\mathbf{w}^* = \arg\min_{\mathbf{w} \in \mathcal{W}}\ F(\mathbf{w}) := \mathbf{g}_\mathbf{w}^\top \mathbf{g}_0 + \sqrt{\varphi}\, \|\mathbf{g}_\mathbf{w}\|$$&lt;p&gt;The optimal Lagrange multiplier is $\lambda^* = \|\mathbf{g}_{\mathbf{w}^*}\| / \sqrt{\varphi}$, and the final parameter update direction combines the average gradient with a scaled weighted component:&lt;/p&gt;
+$$\mathbf{d}^* = \mathbf{g}_0 + \frac{\sqrt{\varphi}}{\|\mathbf{g}_{\mathbf{w}^*}\|}\, \mathbf{g}_{\mathbf{w}^*}$$&lt;p&gt;&lt;strong&gt;Pseudocode.&lt;/strong&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;import&lt;/span&gt; torch
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#57c7ff&#34;&gt;cagrad&lt;/span&gt;(gradients, c&lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ff9f43&#34;&gt;0.5&lt;/span&gt;, num_iters&lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ff9f43&#34;&gt;20&lt;/span&gt;, lr_w&lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ff9f43&#34;&gt;0.01&lt;/span&gt;):
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;&amp;#34;&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#5af78e&#34;&gt;    CAGrad: Conflict-Averse Gradient Descent (Liu et al., NeurIPS 2021)
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#5af78e&#34;&gt;    Solves the dual: min_{w in simplex} g_w.T @ g0 + sqrt(phi) * ||g_w||
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#5af78e&#34;&gt;    Returns the update direction d* = g0 + (sqrt(phi)/||g_w*||) * g_w*
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#5af78e&#34;&gt;    &amp;#34;&amp;#34;&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    T &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;len&lt;/span&gt;(gradients)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#78787e&#34;&gt;# Stack gradients: shape [T, d]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    G &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; torch&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;stack(gradients)               &lt;span style=&#34;color:#78787e&#34;&gt;# [T, d]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    g0 &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; G&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;mean(dim&lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ff9f43&#34;&gt;0&lt;/span&gt;)                       &lt;span style=&#34;color:#78787e&#34;&gt;# average gradient&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    phi &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; (c &lt;span style=&#34;color:#ff6ac1&#34;&gt;*&lt;/span&gt; g0&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;norm()) &lt;span style=&#34;color:#ff6ac1&#34;&gt;**&lt;/span&gt; &lt;span style=&#34;color:#ff9f43&#34;&gt;2&lt;/span&gt;               &lt;span style=&#34;color:#78787e&#34;&gt;# c^2 * ||g0||^2&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    sqrt_phi &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; phi &lt;span style=&#34;color:#ff6ac1&#34;&gt;**&lt;/span&gt; &lt;span style=&#34;color:#ff9f43&#34;&gt;0.5&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#78787e&#34;&gt;# Initialize uniform weights on the simplex&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    w &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; torch&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;full((T,), &lt;span style=&#34;color:#ff9f43&#34;&gt;1.0&lt;/span&gt; &lt;span style=&#34;color:#ff6ac1&#34;&gt;/&lt;/span&gt; T, requires_grad&lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;True&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    optimizer_w &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; torch&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;optim&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;SGD([w], lr&lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt;lr_w)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#ff6ac1&#34;&gt;for&lt;/span&gt; _ &lt;span style=&#34;color:#ff6ac1&#34;&gt;in&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;range&lt;/span&gt;(num_iters):
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        optimizer_w&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;zero_grad()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        w_simplex &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; torch&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;softmax(w, dim&lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ff9f43&#34;&gt;0&lt;/span&gt;)  &lt;span style=&#34;color:#78787e&#34;&gt;# project onto simplex&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        g_w &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; (w_simplex&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;unsqueeze(&lt;span style=&#34;color:#ff9f43&#34;&gt;1&lt;/span&gt;) &lt;span style=&#34;color:#ff6ac1&#34;&gt;*&lt;/span&gt; G)&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;sum(dim&lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ff9f43&#34;&gt;0&lt;/span&gt;)  &lt;span style=&#34;color:#78787e&#34;&gt;# weighted gradient&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#78787e&#34;&gt;# Dual objective: g_w.T @ g0 + sqrt(phi) * ||g_w||&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        loss_dual &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; g_w &lt;span style=&#34;color:#ff6ac1&#34;&gt;@&lt;/span&gt; g0 &lt;span style=&#34;color:#ff6ac1&#34;&gt;+&lt;/span&gt; sqrt_phi &lt;span style=&#34;color:#ff6ac1&#34;&gt;*&lt;/span&gt; g_w&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;norm()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        loss_dual&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;backward()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        optimizer_w&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;step()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#ff6ac1&#34;&gt;with&lt;/span&gt; torch&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;no_grad():
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        w_star &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; torch&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;softmax(w, dim&lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ff9f43&#34;&gt;0&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        g_w_star &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; (w_star&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;unsqueeze(&lt;span style=&#34;color:#ff9f43&#34;&gt;1&lt;/span&gt;) &lt;span style=&#34;color:#ff6ac1&#34;&gt;*&lt;/span&gt; G)&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;sum(dim&lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ff9f43&#34;&gt;0&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#78787e&#34;&gt;# Final update direction&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        d_star &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; g0 &lt;span style=&#34;color:#ff6ac1&#34;&gt;+&lt;/span&gt; (sqrt_phi &lt;span style=&#34;color:#ff6ac1&#34;&gt;/&lt;/span&gt; (g_w_star&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;norm() &lt;span style=&#34;color:#ff6ac1&#34;&gt;+&lt;/span&gt; &lt;span style=&#34;color:#ff9f43&#34;&gt;1e-8&lt;/span&gt;)) &lt;span style=&#34;color:#ff6ac1&#34;&gt;*&lt;/span&gt; g_w_star
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#ff6ac1&#34;&gt;return&lt;/span&gt; d_star
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;# In training loop:&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;grads &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; [compute_gradient(loss_i, model) &lt;span style=&#34;color:#ff6ac1&#34;&gt;for&lt;/span&gt; loss_i &lt;span style=&#34;color:#ff6ac1&#34;&gt;in&lt;/span&gt; task_losses]
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;update &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; cagrad(grads, c&lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ff9f43&#34;&gt;0.5&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;apply_gradient(model, update)
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;strong&gt;Pros and Cons.&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Pros: Unifies vanilla GD and MGDA under one framework; convergence to a stationary point of the average loss is guaranteed (Theorem 3.2 in the paper); $c$ gives intuitive control.&lt;/li&gt;
+&lt;li&gt;Cons: Requires tuning $c \in [0, 1)$; solving the dual subproblem per step adds overhead; for very large $T$, the per-step cost grows.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h3 id=&#34;25-metabalance-www-2022&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#25-metabalance-www-2022&#34;&gt;
+        ##
+    &lt;/a&gt;
+    2.5 MetaBalance (WWW 2022)
+&lt;/div&gt;
+&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;Intuition.&lt;/strong&gt; In recommendation systems, there is often a natural hierarchy: a primary task (e.g., CTR) that we care most about, and auxiliary tasks (e.g., dwell time, likes) that provide helpful regularization. MetaBalance takes this hierarchy seriously and rescales auxiliary gradients to match the primary task&amp;rsquo;s gradient norm — layer by layer, iteration by iteration &lt;sup id=&#34;fnref:5&#34;&gt;&lt;a href=&#34;#fn:5&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;5&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Math.&lt;/strong&gt; Let $\mathbf{G}_{tar}$ be the target task gradient and $\mathbf{G}_{aux,i}$ the $i$-th auxiliary gradient, both w.r.t. a shared parameter block $\theta$.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Step 1 — Exponential moving averages of gradient norms&lt;/strong&gt; (Algorithm 2, the complete version):&lt;/p&gt;
+$$m_{tar}^t = \beta\, m_{tar}^{t-1} + (1-\beta)\,\|\mathbf{G}_{tar}^t\|$$$$m_{aux,i}^t = \beta\, m_{aux,i}^{t-1} + (1-\beta)\,\|\mathbf{G}_{aux,i}^t\|$$&lt;p&gt;with $\beta = 0.9$ and $m^0 = 0$. Using moving averages instead of instantaneous norms removes noise from per-batch gradient variance.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Step 2 — Strategy selection.&lt;/strong&gt; Choose which auxiliary gradients to rescale:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Strategy A (Reduce)&lt;/strong&gt;: rescale only when $m_{aux,i}^t &gt; m_{tar}^t$ — the auxiliary is overpowering the target.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Strategy B (Enlarge)&lt;/strong&gt;: rescale only when $m_{aux,i}^t &lt; m_{tar}^t$ — the auxiliary is too weak to transfer useful signal.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Strategy C (Flexible)&lt;/strong&gt;: rescale always (A ∪ B). Empirically best across benchmarks.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Step 3 — Gradient rescaling with relax factor $r$.&lt;/strong&gt; Rather than hard norm-matching (which forces $\|\mathbf{G}_{aux,i}\| = \|\mathbf{G}_{tar}\|$ and over-suppresses useful signal), MetaBalance uses a partial interpolation:&lt;/p&gt;
+$$\mathbf{G}_{aux,i}^t \leftarrow \mathbf{G}_{aux,i}^t \cdot \underbrace{\left[\left(\frac{m_{tar}^t}{m_{aux,i}^t} - 1\right) r + 1\right]}_{w_{aux,i}^t}$$&lt;p&gt;The effective dynamic weight $w_{aux,i}^t$ has two intuitive limits:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;$r = 0$: $w_{aux,i}^t = 1$, no rescaling (vanilla multi-task).&lt;/li&gt;
+&lt;li&gt;$r = 1$: $w_{aux,i}^t = m_{tar}^t / m_{aux,i}^t$, full norm-matching.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Intermediate $r$ (e.g., $r = 0.7$) balances convergence speed and stability. Since gradient imbalances vary across layers, MetaBalance applies this independently &lt;strong&gt;per parameter block&lt;/strong&gt; $\theta$ of the shared network.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Pseudocode (Algorithm 2 — complete version).&lt;/strong&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;# MetaBalance: Complete version with moving averages and relax factor&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;# Applied independently per shared parameter block (e.g., each MLP layer)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#57c7ff&#34;&gt;metabalance_update&lt;/span&gt;(model, target_loss, aux_losses, optimizer,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                       r&lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ff9f43&#34;&gt;0.7&lt;/span&gt;, beta&lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ff9f43&#34;&gt;0.9&lt;/span&gt;, m_tar&lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;None&lt;/span&gt;, m_aux&lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;None&lt;/span&gt;, strategy&lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#39;C&amp;#39;&lt;/span&gt;):
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    K &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;len&lt;/span&gt;(aux_losses)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#78787e&#34;&gt;# Lazily initialize moving average accumulators per layer&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#ff6ac1&#34;&gt;if&lt;/span&gt; m_tar &lt;span style=&#34;color:#ff6ac1&#34;&gt;is&lt;/span&gt; &lt;span style=&#34;color:#ff6ac1&#34;&gt;None&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        m_tar  &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; {name: &lt;span style=&#34;color:#ff9f43&#34;&gt;0.0&lt;/span&gt; &lt;span style=&#34;color:#ff6ac1&#34;&gt;for&lt;/span&gt; name, _ &lt;span style=&#34;color:#ff6ac1&#34;&gt;in&lt;/span&gt; model&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;shared_params()}
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        m_aux  &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; [{name: &lt;span style=&#34;color:#ff9f43&#34;&gt;0.0&lt;/span&gt; &lt;span style=&#34;color:#ff6ac1&#34;&gt;for&lt;/span&gt; name, _ &lt;span style=&#34;color:#ff6ac1&#34;&gt;in&lt;/span&gt; model&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;shared_params()} &lt;span style=&#34;color:#ff6ac1&#34;&gt;for&lt;/span&gt; _ &lt;span style=&#34;color:#ff6ac1&#34;&gt;in&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;range&lt;/span&gt;(K)]
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#78787e&#34;&gt;# --- Compute target gradients ---&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    optimizer&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;zero_grad()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    target_loss&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;backward(retain_graph&lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;True&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    G_tar &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; {name: p&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;grad&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;clone() &lt;span style=&#34;color:#ff6ac1&#34;&gt;for&lt;/span&gt; name, p &lt;span style=&#34;color:#ff6ac1&#34;&gt;in&lt;/span&gt; model&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;shared_params()}
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#78787e&#34;&gt;# Update target moving average per layer&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#ff6ac1&#34;&gt;for&lt;/span&gt; name &lt;span style=&#34;color:#ff6ac1&#34;&gt;in&lt;/span&gt; G_tar:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        m_tar[name] &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; beta &lt;span style=&#34;color:#ff6ac1&#34;&gt;*&lt;/span&gt; m_tar[name] &lt;span style=&#34;color:#ff6ac1&#34;&gt;+&lt;/span&gt; (&lt;span style=&#34;color:#ff9f43&#34;&gt;1&lt;/span&gt; &lt;span style=&#34;color:#ff6ac1&#34;&gt;-&lt;/span&gt; beta) &lt;span style=&#34;color:#ff6ac1&#34;&gt;*&lt;/span&gt; G_tar[name]&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;norm()&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;item()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#78787e&#34;&gt;# --- Compute and rescale auxiliary gradients ---&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    G_aux_total &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; {name: torch&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;zeros_like(G_tar[name]) &lt;span style=&#34;color:#ff6ac1&#34;&gt;for&lt;/span&gt; name &lt;span style=&#34;color:#ff6ac1&#34;&gt;in&lt;/span&gt; G_tar}
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#ff6ac1&#34;&gt;for&lt;/span&gt; i, aux_loss &lt;span style=&#34;color:#ff6ac1&#34;&gt;in&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;enumerate&lt;/span&gt;(aux_losses):
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        optimizer&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;zero_grad()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        aux_loss&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;backward(retain_graph&lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;True&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#ff6ac1&#34;&gt;for&lt;/span&gt; name, p &lt;span style=&#34;color:#ff6ac1&#34;&gt;in&lt;/span&gt; model&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;shared_params():
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            G_i &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; p&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;grad&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;clone()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            norm_i &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; G_i&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;norm()&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;item()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            &lt;span style=&#34;color:#78787e&#34;&gt;# Update auxiliary moving average&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            m_aux[i][name] &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; beta &lt;span style=&#34;color:#ff6ac1&#34;&gt;*&lt;/span&gt; m_aux[i][name] &lt;span style=&#34;color:#ff6ac1&#34;&gt;+&lt;/span&gt; (&lt;span style=&#34;color:#ff9f43&#34;&gt;1&lt;/span&gt; &lt;span style=&#34;color:#ff6ac1&#34;&gt;-&lt;/span&gt; beta) &lt;span style=&#34;color:#ff6ac1&#34;&gt;*&lt;/span&gt; norm_i
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            &lt;span style=&#34;color:#78787e&#34;&gt;# Apply strategy condition using moving averages&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            m_t &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; m_tar[name]
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            m_a &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; m_aux[i][name] &lt;span style=&#34;color:#ff6ac1&#34;&gt;+&lt;/span&gt; &lt;span style=&#34;color:#ff9f43&#34;&gt;1e-8&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            apply &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; (strategy &lt;span style=&#34;color:#ff6ac1&#34;&gt;==&lt;/span&gt; &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#39;A&amp;#39;&lt;/span&gt; &lt;span style=&#34;color:#ff6ac1&#34;&gt;and&lt;/span&gt; m_a &lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;gt;&lt;/span&gt; m_t) &lt;span style=&#34;color:#ff6ac1&#34;&gt;or&lt;/span&gt; \
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                    (strategy &lt;span style=&#34;color:#ff6ac1&#34;&gt;==&lt;/span&gt; &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#39;B&amp;#39;&lt;/span&gt; &lt;span style=&#34;color:#ff6ac1&#34;&gt;and&lt;/span&gt; m_a &lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;&lt;/span&gt; m_t) &lt;span style=&#34;color:#ff6ac1&#34;&gt;or&lt;/span&gt; \
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                    (strategy &lt;span style=&#34;color:#ff6ac1&#34;&gt;==&lt;/span&gt; &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#39;C&amp;#39;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            &lt;span style=&#34;color:#ff6ac1&#34;&gt;if&lt;/span&gt; apply:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                &lt;span style=&#34;color:#78787e&#34;&gt;# Eq. (4): dynamic weight with relax factor&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                w &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; (m_t &lt;span style=&#34;color:#ff6ac1&#34;&gt;/&lt;/span&gt; m_a &lt;span style=&#34;color:#ff6ac1&#34;&gt;-&lt;/span&gt; &lt;span style=&#34;color:#ff9f43&#34;&gt;1.0&lt;/span&gt;) &lt;span style=&#34;color:#ff6ac1&#34;&gt;*&lt;/span&gt; r &lt;span style=&#34;color:#ff6ac1&#34;&gt;+&lt;/span&gt; &lt;span style=&#34;color:#ff9f43&#34;&gt;1.0&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                G_i &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; G_i &lt;span style=&#34;color:#ff6ac1&#34;&gt;*&lt;/span&gt; w
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            G_aux_total[name] &lt;span style=&#34;color:#ff6ac1&#34;&gt;+=&lt;/span&gt; G_i
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#78787e&#34;&gt;# --- Combine and apply ---&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    optimizer&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;zero_grad()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#ff6ac1&#34;&gt;for&lt;/span&gt; name, p &lt;span style=&#34;color:#ff6ac1&#34;&gt;in&lt;/span&gt; model&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;shared_params():
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        p&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;grad &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; G_tar[name] &lt;span style=&#34;color:#ff6ac1&#34;&gt;+&lt;/span&gt; G_aux_total[name]
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    optimizer&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;step()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#ff6ac1&#34;&gt;return&lt;/span&gt; m_tar, m_aux  &lt;span style=&#34;color:#78787e&#34;&gt;# pass back for next iteration&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;strong&gt;Pros and Cons.&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Pros: Per-layer per-step control; moving averages stabilize rescaling; single hyperparameter $r$ regardless of number of auxiliary tasks; optimizer-agnostic (works with Adam, Adagrad, etc.); validated on Alibaba datasets (+8.34% NDCG@10 &lt;sup id=&#34;fnref1:5&#34;&gt;&lt;a href=&#34;#fn:5&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;5&lt;/a&gt;&lt;/sup&gt;).&lt;/li&gt;
+&lt;li&gt;Cons: Requires an explicit primary/auxiliary task hierarchy; per-layer backward passes add compute overhead; does not address gradient direction conflicts, only magnitude.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h3 id=&#34;26-slgrad-2023&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#26-slgrad-2023&#34;&gt;
+        ##
+    &lt;/a&gt;
+    2.6 SLGrad (2023)
+&lt;/div&gt;
+&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;Intuition.&lt;/strong&gt; Even within a single auxiliary task, different training samples contribute differently to the primary objective. Some auxiliary samples genuinely help the primary task; others introduce noise or conflict. SLGrad operates at the finest possible granularity — individual samples — assigning weights based on how well each sample&amp;rsquo;s gradient aligns with the primary task&amp;rsquo;s validation gradient &lt;sup id=&#34;fnref:6&#34;&gt;&lt;a href=&#34;#fn:6&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;6&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Math.&lt;/strong&gt; Let $\mathbf{g}_{val}^{primary}$ be the gradient of the primary task on a held-out validation set. For each sample $s$ in the auxiliary task batch, compute the cosine similarity:&lt;/p&gt;
+$$w_s = \cos(\mathbf{g}_s, \mathbf{g}_{val}^{primary}) = \frac{\mathbf{g}_s \cdot \mathbf{g}_{val}^{primary}}{\|\mathbf{g}_s\| \|\mathbf{g}_{val}^{primary}\|}$$&lt;p&gt;Samples with $w_s &gt; 0$ push in a direction compatible with the primary objective; samples with $w_s &lt; 0$ conflict. SLGrad reweights the auxiliary loss by $\max(0, w_s)$ or uses $w_s$ directly as a soft weight to suppress conflicting samples.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Pros and Cons.&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Pros: Finest possible granularity; directly suppresses noisy auxiliary samples; interpretable per-sample weights.&lt;/li&gt;
+&lt;li&gt;Cons: Requires a separate validation set for the primary task; computing per-sample gradients is expensive (requires multiple backward passes or per-sample gradient approximations); not easily scalable to large batch sizes.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h3 id=&#34;27-ple--progressive-layered-extraction-recsys-2020&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#27-ple--progressive-layered-extraction-recsys-2020&#34;&gt;
+        ##
+    &lt;/a&gt;
+    2.7 PLE — Progressive Layered Extraction (RecSys 2020)
+&lt;/div&gt;
+&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;Intuition.&lt;/strong&gt; Rather than fixing gradient conflicts after the fact, PLE prevents them architecturally &lt;sup id=&#34;fnref:7&#34;&gt;&lt;a href=&#34;#fn:7&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;7&lt;/a&gt;&lt;/sup&gt;. It partitions model capacity into shared experts and task-specific experts, organized in hierarchical layers. Task-specific experts receive gradients only from their own task, eliminating cross-task gradient interference at the source.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Math.&lt;/strong&gt; Let $L$ be the number of extraction layers. At layer $l$:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Shared experts $\{E_s^{(l)}\}$: receive gradients from all tasks via gating.&lt;/li&gt;
+&lt;li&gt;Task-specific experts $\{E_k^{(l)}\}$ for task $k$: receive gradients only from task $k$.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The output for task $k$ at layer $l$ is:&lt;/p&gt;
+$$\mathbf{h}_k^{(l)} = \sum_j g_{k,j}^{(l)} E_j^{(l)}(\mathbf{h}_k^{(l-1)})$$&lt;p&gt;where $g_{k,j}^{(l)}$ are gating weights that blend shared and task-specific expert outputs. Crucially, the gating ensures that gradients flowing backward through task-specific experts are isolated from other tasks.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Pros and Cons.&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Pros: Structural separation eliminates gradient conflict by design; well-validated in large-scale production settings; no optimization-time overhead.&lt;/li&gt;
+&lt;li&gt;Cons: Increased parameter count; the static expert structure may not adapt to shifting task relationships; requires careful capacity allocation.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h3 id=&#34;28-stem-net-aaai-2024&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#28-stem-net-aaai-2024&#34;&gt;
+        ##
+    &lt;/a&gt;
+    2.8 STEM-Net (AAAI 2024)
+&lt;/div&gt;
+&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;Intuition.&lt;/strong&gt; Many multi-task seesaw effects originate not in the shared tower but in the shared embedding table. If a user who is a heavy clicker but a rare purchaser updates the same embedding with conflicting signals, the embedding itself becomes a source of conflict. STEM-Net separates embeddings at the task level and uses a stop-gradient gate to prevent backward leakage between task-specific embedding paths &lt;sup id=&#34;fnref:8&#34;&gt;&lt;a href=&#34;#fn:8&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;8&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Math.&lt;/strong&gt; For each task $i$, STEM-Net maintains:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;A task-specific embedding table $\mathbf{E}_i$&lt;/li&gt;
+&lt;li&gt;A globally shared embedding table $\mathbf{E}_{shared}$&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The final representation for task $i$ is:&lt;/p&gt;
+$$\mathbf{h}_i = f_i\!\left(\mathbf{E}_i(\mathbf{x}),\ \text{stop\_grad}\!\left(\mathbf{E}_{shared}(\mathbf{x})\right)\right)$$&lt;p&gt;The &lt;strong&gt;All Forward Task-specific Backward (AFTB)&lt;/strong&gt; gating mechanism allows all embeddings to contribute during the forward pass (maximizing information flow) while blocking gradient flow from task $i$&amp;rsquo;s loss to task $j$&amp;rsquo;s embedding table (preventing conflict). This is implemented via &lt;code&gt;stop_gradient&lt;/code&gt; operators that zero out gradients selectively.&lt;/p&gt;
+&lt;p&gt;STEM-Net is particularly effective for &lt;strong&gt;comparable samples&lt;/strong&gt; — users with balanced multi-task feedback (e.g., users who both click and purchase). For such users, conflicting embedding gradients are most damaging.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Pros and Cons.&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Pros: Resolves conflicts at the embedding source; significant seesaw-effect reduction in Tencent production; AFTB gating is elegant and effective.&lt;/li&gt;
+&lt;li&gt;Cons: Multiplicative memory cost (one embedding table per task plus shared); not a plug-and-play addition to existing architectures; the benefit concentrates on &amp;ldquo;comparable samples&amp;rdquo;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h3 id=&#34;29-multibalance-meta-2024&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#29-multibalance-meta-2024&#34;&gt;
+        ##
+    &lt;/a&gt;
+    2.9 MultiBalance (Meta, 2024)
+&lt;/div&gt;
+&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;Intuition.&lt;/strong&gt; GradNorm and PCGrad operate on the full parameter gradient $\mathbf{g}_i \in \mathbb{R}^d$ where $d$ can be in the billions. This is computationally expensive and often noisy. MultiBalance observes that in representation-based recommenders, all task heads attach to a shared bottleneck $\mathbf{h}$. Balancing gradients at the bottleneck — a much smaller vector — achieves most of the benefit at a fraction of the cost &lt;sup id=&#34;fnref:9&#34;&gt;&lt;a href=&#34;#fn:9&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;9&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Math.&lt;/strong&gt; MultiBalance has two components: (1) a copy-and-fork architecture to obtain per-task representation gradients in a single backward pass, and (2) an MGDA-style min-norm balancing with EMA stabilization.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Step 1 — EMA-rescaled representation gradients.&lt;/strong&gt; In the forward pass, the shared representation $\Phi$ is copied $M$ times — one per task head. A single backward pass then yields $M$ separate representation gradients $g_{k+1,m} = \nabla_\Phi f_m$. These are stabilized with an exponential moving average of their norms:&lt;/p&gt;
+$$u_{k+1,m} = (1 - \gamma)\, u_{k,m} + \gamma\, \|g_{k+1,m}\|$$&lt;p&gt;The EMA-rescaled gradient (smoothed direction at historical average magnitude) is:&lt;/p&gt;
+$$v_{k+1,m} = \frac{u_{k+1,m}}{\|g_{k+1,m}\|}\, g_{k+1,m}$$&lt;p&gt;Without this rescaling, noisy per-batch spikes in gradient norms destabilize the balancing weights.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Step 2 — MGDA min-norm objective over representation gradients.&lt;/strong&gt; Let $V_{k+1}$ be the matrix stacking $\{v_{k+1,m}\}$. MultiBalance solves the surrogate min-norm problem (MGDA at the representation level):&lt;/p&gt;
+$$\min_{\lambda \in \Delta^M} \|V_{k+1}\,\lambda\|$$&lt;p&gt;Theorem 1 in the paper shows this cheap $O(M^2 n&#39;)$ objective (where $n&#39;$ is representation dim) guarantees approximate Pareto stationarity at the full parameter level, avoiding the infeasible $O(M^2 n)$ cost of parameter-space MGDA (where $n \sim 10^9$).&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Step 3 — λ update via projected gradient descent with prior regularization:&lt;/strong&gt;&lt;/p&gt;
+$$\lambda_{k+1} = \Pi_{\Delta^M}\!\left(\lambda_k - \beta_k\, V_{k+1}^\top \bigl(V_{k+1}\lambda_k + \rho\, V_{k+1}\lambda_0\bigr)\right)$$&lt;p&gt;where $\lambda_0 = \frac{1}{M}\mathbf{1}$ is a uniform prior, $\rho = 0.1$ regularizes toward equal weighting, and $\Pi_{\Delta^M}$ projects onto the probability simplex. The final balanced gradient $V_{k+1}\lambda_{k+1}$ is injected back into the autograd graph and propagated through the shared bottom layers.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Pseudocode (Algorithm 3).&lt;/strong&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;# MultiBalance: MGDA-style balancing at the representation level&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;# Single backward pass via copy-and-fork architecture&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#57c7ff&#34;&gt;multibalance_step&lt;/span&gt;(model, task_losses, optimizer,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                      u, lam, rho&lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ff9f43&#34;&gt;0.1&lt;/span&gt;, gamma&lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ff9f43&#34;&gt;0.01&lt;/span&gt;, lr_lam&lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ff9f43&#34;&gt;1.0&lt;/span&gt;):
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;&amp;#34;&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#5af78e&#34;&gt;    u   : list of M EMA norm scalars (initialized to 0)
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#5af78e&#34;&gt;    lam : task weight vector on simplex (initialized to 1/M each)
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#5af78e&#34;&gt;    &amp;#34;&amp;#34;&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    M &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;len&lt;/span&gt;(task_losses)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#78787e&#34;&gt;# --- Forward: shared representation copied M times ---&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    h &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; model&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;shared_bottom(inputs)            &lt;span style=&#34;color:#78787e&#34;&gt;# [batch, n&amp;#39;]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    h_copies &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; [h&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;clone()&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;requires_grad_(&lt;span style=&#34;color:#ff6ac1&#34;&gt;True&lt;/span&gt;) &lt;span style=&#34;color:#ff6ac1&#34;&gt;for&lt;/span&gt; _ &lt;span style=&#34;color:#ff6ac1&#34;&gt;in&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;range&lt;/span&gt;(M)]
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#78787e&#34;&gt;# --- Single backward: get M representation gradients ---&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    raw_grads &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; []
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#ff6ac1&#34;&gt;for&lt;/span&gt; m, (h_m, loss_fn) &lt;span style=&#34;color:#ff6ac1&#34;&gt;in&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;enumerate&lt;/span&gt;(&lt;span style=&#34;color:#ff5c57&#34;&gt;zip&lt;/span&gt;(h_copies, task_losses)):
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        pred &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; model&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;task_heads[m](h_m)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        loss &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; loss_fn(pred, targets[m])
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        loss&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;backward()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        raw_grads&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;append(h_m&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;grad&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;detach())    &lt;span style=&#34;color:#78787e&#34;&gt;# g_{k+1,m}: [batch, n&amp;#39;]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#78787e&#34;&gt;# --- EMA rescaling ---&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    v &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; []
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#ff6ac1&#34;&gt;for&lt;/span&gt; m &lt;span style=&#34;color:#ff6ac1&#34;&gt;in&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;range&lt;/span&gt;(M):
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        norm_m &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; raw_grads[m]&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;norm()&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;item()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        u[m] &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; (&lt;span style=&#34;color:#ff9f43&#34;&gt;1&lt;/span&gt; &lt;span style=&#34;color:#ff6ac1&#34;&gt;-&lt;/span&gt; gamma) &lt;span style=&#34;color:#ff6ac1&#34;&gt;*&lt;/span&gt; u[m] &lt;span style=&#34;color:#ff6ac1&#34;&gt;+&lt;/span&gt; gamma &lt;span style=&#34;color:#ff6ac1&#34;&gt;*&lt;/span&gt; norm_m
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        v_m &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; (u[m] &lt;span style=&#34;color:#ff6ac1&#34;&gt;/&lt;/span&gt; (norm_m &lt;span style=&#34;color:#ff6ac1&#34;&gt;+&lt;/span&gt; &lt;span style=&#34;color:#ff9f43&#34;&gt;1e-8&lt;/span&gt;)) &lt;span style=&#34;color:#ff6ac1&#34;&gt;*&lt;/span&gt; raw_grads[m]
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        v&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;append(v_m)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    V &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; torch&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;stack(v)                         &lt;span style=&#34;color:#78787e&#34;&gt;# [M, batch, n&amp;#39;]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#78787e&#34;&gt;# --- MGDA update for lambda (one projected gradient step) ---&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#ff6ac1&#34;&gt;with&lt;/span&gt; torch&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;no_grad():
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        Vlam &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; (lam&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;view(M, &lt;span style=&#34;color:#ff9f43&#34;&gt;1&lt;/span&gt;, &lt;span style=&#34;color:#ff9f43&#34;&gt;1&lt;/span&gt;) &lt;span style=&#34;color:#ff6ac1&#34;&gt;*&lt;/span&gt; V)&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;sum(&lt;span style=&#34;color:#ff9f43&#34;&gt;0&lt;/span&gt;)         &lt;span style=&#34;color:#78787e&#34;&gt;# V @ lam: [batch, n&amp;#39;]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        lam0 &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; torch&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;full((M,), &lt;span style=&#34;color:#ff9f43&#34;&gt;1.0&lt;/span&gt; &lt;span style=&#34;color:#ff6ac1&#34;&gt;/&lt;/span&gt; M)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        Vlam0 &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; (lam0&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;view(M, &lt;span style=&#34;color:#ff9f43&#34;&gt;1&lt;/span&gt;, &lt;span style=&#34;color:#ff9f43&#34;&gt;1&lt;/span&gt;) &lt;span style=&#34;color:#ff6ac1&#34;&gt;*&lt;/span&gt; V)&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;sum(&lt;span style=&#34;color:#ff9f43&#34;&gt;0&lt;/span&gt;)       &lt;span style=&#34;color:#78787e&#34;&gt;# V @ lam0&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#78787e&#34;&gt;# Gradient of objective w.r.t. lambda (use cosine similarity in practice)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        grad_lam &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; torch&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;stack([(V[m] &lt;span style=&#34;color:#ff6ac1&#34;&gt;*&lt;/span&gt; (Vlam &lt;span style=&#34;color:#ff6ac1&#34;&gt;+&lt;/span&gt; rho &lt;span style=&#34;color:#ff6ac1&#34;&gt;*&lt;/span&gt; Vlam0))&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;sum() &lt;span style=&#34;color:#ff6ac1&#34;&gt;for&lt;/span&gt; m &lt;span style=&#34;color:#ff6ac1&#34;&gt;in&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;range&lt;/span&gt;(M)])
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        lam &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; lam &lt;span style=&#34;color:#ff6ac1&#34;&gt;-&lt;/span&gt; lr_lam &lt;span style=&#34;color:#ff6ac1&#34;&gt;*&lt;/span&gt; grad_lam
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#78787e&#34;&gt;# Project onto simplex&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        lam &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; simplex_projection(lam)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#78787e&#34;&gt;# --- Inject balanced gradient back into shared trunk ---&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    balanced_rep_grad &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; (lam&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;view(M, &lt;span style=&#34;color:#ff9f43&#34;&gt;1&lt;/span&gt;, &lt;span style=&#34;color:#ff9f43&#34;&gt;1&lt;/span&gt;) &lt;span style=&#34;color:#ff6ac1&#34;&gt;*&lt;/span&gt; V)&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;sum(&lt;span style=&#34;color:#ff9f43&#34;&gt;0&lt;/span&gt;)  &lt;span style=&#34;color:#78787e&#34;&gt;# [batch, n&amp;#39;]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    optimizer&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;zero_grad()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    h_final &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; model&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;shared_bottom(inputs)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    h_final&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;backward(balanced_rep_grad)        &lt;span style=&#34;color:#78787e&#34;&gt;# single pass through shared params&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    optimizer&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;step()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#ff6ac1&#34;&gt;return&lt;/span&gt; u, lam
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;strong&gt;Pros and Cons.&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Pros: Only ~0.42% QPS overhead vs. 68–82% for parameter-space MGDA; single backward pass via copy-and-fork; EMA prevents norm spike instability; theoretically grounded (Theorem 1 bounds parameter-level Pareto gap); validated at Meta on Feeds and Ads models.&lt;/li&gt;
+&lt;li&gt;Cons: Balancing is confined to the shared representation bottleneck — conflicts inside task-specific subnetworks are not addressed; the copy-and-fork architecture requires refactoring existing model code; $\rho$ and $\gamma$ are additional hyperparameters.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h3 id=&#34;210-gradcraft-kdd-2024&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#210-gradcraft-kdd-2024&#34;&gt;
+        ##
+    &lt;/a&gt;
+    2.10 GradCraft (KDD 2024)
+&lt;/div&gt;
+&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;Intuition.&lt;/strong&gt; Previous methods address either magnitude (GradNorm, MetaBalance) or direction (PCGrad, MGDA) — but rarely both simultaneously. GradCraft takes a holistic two-stage approach: first equalize gradient magnitudes, then enforce that all pairs of adjusted gradients have non-negative dot products (global synergy). This combines the benefits of norm balancing and conflict resolution in a single unified procedure &lt;sup id=&#34;fnref:10&#34;&gt;&lt;a href=&#34;#fn:10&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;10&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Math.&lt;/strong&gt; &lt;strong&gt;Stage 1 (Magnitude Balancing).&lt;/strong&gt; Rescale each task gradient to match the maximum norm:&lt;/p&gt;
+$$\mathbf{g}_i^{mag} = \mathbf{g}_i \cdot \frac{\max_j \|\mathbf{g}_j\|}{\|\mathbf{g}_i\|}$$&lt;p&gt;After this step, all $\|\mathbf{g}_i^{mag}\| = \max_j \|\mathbf{g}_j\|$ — a level playing field.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Stage 2 (Direction Alignment).&lt;/strong&gt; Enforce global pairwise non-negativity: find adjusted gradients $\{\mathbf{g}_i^{final}\}$ such that:&lt;/p&gt;
+$$\langle \mathbf{g}_i^{final}, \mathbf{g}_j^{final} \rangle \geq 0 \quad \forall i, j$$&lt;p&gt;Unlike PCGrad which handles this pairwise (and can create inconsistencies), GradCraft solves a global optimization problem to find the smallest adjustments to $\{\mathbf{g}_i^{mag}\}$ that achieve universal non-negativity. This is a more expensive but more internally consistent operation.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Pseudocode.&lt;/strong&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;# GradCraft&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#57c7ff&#34;&gt;gradcraft&lt;/span&gt;(gradients):
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    T &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;len&lt;/span&gt;(gradients)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#78787e&#34;&gt;# Stage 1: Magnitude balancing&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    norms &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; [g&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;norm() &lt;span style=&#34;color:#ff6ac1&#34;&gt;for&lt;/span&gt; g &lt;span style=&#34;color:#ff6ac1&#34;&gt;in&lt;/span&gt; gradients]
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    max_norm &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;max&lt;/span&gt;(norms)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    g_mag &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; [g &lt;span style=&#34;color:#ff6ac1&#34;&gt;*&lt;/span&gt; (max_norm &lt;span style=&#34;color:#ff6ac1&#34;&gt;/&lt;/span&gt; n) &lt;span style=&#34;color:#ff6ac1&#34;&gt;for&lt;/span&gt; g, n &lt;span style=&#34;color:#ff6ac1&#34;&gt;in&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;zip&lt;/span&gt;(gradients, norms)]
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#78787e&#34;&gt;# Stage 2: Direction alignment&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#78787e&#34;&gt;# Iteratively project conflicting pairs until all pairs are synergistic&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    g_final &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; [g&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;clone() &lt;span style=&#34;color:#ff6ac1&#34;&gt;for&lt;/span&gt; g &lt;span style=&#34;color:#ff6ac1&#34;&gt;in&lt;/span&gt; g_mag]
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    converged &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ff6ac1&#34;&gt;False&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#ff6ac1&#34;&gt;while&lt;/span&gt; &lt;span style=&#34;color:#ff6ac1&#34;&gt;not&lt;/span&gt; converged:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        converged &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ff6ac1&#34;&gt;True&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#ff6ac1&#34;&gt;for&lt;/span&gt; i &lt;span style=&#34;color:#ff6ac1&#34;&gt;in&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;range&lt;/span&gt;(T):
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            &lt;span style=&#34;color:#ff6ac1&#34;&gt;for&lt;/span&gt; j &lt;span style=&#34;color:#ff6ac1&#34;&gt;in&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;range&lt;/span&gt;(i &lt;span style=&#34;color:#ff6ac1&#34;&gt;+&lt;/span&gt; &lt;span style=&#34;color:#ff9f43&#34;&gt;1&lt;/span&gt;, T):
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                dot &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; torch&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;dot(g_final[i], g_final[j])
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                &lt;span style=&#34;color:#ff6ac1&#34;&gt;if&lt;/span&gt; dot &lt;span style=&#34;color:#ff6ac1&#34;&gt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#ff9f43&#34;&gt;0&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                    converged &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ff6ac1&#34;&gt;False&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                    &lt;span style=&#34;color:#78787e&#34;&gt;# Project both toward each other to resolve conflict&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                    norm_j_sq &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; g_final[j]&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;norm() &lt;span style=&#34;color:#ff6ac1&#34;&gt;**&lt;/span&gt; &lt;span style=&#34;color:#ff9f43&#34;&gt;2&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                    norm_i_sq &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; g_final[i]&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;norm() &lt;span style=&#34;color:#ff6ac1&#34;&gt;**&lt;/span&gt; &lt;span style=&#34;color:#ff9f43&#34;&gt;2&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                    g_i_new &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; g_final[i] &lt;span style=&#34;color:#ff6ac1&#34;&gt;-&lt;/span&gt; (dot &lt;span style=&#34;color:#ff6ac1&#34;&gt;/&lt;/span&gt; norm_j_sq) &lt;span style=&#34;color:#ff6ac1&#34;&gt;*&lt;/span&gt; g_final[j]
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                    g_j_new &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; g_final[j] &lt;span style=&#34;color:#ff6ac1&#34;&gt;-&lt;/span&gt; (dot &lt;span style=&#34;color:#ff6ac1&#34;&gt;/&lt;/span&gt; norm_i_sq) &lt;span style=&#34;color:#ff6ac1&#34;&gt;*&lt;/span&gt; g_final[i]
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                    g_final[i] &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; g_i_new
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                    g_final[j] &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; g_j_new
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#ff6ac1&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;sum&lt;/span&gt;(g_final)
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;strong&gt;Pros and Cons.&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Pros: Addresses both magnitude and direction; global synergy constraint is stronger than pairwise PCGrad; peer-reviewed and published at KDD 2024.&lt;/li&gt;
+&lt;li&gt;Cons: Iterative Stage 2 is computationally expensive; convergence not always guaranteed in the iterative approach; $O(T^2)$ loop in Stage 2.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h3 id=&#34;211-pub--parameter-update-balancing-2024&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#211-pub--parameter-update-balancing-2024&#34;&gt;
+        ##
+    &lt;/a&gt;
+    2.11 PUB — Parameter Update Balancing (2024)
+&lt;/div&gt;
+&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;Intuition.&lt;/strong&gt; All gradient balancing methods so far operate on raw gradients $\mathbf{g}_i$. But in practice, models are trained with Adam, not vanilla SGD. Adam&amp;rsquo;s adaptive moment estimates transform gradients before applying them: $\mathbf{g}_i^{Adam} \neq \mathbf{g}_i$. PUB makes a critical observation: &lt;strong&gt;gradient balancing does not equal update balancing under Adam&lt;/strong&gt;. Two tasks with balanced gradients can still have highly imbalanced actual parameter updates once Adam applies its per-parameter learning rates. PUB closes this &amp;ldquo;momentum gap&amp;rdquo; by balancing the actual Adam updates, not the raw gradients &lt;sup id=&#34;fnref:11&#34;&gt;&lt;a href=&#34;#fn:11&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;11&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Math.&lt;/strong&gt; For each task $i$, compute the Adam-adjusted update:&lt;/p&gt;
+$$\Delta\theta_i = \text{Adam}(\mathbf{g}_i, m_i, v_i) = \frac{\hat{m}_i}{\sqrt{\hat{v}_i} + \epsilon}$$&lt;p&gt;where $m_i, v_i$ are the first and second moment estimates for task $i$&amp;rsquo;s gradients. PUB then finds the joint update direction:&lt;/p&gt;
+$$\Delta\theta^* = \arg\max_{\Delta\theta} \min_{i \in [T]} \langle \Delta\theta_i, \Delta\theta \rangle \quad \text{s.t.} \quad \Delta\theta \in \text{conv}(\{\Delta\theta_i\})$$&lt;p&gt;This is the CAGrad/MGDA framework applied to Adam updates rather than raw gradients. The constraint that $\Delta\theta$ lies in the convex hull of task updates ensures the final step is a mixture of individually valid Adam steps.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Pseudocode.&lt;/strong&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;# PUB: Parameter Update Balancing (closes the momentum gap)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#57c7ff&#34;&gt;pub_update&lt;/span&gt;(model, task_losses, optimizer):
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    T &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;len&lt;/span&gt;(task_losses)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    task_updates &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; []
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#78787e&#34;&gt;# Step 1: Compute per-task Adam parameter updates&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#ff6ac1&#34;&gt;for&lt;/span&gt; i, loss &lt;span style=&#34;color:#ff6ac1&#34;&gt;in&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;enumerate&lt;/span&gt;(task_losses):
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        optimizer&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;zero_grad()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        loss&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;backward(retain_graph&lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;True&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#78787e&#34;&gt;# Simulate Adam update (without applying it)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        updates &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; {}
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#ff6ac1&#34;&gt;for&lt;/span&gt; name, p &lt;span style=&#34;color:#ff6ac1&#34;&gt;in&lt;/span&gt; model&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;named_parameters():
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            &lt;span style=&#34;color:#ff6ac1&#34;&gt;if&lt;/span&gt; p&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;grad &lt;span style=&#34;color:#ff6ac1&#34;&gt;is&lt;/span&gt; &lt;span style=&#34;color:#ff6ac1&#34;&gt;not&lt;/span&gt; &lt;span style=&#34;color:#ff6ac1&#34;&gt;None&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                &lt;span style=&#34;color:#78787e&#34;&gt;# Adam-adjusted update: m / (sqrt(v) + eps)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                m &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; optimizer&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;state[p]&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;get(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#39;exp_avg&amp;#39;&lt;/span&gt;, p&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;grad&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;clone())
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                v &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; optimizer&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;state[p]&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;get(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#39;exp_avg_sq&amp;#39;&lt;/span&gt;, p&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;grad&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;pow(&lt;span style=&#34;color:#ff9f43&#34;&gt;2&lt;/span&gt;))
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                adam_update &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; m &lt;span style=&#34;color:#ff6ac1&#34;&gt;/&lt;/span&gt; (v&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;sqrt() &lt;span style=&#34;color:#ff6ac1&#34;&gt;+&lt;/span&gt; &lt;span style=&#34;color:#ff9f43&#34;&gt;1e-8&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                updates[name] &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; adam_update
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        task_updates&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;append(updates)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#78787e&#34;&gt;# Step 2: Solve convex program to find consensus update&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#78787e&#34;&gt;# Maximize: min_i &amp;lt; delta_theta_i, delta_theta &amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#78787e&#34;&gt;# subject to: delta_theta in convex hull of {delta_theta_i}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#78787e&#34;&gt;# (Frank-Wolfe or quadratic program)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    alphas &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; solve_min_norm_problem(task_updates)  &lt;span style=&#34;color:#78787e&#34;&gt;# returns convex weights&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#78787e&#34;&gt;# Step 3: Apply weighted consensus update&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    optimizer&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;zero_grad()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#ff6ac1&#34;&gt;for&lt;/span&gt; name, p &lt;span style=&#34;color:#ff6ac1&#34;&gt;in&lt;/span&gt; model&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;named_parameters():
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#ff6ac1&#34;&gt;if&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;any&lt;/span&gt;(name &lt;span style=&#34;color:#ff6ac1&#34;&gt;in&lt;/span&gt; u &lt;span style=&#34;color:#ff6ac1&#34;&gt;for&lt;/span&gt; u &lt;span style=&#34;color:#ff6ac1&#34;&gt;in&lt;/span&gt; task_updates):
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            p&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;grad &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;sum&lt;/span&gt;(alphas[i] &lt;span style=&#34;color:#ff6ac1&#34;&gt;*&lt;/span&gt; task_updates[i][name] &lt;span style=&#34;color:#ff6ac1&#34;&gt;for&lt;/span&gt; i &lt;span style=&#34;color:#ff6ac1&#34;&gt;in&lt;/span&gt; &lt;span style=&#34;color:#ff5c57&#34;&gt;range&lt;/span&gt;(T))
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    optimizer&lt;span style=&#34;color:#ff6ac1&#34;&gt;.&lt;/span&gt;step()
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;strong&gt;Pros and Cons.&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Pros: First method to account for adaptive optimizers; more robust than PCGrad/CAGrad under Adam; theoretically principled momentum-aware balancing.&lt;/li&gt;
+&lt;li&gt;Cons: Requires maintaining separate moment estimates per task (memory overhead); the inner optimization subproblem is more expensive than standard gradient balancing; limited large-scale industrial validation to date.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h3 id=&#34;212-drgrad-aaai-2025&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#212-drgrad-aaai-2025&#34;&gt;
+        ##
+    &lt;/a&gt;
+    2.12 DRGrad (AAAI 2025)
+&lt;/div&gt;
+&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;Intuition.&lt;/strong&gt; Even within a single task, different users generate gradients with varying compatibility with the primary objective. DRGrad operates at the finest recommendation-specific granularity: individual users &lt;sup id=&#34;fnref:12&#34;&gt;&lt;a href=&#34;#fn:12&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;12&lt;/a&gt;&lt;/sup&gt;. For each user, it routes gradients from auxiliary tasks only when they are likely to be cooperative with the primary task&amp;rsquo;s objective for that specific user.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Math.&lt;/strong&gt; DRGrad consists of three components:&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Router&lt;/strong&gt;: Estimates the compatibility of auxiliary task gradients for a given user $u$:&lt;/p&gt;
+$$r_u^{(i)} = \sigma(W_r \mathbf{h}_u + b_r)$$&lt;p&gt;where $\mathbf{h}_u$ is the user representation. A high $r_u^{(i)}$ means task $i$&amp;rsquo;s gradient is likely helpful for user $u$.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Updater&lt;/strong&gt;: Computes a balanced gradient using only the routed (cooperative) gradients:&lt;/p&gt;
+$$\mathbf{g}_u^{balanced} = \mathbf{g}_u^{primary} + \sum_{i \neq \text{primary}} r_u^{(i)} \cdot \mathbf{g}_u^{(i)}$$&lt;p&gt;&lt;strong&gt;Personalized Gate Network&lt;/strong&gt;: Learns per-user routing policies that adapt over training, allowing the system to identify which auxiliary tasks benefit which user segments.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Pros and Cons.&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Pros: Most fine-grained method available (user-level gradient routing); directly addresses the heterogeneous user population in recommendation.&lt;/li&gt;
+&lt;li&gt;Cons: Complex architecture with multiple learned components; computationally expensive; limited large-scale industrial validation compared to simpler alternatives.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h3 id=&#34;213-meta-lattice-arxiv-2024&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#213-meta-lattice-arxiv-2024&#34;&gt;
+        ##
+    &lt;/a&gt;
+    2.13 Meta Lattice (arXiv 2024)
+&lt;/div&gt;
+&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;Full name.&lt;/strong&gt; Lattice — Model Space Redesign for Cost-Effective Industry-Scale Ads Recommendations (Meta, 2024).&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Intuition.&lt;/strong&gt; Large recommendation platforms often maintain separate models for different domains (e.g., Feed, Stories, Marketplace) and different objectives (CTR, CVR, revenue). This creates infrastructure fragmentation and prevents cross-domain knowledge sharing. Meta Lattice addresses Multi-Domain, Multi-Objective (MDMO) learning by consolidating fragmented model portfolios onto a single unified foundational network, rather than patching gradient conflicts after they arise &lt;sup id=&#34;fnref:13&#34;&gt;&lt;a href=&#34;#fn:13&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;13&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Approach.&lt;/strong&gt; Lattice introduces two key components:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Lattice Filter&lt;/strong&gt;: Performs Pareto-optimal feature selection across domains. Rather than using all features for all domains, it identifies the feature subset that is most informative across the full portfolio of domain-objective pairs, reducing noise and redundancy.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Lattice Zipper&lt;/strong&gt;: Mixes various attribution windows for different objectives. Different objectives (e.g., immediate click vs. 7-day conversion) observe user behavior at different time horizons. The Zipper component blends these temporal views appropriately per objective.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The result is a single network that serves all domains and objectives, eliminating the need for separate per-domain or per-objective models.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Results.&lt;/strong&gt; Meta reports 10% revenue gain and 20% capacity saving in production deployment &lt;sup id=&#34;fnref1:13&#34;&gt;&lt;a href=&#34;#fn:13&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;13&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Pros and Cons.&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Pros: Structural unification of multi-domain and multi-objective learning; large-scale business impact validated at Meta production scale; addresses the broader MDMO problem, not just pairwise task gradient conflicts.&lt;/li&gt;
+&lt;li&gt;Cons: Major infrastructure overhaul — not a drop-in replacement; requires multi-domain data alignment and coordinated feature engineering; organizational changes needed to maintain a unified model portfolio.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h3 id=&#34;214-other-notable-methods&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#214-other-notable-methods&#34;&gt;
+        ##
+    &lt;/a&gt;
+    2.14 Other Notable Methods
+&lt;/div&gt;
+&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;ConicGrad&lt;/strong&gt;: Constrains the combined gradient to lie inside an angular cone around the average gradient. Provides a softer version of MGDA&amp;rsquo;s convex hull constraint.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;SAM-GS (Similarity-Aware Momentum Gradient Surgery)&lt;/strong&gt;: Extends PCGrad with momentum estimates, using gradient similarity as a continuous weight rather than a binary conflict flag. Reduces the aggressiveness of projection for near-orthogonal gradients.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;MTGR (Meituan Generative Recommendation)&lt;/strong&gt;: Combines multi-task gradient balancing with a generative recommendation backbone (DLRM-style), demonstrating that gradient balancing principles extend to sequence-based recommendation models.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;3-comparison-table&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#3-comparison-table&#34;&gt;
+        #
+    &lt;/a&gt;
+    3. Comparison Table
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;Method&lt;/th&gt;
+          &lt;th&gt;Year&lt;/th&gt;
+          &lt;th&gt;Granularity&lt;/th&gt;
+          &lt;th&gt;Direction?&lt;/th&gt;
+          &lt;th&gt;Magnitude?&lt;/th&gt;
+          &lt;th&gt;Scalable?&lt;/th&gt;
+          &lt;th&gt;Key Insight&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;MGDA&lt;/td&gt;
+          &lt;td&gt;2018&lt;/td&gt;
+          &lt;td&gt;Gradient&lt;/td&gt;
+          &lt;td&gt;Yes&lt;/td&gt;
+          &lt;td&gt;Partially&lt;/td&gt;
+          &lt;td&gt;No&lt;/td&gt;
+          &lt;td&gt;Pareto-stationary descent&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;GradNorm&lt;/td&gt;
+          &lt;td&gt;2018&lt;/td&gt;
+          &lt;td&gt;Loss&lt;/td&gt;
+          &lt;td&gt;No&lt;/td&gt;
+          &lt;td&gt;Yes&lt;/td&gt;
+          &lt;td&gt;Yes&lt;/td&gt;
+          &lt;td&gt;Match gradient norms to learning rates&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;PCGrad&lt;/td&gt;
+          &lt;td&gt;2020&lt;/td&gt;
+          &lt;td&gt;Gradient&lt;/td&gt;
+          &lt;td&gt;Yes&lt;/td&gt;
+          &lt;td&gt;No&lt;/td&gt;
+          &lt;td&gt;No ($O(T^2)$)&lt;/td&gt;
+          &lt;td&gt;Project out conflicting components&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;PLE&lt;/td&gt;
+          &lt;td&gt;2020&lt;/td&gt;
+          &lt;td&gt;Architecture&lt;/td&gt;
+          &lt;td&gt;Yes&lt;/td&gt;
+          &lt;td&gt;No&lt;/td&gt;
+          &lt;td&gt;Yes&lt;/td&gt;
+          &lt;td&gt;Structural separation of expert gradients&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;CAGrad&lt;/td&gt;
+          &lt;td&gt;2021&lt;/td&gt;
+          &lt;td&gt;Gradient&lt;/td&gt;
+          &lt;td&gt;Yes&lt;/td&gt;
+          &lt;td&gt;No&lt;/td&gt;
+          &lt;td&gt;Moderate&lt;/td&gt;
+          &lt;td&gt;Max-min fairness with proximity constraint&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;MetaBalance&lt;/td&gt;
+          &lt;td&gt;2022&lt;/td&gt;
+          &lt;td&gt;Per-layer gradient&lt;/td&gt;
+          &lt;td&gt;Partially&lt;/td&gt;
+          &lt;td&gt;Yes&lt;/td&gt;
+          &lt;td&gt;Yes&lt;/td&gt;
+          &lt;td&gt;Auxiliary aligns to primary per layer&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;SLGrad&lt;/td&gt;
+          &lt;td&gt;2023&lt;/td&gt;
+          &lt;td&gt;Per-sample gradient&lt;/td&gt;
+          &lt;td&gt;Yes&lt;/td&gt;
+          &lt;td&gt;No&lt;/td&gt;
+          &lt;td&gt;No&lt;/td&gt;
+          &lt;td&gt;Sample-level alignment to validation gradient&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;STEM-Net&lt;/td&gt;
+          &lt;td&gt;2024&lt;/td&gt;
+          &lt;td&gt;Embedding&lt;/td&gt;
+          &lt;td&gt;Yes&lt;/td&gt;
+          &lt;td&gt;No&lt;/td&gt;
+          &lt;td&gt;Moderate&lt;/td&gt;
+          &lt;td&gt;Stop-gradient at embedding level (AFTB)&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;MultiBalance&lt;/td&gt;
+          &lt;td&gt;2024&lt;/td&gt;
+          &lt;td&gt;Representation&lt;/td&gt;
+          &lt;td&gt;Partially&lt;/td&gt;
+          &lt;td&gt;Yes&lt;/td&gt;
+          &lt;td&gt;Yes&lt;/td&gt;
+          &lt;td&gt;Balance at bottleneck, single backward pass&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;GradCraft&lt;/td&gt;
+          &lt;td&gt;2024&lt;/td&gt;
+          &lt;td&gt;Gradient&lt;/td&gt;
+          &lt;td&gt;Yes&lt;/td&gt;
+          &lt;td&gt;Yes&lt;/td&gt;
+          &lt;td&gt;No&lt;/td&gt;
+          &lt;td&gt;Holistic two-stage balancing&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;PUB&lt;/td&gt;
+          &lt;td&gt;2024&lt;/td&gt;
+          &lt;td&gt;Adam update&lt;/td&gt;
+          &lt;td&gt;Yes&lt;/td&gt;
+          &lt;td&gt;Yes&lt;/td&gt;
+          &lt;td&gt;Moderate&lt;/td&gt;
+          &lt;td&gt;Balance updates, not raw gradients&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;DRGrad&lt;/td&gt;
+          &lt;td&gt;2025&lt;/td&gt;
+          &lt;td&gt;Per-user gradient&lt;/td&gt;
+          &lt;td&gt;Yes&lt;/td&gt;
+          &lt;td&gt;Partially&lt;/td&gt;
+          &lt;td&gt;No&lt;/td&gt;
+          &lt;td&gt;User-level gradient routing&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;4-how-to-choose&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#4-how-to-choose&#34;&gt;
+        #
+    &lt;/a&gt;
+    4. How to Choose
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;p&gt;Selecting the right gradient balancing method depends on your system constraints, task relationships, and available engineering resources. Here is a decision guide:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Do you have more than ~5 tasks and need scalability?&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Yes:
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Is there a clear primary task with auxiliary helpers?&lt;/strong&gt;
+&lt;ul&gt;
+&lt;li&gt;Yes: Use &lt;strong&gt;MetaBalance&lt;/strong&gt; (per-layer, primary-centric, scalable)&lt;/li&gt;
+&lt;li&gt;No: Use &lt;strong&gt;MultiBalance&lt;/strong&gt; (single backward pass, representation-level, near-zero overhead)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Are you limited to loss-level changes (no gradient access)?&lt;/strong&gt;
+&lt;ul&gt;
+&lt;li&gt;Yes: Use &lt;strong&gt;GradNorm&lt;/strong&gt; (only requires per-task loss values)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;No (small T, research or experimentation setting):
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Do you care about both direction and magnitude?&lt;/strong&gt;
+&lt;ul&gt;
+&lt;li&gt;Yes: Use &lt;strong&gt;GradCraft&lt;/strong&gt; (holistic) or &lt;strong&gt;PUB&lt;/strong&gt; (if using Adam)&lt;/li&gt;
+&lt;li&gt;No, direction only: Use &lt;strong&gt;PCGrad&lt;/strong&gt; (simple, interpretable) or &lt;strong&gt;CAGrad&lt;/strong&gt; (if you want worst-task guarantees)&lt;/li&gt;
+&lt;li&gt;No, magnitude only: Use &lt;strong&gt;GradNorm&lt;/strong&gt; or &lt;strong&gt;MetaBalance&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Is the conflict rooted in the embedding layer?&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Yes: Use &lt;strong&gt;STEM-Net&lt;/strong&gt; (AFTB gating at embedding source)&lt;/li&gt;
+&lt;li&gt;No: Proceed to gradient-level methods above&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Do you want structural rather than optimization-time solutions?&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Yes: Use &lt;strong&gt;PLE&lt;/strong&gt; (architectural separation of expert pathways)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Do you have heterogeneous users with different task affinities?&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Yes: Consider &lt;strong&gt;DRGrad&lt;/strong&gt; (user-level routing) or &lt;strong&gt;SLGrad&lt;/strong&gt; (sample-level reweighting)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Are you using Adam (not SGD)?&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Yes: Strongly consider &lt;strong&gt;PUB&lt;/strong&gt; — gradient balancing without accounting for Adam&amp;rsquo;s moment estimates may be ineffective&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Are you in a production system with strict latency/QPS constraints?&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Use &lt;strong&gt;MultiBalance&lt;/strong&gt; (no additional backward passes) or &lt;strong&gt;MetaBalance&lt;/strong&gt; (overhead is per-layer norm computation only)&lt;/li&gt;
+&lt;li&gt;Avoid &lt;strong&gt;PCGrad&lt;/strong&gt;, &lt;strong&gt;GradCraft&lt;/strong&gt;, &lt;strong&gt;SLGrad&lt;/strong&gt;, &lt;strong&gt;DRGrad&lt;/strong&gt; in latency-critical settings&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;5-conclusion&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#5-conclusion&#34;&gt;
+        #
+    &lt;/a&gt;
+    5. Conclusion
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;p&gt;Gradient balancing in multi-task recommendation has evolved from coarse loss-level reweighting (GradNorm, 2018) to fine-grained per-user routing (DRGrad, 2025). Each generation of methods addresses a distinct failure mode:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;First generation&lt;/strong&gt; (GradNorm): Fix magnitude imbalance by adjusting task weights dynamically.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Second generation&lt;/strong&gt; (PCGrad, MGDA, CAGrad): Fix direction conflicts through geometric operations on gradient vectors.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Recommendation-specific&lt;/strong&gt; (MetaBalance, SLGrad, STEM-Net): Exploit the primary/auxiliary task structure and the embedding-centric nature of recommenders.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Scalable industrial&lt;/strong&gt; (PLE, MultiBalance): Prioritize production feasibility — structural solutions or single-pass approximations.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Holistic and adaptive&lt;/strong&gt; (GradCraft, PUB, DRGrad): Address both magnitude and direction simultaneously, or close gaps introduced by adaptive optimizers and user heterogeneity.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;No single method dominates across all settings. The right choice depends on task count, available compute, whether a primary/auxiliary hierarchy exists, and the specific failure mode (magnitude, direction, or both). The comparison table and decision guide above should help practitioners map their constraints to an appropriate starting point.&lt;/p&gt;
+&lt;p&gt;As multi-task recommendation systems grow in complexity — more tasks, more diverse user populations, tighter latency budgets — the field will likely move toward &lt;strong&gt;adaptive, data-driven selection&lt;/strong&gt; of balancing strategies: methods that automatically detect the current failure mode and apply the appropriate intervention, without human-specified hyperparameters or architectural changes.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;citation&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#citation&#34;&gt;
+        #
+    &lt;/a&gt;
+    Citation
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;p&gt;If you find this post helpful, please consider citing it as:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bibtex&#34; data-lang=&#34;bibtex&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f3f99d&#34;&gt;@article&lt;/span&gt;{&lt;span style=&#34;color:#ff5c57&#34;&gt;wang2026mtlgradient&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;author&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;Bing Wang&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;title&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;Gradient Balancing in Multi-Task Recommendation: A Systematic Guide&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;journal&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;bingzw.github.io&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;year&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;2026&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;month&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;March&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;url&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;https://bingzw.github.io/posts/2026-03-08-mtl-gradient-balancing/&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;or&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-markdown&#34; data-lang=&#34;markdown&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Bing Wang. (2026, March). Gradient Balancing in Multi-Task Recommendation: A Systematic Guide.
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;https://bingzw.github.io/posts/2026-03-08-mtl-gradient-balancing/
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;hr&gt;
+&lt;h2 id=&#34;references&#34; &gt;
+&lt;div&gt;
+    &lt;a href=&#34;#references&#34;&gt;
+        #
+    &lt;/a&gt;
+    References
+&lt;/div&gt;
+&lt;/h2&gt;
+&lt;div class=&#34;footnotes&#34; role=&#34;doc-endnotes&#34;&gt;
+&lt;hr&gt;
+&lt;ol&gt;
+&lt;li id=&#34;fn:1&#34;&gt;
+&lt;p&gt;&lt;a href=&#34;https://arxiv.org/abs/1711.02257&#34;&gt;Chen, Z., Badrinarayanan, V., Lee, C.-Y., &amp;amp; Rabinovich, A. (2018). GradNorm: Gradient Normalization for Adaptive Loss Balancing in Deep Multitask Networks. &lt;em&gt;ICML 2018&lt;/em&gt;.&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:1&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:2&#34;&gt;
+&lt;p&gt;&lt;a href=&#34;https://arxiv.org/abs/2001.06782&#34;&gt;Yu, T., Kumar, S., Gupta, A., Levine, S., Hausman, K., &amp;amp; Finn, C. (2020). Gradient Surgery for Multi-Task Learning. &lt;em&gt;NeurIPS 2020&lt;/em&gt;.&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:2&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:3&#34;&gt;
+&lt;p&gt;&lt;a href=&#34;https://arxiv.org/abs/1810.04650&#34;&gt;Sener, O., &amp;amp; Koltun, V. (2018). Multi-Task Learning as Multi-Objective Optimization. &lt;em&gt;NeurIPS 2018&lt;/em&gt;.&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:3&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:4&#34;&gt;
+&lt;p&gt;&lt;a href=&#34;https://arxiv.org/abs/2110.14048&#34;&gt;Liu, B., Liu, X., Jin, X., Stone, P., &amp;amp; Liu, Q. (2021). Conflict-Averse Gradient Descent for Multi-task Learning. &lt;em&gt;NeurIPS 2021&lt;/em&gt;.&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:4&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:5&#34;&gt;
+&lt;p&gt;He, P., et al. (2022). MetaBalance: Improving Multi-Task Recommendations via Adapting Gradient Magnitudes of Auxiliary Tasks. &lt;em&gt;WWW 2022&lt;/em&gt;.&amp;#160;&lt;a href=&#34;#fnref:5&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref1:5&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:6&#34;&gt;
+&lt;p&gt;SLGrad (2023). Sample-Level Gradient Reweighting for Multi-Task Recommendation.&amp;#160;&lt;a href=&#34;#fnref:6&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:7&#34;&gt;
+&lt;p&gt;Tang, J., et al. (2020). Progressive Layered Extraction (PLE): A Novel Multi-Task Learning (MTL) Model for Personalized Recommendations. &lt;em&gt;RecSys 2020&lt;/em&gt;.&amp;#160;&lt;a href=&#34;#fnref:7&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:8&#34;&gt;
+&lt;p&gt;He, F., et al. (2024). STEM: Unleashing the Power of Embeddings for Multi-Task Recommendation. &lt;em&gt;AAAI 2024&lt;/em&gt;.&amp;#160;&lt;a href=&#34;#fnref:8&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:9&#34;&gt;
+&lt;p&gt;&lt;a href=&#34;https://arxiv.org/abs/2411.11871&#34;&gt;MultiBalance (2024). Multi-Objective Gradient Balancing in Industrial-Scale Multi-Task Recommendation System. &lt;em&gt;Meta AI&lt;/em&gt;.&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:9&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:10&#34;&gt;
+&lt;p&gt;Shi, X., et al. (2024). GradCraft: Holistic Gradient Balancing for Multi-Task Recommendation. &lt;em&gt;KDD 2024&lt;/em&gt;.&amp;#160;&lt;a href=&#34;#fnref:10&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:11&#34;&gt;
+&lt;p&gt;&lt;a href=&#34;https://arxiv.org/abs/2410.05806&#34;&gt;PUB (2024). A Parameter Update Balancing Algorithm for Multi-task Ranking Models in Recommendation Systems.&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:11&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:12&#34;&gt;
+&lt;p&gt;DRGrad (2025). Direct Routing Gradient (DRGrad): A Personalized Information Surgery for Multi-Task Learning Recommendations. &lt;em&gt;AAAI 2025&lt;/em&gt;.&amp;#160;&lt;a href=&#34;#fnref:12&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:13&#34;&gt;
+&lt;p&gt;Meta Lattice (2024). Lattice — Model Space Redesign for Cost-Effective Industry-Scale Ads Recommendations. &lt;em&gt;Meta AI&lt;/em&gt;.&amp;#160;&lt;a href=&#34;#fnref:13&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref1:13&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/div&gt;</description>
+    </item>
+    
+    <item>
       <title>User Cohort Optimization in Multi-Task Recommendation Systems</title>
       <link>/posts/2025-06-20-cohort-opt/</link>
       <pubDate>Fri, 20 Jun 2025 20:30:01 -0700</pubDate>
-      <author>bingwang8878@gamil.com (Bing Wang)</author>
+      
       <guid>/posts/2025-06-20-cohort-opt/</guid>
       <description>&lt;p align=&#34;center&#34;&gt;
-&lt;img src=&#34;https://bingzw.github.io/cohort_opt/cohort optimization.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+&lt;img src=&#34;http://localhost:65293/cohort_opt/cohort optimization.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
 &lt;p&gt;
 &lt;p&gt;&lt;em&gt;Image cited from &lt;sup id=&#34;fnref:1&#34;&gt;&lt;a href=&#34;#fn:1&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;1&lt;/a&gt;&lt;/sup&gt;&lt;/em&gt;&lt;/p&gt;
 &lt;h2 id=&#34;context&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#context&#34;&gt;
-        
+        #
     &lt;/a&gt;
     Context
 &lt;/div&gt;
@@ -46,7 +1019,7 @@ see the graph neural network for identification in section 3.&lt;/p&gt;
 &lt;h2 id=&#34;strategies&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#strategies&#34;&gt;
-        
+        #
     &lt;/a&gt;
     Strategies
 &lt;/div&gt;
@@ -55,7 +1028,7 @@ see the graph neural network for identification in section 3.&lt;/p&gt;
 &lt;h3 id=&#34;1-dynamic-weighted-sample-training&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#1-dynamic-weighted-sample-training&#34;&gt;
-        
+        ##
     &lt;/a&gt;
     1. Dynamic Weighted Sample Training
 &lt;/div&gt;
@@ -79,7 +1052,7 @@ or representations based on the user&amp;rsquo;s current stage &lt;sup id=&#34;f
 &lt;h3 id=&#34;2-dedicated-cohort-learning-modules&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#2-dedicated-cohort-learning-modules&#34;&gt;
-        
+        ##
     &lt;/a&gt;
     2. Dedicated Cohort Learning Modules
 &lt;/div&gt;
@@ -87,7 +1060,7 @@ or representations based on the user&amp;rsquo;s current stage &lt;sup id=&#34;f
 &lt;h4 id=&#34;21-customized-mixture-of-experts-moemmoe-learning-module&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#21-customized-mixture-of-experts-moemmoe-learning-module&#34;&gt;
-        
+        ###
     &lt;/a&gt;
     2.1 Customized Mixture-of-Experts (MoE/MMoE) learning module
 &lt;/div&gt;
@@ -120,13 +1093,13 @@ from the &amp;ldquo;global expert.&amp;rdquo; MoE architectures can face challen
 redundant or too specialized, and solutions like expert balance regularization are often employed [^8].&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p align=&#34;center&#34;&gt;
-&lt;img src=&#34;https://bingzw.github.io/cohort_opt/moe.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+&lt;img src=&#34;http://localhost:65293/cohort_opt/moe.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
 &lt;em&gt;Figure 1: Cohort Optimization via MOE Architecture&lt;/em&gt;
 &lt;p&gt;
 &lt;h4 id=&#34;22-lora-for-cohort-specific-fine-tuning&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#22-lora-for-cohort-specific-fine-tuning&#34;&gt;
-        
+        ###
     &lt;/a&gt;
     2.2. LoRA for Cohort-Specific Fine-tuning
 &lt;/div&gt;
@@ -155,13 +1128,13 @@ mechanism. LoRA uses a shared base model adapted by small, cohort-specific add-o
 modules are adapted for individual instances (which can be interpreted as highly specific &amp;ldquo;cohorts&amp;rdquo; or individual users), showcasing its flexibility for fine-grained adaptation &lt;sup id=&#34;fnref:10&#34;&gt;&lt;a href=&#34;#fn:10&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;10&lt;/a&gt;&lt;/sup&gt;.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p align=&#34;center&#34;&gt;
-&lt;img src=&#34;https://bingzw.github.io/cohort_opt/LORA.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+&lt;img src=&#34;http://localhost:65293/cohort_opt/LORA.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
 &lt;em&gt;Figure 2: Cohort Optimization via LORA Architecture&lt;/em&gt;
 &lt;p&gt;
 &lt;h3 id=&#34;3-explore-other-approaches&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#3-explore-other-approaches&#34;&gt;
-        
+        ##
     &lt;/a&gt;
     3. Explore Other Approaches
 &lt;/div&gt;
@@ -205,47 +1178,47 @@ clustering or community detection algorithms on the user-user interaction graph,
 &lt;h2 id=&#34;discussion&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#discussion&#34;&gt;
-        
+        #
     &lt;/a&gt;
     Discussion
 &lt;/div&gt;
 &lt;/h2&gt;
 &lt;p&gt;Each strategy offers unique advantages and trade-offs when optimizing for user cohorts in MTL recommendation systems.&lt;/p&gt;
 &lt;table&gt;
-&lt;thead&gt;
-&lt;tr&gt;
-&lt;th style=&#34;text-align:left&#34;&gt;Strategy&lt;/th&gt;
-&lt;th style=&#34;text-align:left&#34;&gt;Pros&lt;/th&gt;
-&lt;th style=&#34;text-align:left&#34;&gt;Cons&lt;/th&gt;
-&lt;/tr&gt;
-&lt;/thead&gt;
-&lt;tbody&gt;
-&lt;tr&gt;
-&lt;td style=&#34;text-align:left&#34;&gt;&lt;strong&gt;Dynamic Weighted Training&lt;/strong&gt;&lt;/td&gt;
-&lt;td style=&#34;text-align:left&#34;&gt;&lt;strong&gt;Simplicity (Rule-Based):&lt;/strong&gt; Easy to implement for basic scenarios. &lt;br/&gt;&lt;strong&gt;Flexibility (Model-Based):&lt;/strong&gt; Can dynamically adapt to changing cohort needs. &lt;br/&gt;&lt;strong&gt;Computational Efficiency:&lt;/strong&gt; No major architectural changes, often involves just loss adjustments, reducing computational overhead &lt;sup id=&#34;fnref1:4&#34;&gt;&lt;a href=&#34;#fn:4&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;4&lt;/a&gt;&lt;/sup&gt;. &lt;br/&gt;&lt;strong&gt;Balances Tasks:&lt;/strong&gt; Can prevent one task (or cohort&amp;rsquo;s objective) from dominating others, improving generalization &lt;sup id=&#34;fnref1:5&#34;&gt;&lt;a href=&#34;#fn:5&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;5&lt;/a&gt;&lt;/sup&gt;.&lt;/td&gt;
-&lt;td style=&#34;text-align:left&#34;&gt;&lt;strong&gt;Weight Determination:&lt;/strong&gt; Difficult to set optimal rule-based weights. Model-based methods can be complex to design and tune. &lt;br/&gt;&lt;strong&gt;Suboptimal Performance:&lt;/strong&gt; Improper balancing can lead to poor overall or cohort-specific performance. &lt;br/&gt;&lt;strong&gt;No Explicit Specialization:&lt;/strong&gt; Model doesn&amp;rsquo;t explicitly specialize per cohort; it only changes attention during training. &lt;br/&gt;&lt;strong&gt;Lack of Interpretability:&lt;/strong&gt; Why certain weights are chosen can be opaque for model-based methods.&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td style=&#34;text-align:left&#34;&gt;&lt;strong&gt;Mixture-of-Experts (MoE/MMoE)&lt;/strong&gt;&lt;/td&gt;
-&lt;td style=&#34;text-align:left&#34;&gt;&lt;strong&gt;Explicit Specialization:&lt;/strong&gt; Dedicated experts can learn highly specific patterns for each cohort, leading to better performance for diverse groups &lt;sup id=&#34;fnref1:7&#34;&gt;&lt;a href=&#34;#fn:7&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;7&lt;/a&gt;&lt;/sup&gt;. &lt;br/&gt;&lt;strong&gt;Scalability:&lt;/strong&gt; Can scale to many cohorts/tasks by adding experts. &lt;br/&gt;&lt;strong&gt;Interpretability:&lt;/strong&gt; Can potentially observe which experts are active for which cohorts.&lt;/td&gt;
-&lt;td style=&#34;text-align:left&#34;&gt;&lt;strong&gt;Computational Cost:&lt;/strong&gt; More parameters than a single model, leading to higher training and inference costs (though can be optimized). &lt;br/&gt;&lt;strong&gt;Expert Collapse/Polarization:&lt;/strong&gt; Experts might become redundant or specialize too narrowly, leading to poor generalization for some cohorts [^8]. &lt;br/&gt;&lt;strong&gt;Routing Complexity:&lt;/strong&gt; Gating network needs careful design; poor routing can degrade performance. &lt;br/&gt;&lt;strong&gt;Data Requirements:&lt;/strong&gt; Each cohort expert needs sufficient data to train effectively.&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td style=&#34;text-align:left&#34;&gt;&lt;strong&gt;LoRA for Cohort Fine-tuning&lt;/strong&gt;&lt;/td&gt;
-&lt;td style=&#34;text-align:left&#34;&gt;&lt;strong&gt;Parameter Efficiency:&lt;/strong&gt; Significantly fewer trainable parameters than full fine-tuning or MoE (no full expert networks), reducing memory and computation &lt;sup id=&#34;fnref1:9&#34;&gt;&lt;a href=&#34;#fn:9&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;9&lt;/a&gt;&lt;/sup&gt;. &lt;br/&gt;&lt;strong&gt;No Inference Latency:&lt;/strong&gt; Once LoRA weights are loaded, inference is as fast as the base model. &lt;br/&gt;&lt;strong&gt;Modularity:&lt;/strong&gt; Easy to add/remove cohort-specific LoRA modules. &lt;br/&gt;&lt;strong&gt;Knowledge Retention:&lt;/strong&gt; Leverages a strong pre-trained base model, preventing catastrophic forgetting &lt;sup id=&#34;fnref2:9&#34;&gt;&lt;a href=&#34;#fn:9&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;9&lt;/a&gt;&lt;/sup&gt;.&lt;/td&gt;
-&lt;td style=&#34;text-align:left&#34;&gt;&lt;strong&gt;Base Model Dependence:&lt;/strong&gt; Performance is limited by the capabilities of the base model. &lt;br/&gt;&lt;strong&gt;Still Requires Data:&lt;/strong&gt; Each LoRA module needs enough cohort-specific data for effective fine-tuning. &lt;br/&gt;&lt;strong&gt;Storage:&lt;/strong&gt; Storing many LoRA modules for many small cohorts can still accumulate. &lt;br/&gt;&lt;strong&gt;Potential Overfitting:&lt;/strong&gt; Small modules can potentially overfit if cohort data is too sparse.&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td style=&#34;text-align:left&#34;&gt;&lt;strong&gt;Other Approaches&lt;/strong&gt;&lt;/td&gt;
-&lt;td style=&#34;text-align:left&#34;&gt;&lt;strong&gt;Personalized Loss:&lt;/strong&gt; Direct control over cohort objectives (e.g., fairness, specific metrics). &lt;br/&gt;&lt;strong&gt;Hierarchical Models:&lt;/strong&gt; Explicitly models group-level patterns, strong for cold-start groups. &lt;br/&gt;&lt;strong&gt;Meta-learning:&lt;/strong&gt; Fast adaptation to new or small cohorts/users. &lt;br/&gt;&lt;strong&gt;GNNs:&lt;/strong&gt; Naturally capture complex relationships for implicit cohort identification.&lt;/td&gt;
-&lt;td style=&#34;text-align:left&#34;&gt;&lt;strong&gt;Personalized Loss:&lt;/strong&gt; Can be complex to formulate and optimize. &lt;br/&gt;&lt;strong&gt;Hierarchical Models:&lt;/strong&gt; Designing the hierarchy and information flow can be challenging. &lt;br/&gt;&lt;strong&gt;Meta-learning:&lt;/strong&gt; Computationally intensive for meta-training; industrial deployment can be complex. &lt;br/&gt;&lt;strong&gt;GNNs:&lt;/strong&gt; High computational cost for large graphs; defining optimal graph structures can be tricky &lt;sup id=&#34;fnref1:16&#34;&gt;&lt;a href=&#34;#fn:16&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;16&lt;/a&gt;&lt;/sup&gt;.&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/tbody&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Strategy&lt;/th&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Pros&lt;/th&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Cons&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Dynamic Weighted Training&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Simplicity (Rule-Based):&lt;/strong&gt; Easy to implement for basic scenarios. &lt;br/&gt;&lt;strong&gt;Flexibility (Model-Based):&lt;/strong&gt; Can dynamically adapt to changing cohort needs. &lt;br/&gt;&lt;strong&gt;Computational Efficiency:&lt;/strong&gt; No major architectural changes, often involves just loss adjustments, reducing computational overhead &lt;sup id=&#34;fnref1:4&#34;&gt;&lt;a href=&#34;#fn:4&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;4&lt;/a&gt;&lt;/sup&gt;. &lt;br/&gt;&lt;strong&gt;Balances Tasks:&lt;/strong&gt; Can prevent one task (or cohort&amp;rsquo;s objective) from dominating others, improving generalization &lt;sup id=&#34;fnref1:5&#34;&gt;&lt;a href=&#34;#fn:5&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;5&lt;/a&gt;&lt;/sup&gt;.&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Weight Determination:&lt;/strong&gt; Difficult to set optimal rule-based weights. Model-based methods can be complex to design and tune. &lt;br/&gt;&lt;strong&gt;Suboptimal Performance:&lt;/strong&gt; Improper balancing can lead to poor overall or cohort-specific performance. &lt;br/&gt;&lt;strong&gt;No Explicit Specialization:&lt;/strong&gt; Model doesn&amp;rsquo;t explicitly specialize per cohort; it only changes attention during training. &lt;br/&gt;&lt;strong&gt;Lack of Interpretability:&lt;/strong&gt; Why certain weights are chosen can be opaque for model-based methods.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Mixture-of-Experts (MoE/MMoE)&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Explicit Specialization:&lt;/strong&gt; Dedicated experts can learn highly specific patterns for each cohort, leading to better performance for diverse groups &lt;sup id=&#34;fnref1:7&#34;&gt;&lt;a href=&#34;#fn:7&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;7&lt;/a&gt;&lt;/sup&gt;. &lt;br/&gt;&lt;strong&gt;Scalability:&lt;/strong&gt; Can scale to many cohorts/tasks by adding experts. &lt;br/&gt;&lt;strong&gt;Interpretability:&lt;/strong&gt; Can potentially observe which experts are active for which cohorts.&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Computational Cost:&lt;/strong&gt; More parameters than a single model, leading to higher training and inference costs (though can be optimized). &lt;br/&gt;&lt;strong&gt;Expert Collapse/Polarization:&lt;/strong&gt; Experts might become redundant or specialize too narrowly, leading to poor generalization for some cohorts [^8]. &lt;br/&gt;&lt;strong&gt;Routing Complexity:&lt;/strong&gt; Gating network needs careful design; poor routing can degrade performance. &lt;br/&gt;&lt;strong&gt;Data Requirements:&lt;/strong&gt; Each cohort expert needs sufficient data to train effectively.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;LoRA for Cohort Fine-tuning&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Parameter Efficiency:&lt;/strong&gt; Significantly fewer trainable parameters than full fine-tuning or MoE (no full expert networks), reducing memory and computation &lt;sup id=&#34;fnref1:9&#34;&gt;&lt;a href=&#34;#fn:9&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;9&lt;/a&gt;&lt;/sup&gt;. &lt;br/&gt;&lt;strong&gt;No Inference Latency:&lt;/strong&gt; Once LoRA weights are loaded, inference is as fast as the base model. &lt;br/&gt;&lt;strong&gt;Modularity:&lt;/strong&gt; Easy to add/remove cohort-specific LoRA modules. &lt;br/&gt;&lt;strong&gt;Knowledge Retention:&lt;/strong&gt; Leverages a strong pre-trained base model, preventing catastrophic forgetting &lt;sup id=&#34;fnref2:9&#34;&gt;&lt;a href=&#34;#fn:9&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;9&lt;/a&gt;&lt;/sup&gt;.&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Base Model Dependence:&lt;/strong&gt; Performance is limited by the capabilities of the base model. &lt;br/&gt;&lt;strong&gt;Still Requires Data:&lt;/strong&gt; Each LoRA module needs enough cohort-specific data for effective fine-tuning. &lt;br/&gt;&lt;strong&gt;Storage:&lt;/strong&gt; Storing many LoRA modules for many small cohorts can still accumulate. &lt;br/&gt;&lt;strong&gt;Potential Overfitting:&lt;/strong&gt; Small modules can potentially overfit if cohort data is too sparse.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Other Approaches&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Personalized Loss:&lt;/strong&gt; Direct control over cohort objectives (e.g., fairness, specific metrics). &lt;br/&gt;&lt;strong&gt;Hierarchical Models:&lt;/strong&gt; Explicitly models group-level patterns, strong for cold-start groups. &lt;br/&gt;&lt;strong&gt;Meta-learning:&lt;/strong&gt; Fast adaptation to new or small cohorts/users. &lt;br/&gt;&lt;strong&gt;GNNs:&lt;/strong&gt; Naturally capture complex relationships for implicit cohort identification.&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Personalized Loss:&lt;/strong&gt; Can be complex to formulate and optimize. &lt;br/&gt;&lt;strong&gt;Hierarchical Models:&lt;/strong&gt; Designing the hierarchy and information flow can be challenging. &lt;br/&gt;&lt;strong&gt;Meta-learning:&lt;/strong&gt; Computationally intensive for meta-training; industrial deployment can be complex. &lt;br/&gt;&lt;strong&gt;GNNs:&lt;/strong&gt; High computational cost for large graphs; defining optimal graph structures can be tricky &lt;sup id=&#34;fnref1:16&#34;&gt;&lt;a href=&#34;#fn:16&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;16&lt;/a&gt;&lt;/sup&gt;.&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
 &lt;/table&gt;
 &lt;h2 id=&#34;direction-extension&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#direction-extension&#34;&gt;
-        
+        #
     &lt;/a&gt;
     Direction Extension
 &lt;/div&gt;
@@ -302,13 +1275,13 @@ the base model, enhancing trust and enabling better manual interventions.&lt;/li
 &lt;h2 id=&#34;citation&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#citation&#34;&gt;
-        
+        #
     &lt;/a&gt;
     Citation
 &lt;/div&gt;
 &lt;/h2&gt;
 &lt;p&gt;If you find this post helpful, please consider citing it as:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bibtex&#34; data-lang=&#34;bibtex&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f3f99d&#34;&gt;@article&lt;/span&gt;{&lt;span style=&#34;color:#ff5c57&#34;&gt;wang2025cohortopt&lt;/span&gt;,
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bibtex&#34; data-lang=&#34;bibtex&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f3f99d&#34;&gt;@article&lt;/span&gt;{&lt;span style=&#34;color:#ff5c57&#34;&gt;wang2025cohortopt&lt;/span&gt;,
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;author&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;Bing Wang&amp;#34;&lt;/span&gt;,
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;title&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;User Cohort Optimization in Multi-Task Recommendation Systems&amp;#34;&lt;/span&gt;,
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;journal&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;bingzw.github.io&amp;#34;&lt;/span&gt;,
@@ -317,12 +1290,12 @@ the base model, enhancing trust and enabling better manual interventions.&lt;/li
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;url&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;https://bingzw.github.io/posts/2025-06-20-cohort-opt/&amp;#34;&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;or&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-markdown&#34; data-lang=&#34;markdown&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Bing Wang. (2025, June). User Cohort Optimization in Multi-Task Recommendation Systems. 
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-markdown&#34; data-lang=&#34;markdown&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Bing Wang. (2025, June). User Cohort Optimization in Multi-Task Recommendation Systems. 
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;https://bingzw.github.io/posts/2025-06-20-cohort-opt/
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;references&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#references&#34;&gt;
-        
+        #
     &lt;/a&gt;
     References
 &lt;/div&gt;
@@ -386,16 +1359,16 @@ the base model, enhancing trust and enabling better manual interventions.&lt;/li
       <title>Recommendation Models</title>
       <link>/posts/2024-06-06-recommendation-model/</link>
       <pubDate>Thu, 06 Jun 2024 22:04:53 -0700</pubDate>
-      <author>bingwang8878@gamil.com (Bing Wang)</author>
+      
       <guid>/posts/2024-06-06-recommendation-model/</guid>
       <description>&lt;p align=&#34;center&#34;&gt;
-&lt;img src=&#34;https://bingzw.github.io/recommendation_model/reco.jpeg&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+&lt;img src=&#34;http://localhost:65293/recommendation_model/reco.jpeg&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
 &lt;p&gt;
 &lt;p&gt;&lt;em&gt;Image cited from &lt;a href=&#34;https://www.vecteezy.com/&#34;&gt;vecteezy&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
 &lt;h2 id=&#34;introduction-to-recommendation-models&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#introduction-to-recommendation-models&#34;&gt;
-        
+        #
     &lt;/a&gt;
     Introduction to Recommendation Models
 &lt;/div&gt;
@@ -413,7 +1386,7 @@ and revenue generation. Let&amp;rsquo;s take a look at the most popular modeling
 &lt;h2 id=&#34;collaborative-filtering-cf&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#collaborative-filtering-cf&#34;&gt;
-        
+        #
     &lt;/a&gt;
     Collaborative Filtering (CF)
 &lt;/div&gt;
@@ -424,7 +1397,7 @@ straightforward and only requires user-item interaction history.&lt;/p&gt;
 &lt;h3 id=&#34;memory-based-cf&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#memory-based-cf&#34;&gt;
-        
+        ##
     &lt;/a&gt;
     Memory Based CF
 &lt;/div&gt;
@@ -437,7 +1410,7 @@ filtering or item-item filtering.&lt;/p&gt;
 &lt;h4 id=&#34;user-user-filtering&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#user-user-filtering&#34;&gt;
-        
+        ###
     &lt;/a&gt;
     User User Filtering
 &lt;/div&gt;
@@ -447,26 +1420,25 @@ average from ratings of similar users:&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
 $r_{u,i} = \bar{r}_u + \frac{\sum_{u&#39;\in S_u}sim(u, u&#39;) * (r_{u&#39;,i} - \bar{r}_{u&#39;})}{\sum_{u&#39;\in S_u}sim(u, u&#39;)}$
 &lt;p&gt;
-&lt;p&gt;where $\bar{r}_u$ is the average rating of user $u$ and $sim(u, u&amp;rsquo;)$ represents the similarity score between user $u$
-and $u&amp;rsquo;$. A common choice is to calculate the cosine similarity between two user rating vectors.&lt;/p&gt;
+&lt;p&gt;where $\bar{r}_u$ is the average rating of user $u$ and $sim(u, u&#39;)$ represents the similarity score between user $u$
+and $u&#39;$. A common choice is to calculate the cosine similarity between two user rating vectors.&lt;/p&gt;
 &lt;h4 id=&#34;item-item-filtering&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#item-item-filtering&#34;&gt;
-        
+        ###
     &lt;/a&gt;
     Item Item Filtering
 &lt;/div&gt;
 &lt;/h4&gt;
 &lt;p&gt;Assume that the customers will prefer products that share a high similarity with those already well appreciated. The
 missing rating is thus predicted as the weighted average of a set of similar products:&lt;/p&gt;
-&lt;p&gt;$$r_{u,i} = \frac{\sum_{j \in P_i}sim(j, i) * r_{u,j}}{\sum_{j \in P_i}sim(j, i)}$$&lt;/p&gt;
-&lt;p&gt;It&amp;rsquo;s straightforward to observe that user-based filtering is to check what other users think of the same product, while
+$$r_{u,i} = \frac{\sum_{j \in P_i}sim(j, i) * r_{u,j}}{\sum_{j \in P_i}sim(j, i)}$$&lt;p&gt;It&amp;rsquo;s straightforward to observe that user-based filtering is to check what other users think of the same product, while
 item-based filtering is aggregating what the user thinks of other items. Essentially, both are weighted linear
 combination of observed ratings. Can we do better than weighted average?&lt;/p&gt;
 &lt;h3 id=&#34;model-based-cf&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#model-based-cf&#34;&gt;
-        
+        ##
     &lt;/a&gt;
     Model Based CF
 &lt;/div&gt;
@@ -480,7 +1452,7 @@ space and $n$ denotes the dimension of item space.&lt;/p&gt;
 &lt;h4 id=&#34;clustering&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#clustering&#34;&gt;
-        
+        ###
     &lt;/a&gt;
     Clustering
 &lt;/div&gt;
@@ -490,7 +1462,7 @@ items depending on the similarity metrics used.&lt;/p&gt;
 &lt;h4 id=&#34;matrix-factorization&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#matrix-factorization&#34;&gt;
-        
+        ###
     &lt;/a&gt;
     Matrix Factorization
 &lt;/div&gt;
@@ -503,17 +1475,16 @@ of the latent space.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;The interaction matrix $R$ is approximated as the product of these two matrices: $R \approx U \cdot V^T$. In practice, we
 are usually optimizing for a weighted matrix factorization objective&lt;sup id=&#34;fnref:1&#34;&gt;&lt;a href=&#34;#fn:1&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;1&lt;/a&gt;&lt;/sup&gt;&lt;/p&gt;
-&lt;p&gt;$$L(\theta) = \sum_{(i, j)\in obs} \omega_{i, j} (R_{i, j} - U_i \cdot V_{j}^{T})^2 + \omega_{0} \sum_{(i, j) \notin obs}
-(U_i \cdot V_{j}^{T})^2$$&lt;/p&gt;
-&lt;p&gt;where $\omega_0$ is a hyper-parameter that weights the two terms so that the objective is not
+$$L(\theta) = \sum_{(i, j)\in obs} \omega_{i, j} (R_{i, j} - U_i \cdot V_{j}^{T})^2 + \omega_{0} \sum_{(i, j) \notin obs}
+(U_i \cdot V_{j}^{T})^2$$&lt;p&gt;where $\omega_0$ is a hyper-parameter that weights the two terms so that the objective is not
 dominated by one or the other, and $\omega_{i, j}$ is a function of the frequency of user $i$ and item $j$.&lt;/p&gt;
 &lt;p&gt;Common optimization algorithms to minimize the above objective function includes &lt;strong&gt;stochastic gradient descent&lt;/strong&gt; and
 &lt;strong&gt;weighted alternating least squares (WALS)&lt;/strong&gt;.&lt;/p&gt;
 &lt;p&gt;Recently, a few efforts on deep learning have also been proposed on matrix factorization. For example,&lt;/p&gt;
-&lt;h5 id=&#34;deep-auto-encoders2&#34; &gt;
+&lt;h5 id=&#34;deep-auto-encoders&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#deep-auto-encoders2&#34;&gt;
-        
+    &lt;a href=&#34;#deep-auto-encoders&#34;&gt;
+        ####
     &lt;/a&gt;
     Deep Auto-Encoders&lt;sup id=&#34;fnref:2&#34;&gt;&lt;a href=&#34;#fn:2&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;2&lt;/a&gt;&lt;/sup&gt;
 &lt;/div&gt;
@@ -523,13 +1494,13 @@ architecture to the collaborative filtering domain. CDAE is designed to handle i
 are inferred from user behavior rather than explicit ratings. The model incorporates both user-specific and item-specific
 factors, leveraging the rich user interaction data to learn better representations for recommendation tasks.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-    &lt;img src=&#34;https://bingzw.github.io/recommendation_model/autoencoder_mf.png&#34;&gt;&lt;br&gt;
+    &lt;img src=&#34;http://localhost:65293/recommendation_model/autoencoder_mf.png&#34;&gt;&lt;br&gt;
     &lt;em&gt;Figure 1: deep auto-encoder&lt;/em&gt;
 &lt;/p&gt;
-&lt;h5 id=&#34;neural-collaborative-filtering3&#34; &gt;
+&lt;h5 id=&#34;neural-collaborative-filtering&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#neural-collaborative-filtering3&#34;&gt;
-        
+    &lt;a href=&#34;#neural-collaborative-filtering&#34;&gt;
+        ####
     &lt;/a&gt;
     Neural Collaborative Filtering&lt;sup id=&#34;fnref:3&#34;&gt;&lt;a href=&#34;#fn:3&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;3&lt;/a&gt;&lt;/sup&gt;
 &lt;/div&gt;
@@ -543,13 +1514,13 @@ that learn the interaction between these embeddings. The final output layer pred
 item. This approach not only improves the accuracy of recommendations but also enables the integration of additional
 features, such as user demographics or item attributes, into the model. Refer to the DLRM or DeepFM for more details.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-    &lt;img src=&#34;https://bingzw.github.io/recommendation_model/ncf_mf.png&#34;&gt;&lt;br&gt;
+    &lt;img src=&#34;http://localhost:65293/recommendation_model/ncf_mf.png&#34;&gt;&lt;br&gt;
     &lt;em&gt;Figure 2: neural collaborative filtering&lt;/em&gt;
 &lt;/p&gt;
 &lt;h2 id=&#34;content-based-models-ranking-as-recommendation&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#content-based-models-ranking-as-recommendation&#34;&gt;
-        
+        #
     &lt;/a&gt;
     Content Based Models (Ranking As Recommendation)
 &lt;/div&gt;
@@ -561,10 +1532,10 @@ user based on the features of the items they have shown interest in. Compared wi
 to handle the cold start issue when item features are known. However, its recommendation may strictly adheres to the
 user&amp;rsquo;s profile, potentially limiting diversity. There are quite a few popular model frameworks in this area and we would
 focus on the models based on deep neural architecture.&lt;/p&gt;
-&lt;h3 id=&#34;wide--deep4&#34; &gt;
+&lt;h3 id=&#34;wide--deep&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#wide--deep4&#34;&gt;
-        
+    &lt;a href=&#34;#wide--deep&#34;&gt;
+        ##
     &lt;/a&gt;
     Wide &amp;amp; Deep&lt;sup id=&#34;fnref:4&#34;&gt;&lt;a href=&#34;#fn:4&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;4&lt;/a&gt;&lt;/sup&gt;
 &lt;/div&gt;
@@ -576,35 +1547,31 @@ The model consists of two components:&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Wide Component&lt;/strong&gt;: This part is a generalized linear model (GLM) that excels at memorization by capturing feature
 interactions using cross-product feature transformations. The wide component is effective at handling sparse features
 and explicitly memorizing frequent co-occurrence patterns. It can be represented as:&lt;/p&gt;
-&lt;p&gt;$$y_{\text{wide}} = \mathbf{w}^T \mathbf{x} + b $$&lt;/p&gt;
-&lt;p&gt;where $\mathbf{x}$ represents the input features, $\mathbf{w}$ represents the learned weights, and $b$ is
+$$y_{\text{wide}} = \mathbf{w}^T \mathbf{x} + b $$&lt;p&gt;where $\mathbf{x}$ represents the input features, $\mathbf{w}$ represents the learned weights, and $b$ is
 the bias term.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Deep Component&lt;/strong&gt;: This part is a feed-forward neural network that excels at generalization by capturing high-level
 and non-linear feature interactions. The deep component uses dense embeddings to represent categorical features, and it
 learns implicit interactions through multiple hidden layers. The output of the deep component can be represented as:&lt;/p&gt;
-&lt;p&gt;$$\mathbf{h}^L = f^L(\mathbf{W}^L \mathbf{h}^{L-1} + \mathbf{b}^L)$$&lt;/p&gt;
-&lt;p&gt;where $\mathbf{h}^L$ is the activation of the $L$-th layer, $\mathbf{W}^L$ and $\mathbf{b}^L$ are the weights and biases
+$$\mathbf{h}^L = f^L(\mathbf{W}^L \mathbf{h}^{L-1} + \mathbf{b}^L)$$&lt;p&gt;where $\mathbf{h}^L$ is the activation of the $L$-th layer, $\mathbf{W}^L$ and $\mathbf{b}^L$ are the weights and biases
 of the $L$-th layer, respectively, and $f^L$ is the activation function.
 The final output of the deep component, $ y_{\text{deep}} $, is the output of the last layer of the deep neural network. It is given by:&lt;/p&gt;
-&lt;p&gt;$$
-y_{\text{deep}} = \mathbf{W}^O \mathbf{h}^{L} + \mathbf{b}^O
-$$&lt;/p&gt;
-&lt;p&gt;where $ \mathbf{W}^O $ and $ \mathbf{b}^O $ are the weights and bias of the output layer, and $ \mathbf{h}^L $ is the activation of the last hidden layer.&lt;/p&gt;
+$$
+   y_{\text{deep}} = \mathbf{W}^O \mathbf{h}^{L} + \mathbf{b}^O
+   $$&lt;p&gt;where $ \mathbf{W}^O $ and $ \mathbf{b}^O $ are the weights and bias of the output layer, and $ \mathbf{h}^L $ is the activation of the last hidden layer.&lt;/p&gt;
 &lt;p&gt;The final prediction is a weighted sum of the outputs from the wide and deep components:&lt;/p&gt;
-&lt;p&gt;$$\hat{y} = \sigma(y_{\text{wide}} + y_{\text{deep}})$$&lt;/p&gt;
-&lt;p&gt;where $\sigma$ is the sigmoid function used to squash the output to a probability score.&lt;/p&gt;
+$$\hat{y} = \sigma(y_{\text{wide}} + y_{\text{deep}})$$&lt;p&gt;where $\sigma$ is the sigmoid function used to squash the output to a probability score.&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
 &lt;p align=&#34;center&#34;&gt;
-   &lt;img src=&#34;https://bingzw.github.io/recommendation_model/wide_deep.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
+   &lt;img src=&#34;http://localhost:65293/recommendation_model/wide_deep.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
    &lt;em&gt;Figure 3: wide &amp; deep model&lt;/em&gt;
 &lt;/p&gt;
-&lt;h3 id=&#34;deepfm5&#34; &gt;
+&lt;h3 id=&#34;deepfm&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#deepfm5&#34;&gt;
-        
+    &lt;a href=&#34;#deepfm&#34;&gt;
+        ##
     &lt;/a&gt;
     DeepFM&lt;sup id=&#34;fnref:5&#34;&gt;&lt;a href=&#34;#fn:5&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;5&lt;/a&gt;&lt;/sup&gt;
 &lt;/div&gt;
@@ -616,38 +1583,34 @@ The model consists of two interconnected components:&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;FM Component&lt;/strong&gt;: This part captures low-order feature interactions using Factorization Machines, which are effective
 for handling sparse data and modeling pairwise feature interactions without manual feature engineering. The FM component
 can be represented as:&lt;/p&gt;
-&lt;p&gt;$$
-y_{\text{FM}} = w_0 + \sum_{i=1}^n w_i x_i + \sum_{i=1}^n \sum_{j=i+1}^n \langle \mathbf{v}_i, \mathbf{v}_j \rangle x_i x_j
-$$&lt;/p&gt;
-&lt;p&gt;where $w_0$ is the global bias, $w_i$ is the weight of the $i$-th feature, $\mathbf{v}_i$ and $\mathbf{v}_j$ are
+$$
+   y_{\text{FM}} = w_0 + \sum_{i=1}^n w_i x_i + \sum_{i=1}^n \sum_{j=i+1}^n \langle \mathbf{v}_i, \mathbf{v}_j \rangle x_i x_j
+   $$&lt;p&gt;where $w_0$ is the global bias, $w_i$ is the weight of the $i$-th feature, $\mathbf{v}_i$ and $\mathbf{v}_j$ are
 latent vectors for the $i$-th and $j$-th features, respectively, and $x_i$ and $x_j$ are input feature values.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Deep Component&lt;/strong&gt;: This part captures high-order feature interactions through a deep neural network. The deep
 component uses embeddings to represent input features and learns complex interactions through multiple hidden layers.
 The output of the deep component can be represented as:&lt;/p&gt;
-&lt;p&gt;$$\mathbf{h}^L = f^L(\mathbf{W}^L \mathbf{h}^{L-1} + \mathbf{b}^L)$$&lt;/p&gt;
-&lt;p&gt;where $\mathbf{h}^L$ is the activation of the $L$-th layer, $\mathbf{W}^L$ and $\mathbf{b}^L$ are the weights and
+$$\mathbf{h}^L = f^L(\mathbf{W}^L \mathbf{h}^{L-1} + \mathbf{b}^L)$$&lt;p&gt;where $\mathbf{h}^L$ is the activation of the $L$-th layer, $\mathbf{W}^L$ and $\mathbf{b}^L$ are the weights and
 biases of the $L$-th layer, respectively, and $f^L$ is the activation function.
 The final output of the deep component, $ y_{\text{deep}} $, is the output of the last layer of the deep neural network. It is given by:&lt;/p&gt;
-&lt;p&gt;$$
-y_{\text{deep}} = \mathbf{W}^O \mathbf{h}^{L} + \mathbf{b}^O
-$$&lt;/p&gt;
-&lt;p&gt;where $ \mathbf{W}^O $ and $ \mathbf{b}^O $ are the weights and bias of the output layer, and $ \mathbf{h}^L $ is the
+$$
+   y_{\text{deep}} = \mathbf{W}^O \mathbf{h}^{L} + \mathbf{b}^O
+   $$&lt;p&gt;where $ \mathbf{W}^O $ and $ \mathbf{b}^O $ are the weights and bias of the output layer, and $ \mathbf{h}^L $ is the
 activation of the last hidden layer.&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
 &lt;p&gt;The final prediction is a combination of the outputs from the FM and deep components:&lt;/p&gt;
-&lt;p&gt;$$\hat{y} = \sigma(y_{\text{FM}} + y_{\text{deep}})$$&lt;/p&gt;
-&lt;p&gt;where $\sigma$ is the sigmoid function used to squash the output to a probability score.&lt;/p&gt;
+$$\hat{y} = \sigma(y_{\text{FM}} + y_{\text{deep}})$$&lt;p&gt;where $\sigma$ is the sigmoid function used to squash the output to a probability score.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-   &lt;img src=&#34;https://bingzw.github.io/recommendation_model/deepfm.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+   &lt;img src=&#34;http://localhost:65293/recommendation_model/deepfm.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
    &lt;em&gt;Figure 4: deepfm model&lt;/em&gt;
 &lt;/p&gt;
-&lt;h3 id=&#34;deep-learning-recommendation-model-dlrm6&#34; &gt;
+&lt;h3 id=&#34;deep-learning-recommendation-model-dlrm&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#deep-learning-recommendation-model-dlrm6&#34;&gt;
-        
+    &lt;a href=&#34;#deep-learning-recommendation-model-dlrm&#34;&gt;
+        ##
     &lt;/a&gt;
     Deep Learning Recommendation Model (DLRM)&lt;sup id=&#34;fnref:6&#34;&gt;&lt;a href=&#34;#fn:6&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;6&lt;/a&gt;&lt;/sup&gt;
 &lt;/div&gt;
@@ -658,7 +1621,7 @@ systems in environments such as social media platforms, e-commerce, and online a
 strengths of collaborative filtering and content-based methods by utilizing both dense and sparse features to provide
 highly accurate and scalable recommendations.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-   &lt;img src=&#34;https://bingzw.github.io/recommendation_model/dlrm.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+   &lt;img src=&#34;http://localhost:65293/recommendation_model/dlrm.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
    &lt;em&gt;Figure 5: deep learning recommendation model&lt;/em&gt;
 &lt;/p&gt;
 &lt;p&gt;Key components of DLRM includes&lt;/p&gt;
@@ -668,9 +1631,10 @@ highly accurate and scalable recommendations.&lt;/p&gt;
 embeddings. Embeddings transform sparse categorical data into dense vectors of continuous numbers, making them suitable
 for neural network processing, denoted as $\mathbf{x}_s[i]$.
 The raw sparse features are transformed to sparse embeddings as follows. Let
+&lt;/p&gt;
 $$
 \mathbf{e}_i = \text{Embedding}(\mathbf{x}_s[i])
-$$
+$$&lt;p&gt;
 where $\mathbf{e}_i$ is the embedding vector for the $i$-th sparse feature, $\text{Embedding}$ denotes an embedding lookup table&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
@@ -679,30 +1643,32 @@ form or normalized form, denoted as $\mathbf{x}_d$.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Bottom MLP (Multilayer Perceptron)&lt;/strong&gt;: Processes the dense features to capture high-level representations.
+&lt;/p&gt;
 $$
 \mathbf{h}_d = \text{BottomMLP}(\mathbf{x}_d)
-$$&lt;/p&gt;
-&lt;/li&gt;
+$$&lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Interaction Layer&lt;/strong&gt;: This layer captures the interactions between different features (both sparse and dense). It
 uses a dot product to compute the pairwise interactions among features.
+&lt;/p&gt;
 $$
 \mathbf{z} = \left[ \mathbf{h}_d, \mathbf{e}_1, \mathbf{e}_2, \ldots, \mathbf{e}_n \right]
-$$
+$$&lt;p&gt;
 where $\mathbf{z}$ is the concatenated vector of dense feature representation and embeddings.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Top MLP&lt;/strong&gt;: Combines the processed dense features and interactions from the interaction layer to make the final prediction.
+&lt;/p&gt;
 $$
 \hat{y} = \sigma(\text{TopMLP}(\mathbf{z}))
-$$
+$$&lt;p&gt;
 where $\sigma$ is an activation function, typically a sigmoid function for binary classification tasks.&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
-&lt;h3 id=&#34;deep--cross-network-v2-dcn-v27&#34; &gt;
+&lt;h3 id=&#34;deep--cross-network-v2-dcn-v2&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#deep--cross-network-v2-dcn-v27&#34;&gt;
-        
+    &lt;a href=&#34;#deep--cross-network-v2-dcn-v2&#34;&gt;
+        ##
     &lt;/a&gt;
     Deep &amp;amp; Cross Network v2 (DCN v2)&lt;sup id=&#34;fnref:7&#34;&gt;&lt;a href=&#34;#fn:7&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;7&lt;/a&gt;&lt;/sup&gt;
 &lt;/div&gt;
@@ -715,32 +1681,30 @@ two ways to combine the cross network with the deep network: (1) stacked and (2)
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Cross Component&lt;/strong&gt;: The Cross Network V2 enhances the original cross network by introducing a more flexible mechanism
 to capture feature interactions. The cross layer in DCN V2 can be represented as:&lt;/p&gt;
-&lt;p&gt;$$
-x_{l+1} = x_0 \odot (W_l \cdot x_l + b_l) + x_l
-$$&lt;/p&gt;
-&lt;p&gt;where $x_l$ is the input to the l-th cross layer. $W_l$ and $b_l$ are the weight matrix and bias vector of the l-th
+$$
+   x_{l+1} = x_0 \odot (W_l \cdot x_l + b_l) + x_l
+   $$&lt;p&gt;where $x_l$ is the input to the l-th cross layer. $W_l$ and $b_l$ are the weight matrix and bias vector of the l-th
 cross layer. $x_{l+1}$ is the output of the $l+1$-th cross layer. $\odot$ is the Hadamard product.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Deep Component&lt;/strong&gt;: The deep network in DCN V2 captures high-order feature interactions through a series of dense layers.
 This part of the network learns abstract representations of the input features, enabling the model to generalize well.&lt;/p&gt;
-&lt;p&gt;$$
-h_{l} = f_{l}(W_{l} h_{l-1} + b_{l})
-$$&lt;/p&gt;
-&lt;p&gt;where $h_{l}$ is the activation of the $l$-th layer, $W_{l}$ and $b_{l}$ are the weights and
+$$ 
+   h_{l} = f_{l}(W_{l} h_{l-1} + b_{l})
+   $$&lt;p&gt;where $h_{l}$ is the activation of the $l$-th layer, $W_{l}$ and $b_{l}$ are the weights and
 biases of the $l$-th layer, respectively, and $f_{l}$ is the activation function.&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
 &lt;p&gt;The final prediction is a combination of the outputs from either the hidden layer (stacked structure) or the  concatenation
 of cross and deep network outputs.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-   &lt;img src=&#34;https://bingzw.github.io/recommendation_model/dcn_v2.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+   &lt;img src=&#34;http://localhost:65293/recommendation_model/dcn_v2.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
    &lt;em&gt;Figure 6: deep cross network v2&lt;/em&gt;
 &lt;/p&gt;
-&lt;h3 id=&#34;deep-interest-network-din8&#34; &gt;
+&lt;h3 id=&#34;deep-interest-network-din&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#deep-interest-network-din8&#34;&gt;
-        
+    &lt;a href=&#34;#deep-interest-network-din&#34;&gt;
+        ##
     &lt;/a&gt;
     Deep Interest Network (DIN)&lt;sup id=&#34;fnref:8&#34;&gt;&lt;a href=&#34;#fn:8&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;8&lt;/a&gt;&lt;/sup&gt;
 &lt;/div&gt;
@@ -751,44 +1715,46 @@ DIN leverages a user&amp;rsquo;s historical behavior to make more accurate and c
 innovation in DIN is its ability to capture user interests dynamically and use this information to influence the recommendation
 process.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-   &lt;img src=&#34;https://bingzw.github.io/recommendation_model/din.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
+   &lt;img src=&#34;http://localhost:65293/recommendation_model/din.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
    &lt;em&gt;Figure 7: deep interest network&lt;/em&gt;
 &lt;/p&gt;
 &lt;p&gt;In particular, the DIN contains the following key components:&lt;/p&gt;
 &lt;ol&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Embedding Layer&lt;/strong&gt;: User behaviors and items are represented as dense vectors through an embedding layer. Let
-$({e_{1}, e_{2}, \ldots, e_{n}})$ be the sequence of embeddings for user behaviors, and $e_{target}$ be the embedding of the target item.&lt;/p&gt;
+$(\{e_{1}, e_{2}, \ldots, e_{n}\})$ be the sequence of embeddings for user behaviors, and $e_{target}$ be the embedding of the target item.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Local Activation Unit&lt;/strong&gt;: This unit applies the attention mechanism to compute the relevance of each user behavior
 in the sequence with respect to the target item.
 Let
+&lt;/p&gt;
 $$
 \alpha_{i} = \frac{\exp(\text{score}(e_{i}, e_{target}))}{\sum_{j=1}^{n} \exp(\text{score}(e_{j}, e_{target}))}
-$$
+$$&lt;p&gt;
 where $\text{score}(e_{i}, e_{target})$ is the activation weight output from a feed-forward
 network measuring the relevance of behavior $e_{i}$ to the target item.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Interest Extractor Layer&lt;/strong&gt;: Combines the weighted behavior embeddings to form a user interest representation.
+&lt;/p&gt;
 $$
 u = \sum_{i=1}^{n} \alpha_{i} e_{i}
-$$&lt;/p&gt;
-&lt;/li&gt;
+$$&lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Prediction Layer&lt;/strong&gt;: The user interest representation is concatenated with the target item embedding and fed into a neural network to predict the user&amp;rsquo;s interaction with the target item.
+&lt;/p&gt;
 $$
 \hat{y} = \sigma(W[u, e_{target}, e_{profile}, e_{context}] + b)
-$$
+$$&lt;p&gt;
 where $[u, e_{target}, e_{profile}, e_{context}]$ denotes the concatenation of the user interest representation, profile
 embedding, context embedding and the target item embedding, $W$ is a weight matrix, $b$ is a bias term, and $\sigma$ is an activation function (e.g., sigmoid).&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
-&lt;h3 id=&#34;multi-gate-mixture-of-experts-mmoe9&#34; &gt;
+&lt;h3 id=&#34;multi-gate-mixture-of-experts-mmoe&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#multi-gate-mixture-of-experts-mmoe9&#34;&gt;
-        
+    &lt;a href=&#34;#multi-gate-mixture-of-experts-mmoe&#34;&gt;
+        ##
     &lt;/a&gt;
     Multi-gate Mixture of Experts (MMOE)&lt;sup id=&#34;fnref:9&#34;&gt;&lt;a href=&#34;#fn:9&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;9&lt;/a&gt;&lt;/sup&gt;
 &lt;/div&gt;
@@ -799,7 +1765,7 @@ mixture-of-experts models with the flexibility of multi-gate mechanisms, allowin
 computational resources based on the specific needs of each task. This approach is particularly useful in scenarios
 where tasks are interrelated and can benefit from shared learning while maintaining task-specific adaptations.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-   &lt;img src=&#34;https://bingzw.github.io/recommendation_model/mmoe.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
+   &lt;img src=&#34;http://localhost:65293/recommendation_model/mmoe.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
    &lt;em&gt;Figure 8: multi-gate mixture of experts&lt;/em&gt;
 &lt;/p&gt;
 &lt;p&gt;Key components of the model architecture are:&lt;/p&gt;
@@ -808,35 +1774,39 @@ where tasks are interrelated and can benefit from shared learning while maintain
 &lt;p&gt;&lt;strong&gt;Experts&lt;/strong&gt;: A set of neural network sub-models that serve as specialized units for feature extraction. Each expert
 is trained to capture different aspects of the input data. Let $\mathbf{x}$ represent the input data, $E$ represent
 the number of experts, and $T$ represent the number of tasks. The output from expert is represented as
+&lt;/p&gt;
 $$
 \mathbf{h}^i = f_e^i(\mathbf{x}), \quad \text{for } i = 1, 2, \ldots, E
-$$
+$$&lt;p&gt;
 where $f_e^i$ is the function of the $i$-th expert, and $\mathbf{h}^i$ is the output of the $i$-th expert.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Multi-gate Mechanism&lt;/strong&gt;: Separate gating networks for each task that dynamically select and weight the contributions
 of different experts based on the input data and task requirements.
+&lt;/p&gt;
 $$
 \mathbf{g}^j = \sigma(\mathbf{W}^j \mathbf{x}), \quad \text{for } j = 1, 2, \ldots, T
-$$
+$$&lt;p&gt;
 where $\mathbf{W}^j$ are the parameters of the gating network for task $j$, and $g^j$ is the gating output distribution
 of gating weights to each expert assigned by task $j$. To combine the experts output and gating weights, we have
-$$\mathbf{t}^j = \sum_{i=1}^{E} g_i^j \cdot \mathbf{h}^i$$
+&lt;/p&gt;
+$$\mathbf{t}^j = \sum_{i=1}^{E} g_i^j \cdot \mathbf{h}^i$$&lt;p&gt;
 where $\mathbf{t}^j$ is the combined output for task $j$, and $g_i^j$ is the weight for the $i$-th expert assigned by
 the gating network of task $j$.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Task-specific Layers&lt;/strong&gt;: Layers that process the combined outputs from the experts, tailored to the specific requirements of each task.
+&lt;/p&gt;
 $$
 \hat{y}^j = f_o^j(\mathbf{t}^j)
-$$
+$$&lt;p&gt;
 where $f_o^j$ is the task-specific output layer for task $j$, and $\hat{y}^j$ is the predicted output for task $j$.&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
-&lt;h3 id=&#34;behavior-sequence-transformer-bst10&#34; &gt;
+&lt;h3 id=&#34;behavior-sequence-transformer-bst&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#behavior-sequence-transformer-bst10&#34;&gt;
-        
+    &lt;a href=&#34;#behavior-sequence-transformer-bst&#34;&gt;
+        ##
     &lt;/a&gt;
     Behavior Sequence Transformer (BST)&lt;sup id=&#34;fnref:10&#34;&gt;&lt;a href=&#34;#fn:10&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;10&lt;/a&gt;&lt;/sup&gt;
 &lt;/div&gt;
@@ -846,7 +1816,7 @@ sequences in recommendation systems. BST leverages the power of Transformer mode
 success in natural language processing (NLP), to capture the sequential patterns and contextual dependencies in user
 interactions over time. This approach enhances the ability to predict user preferences and improve recommendation accuracy.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-   &lt;img src=&#34;https://bingzw.github.io/recommendation_model/bst.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
+   &lt;img src=&#34;http://localhost:65293/recommendation_model/bst.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
    &lt;em&gt;Figure 9: behavior sequence transformer&lt;/em&gt;
 &lt;/p&gt;
 &lt;p&gt;Key components of BST include:&lt;/p&gt;
@@ -860,44 +1830,49 @@ interactions over time. This approach enhances the ability to predict user prefe
 &lt;ol start=&#34;2&#34;&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Embedding Layer&lt;/strong&gt;:
+&lt;/p&gt;
 $$
 \mathbf{E}_x = \mathbf{W}_e \cdot \mathbf{x}
-$$
+$$&lt;p&gt;
 where $\mathbf{W}_e$ is the embedding matrix and $\mathbf{x}$ is the input feature vector.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Positional Encoding&lt;/strong&gt;:
+&lt;/p&gt;
 $$
 \mathbf{E}_p = \text{PE}(pos)
-$$
+$$&lt;p&gt;
 where $\text{PE}(pos)$ is the positional encoding function that adds position-specific information to the embeddings.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Transformer Encoder&lt;/strong&gt;:
+&lt;/p&gt;
 $$
 \mathbf{H}_i = \text{LayerNorm}(\text{MultiHeadAttention}(\mathbf{Q}, \mathbf{K}, \mathbf{V}) + \mathbf{E}_i)
-$$
+$$&lt;p&gt;
 where $\mathbf{Q}$, $\mathbf{K}$, and $\mathbf{V}$ are the query, key, and value matrices, and $\mathbf{E}_i$ is the
 input embedding at layer $i$. A Feed-Forward Networks ($\text{FFN}$) is added on top of the self attention layer to further enhance the
 model with non-linearity.
+&lt;/p&gt;
 $$
 \mathbf{O}_i = \text{LayerNorm}(\text{FFN}(\mathbf{H}_i) + \mathbf{H}_i)
-$$
+$$&lt;p&gt;
 In practice, we usually stack multiple transformer layers. So the output of last layer is thus fed as the input of the
 next layer.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Output Layer&lt;/strong&gt;:
+&lt;/p&gt;
 $$
 \hat{y} = \sigma(\mathbf{W}_o \cdot \mathbf{O}_L)
-$$
+$$&lt;p&gt;
 where $\mathbf{W}_o$ is the weight matrix of the output layer, $\mathbf{O}_L$ is the output of the last Transformer encoder layer, and $\sigma$ is the activation function.&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
 &lt;h2 id=&#34;summary&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#summary&#34;&gt;
-        
+        #
     &lt;/a&gt;
     Summary
 &lt;/div&gt;
@@ -909,13 +1884,13 @@ Users may choose the best model depending on the business requirements and syste
 &lt;h2 id=&#34;citation&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#citation&#34;&gt;
-        
+        #
     &lt;/a&gt;
     Citation
 &lt;/div&gt;
 &lt;/h2&gt;
 &lt;p&gt;If you find this post helpful, please consider citing it as:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bibtex&#34; data-lang=&#34;bibtex&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f3f99d&#34;&gt;@article&lt;/span&gt;{&lt;span style=&#34;color:#ff5c57&#34;&gt;wang2024recommendationmodel&lt;/span&gt;,
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bibtex&#34; data-lang=&#34;bibtex&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f3f99d&#34;&gt;@article&lt;/span&gt;{&lt;span style=&#34;color:#ff5c57&#34;&gt;wang2024recommendationmodel&lt;/span&gt;,
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;author&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;Bing Wang&amp;#34;&lt;/span&gt;,
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;title&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;Recommendation Models&amp;#34;&lt;/span&gt;,
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;journal&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;bingzw.github.io&amp;#34;&lt;/span&gt;,
@@ -924,12 +1899,12 @@ Users may choose the best model depending on the business requirements and syste
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;url&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;https://bingzw.github.io/posts/2024-06-06-recommendation-model/&amp;#34;&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;or&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-markdown&#34; data-lang=&#34;markdown&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Bing Wang. (2024, June). Recommendation Models. 
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-markdown&#34; data-lang=&#34;markdown&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Bing Wang. (2024, June). Recommendation Models. 
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;https://bingzw.github.io/posts/2024-06-06-recommendation-model/
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;reference&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#reference&#34;&gt;
-        
+        #
     &lt;/a&gt;
     Reference
 &lt;/div&gt;

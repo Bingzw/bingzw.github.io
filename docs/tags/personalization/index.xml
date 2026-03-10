@@ -6,8 +6,6 @@
     <description>Bingz Learning Blog (Personalization)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <managingEditor>bingwang8878@gamil.com (Bing Wang)</managingEditor>
-    <webMaster>bingwang8878@gamil.com (Bing Wang)</webMaster>
     <lastBuildDate>Fri, 20 Jun 2025 20:30:01 -0700</lastBuildDate>
     
     <atom:link href="/tags/personalization/index.xml" rel="self" type="application/rss+xml" />
@@ -17,16 +15,16 @@
       <title>User Cohort Optimization in Multi-Task Recommendation Systems</title>
       <link>/posts/2025-06-20-cohort-opt/</link>
       <pubDate>Fri, 20 Jun 2025 20:30:01 -0700</pubDate>
-      <author>bingwang8878@gamil.com (Bing Wang)</author>
+      
       <guid>/posts/2025-06-20-cohort-opt/</guid>
       <description>&lt;p align=&#34;center&#34;&gt;
-&lt;img src=&#34;https://bingzw.github.io/cohort_opt/cohort optimization.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+&lt;img src=&#34;http://localhost:65293/cohort_opt/cohort optimization.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
 &lt;p&gt;
 &lt;p&gt;&lt;em&gt;Image cited from &lt;sup id=&#34;fnref:1&#34;&gt;&lt;a href=&#34;#fn:1&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;1&lt;/a&gt;&lt;/sup&gt;&lt;/em&gt;&lt;/p&gt;
 &lt;h2 id=&#34;context&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#context&#34;&gt;
-        
+        #
     &lt;/a&gt;
     Context
 &lt;/div&gt;
@@ -46,7 +44,7 @@ see the graph neural network for identification in section 3.&lt;/p&gt;
 &lt;h2 id=&#34;strategies&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#strategies&#34;&gt;
-        
+        #
     &lt;/a&gt;
     Strategies
 &lt;/div&gt;
@@ -55,7 +53,7 @@ see the graph neural network for identification in section 3.&lt;/p&gt;
 &lt;h3 id=&#34;1-dynamic-weighted-sample-training&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#1-dynamic-weighted-sample-training&#34;&gt;
-        
+        ##
     &lt;/a&gt;
     1. Dynamic Weighted Sample Training
 &lt;/div&gt;
@@ -79,7 +77,7 @@ or representations based on the user&amp;rsquo;s current stage &lt;sup id=&#34;f
 &lt;h3 id=&#34;2-dedicated-cohort-learning-modules&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#2-dedicated-cohort-learning-modules&#34;&gt;
-        
+        ##
     &lt;/a&gt;
     2. Dedicated Cohort Learning Modules
 &lt;/div&gt;
@@ -87,7 +85,7 @@ or representations based on the user&amp;rsquo;s current stage &lt;sup id=&#34;f
 &lt;h4 id=&#34;21-customized-mixture-of-experts-moemmoe-learning-module&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#21-customized-mixture-of-experts-moemmoe-learning-module&#34;&gt;
-        
+        ###
     &lt;/a&gt;
     2.1 Customized Mixture-of-Experts (MoE/MMoE) learning module
 &lt;/div&gt;
@@ -120,13 +118,13 @@ from the &amp;ldquo;global expert.&amp;rdquo; MoE architectures can face challen
 redundant or too specialized, and solutions like expert balance regularization are often employed [^8].&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p align=&#34;center&#34;&gt;
-&lt;img src=&#34;https://bingzw.github.io/cohort_opt/moe.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+&lt;img src=&#34;http://localhost:65293/cohort_opt/moe.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
 &lt;em&gt;Figure 1: Cohort Optimization via MOE Architecture&lt;/em&gt;
 &lt;p&gt;
 &lt;h4 id=&#34;22-lora-for-cohort-specific-fine-tuning&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#22-lora-for-cohort-specific-fine-tuning&#34;&gt;
-        
+        ###
     &lt;/a&gt;
     2.2. LoRA for Cohort-Specific Fine-tuning
 &lt;/div&gt;
@@ -155,13 +153,13 @@ mechanism. LoRA uses a shared base model adapted by small, cohort-specific add-o
 modules are adapted for individual instances (which can be interpreted as highly specific &amp;ldquo;cohorts&amp;rdquo; or individual users), showcasing its flexibility for fine-grained adaptation &lt;sup id=&#34;fnref:10&#34;&gt;&lt;a href=&#34;#fn:10&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;10&lt;/a&gt;&lt;/sup&gt;.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p align=&#34;center&#34;&gt;
-&lt;img src=&#34;https://bingzw.github.io/cohort_opt/LORA.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+&lt;img src=&#34;http://localhost:65293/cohort_opt/LORA.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
 &lt;em&gt;Figure 2: Cohort Optimization via LORA Architecture&lt;/em&gt;
 &lt;p&gt;
 &lt;h3 id=&#34;3-explore-other-approaches&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#3-explore-other-approaches&#34;&gt;
-        
+        ##
     &lt;/a&gt;
     3. Explore Other Approaches
 &lt;/div&gt;
@@ -205,47 +203,47 @@ clustering or community detection algorithms on the user-user interaction graph,
 &lt;h2 id=&#34;discussion&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#discussion&#34;&gt;
-        
+        #
     &lt;/a&gt;
     Discussion
 &lt;/div&gt;
 &lt;/h2&gt;
 &lt;p&gt;Each strategy offers unique advantages and trade-offs when optimizing for user cohorts in MTL recommendation systems.&lt;/p&gt;
 &lt;table&gt;
-&lt;thead&gt;
-&lt;tr&gt;
-&lt;th style=&#34;text-align:left&#34;&gt;Strategy&lt;/th&gt;
-&lt;th style=&#34;text-align:left&#34;&gt;Pros&lt;/th&gt;
-&lt;th style=&#34;text-align:left&#34;&gt;Cons&lt;/th&gt;
-&lt;/tr&gt;
-&lt;/thead&gt;
-&lt;tbody&gt;
-&lt;tr&gt;
-&lt;td style=&#34;text-align:left&#34;&gt;&lt;strong&gt;Dynamic Weighted Training&lt;/strong&gt;&lt;/td&gt;
-&lt;td style=&#34;text-align:left&#34;&gt;&lt;strong&gt;Simplicity (Rule-Based):&lt;/strong&gt; Easy to implement for basic scenarios. &lt;br/&gt;&lt;strong&gt;Flexibility (Model-Based):&lt;/strong&gt; Can dynamically adapt to changing cohort needs. &lt;br/&gt;&lt;strong&gt;Computational Efficiency:&lt;/strong&gt; No major architectural changes, often involves just loss adjustments, reducing computational overhead &lt;sup id=&#34;fnref1:4&#34;&gt;&lt;a href=&#34;#fn:4&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;4&lt;/a&gt;&lt;/sup&gt;. &lt;br/&gt;&lt;strong&gt;Balances Tasks:&lt;/strong&gt; Can prevent one task (or cohort&amp;rsquo;s objective) from dominating others, improving generalization &lt;sup id=&#34;fnref1:5&#34;&gt;&lt;a href=&#34;#fn:5&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;5&lt;/a&gt;&lt;/sup&gt;.&lt;/td&gt;
-&lt;td style=&#34;text-align:left&#34;&gt;&lt;strong&gt;Weight Determination:&lt;/strong&gt; Difficult to set optimal rule-based weights. Model-based methods can be complex to design and tune. &lt;br/&gt;&lt;strong&gt;Suboptimal Performance:&lt;/strong&gt; Improper balancing can lead to poor overall or cohort-specific performance. &lt;br/&gt;&lt;strong&gt;No Explicit Specialization:&lt;/strong&gt; Model doesn&amp;rsquo;t explicitly specialize per cohort; it only changes attention during training. &lt;br/&gt;&lt;strong&gt;Lack of Interpretability:&lt;/strong&gt; Why certain weights are chosen can be opaque for model-based methods.&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td style=&#34;text-align:left&#34;&gt;&lt;strong&gt;Mixture-of-Experts (MoE/MMoE)&lt;/strong&gt;&lt;/td&gt;
-&lt;td style=&#34;text-align:left&#34;&gt;&lt;strong&gt;Explicit Specialization:&lt;/strong&gt; Dedicated experts can learn highly specific patterns for each cohort, leading to better performance for diverse groups &lt;sup id=&#34;fnref1:7&#34;&gt;&lt;a href=&#34;#fn:7&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;7&lt;/a&gt;&lt;/sup&gt;. &lt;br/&gt;&lt;strong&gt;Scalability:&lt;/strong&gt; Can scale to many cohorts/tasks by adding experts. &lt;br/&gt;&lt;strong&gt;Interpretability:&lt;/strong&gt; Can potentially observe which experts are active for which cohorts.&lt;/td&gt;
-&lt;td style=&#34;text-align:left&#34;&gt;&lt;strong&gt;Computational Cost:&lt;/strong&gt; More parameters than a single model, leading to higher training and inference costs (though can be optimized). &lt;br/&gt;&lt;strong&gt;Expert Collapse/Polarization:&lt;/strong&gt; Experts might become redundant or specialize too narrowly, leading to poor generalization for some cohorts [^8]. &lt;br/&gt;&lt;strong&gt;Routing Complexity:&lt;/strong&gt; Gating network needs careful design; poor routing can degrade performance. &lt;br/&gt;&lt;strong&gt;Data Requirements:&lt;/strong&gt; Each cohort expert needs sufficient data to train effectively.&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td style=&#34;text-align:left&#34;&gt;&lt;strong&gt;LoRA for Cohort Fine-tuning&lt;/strong&gt;&lt;/td&gt;
-&lt;td style=&#34;text-align:left&#34;&gt;&lt;strong&gt;Parameter Efficiency:&lt;/strong&gt; Significantly fewer trainable parameters than full fine-tuning or MoE (no full expert networks), reducing memory and computation &lt;sup id=&#34;fnref1:9&#34;&gt;&lt;a href=&#34;#fn:9&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;9&lt;/a&gt;&lt;/sup&gt;. &lt;br/&gt;&lt;strong&gt;No Inference Latency:&lt;/strong&gt; Once LoRA weights are loaded, inference is as fast as the base model. &lt;br/&gt;&lt;strong&gt;Modularity:&lt;/strong&gt; Easy to add/remove cohort-specific LoRA modules. &lt;br/&gt;&lt;strong&gt;Knowledge Retention:&lt;/strong&gt; Leverages a strong pre-trained base model, preventing catastrophic forgetting &lt;sup id=&#34;fnref2:9&#34;&gt;&lt;a href=&#34;#fn:9&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;9&lt;/a&gt;&lt;/sup&gt;.&lt;/td&gt;
-&lt;td style=&#34;text-align:left&#34;&gt;&lt;strong&gt;Base Model Dependence:&lt;/strong&gt; Performance is limited by the capabilities of the base model. &lt;br/&gt;&lt;strong&gt;Still Requires Data:&lt;/strong&gt; Each LoRA module needs enough cohort-specific data for effective fine-tuning. &lt;br/&gt;&lt;strong&gt;Storage:&lt;/strong&gt; Storing many LoRA modules for many small cohorts can still accumulate. &lt;br/&gt;&lt;strong&gt;Potential Overfitting:&lt;/strong&gt; Small modules can potentially overfit if cohort data is too sparse.&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td style=&#34;text-align:left&#34;&gt;&lt;strong&gt;Other Approaches&lt;/strong&gt;&lt;/td&gt;
-&lt;td style=&#34;text-align:left&#34;&gt;&lt;strong&gt;Personalized Loss:&lt;/strong&gt; Direct control over cohort objectives (e.g., fairness, specific metrics). &lt;br/&gt;&lt;strong&gt;Hierarchical Models:&lt;/strong&gt; Explicitly models group-level patterns, strong for cold-start groups. &lt;br/&gt;&lt;strong&gt;Meta-learning:&lt;/strong&gt; Fast adaptation to new or small cohorts/users. &lt;br/&gt;&lt;strong&gt;GNNs:&lt;/strong&gt; Naturally capture complex relationships for implicit cohort identification.&lt;/td&gt;
-&lt;td style=&#34;text-align:left&#34;&gt;&lt;strong&gt;Personalized Loss:&lt;/strong&gt; Can be complex to formulate and optimize. &lt;br/&gt;&lt;strong&gt;Hierarchical Models:&lt;/strong&gt; Designing the hierarchy and information flow can be challenging. &lt;br/&gt;&lt;strong&gt;Meta-learning:&lt;/strong&gt; Computationally intensive for meta-training; industrial deployment can be complex. &lt;br/&gt;&lt;strong&gt;GNNs:&lt;/strong&gt; High computational cost for large graphs; defining optimal graph structures can be tricky &lt;sup id=&#34;fnref1:16&#34;&gt;&lt;a href=&#34;#fn:16&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;16&lt;/a&gt;&lt;/sup&gt;.&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/tbody&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Strategy&lt;/th&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Pros&lt;/th&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Cons&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Dynamic Weighted Training&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Simplicity (Rule-Based):&lt;/strong&gt; Easy to implement for basic scenarios. &lt;br/&gt;&lt;strong&gt;Flexibility (Model-Based):&lt;/strong&gt; Can dynamically adapt to changing cohort needs. &lt;br/&gt;&lt;strong&gt;Computational Efficiency:&lt;/strong&gt; No major architectural changes, often involves just loss adjustments, reducing computational overhead &lt;sup id=&#34;fnref1:4&#34;&gt;&lt;a href=&#34;#fn:4&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;4&lt;/a&gt;&lt;/sup&gt;. &lt;br/&gt;&lt;strong&gt;Balances Tasks:&lt;/strong&gt; Can prevent one task (or cohort&amp;rsquo;s objective) from dominating others, improving generalization &lt;sup id=&#34;fnref1:5&#34;&gt;&lt;a href=&#34;#fn:5&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;5&lt;/a&gt;&lt;/sup&gt;.&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Weight Determination:&lt;/strong&gt; Difficult to set optimal rule-based weights. Model-based methods can be complex to design and tune. &lt;br/&gt;&lt;strong&gt;Suboptimal Performance:&lt;/strong&gt; Improper balancing can lead to poor overall or cohort-specific performance. &lt;br/&gt;&lt;strong&gt;No Explicit Specialization:&lt;/strong&gt; Model doesn&amp;rsquo;t explicitly specialize per cohort; it only changes attention during training. &lt;br/&gt;&lt;strong&gt;Lack of Interpretability:&lt;/strong&gt; Why certain weights are chosen can be opaque for model-based methods.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Mixture-of-Experts (MoE/MMoE)&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Explicit Specialization:&lt;/strong&gt; Dedicated experts can learn highly specific patterns for each cohort, leading to better performance for diverse groups &lt;sup id=&#34;fnref1:7&#34;&gt;&lt;a href=&#34;#fn:7&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;7&lt;/a&gt;&lt;/sup&gt;. &lt;br/&gt;&lt;strong&gt;Scalability:&lt;/strong&gt; Can scale to many cohorts/tasks by adding experts. &lt;br/&gt;&lt;strong&gt;Interpretability:&lt;/strong&gt; Can potentially observe which experts are active for which cohorts.&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Computational Cost:&lt;/strong&gt; More parameters than a single model, leading to higher training and inference costs (though can be optimized). &lt;br/&gt;&lt;strong&gt;Expert Collapse/Polarization:&lt;/strong&gt; Experts might become redundant or specialize too narrowly, leading to poor generalization for some cohorts [^8]. &lt;br/&gt;&lt;strong&gt;Routing Complexity:&lt;/strong&gt; Gating network needs careful design; poor routing can degrade performance. &lt;br/&gt;&lt;strong&gt;Data Requirements:&lt;/strong&gt; Each cohort expert needs sufficient data to train effectively.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;LoRA for Cohort Fine-tuning&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Parameter Efficiency:&lt;/strong&gt; Significantly fewer trainable parameters than full fine-tuning or MoE (no full expert networks), reducing memory and computation &lt;sup id=&#34;fnref1:9&#34;&gt;&lt;a href=&#34;#fn:9&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;9&lt;/a&gt;&lt;/sup&gt;. &lt;br/&gt;&lt;strong&gt;No Inference Latency:&lt;/strong&gt; Once LoRA weights are loaded, inference is as fast as the base model. &lt;br/&gt;&lt;strong&gt;Modularity:&lt;/strong&gt; Easy to add/remove cohort-specific LoRA modules. &lt;br/&gt;&lt;strong&gt;Knowledge Retention:&lt;/strong&gt; Leverages a strong pre-trained base model, preventing catastrophic forgetting &lt;sup id=&#34;fnref2:9&#34;&gt;&lt;a href=&#34;#fn:9&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;9&lt;/a&gt;&lt;/sup&gt;.&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Base Model Dependence:&lt;/strong&gt; Performance is limited by the capabilities of the base model. &lt;br/&gt;&lt;strong&gt;Still Requires Data:&lt;/strong&gt; Each LoRA module needs enough cohort-specific data for effective fine-tuning. &lt;br/&gt;&lt;strong&gt;Storage:&lt;/strong&gt; Storing many LoRA modules for many small cohorts can still accumulate. &lt;br/&gt;&lt;strong&gt;Potential Overfitting:&lt;/strong&gt; Small modules can potentially overfit if cohort data is too sparse.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Other Approaches&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Personalized Loss:&lt;/strong&gt; Direct control over cohort objectives (e.g., fairness, specific metrics). &lt;br/&gt;&lt;strong&gt;Hierarchical Models:&lt;/strong&gt; Explicitly models group-level patterns, strong for cold-start groups. &lt;br/&gt;&lt;strong&gt;Meta-learning:&lt;/strong&gt; Fast adaptation to new or small cohorts/users. &lt;br/&gt;&lt;strong&gt;GNNs:&lt;/strong&gt; Naturally capture complex relationships for implicit cohort identification.&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Personalized Loss:&lt;/strong&gt; Can be complex to formulate and optimize. &lt;br/&gt;&lt;strong&gt;Hierarchical Models:&lt;/strong&gt; Designing the hierarchy and information flow can be challenging. &lt;br/&gt;&lt;strong&gt;Meta-learning:&lt;/strong&gt; Computationally intensive for meta-training; industrial deployment can be complex. &lt;br/&gt;&lt;strong&gt;GNNs:&lt;/strong&gt; High computational cost for large graphs; defining optimal graph structures can be tricky &lt;sup id=&#34;fnref1:16&#34;&gt;&lt;a href=&#34;#fn:16&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;16&lt;/a&gt;&lt;/sup&gt;.&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
 &lt;/table&gt;
 &lt;h2 id=&#34;direction-extension&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#direction-extension&#34;&gt;
-        
+        #
     &lt;/a&gt;
     Direction Extension
 &lt;/div&gt;
@@ -302,13 +300,13 @@ the base model, enhancing trust and enabling better manual interventions.&lt;/li
 &lt;h2 id=&#34;citation&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#citation&#34;&gt;
-        
+        #
     &lt;/a&gt;
     Citation
 &lt;/div&gt;
 &lt;/h2&gt;
 &lt;p&gt;If you find this post helpful, please consider citing it as:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bibtex&#34; data-lang=&#34;bibtex&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f3f99d&#34;&gt;@article&lt;/span&gt;{&lt;span style=&#34;color:#ff5c57&#34;&gt;wang2025cohortopt&lt;/span&gt;,
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bibtex&#34; data-lang=&#34;bibtex&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f3f99d&#34;&gt;@article&lt;/span&gt;{&lt;span style=&#34;color:#ff5c57&#34;&gt;wang2025cohortopt&lt;/span&gt;,
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;author&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;Bing Wang&amp;#34;&lt;/span&gt;,
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;title&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;User Cohort Optimization in Multi-Task Recommendation Systems&amp;#34;&lt;/span&gt;,
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;journal&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;bingzw.github.io&amp;#34;&lt;/span&gt;,
@@ -317,12 +315,12 @@ the base model, enhancing trust and enabling better manual interventions.&lt;/li
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;url&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;https://bingzw.github.io/posts/2025-06-20-cohort-opt/&amp;#34;&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;or&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-markdown&#34; data-lang=&#34;markdown&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Bing Wang. (2025, June). User Cohort Optimization in Multi-Task Recommendation Systems. 
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-markdown&#34; data-lang=&#34;markdown&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Bing Wang. (2025, June). User Cohort Optimization in Multi-Task Recommendation Systems. 
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;https://bingzw.github.io/posts/2025-06-20-cohort-opt/
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;references&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#references&#34;&gt;
-        
+        #
     &lt;/a&gt;
     References
 &lt;/div&gt;
@@ -386,16 +384,16 @@ the base model, enhancing trust and enabling better manual interventions.&lt;/li
       <title>Recommendation Models</title>
       <link>/posts/2024-06-06-recommendation-model/</link>
       <pubDate>Thu, 06 Jun 2024 22:04:53 -0700</pubDate>
-      <author>bingwang8878@gamil.com (Bing Wang)</author>
+      
       <guid>/posts/2024-06-06-recommendation-model/</guid>
       <description>&lt;p align=&#34;center&#34;&gt;
-&lt;img src=&#34;https://bingzw.github.io/recommendation_model/reco.jpeg&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+&lt;img src=&#34;http://localhost:65293/recommendation_model/reco.jpeg&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
 &lt;p&gt;
 &lt;p&gt;&lt;em&gt;Image cited from &lt;a href=&#34;https://www.vecteezy.com/&#34;&gt;vecteezy&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
 &lt;h2 id=&#34;introduction-to-recommendation-models&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#introduction-to-recommendation-models&#34;&gt;
-        
+        #
     &lt;/a&gt;
     Introduction to Recommendation Models
 &lt;/div&gt;
@@ -413,7 +411,7 @@ and revenue generation. Let&amp;rsquo;s take a look at the most popular modeling
 &lt;h2 id=&#34;collaborative-filtering-cf&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#collaborative-filtering-cf&#34;&gt;
-        
+        #
     &lt;/a&gt;
     Collaborative Filtering (CF)
 &lt;/div&gt;
@@ -424,7 +422,7 @@ straightforward and only requires user-item interaction history.&lt;/p&gt;
 &lt;h3 id=&#34;memory-based-cf&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#memory-based-cf&#34;&gt;
-        
+        ##
     &lt;/a&gt;
     Memory Based CF
 &lt;/div&gt;
@@ -437,7 +435,7 @@ filtering or item-item filtering.&lt;/p&gt;
 &lt;h4 id=&#34;user-user-filtering&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#user-user-filtering&#34;&gt;
-        
+        ###
     &lt;/a&gt;
     User User Filtering
 &lt;/div&gt;
@@ -447,26 +445,25 @@ average from ratings of similar users:&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
 $r_{u,i} = \bar{r}_u + \frac{\sum_{u&#39;\in S_u}sim(u, u&#39;) * (r_{u&#39;,i} - \bar{r}_{u&#39;})}{\sum_{u&#39;\in S_u}sim(u, u&#39;)}$
 &lt;p&gt;
-&lt;p&gt;where $\bar{r}_u$ is the average rating of user $u$ and $sim(u, u&amp;rsquo;)$ represents the similarity score between user $u$
-and $u&amp;rsquo;$. A common choice is to calculate the cosine similarity between two user rating vectors.&lt;/p&gt;
+&lt;p&gt;where $\bar{r}_u$ is the average rating of user $u$ and $sim(u, u&#39;)$ represents the similarity score between user $u$
+and $u&#39;$. A common choice is to calculate the cosine similarity between two user rating vectors.&lt;/p&gt;
 &lt;h4 id=&#34;item-item-filtering&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#item-item-filtering&#34;&gt;
-        
+        ###
     &lt;/a&gt;
     Item Item Filtering
 &lt;/div&gt;
 &lt;/h4&gt;
 &lt;p&gt;Assume that the customers will prefer products that share a high similarity with those already well appreciated. The
 missing rating is thus predicted as the weighted average of a set of similar products:&lt;/p&gt;
-&lt;p&gt;$$r_{u,i} = \frac{\sum_{j \in P_i}sim(j, i) * r_{u,j}}{\sum_{j \in P_i}sim(j, i)}$$&lt;/p&gt;
-&lt;p&gt;It&amp;rsquo;s straightforward to observe that user-based filtering is to check what other users think of the same product, while
+$$r_{u,i} = \frac{\sum_{j \in P_i}sim(j, i) * r_{u,j}}{\sum_{j \in P_i}sim(j, i)}$$&lt;p&gt;It&amp;rsquo;s straightforward to observe that user-based filtering is to check what other users think of the same product, while
 item-based filtering is aggregating what the user thinks of other items. Essentially, both are weighted linear
 combination of observed ratings. Can we do better than weighted average?&lt;/p&gt;
 &lt;h3 id=&#34;model-based-cf&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#model-based-cf&#34;&gt;
-        
+        ##
     &lt;/a&gt;
     Model Based CF
 &lt;/div&gt;
@@ -480,7 +477,7 @@ space and $n$ denotes the dimension of item space.&lt;/p&gt;
 &lt;h4 id=&#34;clustering&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#clustering&#34;&gt;
-        
+        ###
     &lt;/a&gt;
     Clustering
 &lt;/div&gt;
@@ -490,7 +487,7 @@ items depending on the similarity metrics used.&lt;/p&gt;
 &lt;h4 id=&#34;matrix-factorization&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#matrix-factorization&#34;&gt;
-        
+        ###
     &lt;/a&gt;
     Matrix Factorization
 &lt;/div&gt;
@@ -503,17 +500,16 @@ of the latent space.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;The interaction matrix $R$ is approximated as the product of these two matrices: $R \approx U \cdot V^T$. In practice, we
 are usually optimizing for a weighted matrix factorization objective&lt;sup id=&#34;fnref:1&#34;&gt;&lt;a href=&#34;#fn:1&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;1&lt;/a&gt;&lt;/sup&gt;&lt;/p&gt;
-&lt;p&gt;$$L(\theta) = \sum_{(i, j)\in obs} \omega_{i, j} (R_{i, j} - U_i \cdot V_{j}^{T})^2 + \omega_{0} \sum_{(i, j) \notin obs}
-(U_i \cdot V_{j}^{T})^2$$&lt;/p&gt;
-&lt;p&gt;where $\omega_0$ is a hyper-parameter that weights the two terms so that the objective is not
+$$L(\theta) = \sum_{(i, j)\in obs} \omega_{i, j} (R_{i, j} - U_i \cdot V_{j}^{T})^2 + \omega_{0} \sum_{(i, j) \notin obs}
+(U_i \cdot V_{j}^{T})^2$$&lt;p&gt;where $\omega_0$ is a hyper-parameter that weights the two terms so that the objective is not
 dominated by one or the other, and $\omega_{i, j}$ is a function of the frequency of user $i$ and item $j$.&lt;/p&gt;
 &lt;p&gt;Common optimization algorithms to minimize the above objective function includes &lt;strong&gt;stochastic gradient descent&lt;/strong&gt; and
 &lt;strong&gt;weighted alternating least squares (WALS)&lt;/strong&gt;.&lt;/p&gt;
 &lt;p&gt;Recently, a few efforts on deep learning have also been proposed on matrix factorization. For example,&lt;/p&gt;
-&lt;h5 id=&#34;deep-auto-encoders2&#34; &gt;
+&lt;h5 id=&#34;deep-auto-encoders&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#deep-auto-encoders2&#34;&gt;
-        
+    &lt;a href=&#34;#deep-auto-encoders&#34;&gt;
+        ####
     &lt;/a&gt;
     Deep Auto-Encoders&lt;sup id=&#34;fnref:2&#34;&gt;&lt;a href=&#34;#fn:2&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;2&lt;/a&gt;&lt;/sup&gt;
 &lt;/div&gt;
@@ -523,13 +519,13 @@ architecture to the collaborative filtering domain. CDAE is designed to handle i
 are inferred from user behavior rather than explicit ratings. The model incorporates both user-specific and item-specific
 factors, leveraging the rich user interaction data to learn better representations for recommendation tasks.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-    &lt;img src=&#34;https://bingzw.github.io/recommendation_model/autoencoder_mf.png&#34;&gt;&lt;br&gt;
+    &lt;img src=&#34;http://localhost:65293/recommendation_model/autoencoder_mf.png&#34;&gt;&lt;br&gt;
     &lt;em&gt;Figure 1: deep auto-encoder&lt;/em&gt;
 &lt;/p&gt;
-&lt;h5 id=&#34;neural-collaborative-filtering3&#34; &gt;
+&lt;h5 id=&#34;neural-collaborative-filtering&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#neural-collaborative-filtering3&#34;&gt;
-        
+    &lt;a href=&#34;#neural-collaborative-filtering&#34;&gt;
+        ####
     &lt;/a&gt;
     Neural Collaborative Filtering&lt;sup id=&#34;fnref:3&#34;&gt;&lt;a href=&#34;#fn:3&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;3&lt;/a&gt;&lt;/sup&gt;
 &lt;/div&gt;
@@ -543,13 +539,13 @@ that learn the interaction between these embeddings. The final output layer pred
 item. This approach not only improves the accuracy of recommendations but also enables the integration of additional
 features, such as user demographics or item attributes, into the model. Refer to the DLRM or DeepFM for more details.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-    &lt;img src=&#34;https://bingzw.github.io/recommendation_model/ncf_mf.png&#34;&gt;&lt;br&gt;
+    &lt;img src=&#34;http://localhost:65293/recommendation_model/ncf_mf.png&#34;&gt;&lt;br&gt;
     &lt;em&gt;Figure 2: neural collaborative filtering&lt;/em&gt;
 &lt;/p&gt;
 &lt;h2 id=&#34;content-based-models-ranking-as-recommendation&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#content-based-models-ranking-as-recommendation&#34;&gt;
-        
+        #
     &lt;/a&gt;
     Content Based Models (Ranking As Recommendation)
 &lt;/div&gt;
@@ -561,10 +557,10 @@ user based on the features of the items they have shown interest in. Compared wi
 to handle the cold start issue when item features are known. However, its recommendation may strictly adheres to the
 user&amp;rsquo;s profile, potentially limiting diversity. There are quite a few popular model frameworks in this area and we would
 focus on the models based on deep neural architecture.&lt;/p&gt;
-&lt;h3 id=&#34;wide--deep4&#34; &gt;
+&lt;h3 id=&#34;wide--deep&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#wide--deep4&#34;&gt;
-        
+    &lt;a href=&#34;#wide--deep&#34;&gt;
+        ##
     &lt;/a&gt;
     Wide &amp;amp; Deep&lt;sup id=&#34;fnref:4&#34;&gt;&lt;a href=&#34;#fn:4&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;4&lt;/a&gt;&lt;/sup&gt;
 &lt;/div&gt;
@@ -576,35 +572,31 @@ The model consists of two components:&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Wide Component&lt;/strong&gt;: This part is a generalized linear model (GLM) that excels at memorization by capturing feature
 interactions using cross-product feature transformations. The wide component is effective at handling sparse features
 and explicitly memorizing frequent co-occurrence patterns. It can be represented as:&lt;/p&gt;
-&lt;p&gt;$$y_{\text{wide}} = \mathbf{w}^T \mathbf{x} + b $$&lt;/p&gt;
-&lt;p&gt;where $\mathbf{x}$ represents the input features, $\mathbf{w}$ represents the learned weights, and $b$ is
+$$y_{\text{wide}} = \mathbf{w}^T \mathbf{x} + b $$&lt;p&gt;where $\mathbf{x}$ represents the input features, $\mathbf{w}$ represents the learned weights, and $b$ is
 the bias term.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Deep Component&lt;/strong&gt;: This part is a feed-forward neural network that excels at generalization by capturing high-level
 and non-linear feature interactions. The deep component uses dense embeddings to represent categorical features, and it
 learns implicit interactions through multiple hidden layers. The output of the deep component can be represented as:&lt;/p&gt;
-&lt;p&gt;$$\mathbf{h}^L = f^L(\mathbf{W}^L \mathbf{h}^{L-1} + \mathbf{b}^L)$$&lt;/p&gt;
-&lt;p&gt;where $\mathbf{h}^L$ is the activation of the $L$-th layer, $\mathbf{W}^L$ and $\mathbf{b}^L$ are the weights and biases
+$$\mathbf{h}^L = f^L(\mathbf{W}^L \mathbf{h}^{L-1} + \mathbf{b}^L)$$&lt;p&gt;where $\mathbf{h}^L$ is the activation of the $L$-th layer, $\mathbf{W}^L$ and $\mathbf{b}^L$ are the weights and biases
 of the $L$-th layer, respectively, and $f^L$ is the activation function.
 The final output of the deep component, $ y_{\text{deep}} $, is the output of the last layer of the deep neural network. It is given by:&lt;/p&gt;
-&lt;p&gt;$$
-y_{\text{deep}} = \mathbf{W}^O \mathbf{h}^{L} + \mathbf{b}^O
-$$&lt;/p&gt;
-&lt;p&gt;where $ \mathbf{W}^O $ and $ \mathbf{b}^O $ are the weights and bias of the output layer, and $ \mathbf{h}^L $ is the activation of the last hidden layer.&lt;/p&gt;
+$$
+   y_{\text{deep}} = \mathbf{W}^O \mathbf{h}^{L} + \mathbf{b}^O
+   $$&lt;p&gt;where $ \mathbf{W}^O $ and $ \mathbf{b}^O $ are the weights and bias of the output layer, and $ \mathbf{h}^L $ is the activation of the last hidden layer.&lt;/p&gt;
 &lt;p&gt;The final prediction is a weighted sum of the outputs from the wide and deep components:&lt;/p&gt;
-&lt;p&gt;$$\hat{y} = \sigma(y_{\text{wide}} + y_{\text{deep}})$$&lt;/p&gt;
-&lt;p&gt;where $\sigma$ is the sigmoid function used to squash the output to a probability score.&lt;/p&gt;
+$$\hat{y} = \sigma(y_{\text{wide}} + y_{\text{deep}})$$&lt;p&gt;where $\sigma$ is the sigmoid function used to squash the output to a probability score.&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
 &lt;p align=&#34;center&#34;&gt;
-   &lt;img src=&#34;https://bingzw.github.io/recommendation_model/wide_deep.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
+   &lt;img src=&#34;http://localhost:65293/recommendation_model/wide_deep.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
    &lt;em&gt;Figure 3: wide &amp; deep model&lt;/em&gt;
 &lt;/p&gt;
-&lt;h3 id=&#34;deepfm5&#34; &gt;
+&lt;h3 id=&#34;deepfm&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#deepfm5&#34;&gt;
-        
+    &lt;a href=&#34;#deepfm&#34;&gt;
+        ##
     &lt;/a&gt;
     DeepFM&lt;sup id=&#34;fnref:5&#34;&gt;&lt;a href=&#34;#fn:5&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;5&lt;/a&gt;&lt;/sup&gt;
 &lt;/div&gt;
@@ -616,38 +608,34 @@ The model consists of two interconnected components:&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;FM Component&lt;/strong&gt;: This part captures low-order feature interactions using Factorization Machines, which are effective
 for handling sparse data and modeling pairwise feature interactions without manual feature engineering. The FM component
 can be represented as:&lt;/p&gt;
-&lt;p&gt;$$
-y_{\text{FM}} = w_0 + \sum_{i=1}^n w_i x_i + \sum_{i=1}^n \sum_{j=i+1}^n \langle \mathbf{v}_i, \mathbf{v}_j \rangle x_i x_j
-$$&lt;/p&gt;
-&lt;p&gt;where $w_0$ is the global bias, $w_i$ is the weight of the $i$-th feature, $\mathbf{v}_i$ and $\mathbf{v}_j$ are
+$$
+   y_{\text{FM}} = w_0 + \sum_{i=1}^n w_i x_i + \sum_{i=1}^n \sum_{j=i+1}^n \langle \mathbf{v}_i, \mathbf{v}_j \rangle x_i x_j
+   $$&lt;p&gt;where $w_0$ is the global bias, $w_i$ is the weight of the $i$-th feature, $\mathbf{v}_i$ and $\mathbf{v}_j$ are
 latent vectors for the $i$-th and $j$-th features, respectively, and $x_i$ and $x_j$ are input feature values.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Deep Component&lt;/strong&gt;: This part captures high-order feature interactions through a deep neural network. The deep
 component uses embeddings to represent input features and learns complex interactions through multiple hidden layers.
 The output of the deep component can be represented as:&lt;/p&gt;
-&lt;p&gt;$$\mathbf{h}^L = f^L(\mathbf{W}^L \mathbf{h}^{L-1} + \mathbf{b}^L)$$&lt;/p&gt;
-&lt;p&gt;where $\mathbf{h}^L$ is the activation of the $L$-th layer, $\mathbf{W}^L$ and $\mathbf{b}^L$ are the weights and
+$$\mathbf{h}^L = f^L(\mathbf{W}^L \mathbf{h}^{L-1} + \mathbf{b}^L)$$&lt;p&gt;where $\mathbf{h}^L$ is the activation of the $L$-th layer, $\mathbf{W}^L$ and $\mathbf{b}^L$ are the weights and
 biases of the $L$-th layer, respectively, and $f^L$ is the activation function.
 The final output of the deep component, $ y_{\text{deep}} $, is the output of the last layer of the deep neural network. It is given by:&lt;/p&gt;
-&lt;p&gt;$$
-y_{\text{deep}} = \mathbf{W}^O \mathbf{h}^{L} + \mathbf{b}^O
-$$&lt;/p&gt;
-&lt;p&gt;where $ \mathbf{W}^O $ and $ \mathbf{b}^O $ are the weights and bias of the output layer, and $ \mathbf{h}^L $ is the
+$$
+   y_{\text{deep}} = \mathbf{W}^O \mathbf{h}^{L} + \mathbf{b}^O
+   $$&lt;p&gt;where $ \mathbf{W}^O $ and $ \mathbf{b}^O $ are the weights and bias of the output layer, and $ \mathbf{h}^L $ is the
 activation of the last hidden layer.&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
 &lt;p&gt;The final prediction is a combination of the outputs from the FM and deep components:&lt;/p&gt;
-&lt;p&gt;$$\hat{y} = \sigma(y_{\text{FM}} + y_{\text{deep}})$$&lt;/p&gt;
-&lt;p&gt;where $\sigma$ is the sigmoid function used to squash the output to a probability score.&lt;/p&gt;
+$$\hat{y} = \sigma(y_{\text{FM}} + y_{\text{deep}})$$&lt;p&gt;where $\sigma$ is the sigmoid function used to squash the output to a probability score.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-   &lt;img src=&#34;https://bingzw.github.io/recommendation_model/deepfm.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+   &lt;img src=&#34;http://localhost:65293/recommendation_model/deepfm.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
    &lt;em&gt;Figure 4: deepfm model&lt;/em&gt;
 &lt;/p&gt;
-&lt;h3 id=&#34;deep-learning-recommendation-model-dlrm6&#34; &gt;
+&lt;h3 id=&#34;deep-learning-recommendation-model-dlrm&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#deep-learning-recommendation-model-dlrm6&#34;&gt;
-        
+    &lt;a href=&#34;#deep-learning-recommendation-model-dlrm&#34;&gt;
+        ##
     &lt;/a&gt;
     Deep Learning Recommendation Model (DLRM)&lt;sup id=&#34;fnref:6&#34;&gt;&lt;a href=&#34;#fn:6&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;6&lt;/a&gt;&lt;/sup&gt;
 &lt;/div&gt;
@@ -658,7 +646,7 @@ systems in environments such as social media platforms, e-commerce, and online a
 strengths of collaborative filtering and content-based methods by utilizing both dense and sparse features to provide
 highly accurate and scalable recommendations.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-   &lt;img src=&#34;https://bingzw.github.io/recommendation_model/dlrm.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+   &lt;img src=&#34;http://localhost:65293/recommendation_model/dlrm.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
    &lt;em&gt;Figure 5: deep learning recommendation model&lt;/em&gt;
 &lt;/p&gt;
 &lt;p&gt;Key components of DLRM includes&lt;/p&gt;
@@ -668,9 +656,10 @@ highly accurate and scalable recommendations.&lt;/p&gt;
 embeddings. Embeddings transform sparse categorical data into dense vectors of continuous numbers, making them suitable
 for neural network processing, denoted as $\mathbf{x}_s[i]$.
 The raw sparse features are transformed to sparse embeddings as follows. Let
+&lt;/p&gt;
 $$
 \mathbf{e}_i = \text{Embedding}(\mathbf{x}_s[i])
-$$
+$$&lt;p&gt;
 where $\mathbf{e}_i$ is the embedding vector for the $i$-th sparse feature, $\text{Embedding}$ denotes an embedding lookup table&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
@@ -679,30 +668,32 @@ form or normalized form, denoted as $\mathbf{x}_d$.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Bottom MLP (Multilayer Perceptron)&lt;/strong&gt;: Processes the dense features to capture high-level representations.
+&lt;/p&gt;
 $$
 \mathbf{h}_d = \text{BottomMLP}(\mathbf{x}_d)
-$$&lt;/p&gt;
-&lt;/li&gt;
+$$&lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Interaction Layer&lt;/strong&gt;: This layer captures the interactions between different features (both sparse and dense). It
 uses a dot product to compute the pairwise interactions among features.
+&lt;/p&gt;
 $$
 \mathbf{z} = \left[ \mathbf{h}_d, \mathbf{e}_1, \mathbf{e}_2, \ldots, \mathbf{e}_n \right]
-$$
+$$&lt;p&gt;
 where $\mathbf{z}$ is the concatenated vector of dense feature representation and embeddings.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Top MLP&lt;/strong&gt;: Combines the processed dense features and interactions from the interaction layer to make the final prediction.
+&lt;/p&gt;
 $$
 \hat{y} = \sigma(\text{TopMLP}(\mathbf{z}))
-$$
+$$&lt;p&gt;
 where $\sigma$ is an activation function, typically a sigmoid function for binary classification tasks.&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
-&lt;h3 id=&#34;deep--cross-network-v2-dcn-v27&#34; &gt;
+&lt;h3 id=&#34;deep--cross-network-v2-dcn-v2&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#deep--cross-network-v2-dcn-v27&#34;&gt;
-        
+    &lt;a href=&#34;#deep--cross-network-v2-dcn-v2&#34;&gt;
+        ##
     &lt;/a&gt;
     Deep &amp;amp; Cross Network v2 (DCN v2)&lt;sup id=&#34;fnref:7&#34;&gt;&lt;a href=&#34;#fn:7&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;7&lt;/a&gt;&lt;/sup&gt;
 &lt;/div&gt;
@@ -715,32 +706,30 @@ two ways to combine the cross network with the deep network: (1) stacked and (2)
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Cross Component&lt;/strong&gt;: The Cross Network V2 enhances the original cross network by introducing a more flexible mechanism
 to capture feature interactions. The cross layer in DCN V2 can be represented as:&lt;/p&gt;
-&lt;p&gt;$$
-x_{l+1} = x_0 \odot (W_l \cdot x_l + b_l) + x_l
-$$&lt;/p&gt;
-&lt;p&gt;where $x_l$ is the input to the l-th cross layer. $W_l$ and $b_l$ are the weight matrix and bias vector of the l-th
+$$
+   x_{l+1} = x_0 \odot (W_l \cdot x_l + b_l) + x_l
+   $$&lt;p&gt;where $x_l$ is the input to the l-th cross layer. $W_l$ and $b_l$ are the weight matrix and bias vector of the l-th
 cross layer. $x_{l+1}$ is the output of the $l+1$-th cross layer. $\odot$ is the Hadamard product.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Deep Component&lt;/strong&gt;: The deep network in DCN V2 captures high-order feature interactions through a series of dense layers.
 This part of the network learns abstract representations of the input features, enabling the model to generalize well.&lt;/p&gt;
-&lt;p&gt;$$
-h_{l} = f_{l}(W_{l} h_{l-1} + b_{l})
-$$&lt;/p&gt;
-&lt;p&gt;where $h_{l}$ is the activation of the $l$-th layer, $W_{l}$ and $b_{l}$ are the weights and
+$$ 
+   h_{l} = f_{l}(W_{l} h_{l-1} + b_{l})
+   $$&lt;p&gt;where $h_{l}$ is the activation of the $l$-th layer, $W_{l}$ and $b_{l}$ are the weights and
 biases of the $l$-th layer, respectively, and $f_{l}$ is the activation function.&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
 &lt;p&gt;The final prediction is a combination of the outputs from either the hidden layer (stacked structure) or the  concatenation
 of cross and deep network outputs.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-   &lt;img src=&#34;https://bingzw.github.io/recommendation_model/dcn_v2.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+   &lt;img src=&#34;http://localhost:65293/recommendation_model/dcn_v2.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
    &lt;em&gt;Figure 6: deep cross network v2&lt;/em&gt;
 &lt;/p&gt;
-&lt;h3 id=&#34;deep-interest-network-din8&#34; &gt;
+&lt;h3 id=&#34;deep-interest-network-din&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#deep-interest-network-din8&#34;&gt;
-        
+    &lt;a href=&#34;#deep-interest-network-din&#34;&gt;
+        ##
     &lt;/a&gt;
     Deep Interest Network (DIN)&lt;sup id=&#34;fnref:8&#34;&gt;&lt;a href=&#34;#fn:8&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;8&lt;/a&gt;&lt;/sup&gt;
 &lt;/div&gt;
@@ -751,44 +740,46 @@ DIN leverages a user&amp;rsquo;s historical behavior to make more accurate and c
 innovation in DIN is its ability to capture user interests dynamically and use this information to influence the recommendation
 process.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-   &lt;img src=&#34;https://bingzw.github.io/recommendation_model/din.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
+   &lt;img src=&#34;http://localhost:65293/recommendation_model/din.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
    &lt;em&gt;Figure 7: deep interest network&lt;/em&gt;
 &lt;/p&gt;
 &lt;p&gt;In particular, the DIN contains the following key components:&lt;/p&gt;
 &lt;ol&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Embedding Layer&lt;/strong&gt;: User behaviors and items are represented as dense vectors through an embedding layer. Let
-$({e_{1}, e_{2}, \ldots, e_{n}})$ be the sequence of embeddings for user behaviors, and $e_{target}$ be the embedding of the target item.&lt;/p&gt;
+$(\{e_{1}, e_{2}, \ldots, e_{n}\})$ be the sequence of embeddings for user behaviors, and $e_{target}$ be the embedding of the target item.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Local Activation Unit&lt;/strong&gt;: This unit applies the attention mechanism to compute the relevance of each user behavior
 in the sequence with respect to the target item.
 Let
+&lt;/p&gt;
 $$
 \alpha_{i} = \frac{\exp(\text{score}(e_{i}, e_{target}))}{\sum_{j=1}^{n} \exp(\text{score}(e_{j}, e_{target}))}
-$$
+$$&lt;p&gt;
 where $\text{score}(e_{i}, e_{target})$ is the activation weight output from a feed-forward
 network measuring the relevance of behavior $e_{i}$ to the target item.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Interest Extractor Layer&lt;/strong&gt;: Combines the weighted behavior embeddings to form a user interest representation.
+&lt;/p&gt;
 $$
 u = \sum_{i=1}^{n} \alpha_{i} e_{i}
-$$&lt;/p&gt;
-&lt;/li&gt;
+$$&lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Prediction Layer&lt;/strong&gt;: The user interest representation is concatenated with the target item embedding and fed into a neural network to predict the user&amp;rsquo;s interaction with the target item.
+&lt;/p&gt;
 $$
 \hat{y} = \sigma(W[u, e_{target}, e_{profile}, e_{context}] + b)
-$$
+$$&lt;p&gt;
 where $[u, e_{target}, e_{profile}, e_{context}]$ denotes the concatenation of the user interest representation, profile
 embedding, context embedding and the target item embedding, $W$ is a weight matrix, $b$ is a bias term, and $\sigma$ is an activation function (e.g., sigmoid).&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
-&lt;h3 id=&#34;multi-gate-mixture-of-experts-mmoe9&#34; &gt;
+&lt;h3 id=&#34;multi-gate-mixture-of-experts-mmoe&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#multi-gate-mixture-of-experts-mmoe9&#34;&gt;
-        
+    &lt;a href=&#34;#multi-gate-mixture-of-experts-mmoe&#34;&gt;
+        ##
     &lt;/a&gt;
     Multi-gate Mixture of Experts (MMOE)&lt;sup id=&#34;fnref:9&#34;&gt;&lt;a href=&#34;#fn:9&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;9&lt;/a&gt;&lt;/sup&gt;
 &lt;/div&gt;
@@ -799,7 +790,7 @@ mixture-of-experts models with the flexibility of multi-gate mechanisms, allowin
 computational resources based on the specific needs of each task. This approach is particularly useful in scenarios
 where tasks are interrelated and can benefit from shared learning while maintaining task-specific adaptations.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-   &lt;img src=&#34;https://bingzw.github.io/recommendation_model/mmoe.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
+   &lt;img src=&#34;http://localhost:65293/recommendation_model/mmoe.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
    &lt;em&gt;Figure 8: multi-gate mixture of experts&lt;/em&gt;
 &lt;/p&gt;
 &lt;p&gt;Key components of the model architecture are:&lt;/p&gt;
@@ -808,35 +799,39 @@ where tasks are interrelated and can benefit from shared learning while maintain
 &lt;p&gt;&lt;strong&gt;Experts&lt;/strong&gt;: A set of neural network sub-models that serve as specialized units for feature extraction. Each expert
 is trained to capture different aspects of the input data. Let $\mathbf{x}$ represent the input data, $E$ represent
 the number of experts, and $T$ represent the number of tasks. The output from expert is represented as
+&lt;/p&gt;
 $$
 \mathbf{h}^i = f_e^i(\mathbf{x}), \quad \text{for } i = 1, 2, \ldots, E
-$$
+$$&lt;p&gt;
 where $f_e^i$ is the function of the $i$-th expert, and $\mathbf{h}^i$ is the output of the $i$-th expert.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Multi-gate Mechanism&lt;/strong&gt;: Separate gating networks for each task that dynamically select and weight the contributions
 of different experts based on the input data and task requirements.
+&lt;/p&gt;
 $$
 \mathbf{g}^j = \sigma(\mathbf{W}^j \mathbf{x}), \quad \text{for } j = 1, 2, \ldots, T
-$$
+$$&lt;p&gt;
 where $\mathbf{W}^j$ are the parameters of the gating network for task $j$, and $g^j$ is the gating output distribution
 of gating weights to each expert assigned by task $j$. To combine the experts output and gating weights, we have
-$$\mathbf{t}^j = \sum_{i=1}^{E} g_i^j \cdot \mathbf{h}^i$$
+&lt;/p&gt;
+$$\mathbf{t}^j = \sum_{i=1}^{E} g_i^j \cdot \mathbf{h}^i$$&lt;p&gt;
 where $\mathbf{t}^j$ is the combined output for task $j$, and $g_i^j$ is the weight for the $i$-th expert assigned by
 the gating network of task $j$.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Task-specific Layers&lt;/strong&gt;: Layers that process the combined outputs from the experts, tailored to the specific requirements of each task.
+&lt;/p&gt;
 $$
 \hat{y}^j = f_o^j(\mathbf{t}^j)
-$$
+$$&lt;p&gt;
 where $f_o^j$ is the task-specific output layer for task $j$, and $\hat{y}^j$ is the predicted output for task $j$.&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
-&lt;h3 id=&#34;behavior-sequence-transformer-bst10&#34; &gt;
+&lt;h3 id=&#34;behavior-sequence-transformer-bst&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#behavior-sequence-transformer-bst10&#34;&gt;
-        
+    &lt;a href=&#34;#behavior-sequence-transformer-bst&#34;&gt;
+        ##
     &lt;/a&gt;
     Behavior Sequence Transformer (BST)&lt;sup id=&#34;fnref:10&#34;&gt;&lt;a href=&#34;#fn:10&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;10&lt;/a&gt;&lt;/sup&gt;
 &lt;/div&gt;
@@ -846,7 +841,7 @@ sequences in recommendation systems. BST leverages the power of Transformer mode
 success in natural language processing (NLP), to capture the sequential patterns and contextual dependencies in user
 interactions over time. This approach enhances the ability to predict user preferences and improve recommendation accuracy.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-   &lt;img src=&#34;https://bingzw.github.io/recommendation_model/bst.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
+   &lt;img src=&#34;http://localhost:65293/recommendation_model/bst.png&#34; width=&#34;800&#34; height=&#34;600&#34;&gt;&lt;br&gt;
    &lt;em&gt;Figure 9: behavior sequence transformer&lt;/em&gt;
 &lt;/p&gt;
 &lt;p&gt;Key components of BST include:&lt;/p&gt;
@@ -860,44 +855,49 @@ interactions over time. This approach enhances the ability to predict user prefe
 &lt;ol start=&#34;2&#34;&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Embedding Layer&lt;/strong&gt;:
+&lt;/p&gt;
 $$
 \mathbf{E}_x = \mathbf{W}_e \cdot \mathbf{x}
-$$
+$$&lt;p&gt;
 where $\mathbf{W}_e$ is the embedding matrix and $\mathbf{x}$ is the input feature vector.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Positional Encoding&lt;/strong&gt;:
+&lt;/p&gt;
 $$
 \mathbf{E}_p = \text{PE}(pos)
-$$
+$$&lt;p&gt;
 where $\text{PE}(pos)$ is the positional encoding function that adds position-specific information to the embeddings.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Transformer Encoder&lt;/strong&gt;:
+&lt;/p&gt;
 $$
 \mathbf{H}_i = \text{LayerNorm}(\text{MultiHeadAttention}(\mathbf{Q}, \mathbf{K}, \mathbf{V}) + \mathbf{E}_i)
-$$
+$$&lt;p&gt;
 where $\mathbf{Q}$, $\mathbf{K}$, and $\mathbf{V}$ are the query, key, and value matrices, and $\mathbf{E}_i$ is the
 input embedding at layer $i$. A Feed-Forward Networks ($\text{FFN}$) is added on top of the self attention layer to further enhance the
 model with non-linearity.
+&lt;/p&gt;
 $$
 \mathbf{O}_i = \text{LayerNorm}(\text{FFN}(\mathbf{H}_i) + \mathbf{H}_i)
-$$
+$$&lt;p&gt;
 In practice, we usually stack multiple transformer layers. So the output of last layer is thus fed as the input of the
 next layer.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Output Layer&lt;/strong&gt;:
+&lt;/p&gt;
 $$
 \hat{y} = \sigma(\mathbf{W}_o \cdot \mathbf{O}_L)
-$$
+$$&lt;p&gt;
 where $\mathbf{W}_o$ is the weight matrix of the output layer, $\mathbf{O}_L$ is the output of the last Transformer encoder layer, and $\sigma$ is the activation function.&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
 &lt;h2 id=&#34;summary&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#summary&#34;&gt;
-        
+        #
     &lt;/a&gt;
     Summary
 &lt;/div&gt;
@@ -909,13 +909,13 @@ Users may choose the best model depending on the business requirements and syste
 &lt;h2 id=&#34;citation&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#citation&#34;&gt;
-        
+        #
     &lt;/a&gt;
     Citation
 &lt;/div&gt;
 &lt;/h2&gt;
 &lt;p&gt;If you find this post helpful, please consider citing it as:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bibtex&#34; data-lang=&#34;bibtex&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f3f99d&#34;&gt;@article&lt;/span&gt;{&lt;span style=&#34;color:#ff5c57&#34;&gt;wang2024recommendationmodel&lt;/span&gt;,
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bibtex&#34; data-lang=&#34;bibtex&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f3f99d&#34;&gt;@article&lt;/span&gt;{&lt;span style=&#34;color:#ff5c57&#34;&gt;wang2024recommendationmodel&lt;/span&gt;,
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;author&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;Bing Wang&amp;#34;&lt;/span&gt;,
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;title&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;Recommendation Models&amp;#34;&lt;/span&gt;,
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;journal&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;bingzw.github.io&amp;#34;&lt;/span&gt;,
@@ -924,12 +924,12 @@ Users may choose the best model depending on the business requirements and syste
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;url&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;https://bingzw.github.io/posts/2024-06-06-recommendation-model/&amp;#34;&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;or&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-markdown&#34; data-lang=&#34;markdown&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Bing Wang. (2024, June). Recommendation Models. 
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-markdown&#34; data-lang=&#34;markdown&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Bing Wang. (2024, June). Recommendation Models. 
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;https://bingzw.github.io/posts/2024-06-06-recommendation-model/
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;reference&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#reference&#34;&gt;
-        
+        #
     &lt;/a&gt;
     Reference
 &lt;/div&gt;

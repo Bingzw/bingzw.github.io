@@ -1,0 +1,1623 @@
+<!DOCTYPE html>
+
+
+<html lang="en-us" data-theme="">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=65293&amp;path=livereload" data-no-instant defer></script>
+    
+        
+<meta charset="utf-8">
+<meta name="HandheldFriendly" content="True">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="referrer" content="no-referrer-when-downgrade">
+
+<title>Gradient Balancing in Multi-Task Recommendation: A Systematic Guide - Bingz Learning Blog</title>
+
+<meta name="description" content="A comprehensive survey of gradient balancing methods for multi-task recommendation systems, from GradNorm to DRGrad, with math and pseudocode for each approach.">
+
+
+
+
+
+<link rel="icon" type="image/x-icon" href="http://localhost:65293/favicon.ico">
+<link rel="apple-touch-icon-precomposed" href="http://localhost:65293/favicon.png">
+
+
+
+
+
+
+    
+
+
+
+    
+
+
+
+<style>
+  body {
+    visibility: hidden;
+    opacity: 0;
+  }
+</style>
+
+<noscript>
+  <style>
+    body {
+      visibility: visible;
+      opacity: 1;
+    }
+  </style>
+</noscript>
+
+
+
+
+    
+
+
+
+
+
+    
+    
+    
+
+    
+        <link rel="stylesheet" href="/css/style.df572e77f77ad1b20111c880f6264879fbfd6423690ede196562b7698ff61aee.css" integrity="sha256-31cud/d60bIBEciA9iZIefv9ZCNpDt4ZZWK3aY/2Gu4=">
+    
+
+
+
+
+
+    
+
+
+
+
+
+    
+    
+    
+
+    
+        <link rel="stylesheet" href="/css/style.bcc8554ad4808b470d07f0ce982acdb2e737bc2fdd9740d893e0de2a517ed628.css" integrity="sha256-vMhVStSAi0cNB/DOmCrNsuc3vC/dl0DYk&#43;DeKlF&#43;1ig=">
+    
+
+
+
+
+
+    
+
+
+
+
+
+    
+    
+    
+
+    
+        <link rel="stylesheet" href="/css/style.3e7b9fa793944216393c782607aabfb9247a01e4ac5f76ebcdf32fbb40d3e17f.css" integrity="sha256-Pnufp5OUQhY5PHgmB6q/uSR6AeSsX3brzfMvu0DT4X8=">
+    
+
+
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+
+
+
+
+
+    
+    
+    
+
+    
+        <script src="/js/script.f6e234126fa3870e1e4593fe90fa112071722add26fecb25398f7de6e46691ee.js" type="text/javascript" charset="utf-8" integrity="sha256-9uI0Em&#43;jhw4eRZP&#43;kPoRIHFyKt0m/sslOY995uRmke4="></script>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+</head>
+<body>
+    <a class="skip-main" href="#main">Skip to main content</a>
+    <div class="container">
+        <header class="common-header">
+            
+                <div class="header-top">
+    <div class="header-top-left">
+        <h1 class="site-title noselect">
+    <a href="/">Bingz Learning Blog</a>
+</h1>
+
+        
+
+
+
+    
+
+
+
+    
+
+
+
+    
+        <div class="theme-switcher">
+            <span class="inline-svg">
+
+    
+
+
+    
+    
+    
+    
+    
+
+    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-sun-high"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14.828 14.828a4 4 0 1 0 -5.656 -5.656a4 4 0 0 0 5.656 5.656z" /><path d="M6.343 17.657l-1.414 1.414" /><path d="M6.343 6.343l-1.414 -1.414" /><path d="M17.657 6.343l1.414 -1.414" /><path d="M17.657 17.657l1.414 1.414" /><path d="M4 12h-2" /><path d="M12 4v-2" /><path d="M20 12h2" /><path d="M12 20v2" /></svg>
+
+
+</span>
+
+        </div>
+    
+
+    <script>
+        const STORAGE_KEY = 'user-color-scheme'
+        const defaultTheme = "auto"
+
+        let currentTheme
+        let switchButton
+        let autoDefinedScheme = window.matchMedia('(prefers-color-scheme: dark)')
+
+        function switchTheme(e) {
+            currentTheme = (currentTheme === 'dark') ? 'light' : 'dark';
+            if (localStorage) localStorage.setItem(STORAGE_KEY, currentTheme);
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            changeGiscusTheme(currentTheme);
+            document.body.dispatchEvent(new CustomEvent(currentTheme + "-theme-set"));
+        }
+
+        const autoChangeScheme = e => {
+            currentTheme = e.matches ? 'dark' : 'light'
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            changeGiscusTheme(currentTheme);
+            document.body.dispatchEvent(new CustomEvent(currentTheme + "-theme-set"));
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            switchButton = document.querySelector('.theme-switcher')
+            currentTheme = detectCurrentScheme()
+
+            if (currentTheme === 'auto') {
+                autoChangeScheme(autoDefinedScheme);
+                autoDefinedScheme.addListener(autoChangeScheme);
+            } else {
+                document.documentElement.setAttribute('data-theme', currentTheme)
+            }
+
+            if (switchButton) {
+                switchButton.addEventListener('click', switchTheme, false)
+            }
+
+            showContent();
+        })
+
+        function detectCurrentScheme() {
+            if (localStorage !== null && localStorage.getItem(STORAGE_KEY)) {
+                return localStorage.getItem(STORAGE_KEY)
+            }
+            if (defaultTheme) {
+                return defaultTheme
+            }
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+
+        function showContent() {
+            document.body.style.visibility = 'visible';
+            document.body.style.opacity = 1;
+        }
+
+        function changeGiscusTheme (theme) {
+            function sendMessage(message) {
+              const iframe = document.querySelector('iframe.giscus-frame');
+              if (!iframe) return;
+              iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+            }
+
+            sendMessage({
+              setConfig: {
+                theme: theme
+              }
+            });
+        }
+    </script>
+
+
+        <ul class="social-icons noselect">
+
+
+    
+        
+        
+        <li>
+            <a href="https://github.com/bingzw" title="Github" rel="me">
+            <span class="inline-svg">
+
+    
+
+
+    
+    
+    
+    
+    
+
+    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-brand-github"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" /></svg>
+
+
+</span>
+
+            </a>
+        </li>
+    
+
+    
+        <li>
+            <a href="https://www.linkedin.com/in/bingzw/" title="Linkedin" rel="me">
+            <span class="inline-svg">
+
+    
+
+
+    
+    
+    
+    
+    
+
+    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-brand-linkedin"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 4m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z" /><path d="M8 11l0 5" /><path d="M8 8l0 .01" /><path d="M12 16l0 -5" /><path d="M16 16v-3a2 2 0 0 0 -4 0" /></svg>
+
+
+</span>
+
+            </a>
+        </li>
+    
+
+
+
+
+
+
+    <li>
+            <a href="/index.xml" title="RSS" rel="me">
+            <span class="inline-svg">
+
+    
+
+
+    
+    
+    
+    
+    
+
+    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-rss"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 19m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /><path d="M4 4a16 16 0 0 1 16 16" /><path d="M4 11a9 9 0 0 1 9 9" /></svg>
+
+
+</span>
+
+            </a>
+        </li>
+    
+
+</ul>
+
+    </div>
+    <div class="header-top-right">
+
+    </div>
+</div>
+
+
+    <nav class="noselect">
+        
+        
+        <a class="" href="http://localhost:65293/" title="Bingz Learning Blog">Home</a>
+        
+        <a class="" href="http://localhost:65293/about/" title="">About</a>
+        
+        <a class="" href="http://localhost:65293/tags/" title="">Tags</a>
+        
+        <a class="" href="http://localhost:65293/posts/" title="">Archive</a>
+        
+    </nav>
+
+
+
+<script>
+  MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$','$$'], ['\\[', '\\]']],
+      processEscapes: true,
+      processEnvironments: true
+    },
+    options: {
+      skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+    }
+  };
+
+  window.addEventListener('load', (event) => {
+      document.querySelectorAll("mjx-container").forEach(function(x){
+        x.parentElement.classList += 'has-jax'})
+    });
+
+</script>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script type="text/javascript" id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+
+
+
+
+            
+        </header>
+        <main id="main" tabindex="-1">
+            
+    
+
+    <article class="post h-entry">
+        <div class="post-header">
+            <header>
+                <h1 class="p-name post-title">Gradient Balancing in Multi-Task Recommendation: A Systematic Guide</h1>
+                
+
+            </header>
+            
+
+
+
+<div class="post-info noselect">
+    
+        <div class="post-date dt-published">
+            <time datetime="2026-03-08">2026-03-08</time>
+            
+        </div>
+    
+
+    <a class="post-hidden-url u-url" href="/posts/2026-03-08-mtl-gradient-balancing/">/posts/2026-03-08-mtl-gradient-balancing/</a>
+    <a href="http://localhost:65293/" class="p-name p-author post-hidden-author h-card" rel="me"></a>
+
+
+    <div class="post-taxonomies">
+        
+        
+            <ul class="post-tags">
+                
+                    
+                    <li><a href="/tags/machine-learning/">#Machine-Learning</a></li>
+                
+                    
+                    <li><a href="/tags/multi-task-learning/">#Multi-Task-Learning</a></li>
+                
+                    
+                    <li><a href="/tags/recommendation-systems/">#Recommendation-Systems</a></li>
+                
+                    
+                    <li><a href="/tags/optimization/">#Optimization</a></li>
+                
+                    
+                    <li><a href="/tags/deep-learning/">#Deep-Learning</a></li>
+                
+            </ul>
+        
+        
+    </div>
+</div>
+
+        </div>
+        
+
+  
+  
+
+
+
+
+  
+  
+  
+  <details class="toc noselect">
+    <summary>Table of Contents</summary>
+    <div class="inner"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#1-problem-formulation">1. Problem Formulation</a>
+      <ul>
+        <li><a href="#the-multi-task-loss">The Multi-Task Loss</a></li>
+        <li><a href="#the-three-primary-failure-modes">The Three Primary Failure Modes</a></li>
+        <li><a href="#notation-summary">Notation Summary</a></li>
+      </ul>
+    </li>
+    <li><a href="#2-methods">2. Methods</a>
+      <ul>
+        <li><a href="#21-gradnorm-icml-2018">2.1 GradNorm (ICML 2018)</a></li>
+        <li><a href="#22-pcgrad--gradient-surgery-neurips-2020">2.2 PCGrad / Gradient Surgery (NeurIPS 2020)</a></li>
+        <li><a href="#23-mgda--multiple-gradient-descent-algorithm-neurips-2018">2.3 MGDA — Multiple Gradient Descent Algorithm (NeurIPS 2018)</a></li>
+        <li><a href="#24-cagrad-neurips-2021">2.4 CAGrad (NeurIPS 2021)</a></li>
+        <li><a href="#25-metabalance-www-2022">2.5 MetaBalance (WWW 2022)</a></li>
+        <li><a href="#26-slgrad-2023">2.6 SLGrad (2023)</a></li>
+        <li><a href="#27-ple--progressive-layered-extraction-recsys-2020">2.7 PLE — Progressive Layered Extraction (RecSys 2020)</a></li>
+        <li><a href="#28-stem-net-aaai-2024">2.8 STEM-Net (AAAI 2024)</a></li>
+        <li><a href="#29-multibalance-meta-2024">2.9 MultiBalance (Meta, 2024)</a></li>
+        <li><a href="#210-gradcraft-kdd-2024">2.10 GradCraft (KDD 2024)</a></li>
+        <li><a href="#211-pub--parameter-update-balancing-2024">2.11 PUB — Parameter Update Balancing (2024)</a></li>
+        <li><a href="#212-drgrad-aaai-2025">2.12 DRGrad (AAAI 2025)</a></li>
+        <li><a href="#213-meta-lattice-arxiv-2024">2.13 Meta Lattice (arXiv 2024)</a></li>
+        <li><a href="#214-other-notable-methods">2.14 Other Notable Methods</a></li>
+      </ul>
+    </li>
+    <li><a href="#3-comparison-table">3. Comparison Table</a></li>
+    <li><a href="#4-how-to-choose">4. How to Choose</a></li>
+    <li><a href="#5-conclusion">5. Conclusion</a></li>
+    <li><a href="#citation">Citation</a></li>
+    <li><a href="#references">References</a></li>
+  </ul>
+</nav></div>
+  </details>
+  
+
+
+
+<script>
+  var toc = document.querySelector(".toc");
+  if (toc) {
+    toc.addEventListener("click", function () {
+      if (event.target.tagName !== "A") {
+        event.preventDefault();
+        if (this.open) {
+          this.open = false;
+          this.classList.remove("expanded");
+        } else {
+          this.open = true;
+          this.classList.add("expanded");
+        }
+      }
+    });
+  }
+</script>
+
+        <div class="content e-content">
+            <p align="center">
+<img src="/mtml_balancing/MTML.png" width="600" height="300"><br>
+<p>
+<p>Modern recommendation systems rarely optimize a single objective. A typical industrial system simultaneously optimizes click-through rate (CTR), conversion rate (CVR), dwell time, and downstream revenue signals — all through a shared model backbone. When these tasks compete rather than cooperate during training, the result is <strong>negative transfer</strong>: the multi-task model performs worse than individually trained single-task models on one or more objectives. The root cause almost always traces back to poorly balanced gradients.</p>
+<p>This post surveys the major gradient balancing methods developed between 2018 and 2025, grouped by contribution type. For each method we cover the core intuition, the mathematical formulation, pseudocode for implementation, and a frank assessment of its trade-offs. The goal is to give practitioners a navigable reference for deciding which technique to apply in their own systems.</p>
+<hr>
+<h2 id="1-problem-formulation" >
+<div>
+    <a href="#1-problem-formulation">
+        #
+    </a>
+    1. Problem Formulation
+</div>
+</h2>
+<h3 id="the-multi-task-loss" >
+<div>
+    <a href="#the-multi-task-loss">
+        ##
+    </a>
+    The Multi-Task Loss
+</div>
+</h3>
+<p>Let $T$ be the number of tasks and $\mathcal{L}_i$ the loss for task $i$. The standard multi-task objective is:</p>
+$$\mathcal{L}_{total} = \sum_{i=1}^{T} w_i \mathcal{L}_i$$<p>where $w_i \geq 0$ are scalar task weights. The parameter update follows:</p>
+$$\theta \leftarrow \theta - \eta \nabla_\theta \mathcal{L}_{total} = \theta - \eta \sum_{i=1}^{T} w_i \mathbf{g}_i$$<p>where $\mathbf{g}_i = \nabla_\theta \mathcal{L}_i$ is the gradient of task $i$ with respect to shared parameters $\theta$.</p>
+<h3 id="the-three-primary-failure-modes" >
+<div>
+    <a href="#the-three-primary-failure-modes">
+        ##
+    </a>
+    The Three Primary Failure Modes
+</div>
+</h3>
+<p><strong>Gradient Conflict.</strong> When two task gradients point in opposing directions, their combination partially or fully cancels. Formally, conflict occurs when the cosine similarity is negative:</p>
+$$\cos(\mathbf{g}_i, \mathbf{g}_j) = \frac{\mathbf{g}_i \cdot \mathbf{g}_j}{\|\mathbf{g}_i\| \|\mathbf{g}_j\|} < 0$$<p>This directly causes negative transfer: progress on task $i$ undoes progress on task $j$.</p>
+<p><strong>Magnitude Imbalance.</strong> Tasks with high-frequency labels (e.g., clicks) naturally produce larger gradient norms than sparse objectives (e.g., purchases). If $\|\mathbf{g}_{CTR}\| \gg \|\mathbf{g}_{CVR}\|$, the dense task dominates the parameter update regardless of the scalar weight $w_i$. This is the <strong>seesaw effect</strong> in recommendation: improving CTR degrades CVR, or vice versa, because the shared backbone is pulled predominantly by one objective.</p>
+<p><strong>Curvature Sensitivity.</strong> In curved loss landscapes, the gradient magnitude at a given point reflects both the learning signal and the local curvature. High positive curvature along one task&rsquo;s direction means even a moderate step causes large loss changes for other tasks. Tasks whose loss surfaces have sharply different curvature will be misweighted by any method that only looks at first-order gradient information.</p>
+<h3 id="notation-summary" >
+<div>
+    <a href="#notation-summary">
+        ##
+    </a>
+    Notation Summary
+</div>
+</h3>
+<table>
+  <thead>
+      <tr>
+          <th>Symbol</th>
+          <th>Meaning</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>$T$</td>
+          <td>Number of tasks</td>
+      </tr>
+      <tr>
+          <td>$\mathbf{g}_i$</td>
+          <td>Gradient of task $i$ w.r.t. shared parameters</td>
+      </tr>
+      <tr>
+          <td>$w_i$</td>
+          <td>Scalar weight for task $i$</td>
+      </tr>
+      <tr>
+          <td>$\mathbf{h}$</td>
+          <td>Shared representation / bottleneck</td>
+      </tr>
+      <tr>
+          <td>$\alpha$</td>
+          <td>Hyperparameter controlling aggressiveness of balancing</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="2-methods" >
+<div>
+    <a href="#2-methods">
+        #
+    </a>
+    2. Methods
+</div>
+</h2>
+<h3 id="21-gradnorm-icml-2018" >
+<div>
+    <a href="#21-gradnorm-icml-2018">
+        ##
+    </a>
+    2.1 GradNorm (ICML 2018)
+</div>
+</h3>
+<p><strong>Intuition.</strong> Imagine a relay race where some runners are sprinting and others are jogging. GradNorm is the coach who watches pace and tells the sprinters to slow down, or the joggers to speed up, so the team arrives in formation <sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>. Concretely, it maintains a running estimate of each task&rsquo;s training speed and adjusts $w_i$ so that faster-learning tasks do not crowd out slower ones.</p>
+<p><strong>Math.</strong> At training step $t$, define the weighted gradient norm for task $i$:</p>
+$$G_W^{(i)}(t) = \|w_i(t) \nabla_W \mathcal{L}_i(t)\|_2$$<p>where $W$ denotes the parameters of the final shared layer (a proxy for the full network). The <strong>relative inverse training rate</strong> measures how fast task $i$ learns relative to the average:</p>
+$$\tilde{\mathcal{L}}_i(t) = \frac{\mathcal{L}_i(t)}{\mathcal{L}_i(0)}$$<p>The average rate is $\bar{\mathcal{L}}(t) = \frac{1}{T} \sum_i \tilde{\mathcal{L}}_i(t)$.</p>
+<p>The target gradient norm for task $i$ is:</p>
+$$G_W^{target}(t) = \bar{G}_W(t) \cdot \left[\frac{\tilde{\mathcal{L}}_i(t)}{\bar{\mathcal{L}}(t)}\right]^\alpha$$<p>where $\bar{G}_W(t) = \frac{1}{T} \sum_i G_W^{(i)}(t)$ is the mean gradient norm. The hyperparameter $\alpha \geq 0$ controls how aggressively slow learners are prioritized:</p>
+<ul>
+<li>$\alpha = 0$: all tasks receive equal gradient norm (full equalization).</li>
+<li>$\alpha \to \infty$: tasks that are falling behind receive disproportionately large boosts.</li>
+<li>Typical value: $\alpha \in [0.5, 2.0]$.</li>
+</ul>
+<p>The GradNorm auxiliary loss, minimized with respect to $w_i$ only (treating the network parameters as constants), is:</p>
+$$\mathcal{L}_{grad}(t; \{w_i\}) = \sum_{i=1}^{T} \left| G_W^{(i)}(t) - G_W^{target}(t) \right|$$<p>After each update to $w_i$, the weights are renormalized so $\sum_i w_i = T$ (preserving total loss scale).</p>
+<p><strong>Pseudocode.</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#78787e"># GradNorm Training Step</span>
+</span></span><span style="display:flex;"><span><span style="color:#78787e"># Inputs: model, tasks, alpha hyperparameter</span>
+</span></span><span style="display:flex;"><span><span style="color:#78787e"># W = parameters of the shared last layer</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>L0 <span style="color:#ff6ac1">=</span> [compute_loss(task_i, model) <span style="color:#ff6ac1">for</span> task_i <span style="color:#ff6ac1">in</span> tasks]  <span style="color:#78787e"># initial losses</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#ff6ac1">for</span> step <span style="color:#ff6ac1">in</span> training_steps:
+</span></span><span style="display:flex;"><span>    losses <span style="color:#ff6ac1">=</span> [compute_loss(task_i, model) <span style="color:#ff6ac1">for</span> task_i <span style="color:#ff6ac1">in</span> tasks]
+</span></span><span style="display:flex;"><span>    L_total <span style="color:#ff6ac1">=</span> <span style="color:#ff5c57">sum</span>(w[i] <span style="color:#ff6ac1">*</span> losses[i] <span style="color:#ff6ac1">for</span> i <span style="color:#ff6ac1">in</span> <span style="color:#ff5c57">range</span>(T))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#78787e"># Standard backward for network parameters</span>
+</span></span><span style="display:flex;"><span>    optimizer_net<span style="color:#ff6ac1">.</span>zero_grad()
+</span></span><span style="display:flex;"><span>    L_total<span style="color:#ff6ac1">.</span>backward(retain_graph<span style="color:#ff6ac1">=</span><span style="color:#ff6ac1">True</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#78787e"># Compute gradient norms at shared layer W</span>
+</span></span><span style="display:flex;"><span>    G <span style="color:#ff6ac1">=</span> [grad_norm(W, losses[i], w[i]) <span style="color:#ff6ac1">for</span> i <span style="color:#ff6ac1">in</span> <span style="color:#ff5c57">range</span>(T)]
+</span></span><span style="display:flex;"><span>    G_bar <span style="color:#ff6ac1">=</span> mean(G)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#78787e"># Relative inverse training rates</span>
+</span></span><span style="display:flex;"><span>    L_tilde <span style="color:#ff6ac1">=</span> [losses[i] <span style="color:#ff6ac1">/</span> L0[i] <span style="color:#ff6ac1">for</span> i <span style="color:#ff6ac1">in</span> <span style="color:#ff5c57">range</span>(T)]
+</span></span><span style="display:flex;"><span>    L_tilde_bar <span style="color:#ff6ac1">=</span> mean(L_tilde)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#78787e"># Target norms</span>
+</span></span><span style="display:flex;"><span>    G_target <span style="color:#ff6ac1">=</span> [G_bar <span style="color:#ff6ac1">*</span> (L_tilde[i] <span style="color:#ff6ac1">/</span> L_tilde_bar) <span style="color:#ff6ac1">**</span> alpha <span style="color:#ff6ac1">for</span> i <span style="color:#ff6ac1">in</span> <span style="color:#ff5c57">range</span>(T)]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#78787e"># GradNorm loss (stop gradient through G_target)</span>
+</span></span><span style="display:flex;"><span>    L_grad <span style="color:#ff6ac1">=</span> <span style="color:#ff5c57">sum</span>(<span style="color:#ff5c57">abs</span>(G[i] <span style="color:#ff6ac1">-</span> stop_gradient(G_target[i])) <span style="color:#ff6ac1">for</span> i <span style="color:#ff6ac1">in</span> <span style="color:#ff5c57">range</span>(T))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#78787e"># Update task weights</span>
+</span></span><span style="display:flex;"><span>    optimizer_w<span style="color:#ff6ac1">.</span>zero_grad()
+</span></span><span style="display:flex;"><span>    L_grad<span style="color:#ff6ac1">.</span>backward()
+</span></span><span style="display:flex;"><span>    optimizer_w<span style="color:#ff6ac1">.</span>step()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#78787e"># Renormalize weights</span>
+</span></span><span style="display:flex;"><span>    w <span style="color:#ff6ac1">=</span> w <span style="color:#ff6ac1">/</span> <span style="color:#ff5c57">sum</span>(w) <span style="color:#ff6ac1">*</span> T
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    optimizer_net<span style="color:#ff6ac1">.</span>step()
+</span></span></code></pre></div><p><strong>Pros and Cons.</strong></p>
+<ul>
+<li>Pros: Simple to implement; prevents any single task from dominating; well-validated on vision benchmarks.</li>
+<li>Cons: Uses gradient norms at a single shared layer as a proxy — not per-parameter direction balancing; sensitive to the choice of $\alpha$ and initialization of $w_i$; does not directly address gradient direction conflicts.</li>
+</ul>
+<hr>
+<h3 id="22-pcgrad--gradient-surgery-neurips-2020" >
+<div>
+    <a href="#22-pcgrad--gradient-surgery-neurips-2020">
+        ##
+    </a>
+    2.2 PCGrad / Gradient Surgery (NeurIPS 2020)
+</div>
+</h3>
+<p><strong>Intuition.</strong> Picture two hikers trying to climb different hills. If they are roped together, one pulling north while the other pulls south, they cancel each other out. PCGrad (Projecting Conflicting Gradients) cuts the rope and instead lets each hiker only keep the component of their pull that does not drag the other backward <sup id="fnref:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">2</a></sup>. Geometrically, if task $i$&rsquo;s gradient has a negative projection onto task $j$&rsquo;s gradient, that conflicting component is removed.</p>
+<p><strong>Math.</strong> For two tasks $i$ and $j$, a conflict exists when:</p>
+$$\mathbf{g}_i \cdot \mathbf{g}_j < 0$$<p>In this case, project out the component of $\mathbf{g}_i$ that lies along $\mathbf{g}_j$:</p>
+$$\mathbf{g}_i^{PC} = \mathbf{g}_i - \frac{\mathbf{g}_i \cdot \mathbf{g}_j}{\|\mathbf{g}_j\|^2} \mathbf{g}_j$$<p>The subtracted term $\frac{\mathbf{g}_i \cdot \mathbf{g}_j}{\|\mathbf{g}_j\|^2} \mathbf{g}_j$ is exactly the component of $\mathbf{g}_i$ in the direction of $\mathbf{g}_j$. When the dot product is negative, this component points anti-parallel to $\mathbf{g}_j$, so removing it prevents $\mathbf{g}_i$ from harming task $j$.</p>
+<p>Why does this work geometrically? Recall that $\mathbf{g}_i \cdot \mathbf{g}_j = \|\mathbf{g}_i\|\|\mathbf{g}_j\|\cos\theta$. When $\theta > 90°$, the projection of $\mathbf{g}_i$ onto $\hat{\mathbf{g}}_j$ is negative. After surgery, the modified $\mathbf{g}_i^{PC}$ satisfies:</p>
+$$\mathbf{g}_i^{PC} \cdot \mathbf{g}_j = \mathbf{g}_i \cdot \mathbf{g}_j - \frac{(\mathbf{g}_i \cdot \mathbf{g}_j)(\mathbf{g}_j \cdot \mathbf{g}_j)}{\|\mathbf{g}_j\|^2} = \mathbf{g}_i \cdot \mathbf{g}_j - \mathbf{g}_i \cdot \mathbf{g}_j = 0$$<p>So the modified gradient is orthogonal to $\mathbf{g}_j$ — it no longer conflicts.</p>
+<p>For $T$ tasks, the procedure applies pairwise: for task $i$, iterate over all $j \neq i$ and sequentially project out each conflicting direction. The final update is:</p>
+$$\mathbf{g}^{final} = \sum_{i=1}^{T} \mathbf{g}_i^{PC}$$<p><strong>Pseudocode.</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#78787e"># PCGrad (Gradient Surgery)</span>
+</span></span><span style="display:flex;"><span><span style="color:#ff6ac1">def</span> <span style="color:#57c7ff">pcgrad</span>(gradients):
+</span></span><span style="display:flex;"><span>    <span style="color:#78787e"># gradients: list of T gradient vectors, one per task</span>
+</span></span><span style="display:flex;"><span>    T <span style="color:#ff6ac1">=</span> <span style="color:#ff5c57">len</span>(gradients)
+</span></span><span style="display:flex;"><span>    projected <span style="color:#ff6ac1">=</span> [g<span style="color:#ff6ac1">.</span>clone() <span style="color:#ff6ac1">for</span> g <span style="color:#ff6ac1">in</span> gradients]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ff6ac1">for</span> i <span style="color:#ff6ac1">in</span> <span style="color:#ff5c57">range</span>(T):
+</span></span><span style="display:flex;"><span>        <span style="color:#ff6ac1">for</span> j <span style="color:#ff6ac1">in</span> <span style="color:#ff5c57">range</span>(T):
+</span></span><span style="display:flex;"><span>            <span style="color:#ff6ac1">if</span> i <span style="color:#ff6ac1">==</span> j:
+</span></span><span style="display:flex;"><span>                <span style="color:#ff6ac1">continue</span>
+</span></span><span style="display:flex;"><span>            dot <span style="color:#ff6ac1">=</span> torch<span style="color:#ff6ac1">.</span>dot(projected[i], gradients[j])
+</span></span><span style="display:flex;"><span>            <span style="color:#ff6ac1">if</span> dot <span style="color:#ff6ac1">&lt;</span> <span style="color:#ff9f43">0</span>:
+</span></span><span style="display:flex;"><span>                <span style="color:#78787e"># Remove conflicting component</span>
+</span></span><span style="display:flex;"><span>                projected[i] <span style="color:#ff6ac1">-=</span> (dot <span style="color:#ff6ac1">/</span> (gradients[j]<span style="color:#ff6ac1">.</span>norm() <span style="color:#ff6ac1">**</span> <span style="color:#ff9f43">2</span>)) <span style="color:#ff6ac1">*</span> gradients[j]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ff6ac1">return</span> <span style="color:#ff5c57">sum</span>(projected)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#78787e"># In training loop:</span>
+</span></span><span style="display:flex;"><span><span style="color:#ff6ac1">for</span> batch <span style="color:#ff6ac1">in</span> dataloader:
+</span></span><span style="display:flex;"><span>    grads <span style="color:#ff6ac1">=</span> [compute_gradient(loss_i, model) <span style="color:#ff6ac1">for</span> loss_i <span style="color:#ff6ac1">in</span> task_losses]
+</span></span><span style="display:flex;"><span>    combined_grad <span style="color:#ff6ac1">=</span> pcgrad(grads)
+</span></span><span style="display:flex;"><span>    apply_gradient(model, combined_grad)
+</span></span></code></pre></div><p><strong>Complexity.</strong> The pairwise loop is $O(T^2)$ in gradient computations and $O(T^2 \cdot d)$ in memory where $d$ is the parameter dimension. This becomes prohibitive for $T > 10$ tasks.</p>
+<p><strong>Pros and Cons.</strong></p>
+<ul>
+<li>Pros: Principled geometric solution; no scalar hyperparameters; prevents destructive interference directly.</li>
+<li>Cons: $O(T^2)$ complexity is unscalable; only addresses gradient direction, not magnitude imbalance; order of pairwise projections can matter.</li>
+</ul>
+<hr>
+<h3 id="23-mgda--multiple-gradient-descent-algorithm-neurips-2018" >
+<div>
+    <a href="#23-mgda--multiple-gradient-descent-algorithm-neurips-2018">
+        ##
+    </a>
+    2.3 MGDA — Multiple Gradient Descent Algorithm (NeurIPS 2018)
+</div>
+</h3>
+<p><strong>Intuition.</strong> MGDA reframes multi-task learning as a <strong>multi-objective optimization</strong> (MOO) problem <sup id="fnref:3"><a href="#fn:3" class="footnote-ref" role="doc-noteref">3</a></sup>. Rather than combining gradients with fixed weights, it searches for a descent direction that simultaneously reduces all task losses — a Pareto-improving step. Think of it as finding the direction in gradient space that every task can agree on.</p>
+<p><strong>Math.</strong> A point $\theta$ is <strong>Pareto-stationary</strong> if no single update direction can improve all objectives simultaneously. MGDA finds the minimum-norm point in the convex hull of task gradients:</p>
+$$\mathbf{g}^* = \sum_{i=1}^{T} \alpha_i \mathbf{g}_i, \quad \alpha_i \geq 0, \quad \sum_{i=1}^{T} \alpha_i = 1$$$$\{\alpha_i^*\} = \arg\min_{\alpha} \left\| \sum_{i=1}^{T} \alpha_i \mathbf{g}_i \right\|^2$$<p>If $\mathbf{g}^* = \mathbf{0}$, the current point is already Pareto-stationary. Otherwise, taking a step in the direction $-\mathbf{g}^*$ guarantees a reduction in every task loss (to first order).</p>
+<p>The optimization over $\{\alpha_i\}$ is a quadratic program (QP) over the simplex, solvable efficiently with the Frank-Wolfe algorithm or the dual form. The computational cost is $O(T^2 \cdot d)$ per step.</p>
+<p><strong>Pros and Cons.</strong></p>
+<ul>
+<li>Pros: Principled MOO framework; theoretical convergence guarantees to Pareto-stationary points; no task weighting hyperparameters.</li>
+<li>Cons: Can stall at poor Pareto points (e.g., a saddle in the objectives); expensive QP per step; the Pareto-stationary criterion may not align with practical task priorities.</li>
+</ul>
+<hr>
+<h3 id="24-cagrad-neurips-2021" >
+<div>
+    <a href="#24-cagrad-neurips-2021">
+        ##
+    </a>
+    2.4 CAGrad (NeurIPS 2021)
+</div>
+</h3>
+<p><strong>Intuition.</strong> CAGrad (Conflict-Averse Gradient Descent) unifies vanilla gradient descent and MGDA by introducing a tunable constraint. The key insight is: rather than minimizing all tasks equally (MGDA) or ignoring conflicts (plain sum), CAGrad maximizes the <em>worst-case</em> task improvement while staying close to the average gradient. This is the multi-task analogue of max-min fairness <sup id="fnref:4"><a href="#fn:4" class="footnote-ref" role="doc-noteref">4</a></sup>.</p>
+<p><strong>Math.</strong> Let the average gradient be:</p>
+$$\mathbf{g}_0 = \frac{1}{T} \sum_{i=1}^{T} \mathbf{g}_i$$<p>CAGrad&rsquo;s primal problem at each step is:</p>
+$$\mathbf{d}^* = \arg\max_{\mathbf{d}} \min_{i \in [T]} \langle \mathbf{g}_i, \mathbf{d} \rangle \quad \text{s.t.} \quad \|\mathbf{d} - \mathbf{g}_0\| \leq c \|\mathbf{g}_0\|$$<p>The constraint ball of radius $c \|\mathbf{g}_0\|$ centered at $\mathbf{g}_0$ controls how far from the average gradient we are allowed to deviate:</p>
+<ul>
+<li>$c = 0$: The only feasible point is $\mathbf{g}_0$ itself — recovers vanilla gradient descent.</li>
+<li>$c \to \infty$: The constraint is vacuous and the solution recovers MGDA (min-norm in convex hull).</li>
+</ul>
+<p>Rather than solving the primal directly, the paper derives a <strong>dual problem</strong> over task weights $\mathbf{w}$ on the probability simplex $\mathcal{W} = \{\mathbf{w} : \sum_i w_i = 1,\ w_i \geq 0\}$. Let $\mathbf{g}_\mathbf{w} = \sum_{i=1}^T w_i \mathbf{g}_i$ and $\varphi = c^2 \|\mathbf{g}_0\|^2$. The dual objective is:</p>
+$$\mathbf{w}^* = \arg\min_{\mathbf{w} \in \mathcal{W}}\ F(\mathbf{w}) := \mathbf{g}_\mathbf{w}^\top \mathbf{g}_0 + \sqrt{\varphi}\, \|\mathbf{g}_\mathbf{w}\|$$<p>The optimal Lagrange multiplier is $\lambda^* = \|\mathbf{g}_{\mathbf{w}^*}\| / \sqrt{\varphi}$, and the final parameter update direction combines the average gradient with a scaled weighted component:</p>
+$$\mathbf{d}^* = \mathbf{g}_0 + \frac{\sqrt{\varphi}}{\|\mathbf{g}_{\mathbf{w}^*}\|}\, \mathbf{g}_{\mathbf{w}^*}$$<p><strong>Pseudocode.</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#ff6ac1">import</span> torch
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#ff6ac1">def</span> <span style="color:#57c7ff">cagrad</span>(gradients, c<span style="color:#ff6ac1">=</span><span style="color:#ff9f43">0.5</span>, num_iters<span style="color:#ff6ac1">=</span><span style="color:#ff9f43">20</span>, lr_w<span style="color:#ff6ac1">=</span><span style="color:#ff9f43">0.01</span>):
+</span></span><span style="display:flex;"><span>    <span style="color:#5af78e">&#34;&#34;&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#5af78e">    CAGrad: Conflict-Averse Gradient Descent (Liu et al., NeurIPS 2021)
+</span></span></span><span style="display:flex;"><span><span style="color:#5af78e">    Solves the dual: min_{w in simplex} g_w.T @ g0 + sqrt(phi) * ||g_w||
+</span></span></span><span style="display:flex;"><span><span style="color:#5af78e">    Returns the update direction d* = g0 + (sqrt(phi)/||g_w*||) * g_w*
+</span></span></span><span style="display:flex;"><span><span style="color:#5af78e">    &#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    T <span style="color:#ff6ac1">=</span> <span style="color:#ff5c57">len</span>(gradients)
+</span></span><span style="display:flex;"><span>    <span style="color:#78787e"># Stack gradients: shape [T, d]</span>
+</span></span><span style="display:flex;"><span>    G <span style="color:#ff6ac1">=</span> torch<span style="color:#ff6ac1">.</span>stack(gradients)               <span style="color:#78787e"># [T, d]</span>
+</span></span><span style="display:flex;"><span>    g0 <span style="color:#ff6ac1">=</span> G<span style="color:#ff6ac1">.</span>mean(dim<span style="color:#ff6ac1">=</span><span style="color:#ff9f43">0</span>)                       <span style="color:#78787e"># average gradient</span>
+</span></span><span style="display:flex;"><span>    phi <span style="color:#ff6ac1">=</span> (c <span style="color:#ff6ac1">*</span> g0<span style="color:#ff6ac1">.</span>norm()) <span style="color:#ff6ac1">**</span> <span style="color:#ff9f43">2</span>               <span style="color:#78787e"># c^2 * ||g0||^2</span>
+</span></span><span style="display:flex;"><span>    sqrt_phi <span style="color:#ff6ac1">=</span> phi <span style="color:#ff6ac1">**</span> <span style="color:#ff9f43">0.5</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#78787e"># Initialize uniform weights on the simplex</span>
+</span></span><span style="display:flex;"><span>    w <span style="color:#ff6ac1">=</span> torch<span style="color:#ff6ac1">.</span>full((T,), <span style="color:#ff9f43">1.0</span> <span style="color:#ff6ac1">/</span> T, requires_grad<span style="color:#ff6ac1">=</span><span style="color:#ff6ac1">True</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    optimizer_w <span style="color:#ff6ac1">=</span> torch<span style="color:#ff6ac1">.</span>optim<span style="color:#ff6ac1">.</span>SGD([w], lr<span style="color:#ff6ac1">=</span>lr_w)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ff6ac1">for</span> _ <span style="color:#ff6ac1">in</span> <span style="color:#ff5c57">range</span>(num_iters):
+</span></span><span style="display:flex;"><span>        optimizer_w<span style="color:#ff6ac1">.</span>zero_grad()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        w_simplex <span style="color:#ff6ac1">=</span> torch<span style="color:#ff6ac1">.</span>softmax(w, dim<span style="color:#ff6ac1">=</span><span style="color:#ff9f43">0</span>)  <span style="color:#78787e"># project onto simplex</span>
+</span></span><span style="display:flex;"><span>        g_w <span style="color:#ff6ac1">=</span> (w_simplex<span style="color:#ff6ac1">.</span>unsqueeze(<span style="color:#ff9f43">1</span>) <span style="color:#ff6ac1">*</span> G)<span style="color:#ff6ac1">.</span>sum(dim<span style="color:#ff6ac1">=</span><span style="color:#ff9f43">0</span>)  <span style="color:#78787e"># weighted gradient</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#78787e"># Dual objective: g_w.T @ g0 + sqrt(phi) * ||g_w||</span>
+</span></span><span style="display:flex;"><span>        loss_dual <span style="color:#ff6ac1">=</span> g_w <span style="color:#ff6ac1">@</span> g0 <span style="color:#ff6ac1">+</span> sqrt_phi <span style="color:#ff6ac1">*</span> g_w<span style="color:#ff6ac1">.</span>norm()
+</span></span><span style="display:flex;"><span>        loss_dual<span style="color:#ff6ac1">.</span>backward()
+</span></span><span style="display:flex;"><span>        optimizer_w<span style="color:#ff6ac1">.</span>step()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ff6ac1">with</span> torch<span style="color:#ff6ac1">.</span>no_grad():
+</span></span><span style="display:flex;"><span>        w_star <span style="color:#ff6ac1">=</span> torch<span style="color:#ff6ac1">.</span>softmax(w, dim<span style="color:#ff6ac1">=</span><span style="color:#ff9f43">0</span>)
+</span></span><span style="display:flex;"><span>        g_w_star <span style="color:#ff6ac1">=</span> (w_star<span style="color:#ff6ac1">.</span>unsqueeze(<span style="color:#ff9f43">1</span>) <span style="color:#ff6ac1">*</span> G)<span style="color:#ff6ac1">.</span>sum(dim<span style="color:#ff6ac1">=</span><span style="color:#ff9f43">0</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#78787e"># Final update direction</span>
+</span></span><span style="display:flex;"><span>        d_star <span style="color:#ff6ac1">=</span> g0 <span style="color:#ff6ac1">+</span> (sqrt_phi <span style="color:#ff6ac1">/</span> (g_w_star<span style="color:#ff6ac1">.</span>norm() <span style="color:#ff6ac1">+</span> <span style="color:#ff9f43">1e-8</span>)) <span style="color:#ff6ac1">*</span> g_w_star
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ff6ac1">return</span> d_star
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#78787e"># In training loop:</span>
+</span></span><span style="display:flex;"><span>grads <span style="color:#ff6ac1">=</span> [compute_gradient(loss_i, model) <span style="color:#ff6ac1">for</span> loss_i <span style="color:#ff6ac1">in</span> task_losses]
+</span></span><span style="display:flex;"><span>update <span style="color:#ff6ac1">=</span> cagrad(grads, c<span style="color:#ff6ac1">=</span><span style="color:#ff9f43">0.5</span>)
+</span></span><span style="display:flex;"><span>apply_gradient(model, update)
+</span></span></code></pre></div><p><strong>Pros and Cons.</strong></p>
+<ul>
+<li>Pros: Unifies vanilla GD and MGDA under one framework; convergence to a stationary point of the average loss is guaranteed (Theorem 3.2 in the paper); $c$ gives intuitive control.</li>
+<li>Cons: Requires tuning $c \in [0, 1)$; solving the dual subproblem per step adds overhead; for very large $T$, the per-step cost grows.</li>
+</ul>
+<hr>
+<h3 id="25-metabalance-www-2022" >
+<div>
+    <a href="#25-metabalance-www-2022">
+        ##
+    </a>
+    2.5 MetaBalance (WWW 2022)
+</div>
+</h3>
+<p><strong>Intuition.</strong> In recommendation systems, there is often a natural hierarchy: a primary task (e.g., CTR) that we care most about, and auxiliary tasks (e.g., dwell time, likes) that provide helpful regularization. MetaBalance takes this hierarchy seriously and rescales auxiliary gradients to match the primary task&rsquo;s gradient norm — layer by layer, iteration by iteration <sup id="fnref:5"><a href="#fn:5" class="footnote-ref" role="doc-noteref">5</a></sup>.</p>
+<p><strong>Math.</strong> Let $\mathbf{G}_{tar}$ be the target task gradient and $\mathbf{G}_{aux,i}$ the $i$-th auxiliary gradient, both w.r.t. a shared parameter block $\theta$.</p>
+<p><strong>Step 1 — Exponential moving averages of gradient norms</strong> (Algorithm 2, the complete version):</p>
+$$m_{tar}^t = \beta\, m_{tar}^{t-1} + (1-\beta)\,\|\mathbf{G}_{tar}^t\|$$$$m_{aux,i}^t = \beta\, m_{aux,i}^{t-1} + (1-\beta)\,\|\mathbf{G}_{aux,i}^t\|$$<p>with $\beta = 0.9$ and $m^0 = 0$. Using moving averages instead of instantaneous norms removes noise from per-batch gradient variance.</p>
+<p><strong>Step 2 — Strategy selection.</strong> Choose which auxiliary gradients to rescale:</p>
+<ul>
+<li><strong>Strategy A (Reduce)</strong>: rescale only when $m_{aux,i}^t > m_{tar}^t$ — the auxiliary is overpowering the target.</li>
+<li><strong>Strategy B (Enlarge)</strong>: rescale only when $m_{aux,i}^t < m_{tar}^t$ — the auxiliary is too weak to transfer useful signal.</li>
+<li><strong>Strategy C (Flexible)</strong>: rescale always (A ∪ B). Empirically best across benchmarks.</li>
+</ul>
+<p><strong>Step 3 — Gradient rescaling with relax factor $r$.</strong> Rather than hard norm-matching (which forces $\|\mathbf{G}_{aux,i}\| = \|\mathbf{G}_{tar}\|$ and over-suppresses useful signal), MetaBalance uses a partial interpolation:</p>
+$$\mathbf{G}_{aux,i}^t \leftarrow \mathbf{G}_{aux,i}^t \cdot \underbrace{\left[\left(\frac{m_{tar}^t}{m_{aux,i}^t} - 1\right) r + 1\right]}_{w_{aux,i}^t}$$<p>The effective dynamic weight $w_{aux,i}^t$ has two intuitive limits:</p>
+<ul>
+<li>$r = 0$: $w_{aux,i}^t = 1$, no rescaling (vanilla multi-task).</li>
+<li>$r = 1$: $w_{aux,i}^t = m_{tar}^t / m_{aux,i}^t$, full norm-matching.</li>
+</ul>
+<p>Intermediate $r$ (e.g., $r = 0.7$) balances convergence speed and stability. Since gradient imbalances vary across layers, MetaBalance applies this independently <strong>per parameter block</strong> $\theta$ of the shared network.</p>
+<p><strong>Pseudocode (Algorithm 2 — complete version).</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#78787e"># MetaBalance: Complete version with moving averages and relax factor</span>
+</span></span><span style="display:flex;"><span><span style="color:#78787e"># Applied independently per shared parameter block (e.g., each MLP layer)</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#ff6ac1">def</span> <span style="color:#57c7ff">metabalance_update</span>(model, target_loss, aux_losses, optimizer,
+</span></span><span style="display:flex;"><span>                       r<span style="color:#ff6ac1">=</span><span style="color:#ff9f43">0.7</span>, beta<span style="color:#ff6ac1">=</span><span style="color:#ff9f43">0.9</span>, m_tar<span style="color:#ff6ac1">=</span><span style="color:#ff6ac1">None</span>, m_aux<span style="color:#ff6ac1">=</span><span style="color:#ff6ac1">None</span>, strategy<span style="color:#ff6ac1">=</span><span style="color:#5af78e">&#39;C&#39;</span>):
+</span></span><span style="display:flex;"><span>    K <span style="color:#ff6ac1">=</span> <span style="color:#ff5c57">len</span>(aux_losses)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#78787e"># Lazily initialize moving average accumulators per layer</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ff6ac1">if</span> m_tar <span style="color:#ff6ac1">is</span> <span style="color:#ff6ac1">None</span>:
+</span></span><span style="display:flex;"><span>        m_tar  <span style="color:#ff6ac1">=</span> {name: <span style="color:#ff9f43">0.0</span> <span style="color:#ff6ac1">for</span> name, _ <span style="color:#ff6ac1">in</span> model<span style="color:#ff6ac1">.</span>shared_params()}
+</span></span><span style="display:flex;"><span>        m_aux  <span style="color:#ff6ac1">=</span> [{name: <span style="color:#ff9f43">0.0</span> <span style="color:#ff6ac1">for</span> name, _ <span style="color:#ff6ac1">in</span> model<span style="color:#ff6ac1">.</span>shared_params()} <span style="color:#ff6ac1">for</span> _ <span style="color:#ff6ac1">in</span> <span style="color:#ff5c57">range</span>(K)]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#78787e"># --- Compute target gradients ---</span>
+</span></span><span style="display:flex;"><span>    optimizer<span style="color:#ff6ac1">.</span>zero_grad()
+</span></span><span style="display:flex;"><span>    target_loss<span style="color:#ff6ac1">.</span>backward(retain_graph<span style="color:#ff6ac1">=</span><span style="color:#ff6ac1">True</span>)
+</span></span><span style="display:flex;"><span>    G_tar <span style="color:#ff6ac1">=</span> {name: p<span style="color:#ff6ac1">.</span>grad<span style="color:#ff6ac1">.</span>clone() <span style="color:#ff6ac1">for</span> name, p <span style="color:#ff6ac1">in</span> model<span style="color:#ff6ac1">.</span>shared_params()}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#78787e"># Update target moving average per layer</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ff6ac1">for</span> name <span style="color:#ff6ac1">in</span> G_tar:
+</span></span><span style="display:flex;"><span>        m_tar[name] <span style="color:#ff6ac1">=</span> beta <span style="color:#ff6ac1">*</span> m_tar[name] <span style="color:#ff6ac1">+</span> (<span style="color:#ff9f43">1</span> <span style="color:#ff6ac1">-</span> beta) <span style="color:#ff6ac1">*</span> G_tar[name]<span style="color:#ff6ac1">.</span>norm()<span style="color:#ff6ac1">.</span>item()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#78787e"># --- Compute and rescale auxiliary gradients ---</span>
+</span></span><span style="display:flex;"><span>    G_aux_total <span style="color:#ff6ac1">=</span> {name: torch<span style="color:#ff6ac1">.</span>zeros_like(G_tar[name]) <span style="color:#ff6ac1">for</span> name <span style="color:#ff6ac1">in</span> G_tar}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ff6ac1">for</span> i, aux_loss <span style="color:#ff6ac1">in</span> <span style="color:#ff5c57">enumerate</span>(aux_losses):
+</span></span><span style="display:flex;"><span>        optimizer<span style="color:#ff6ac1">.</span>zero_grad()
+</span></span><span style="display:flex;"><span>        aux_loss<span style="color:#ff6ac1">.</span>backward(retain_graph<span style="color:#ff6ac1">=</span><span style="color:#ff6ac1">True</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ff6ac1">for</span> name, p <span style="color:#ff6ac1">in</span> model<span style="color:#ff6ac1">.</span>shared_params():
+</span></span><span style="display:flex;"><span>            G_i <span style="color:#ff6ac1">=</span> p<span style="color:#ff6ac1">.</span>grad<span style="color:#ff6ac1">.</span>clone()
+</span></span><span style="display:flex;"><span>            norm_i <span style="color:#ff6ac1">=</span> G_i<span style="color:#ff6ac1">.</span>norm()<span style="color:#ff6ac1">.</span>item()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>            <span style="color:#78787e"># Update auxiliary moving average</span>
+</span></span><span style="display:flex;"><span>            m_aux[i][name] <span style="color:#ff6ac1">=</span> beta <span style="color:#ff6ac1">*</span> m_aux[i][name] <span style="color:#ff6ac1">+</span> (<span style="color:#ff9f43">1</span> <span style="color:#ff6ac1">-</span> beta) <span style="color:#ff6ac1">*</span> norm_i
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>            <span style="color:#78787e"># Apply strategy condition using moving averages</span>
+</span></span><span style="display:flex;"><span>            m_t <span style="color:#ff6ac1">=</span> m_tar[name]
+</span></span><span style="display:flex;"><span>            m_a <span style="color:#ff6ac1">=</span> m_aux[i][name] <span style="color:#ff6ac1">+</span> <span style="color:#ff9f43">1e-8</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>            apply <span style="color:#ff6ac1">=</span> (strategy <span style="color:#ff6ac1">==</span> <span style="color:#5af78e">&#39;A&#39;</span> <span style="color:#ff6ac1">and</span> m_a <span style="color:#ff6ac1">&gt;</span> m_t) <span style="color:#ff6ac1">or</span> \
+</span></span><span style="display:flex;"><span>                    (strategy <span style="color:#ff6ac1">==</span> <span style="color:#5af78e">&#39;B&#39;</span> <span style="color:#ff6ac1">and</span> m_a <span style="color:#ff6ac1">&lt;</span> m_t) <span style="color:#ff6ac1">or</span> \
+</span></span><span style="display:flex;"><span>                    (strategy <span style="color:#ff6ac1">==</span> <span style="color:#5af78e">&#39;C&#39;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>            <span style="color:#ff6ac1">if</span> apply:
+</span></span><span style="display:flex;"><span>                <span style="color:#78787e"># Eq. (4): dynamic weight with relax factor</span>
+</span></span><span style="display:flex;"><span>                w <span style="color:#ff6ac1">=</span> (m_t <span style="color:#ff6ac1">/</span> m_a <span style="color:#ff6ac1">-</span> <span style="color:#ff9f43">1.0</span>) <span style="color:#ff6ac1">*</span> r <span style="color:#ff6ac1">+</span> <span style="color:#ff9f43">1.0</span>
+</span></span><span style="display:flex;"><span>                G_i <span style="color:#ff6ac1">=</span> G_i <span style="color:#ff6ac1">*</span> w
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>            G_aux_total[name] <span style="color:#ff6ac1">+=</span> G_i
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#78787e"># --- Combine and apply ---</span>
+</span></span><span style="display:flex;"><span>    optimizer<span style="color:#ff6ac1">.</span>zero_grad()
+</span></span><span style="display:flex;"><span>    <span style="color:#ff6ac1">for</span> name, p <span style="color:#ff6ac1">in</span> model<span style="color:#ff6ac1">.</span>shared_params():
+</span></span><span style="display:flex;"><span>        p<span style="color:#ff6ac1">.</span>grad <span style="color:#ff6ac1">=</span> G_tar[name] <span style="color:#ff6ac1">+</span> G_aux_total[name]
+</span></span><span style="display:flex;"><span>    optimizer<span style="color:#ff6ac1">.</span>step()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ff6ac1">return</span> m_tar, m_aux  <span style="color:#78787e"># pass back for next iteration</span>
+</span></span></code></pre></div><p><strong>Pros and Cons.</strong></p>
+<ul>
+<li>Pros: Per-layer per-step control; moving averages stabilize rescaling; single hyperparameter $r$ regardless of number of auxiliary tasks; optimizer-agnostic (works with Adam, Adagrad, etc.); validated on Alibaba datasets (+8.34% NDCG@10 <sup id="fnref1:5"><a href="#fn:5" class="footnote-ref" role="doc-noteref">5</a></sup>).</li>
+<li>Cons: Requires an explicit primary/auxiliary task hierarchy; per-layer backward passes add compute overhead; does not address gradient direction conflicts, only magnitude.</li>
+</ul>
+<hr>
+<h3 id="26-slgrad-2023" >
+<div>
+    <a href="#26-slgrad-2023">
+        ##
+    </a>
+    2.6 SLGrad (2023)
+</div>
+</h3>
+<p><strong>Intuition.</strong> Even within a single auxiliary task, different training samples contribute differently to the primary objective. Some auxiliary samples genuinely help the primary task; others introduce noise or conflict. SLGrad operates at the finest possible granularity — individual samples — assigning weights based on how well each sample&rsquo;s gradient aligns with the primary task&rsquo;s validation gradient <sup id="fnref:6"><a href="#fn:6" class="footnote-ref" role="doc-noteref">6</a></sup>.</p>
+<p><strong>Math.</strong> Let $\mathbf{g}_{val}^{primary}$ be the gradient of the primary task on a held-out validation set. For each sample $s$ in the auxiliary task batch, compute the cosine similarity:</p>
+$$w_s = \cos(\mathbf{g}_s, \mathbf{g}_{val}^{primary}) = \frac{\mathbf{g}_s \cdot \mathbf{g}_{val}^{primary}}{\|\mathbf{g}_s\| \|\mathbf{g}_{val}^{primary}\|}$$<p>Samples with $w_s > 0$ push in a direction compatible with the primary objective; samples with $w_s < 0$ conflict. SLGrad reweights the auxiliary loss by $\max(0, w_s)$ or uses $w_s$ directly as a soft weight to suppress conflicting samples.</p>
+<p><strong>Pros and Cons.</strong></p>
+<ul>
+<li>Pros: Finest possible granularity; directly suppresses noisy auxiliary samples; interpretable per-sample weights.</li>
+<li>Cons: Requires a separate validation set for the primary task; computing per-sample gradients is expensive (requires multiple backward passes or per-sample gradient approximations); not easily scalable to large batch sizes.</li>
+</ul>
+<hr>
+<h3 id="27-ple--progressive-layered-extraction-recsys-2020" >
+<div>
+    <a href="#27-ple--progressive-layered-extraction-recsys-2020">
+        ##
+    </a>
+    2.7 PLE — Progressive Layered Extraction (RecSys 2020)
+</div>
+</h3>
+<p><strong>Intuition.</strong> Rather than fixing gradient conflicts after the fact, PLE prevents them architecturally <sup id="fnref:7"><a href="#fn:7" class="footnote-ref" role="doc-noteref">7</a></sup>. It partitions model capacity into shared experts and task-specific experts, organized in hierarchical layers. Task-specific experts receive gradients only from their own task, eliminating cross-task gradient interference at the source.</p>
+<p><strong>Math.</strong> Let $L$ be the number of extraction layers. At layer $l$:</p>
+<ul>
+<li>Shared experts $\{E_s^{(l)}\}$: receive gradients from all tasks via gating.</li>
+<li>Task-specific experts $\{E_k^{(l)}\}$ for task $k$: receive gradients only from task $k$.</li>
+</ul>
+<p>The output for task $k$ at layer $l$ is:</p>
+$$\mathbf{h}_k^{(l)} = \sum_j g_{k,j}^{(l)} E_j^{(l)}(\mathbf{h}_k^{(l-1)})$$<p>where $g_{k,j}^{(l)}$ are gating weights that blend shared and task-specific expert outputs. Crucially, the gating ensures that gradients flowing backward through task-specific experts are isolated from other tasks.</p>
+<p><strong>Pros and Cons.</strong></p>
+<ul>
+<li>Pros: Structural separation eliminates gradient conflict by design; well-validated in large-scale production settings; no optimization-time overhead.</li>
+<li>Cons: Increased parameter count; the static expert structure may not adapt to shifting task relationships; requires careful capacity allocation.</li>
+</ul>
+<hr>
+<h3 id="28-stem-net-aaai-2024" >
+<div>
+    <a href="#28-stem-net-aaai-2024">
+        ##
+    </a>
+    2.8 STEM-Net (AAAI 2024)
+</div>
+</h3>
+<p><strong>Intuition.</strong> Many multi-task seesaw effects originate not in the shared tower but in the shared embedding table. If a user who is a heavy clicker but a rare purchaser updates the same embedding with conflicting signals, the embedding itself becomes a source of conflict. STEM-Net separates embeddings at the task level and uses a stop-gradient gate to prevent backward leakage between task-specific embedding paths <sup id="fnref:8"><a href="#fn:8" class="footnote-ref" role="doc-noteref">8</a></sup>.</p>
+<p><strong>Math.</strong> For each task $i$, STEM-Net maintains:</p>
+<ul>
+<li>A task-specific embedding table $\mathbf{E}_i$</li>
+<li>A globally shared embedding table $\mathbf{E}_{shared}$</li>
+</ul>
+<p>The final representation for task $i$ is:</p>
+$$\mathbf{h}_i = f_i\!\left(\mathbf{E}_i(\mathbf{x}),\ \text{stop\_grad}\!\left(\mathbf{E}_{shared}(\mathbf{x})\right)\right)$$<p>The <strong>All Forward Task-specific Backward (AFTB)</strong> gating mechanism allows all embeddings to contribute during the forward pass (maximizing information flow) while blocking gradient flow from task $i$&rsquo;s loss to task $j$&rsquo;s embedding table (preventing conflict). This is implemented via <code>stop_gradient</code> operators that zero out gradients selectively.</p>
+<p>STEM-Net is particularly effective for <strong>comparable samples</strong> — users with balanced multi-task feedback (e.g., users who both click and purchase). For such users, conflicting embedding gradients are most damaging.</p>
+<p><strong>Pros and Cons.</strong></p>
+<ul>
+<li>Pros: Resolves conflicts at the embedding source; significant seesaw-effect reduction in Tencent production; AFTB gating is elegant and effective.</li>
+<li>Cons: Multiplicative memory cost (one embedding table per task plus shared); not a plug-and-play addition to existing architectures; the benefit concentrates on &ldquo;comparable samples&rdquo;.</li>
+</ul>
+<hr>
+<h3 id="29-multibalance-meta-2024" >
+<div>
+    <a href="#29-multibalance-meta-2024">
+        ##
+    </a>
+    2.9 MultiBalance (Meta, 2024)
+</div>
+</h3>
+<p><strong>Intuition.</strong> GradNorm and PCGrad operate on the full parameter gradient $\mathbf{g}_i \in \mathbb{R}^d$ where $d$ can be in the billions. This is computationally expensive and often noisy. MultiBalance observes that in representation-based recommenders, all task heads attach to a shared bottleneck $\mathbf{h}$. Balancing gradients at the bottleneck — a much smaller vector — achieves most of the benefit at a fraction of the cost <sup id="fnref:9"><a href="#fn:9" class="footnote-ref" role="doc-noteref">9</a></sup>.</p>
+<p><strong>Math.</strong> MultiBalance has two components: (1) a copy-and-fork architecture to obtain per-task representation gradients in a single backward pass, and (2) an MGDA-style min-norm balancing with EMA stabilization.</p>
+<p><strong>Step 1 — EMA-rescaled representation gradients.</strong> In the forward pass, the shared representation $\Phi$ is copied $M$ times — one per task head. A single backward pass then yields $M$ separate representation gradients $g_{k+1,m} = \nabla_\Phi f_m$. These are stabilized with an exponential moving average of their norms:</p>
+$$u_{k+1,m} = (1 - \gamma)\, u_{k,m} + \gamma\, \|g_{k+1,m}\|$$<p>The EMA-rescaled gradient (smoothed direction at historical average magnitude) is:</p>
+$$v_{k+1,m} = \frac{u_{k+1,m}}{\|g_{k+1,m}\|}\, g_{k+1,m}$$<p>Without this rescaling, noisy per-batch spikes in gradient norms destabilize the balancing weights.</p>
+<p><strong>Step 2 — MGDA min-norm objective over representation gradients.</strong> Let $V_{k+1}$ be the matrix stacking $\{v_{k+1,m}\}$. MultiBalance solves the surrogate min-norm problem (MGDA at the representation level):</p>
+$$\min_{\lambda \in \Delta^M} \|V_{k+1}\,\lambda\|$$<p>Theorem 1 in the paper shows this cheap $O(M^2 n')$ objective (where $n'$ is representation dim) guarantees approximate Pareto stationarity at the full parameter level, avoiding the infeasible $O(M^2 n)$ cost of parameter-space MGDA (where $n \sim 10^9$).</p>
+<p><strong>Step 3 — λ update via projected gradient descent with prior regularization:</strong></p>
+$$\lambda_{k+1} = \Pi_{\Delta^M}\!\left(\lambda_k - \beta_k\, V_{k+1}^\top \bigl(V_{k+1}\lambda_k + \rho\, V_{k+1}\lambda_0\bigr)\right)$$<p>where $\lambda_0 = \frac{1}{M}\mathbf{1}$ is a uniform prior, $\rho = 0.1$ regularizes toward equal weighting, and $\Pi_{\Delta^M}$ projects onto the probability simplex. The final balanced gradient $V_{k+1}\lambda_{k+1}$ is injected back into the autograd graph and propagated through the shared bottom layers.</p>
+<p><strong>Pseudocode (Algorithm 3).</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#78787e"># MultiBalance: MGDA-style balancing at the representation level</span>
+</span></span><span style="display:flex;"><span><span style="color:#78787e"># Single backward pass via copy-and-fork architecture</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#ff6ac1">def</span> <span style="color:#57c7ff">multibalance_step</span>(model, task_losses, optimizer,
+</span></span><span style="display:flex;"><span>                      u, lam, rho<span style="color:#ff6ac1">=</span><span style="color:#ff9f43">0.1</span>, gamma<span style="color:#ff6ac1">=</span><span style="color:#ff9f43">0.01</span>, lr_lam<span style="color:#ff6ac1">=</span><span style="color:#ff9f43">1.0</span>):
+</span></span><span style="display:flex;"><span>    <span style="color:#5af78e">&#34;&#34;&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#5af78e">    u   : list of M EMA norm scalars (initialized to 0)
+</span></span></span><span style="display:flex;"><span><span style="color:#5af78e">    lam : task weight vector on simplex (initialized to 1/M each)
+</span></span></span><span style="display:flex;"><span><span style="color:#5af78e">    &#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    M <span style="color:#ff6ac1">=</span> <span style="color:#ff5c57">len</span>(task_losses)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#78787e"># --- Forward: shared representation copied M times ---</span>
+</span></span><span style="display:flex;"><span>    h <span style="color:#ff6ac1">=</span> model<span style="color:#ff6ac1">.</span>shared_bottom(inputs)            <span style="color:#78787e"># [batch, n&#39;]</span>
+</span></span><span style="display:flex;"><span>    h_copies <span style="color:#ff6ac1">=</span> [h<span style="color:#ff6ac1">.</span>clone()<span style="color:#ff6ac1">.</span>requires_grad_(<span style="color:#ff6ac1">True</span>) <span style="color:#ff6ac1">for</span> _ <span style="color:#ff6ac1">in</span> <span style="color:#ff5c57">range</span>(M)]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#78787e"># --- Single backward: get M representation gradients ---</span>
+</span></span><span style="display:flex;"><span>    raw_grads <span style="color:#ff6ac1">=</span> []
+</span></span><span style="display:flex;"><span>    <span style="color:#ff6ac1">for</span> m, (h_m, loss_fn) <span style="color:#ff6ac1">in</span> <span style="color:#ff5c57">enumerate</span>(<span style="color:#ff5c57">zip</span>(h_copies, task_losses)):
+</span></span><span style="display:flex;"><span>        pred <span style="color:#ff6ac1">=</span> model<span style="color:#ff6ac1">.</span>task_heads[m](h_m)
+</span></span><span style="display:flex;"><span>        loss <span style="color:#ff6ac1">=</span> loss_fn(pred, targets[m])
+</span></span><span style="display:flex;"><span>        loss<span style="color:#ff6ac1">.</span>backward()
+</span></span><span style="display:flex;"><span>        raw_grads<span style="color:#ff6ac1">.</span>append(h_m<span style="color:#ff6ac1">.</span>grad<span style="color:#ff6ac1">.</span>detach())    <span style="color:#78787e"># g_{k+1,m}: [batch, n&#39;]</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#78787e"># --- EMA rescaling ---</span>
+</span></span><span style="display:flex;"><span>    v <span style="color:#ff6ac1">=</span> []
+</span></span><span style="display:flex;"><span>    <span style="color:#ff6ac1">for</span> m <span style="color:#ff6ac1">in</span> <span style="color:#ff5c57">range</span>(M):
+</span></span><span style="display:flex;"><span>        norm_m <span style="color:#ff6ac1">=</span> raw_grads[m]<span style="color:#ff6ac1">.</span>norm()<span style="color:#ff6ac1">.</span>item()
+</span></span><span style="display:flex;"><span>        u[m] <span style="color:#ff6ac1">=</span> (<span style="color:#ff9f43">1</span> <span style="color:#ff6ac1">-</span> gamma) <span style="color:#ff6ac1">*</span> u[m] <span style="color:#ff6ac1">+</span> gamma <span style="color:#ff6ac1">*</span> norm_m
+</span></span><span style="display:flex;"><span>        v_m <span style="color:#ff6ac1">=</span> (u[m] <span style="color:#ff6ac1">/</span> (norm_m <span style="color:#ff6ac1">+</span> <span style="color:#ff9f43">1e-8</span>)) <span style="color:#ff6ac1">*</span> raw_grads[m]
+</span></span><span style="display:flex;"><span>        v<span style="color:#ff6ac1">.</span>append(v_m)
+</span></span><span style="display:flex;"><span>    V <span style="color:#ff6ac1">=</span> torch<span style="color:#ff6ac1">.</span>stack(v)                         <span style="color:#78787e"># [M, batch, n&#39;]</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#78787e"># --- MGDA update for lambda (one projected gradient step) ---</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ff6ac1">with</span> torch<span style="color:#ff6ac1">.</span>no_grad():
+</span></span><span style="display:flex;"><span>        Vlam <span style="color:#ff6ac1">=</span> (lam<span style="color:#ff6ac1">.</span>view(M, <span style="color:#ff9f43">1</span>, <span style="color:#ff9f43">1</span>) <span style="color:#ff6ac1">*</span> V)<span style="color:#ff6ac1">.</span>sum(<span style="color:#ff9f43">0</span>)         <span style="color:#78787e"># V @ lam: [batch, n&#39;]</span>
+</span></span><span style="display:flex;"><span>        lam0 <span style="color:#ff6ac1">=</span> torch<span style="color:#ff6ac1">.</span>full((M,), <span style="color:#ff9f43">1.0</span> <span style="color:#ff6ac1">/</span> M)
+</span></span><span style="display:flex;"><span>        Vlam0 <span style="color:#ff6ac1">=</span> (lam0<span style="color:#ff6ac1">.</span>view(M, <span style="color:#ff9f43">1</span>, <span style="color:#ff9f43">1</span>) <span style="color:#ff6ac1">*</span> V)<span style="color:#ff6ac1">.</span>sum(<span style="color:#ff9f43">0</span>)       <span style="color:#78787e"># V @ lam0</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#78787e"># Gradient of objective w.r.t. lambda (use cosine similarity in practice)</span>
+</span></span><span style="display:flex;"><span>        grad_lam <span style="color:#ff6ac1">=</span> torch<span style="color:#ff6ac1">.</span>stack([(V[m] <span style="color:#ff6ac1">*</span> (Vlam <span style="color:#ff6ac1">+</span> rho <span style="color:#ff6ac1">*</span> Vlam0))<span style="color:#ff6ac1">.</span>sum() <span style="color:#ff6ac1">for</span> m <span style="color:#ff6ac1">in</span> <span style="color:#ff5c57">range</span>(M)])
+</span></span><span style="display:flex;"><span>        lam <span style="color:#ff6ac1">=</span> lam <span style="color:#ff6ac1">-</span> lr_lam <span style="color:#ff6ac1">*</span> grad_lam
+</span></span><span style="display:flex;"><span>        <span style="color:#78787e"># Project onto simplex</span>
+</span></span><span style="display:flex;"><span>        lam <span style="color:#ff6ac1">=</span> simplex_projection(lam)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#78787e"># --- Inject balanced gradient back into shared trunk ---</span>
+</span></span><span style="display:flex;"><span>    balanced_rep_grad <span style="color:#ff6ac1">=</span> (lam<span style="color:#ff6ac1">.</span>view(M, <span style="color:#ff9f43">1</span>, <span style="color:#ff9f43">1</span>) <span style="color:#ff6ac1">*</span> V)<span style="color:#ff6ac1">.</span>sum(<span style="color:#ff9f43">0</span>)  <span style="color:#78787e"># [batch, n&#39;]</span>
+</span></span><span style="display:flex;"><span>    optimizer<span style="color:#ff6ac1">.</span>zero_grad()
+</span></span><span style="display:flex;"><span>    h_final <span style="color:#ff6ac1">=</span> model<span style="color:#ff6ac1">.</span>shared_bottom(inputs)
+</span></span><span style="display:flex;"><span>    h_final<span style="color:#ff6ac1">.</span>backward(balanced_rep_grad)        <span style="color:#78787e"># single pass through shared params</span>
+</span></span><span style="display:flex;"><span>    optimizer<span style="color:#ff6ac1">.</span>step()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ff6ac1">return</span> u, lam
+</span></span></code></pre></div><p><strong>Pros and Cons.</strong></p>
+<ul>
+<li>Pros: Only ~0.42% QPS overhead vs. 68–82% for parameter-space MGDA; single backward pass via copy-and-fork; EMA prevents norm spike instability; theoretically grounded (Theorem 1 bounds parameter-level Pareto gap); validated at Meta on Feeds and Ads models.</li>
+<li>Cons: Balancing is confined to the shared representation bottleneck — conflicts inside task-specific subnetworks are not addressed; the copy-and-fork architecture requires refactoring existing model code; $\rho$ and $\gamma$ are additional hyperparameters.</li>
+</ul>
+<hr>
+<h3 id="210-gradcraft-kdd-2024" >
+<div>
+    <a href="#210-gradcraft-kdd-2024">
+        ##
+    </a>
+    2.10 GradCraft (KDD 2024)
+</div>
+</h3>
+<p><strong>Intuition.</strong> Previous methods address either magnitude (GradNorm, MetaBalance) or direction (PCGrad, MGDA) — but rarely both simultaneously. GradCraft takes a holistic two-stage approach: first equalize gradient magnitudes, then enforce that all pairs of adjusted gradients have non-negative dot products (global synergy). This combines the benefits of norm balancing and conflict resolution in a single unified procedure <sup id="fnref:10"><a href="#fn:10" class="footnote-ref" role="doc-noteref">10</a></sup>.</p>
+<p><strong>Math.</strong> <strong>Stage 1 (Magnitude Balancing).</strong> Rescale each task gradient to match the maximum norm:</p>
+$$\mathbf{g}_i^{mag} = \mathbf{g}_i \cdot \frac{\max_j \|\mathbf{g}_j\|}{\|\mathbf{g}_i\|}$$<p>After this step, all $\|\mathbf{g}_i^{mag}\| = \max_j \|\mathbf{g}_j\|$ — a level playing field.</p>
+<p><strong>Stage 2 (Direction Alignment).</strong> Enforce global pairwise non-negativity: find adjusted gradients $\{\mathbf{g}_i^{final}\}$ such that:</p>
+$$\langle \mathbf{g}_i^{final}, \mathbf{g}_j^{final} \rangle \geq 0 \quad \forall i, j$$<p>Unlike PCGrad which handles this pairwise (and can create inconsistencies), GradCraft solves a global optimization problem to find the smallest adjustments to $\{\mathbf{g}_i^{mag}\}$ that achieve universal non-negativity. This is a more expensive but more internally consistent operation.</p>
+<p><strong>Pseudocode.</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#78787e"># GradCraft</span>
+</span></span><span style="display:flex;"><span><span style="color:#ff6ac1">def</span> <span style="color:#57c7ff">gradcraft</span>(gradients):
+</span></span><span style="display:flex;"><span>    T <span style="color:#ff6ac1">=</span> <span style="color:#ff5c57">len</span>(gradients)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#78787e"># Stage 1: Magnitude balancing</span>
+</span></span><span style="display:flex;"><span>    norms <span style="color:#ff6ac1">=</span> [g<span style="color:#ff6ac1">.</span>norm() <span style="color:#ff6ac1">for</span> g <span style="color:#ff6ac1">in</span> gradients]
+</span></span><span style="display:flex;"><span>    max_norm <span style="color:#ff6ac1">=</span> <span style="color:#ff5c57">max</span>(norms)
+</span></span><span style="display:flex;"><span>    g_mag <span style="color:#ff6ac1">=</span> [g <span style="color:#ff6ac1">*</span> (max_norm <span style="color:#ff6ac1">/</span> n) <span style="color:#ff6ac1">for</span> g, n <span style="color:#ff6ac1">in</span> <span style="color:#ff5c57">zip</span>(gradients, norms)]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#78787e"># Stage 2: Direction alignment</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#78787e"># Iteratively project conflicting pairs until all pairs are synergistic</span>
+</span></span><span style="display:flex;"><span>    g_final <span style="color:#ff6ac1">=</span> [g<span style="color:#ff6ac1">.</span>clone() <span style="color:#ff6ac1">for</span> g <span style="color:#ff6ac1">in</span> g_mag]
+</span></span><span style="display:flex;"><span>    converged <span style="color:#ff6ac1">=</span> <span style="color:#ff6ac1">False</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ff6ac1">while</span> <span style="color:#ff6ac1">not</span> converged:
+</span></span><span style="display:flex;"><span>        converged <span style="color:#ff6ac1">=</span> <span style="color:#ff6ac1">True</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ff6ac1">for</span> i <span style="color:#ff6ac1">in</span> <span style="color:#ff5c57">range</span>(T):
+</span></span><span style="display:flex;"><span>            <span style="color:#ff6ac1">for</span> j <span style="color:#ff6ac1">in</span> <span style="color:#ff5c57">range</span>(i <span style="color:#ff6ac1">+</span> <span style="color:#ff9f43">1</span>, T):
+</span></span><span style="display:flex;"><span>                dot <span style="color:#ff6ac1">=</span> torch<span style="color:#ff6ac1">.</span>dot(g_final[i], g_final[j])
+</span></span><span style="display:flex;"><span>                <span style="color:#ff6ac1">if</span> dot <span style="color:#ff6ac1">&lt;</span> <span style="color:#ff9f43">0</span>:
+</span></span><span style="display:flex;"><span>                    converged <span style="color:#ff6ac1">=</span> <span style="color:#ff6ac1">False</span>
+</span></span><span style="display:flex;"><span>                    <span style="color:#78787e"># Project both toward each other to resolve conflict</span>
+</span></span><span style="display:flex;"><span>                    norm_j_sq <span style="color:#ff6ac1">=</span> g_final[j]<span style="color:#ff6ac1">.</span>norm() <span style="color:#ff6ac1">**</span> <span style="color:#ff9f43">2</span>
+</span></span><span style="display:flex;"><span>                    norm_i_sq <span style="color:#ff6ac1">=</span> g_final[i]<span style="color:#ff6ac1">.</span>norm() <span style="color:#ff6ac1">**</span> <span style="color:#ff9f43">2</span>
+</span></span><span style="display:flex;"><span>                    g_i_new <span style="color:#ff6ac1">=</span> g_final[i] <span style="color:#ff6ac1">-</span> (dot <span style="color:#ff6ac1">/</span> norm_j_sq) <span style="color:#ff6ac1">*</span> g_final[j]
+</span></span><span style="display:flex;"><span>                    g_j_new <span style="color:#ff6ac1">=</span> g_final[j] <span style="color:#ff6ac1">-</span> (dot <span style="color:#ff6ac1">/</span> norm_i_sq) <span style="color:#ff6ac1">*</span> g_final[i]
+</span></span><span style="display:flex;"><span>                    g_final[i] <span style="color:#ff6ac1">=</span> g_i_new
+</span></span><span style="display:flex;"><span>                    g_final[j] <span style="color:#ff6ac1">=</span> g_j_new
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ff6ac1">return</span> <span style="color:#ff5c57">sum</span>(g_final)
+</span></span></code></pre></div><p><strong>Pros and Cons.</strong></p>
+<ul>
+<li>Pros: Addresses both magnitude and direction; global synergy constraint is stronger than pairwise PCGrad; peer-reviewed and published at KDD 2024.</li>
+<li>Cons: Iterative Stage 2 is computationally expensive; convergence not always guaranteed in the iterative approach; $O(T^2)$ loop in Stage 2.</li>
+</ul>
+<hr>
+<h3 id="211-pub--parameter-update-balancing-2024" >
+<div>
+    <a href="#211-pub--parameter-update-balancing-2024">
+        ##
+    </a>
+    2.11 PUB — Parameter Update Balancing (2024)
+</div>
+</h3>
+<p><strong>Intuition.</strong> All gradient balancing methods so far operate on raw gradients $\mathbf{g}_i$. But in practice, models are trained with Adam, not vanilla SGD. Adam&rsquo;s adaptive moment estimates transform gradients before applying them: $\mathbf{g}_i^{Adam} \neq \mathbf{g}_i$. PUB makes a critical observation: <strong>gradient balancing does not equal update balancing under Adam</strong>. Two tasks with balanced gradients can still have highly imbalanced actual parameter updates once Adam applies its per-parameter learning rates. PUB closes this &ldquo;momentum gap&rdquo; by balancing the actual Adam updates, not the raw gradients <sup id="fnref:11"><a href="#fn:11" class="footnote-ref" role="doc-noteref">11</a></sup>.</p>
+<p><strong>Math.</strong> For each task $i$, compute the Adam-adjusted update:</p>
+$$\Delta\theta_i = \text{Adam}(\mathbf{g}_i, m_i, v_i) = \frac{\hat{m}_i}{\sqrt{\hat{v}_i} + \epsilon}$$<p>where $m_i, v_i$ are the first and second moment estimates for task $i$&rsquo;s gradients. PUB then finds the joint update direction:</p>
+$$\Delta\theta^* = \arg\max_{\Delta\theta} \min_{i \in [T]} \langle \Delta\theta_i, \Delta\theta \rangle \quad \text{s.t.} \quad \Delta\theta \in \text{conv}(\{\Delta\theta_i\})$$<p>This is the CAGrad/MGDA framework applied to Adam updates rather than raw gradients. The constraint that $\Delta\theta$ lies in the convex hull of task updates ensures the final step is a mixture of individually valid Adam steps.</p>
+<p><strong>Pseudocode.</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#78787e"># PUB: Parameter Update Balancing (closes the momentum gap)</span>
+</span></span><span style="display:flex;"><span><span style="color:#ff6ac1">def</span> <span style="color:#57c7ff">pub_update</span>(model, task_losses, optimizer):
+</span></span><span style="display:flex;"><span>    T <span style="color:#ff6ac1">=</span> <span style="color:#ff5c57">len</span>(task_losses)
+</span></span><span style="display:flex;"><span>    task_updates <span style="color:#ff6ac1">=</span> []
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#78787e"># Step 1: Compute per-task Adam parameter updates</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ff6ac1">for</span> i, loss <span style="color:#ff6ac1">in</span> <span style="color:#ff5c57">enumerate</span>(task_losses):
+</span></span><span style="display:flex;"><span>        optimizer<span style="color:#ff6ac1">.</span>zero_grad()
+</span></span><span style="display:flex;"><span>        loss<span style="color:#ff6ac1">.</span>backward(retain_graph<span style="color:#ff6ac1">=</span><span style="color:#ff6ac1">True</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#78787e"># Simulate Adam update (without applying it)</span>
+</span></span><span style="display:flex;"><span>        updates <span style="color:#ff6ac1">=</span> {}
+</span></span><span style="display:flex;"><span>        <span style="color:#ff6ac1">for</span> name, p <span style="color:#ff6ac1">in</span> model<span style="color:#ff6ac1">.</span>named_parameters():
+</span></span><span style="display:flex;"><span>            <span style="color:#ff6ac1">if</span> p<span style="color:#ff6ac1">.</span>grad <span style="color:#ff6ac1">is</span> <span style="color:#ff6ac1">not</span> <span style="color:#ff6ac1">None</span>:
+</span></span><span style="display:flex;"><span>                <span style="color:#78787e"># Adam-adjusted update: m / (sqrt(v) + eps)</span>
+</span></span><span style="display:flex;"><span>                m <span style="color:#ff6ac1">=</span> optimizer<span style="color:#ff6ac1">.</span>state[p]<span style="color:#ff6ac1">.</span>get(<span style="color:#5af78e">&#39;exp_avg&#39;</span>, p<span style="color:#ff6ac1">.</span>grad<span style="color:#ff6ac1">.</span>clone())
+</span></span><span style="display:flex;"><span>                v <span style="color:#ff6ac1">=</span> optimizer<span style="color:#ff6ac1">.</span>state[p]<span style="color:#ff6ac1">.</span>get(<span style="color:#5af78e">&#39;exp_avg_sq&#39;</span>, p<span style="color:#ff6ac1">.</span>grad<span style="color:#ff6ac1">.</span>pow(<span style="color:#ff9f43">2</span>))
+</span></span><span style="display:flex;"><span>                adam_update <span style="color:#ff6ac1">=</span> m <span style="color:#ff6ac1">/</span> (v<span style="color:#ff6ac1">.</span>sqrt() <span style="color:#ff6ac1">+</span> <span style="color:#ff9f43">1e-8</span>)
+</span></span><span style="display:flex;"><span>                updates[name] <span style="color:#ff6ac1">=</span> adam_update
+</span></span><span style="display:flex;"><span>        task_updates<span style="color:#ff6ac1">.</span>append(updates)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#78787e"># Step 2: Solve convex program to find consensus update</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#78787e"># Maximize: min_i &lt; delta_theta_i, delta_theta &gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#78787e"># subject to: delta_theta in convex hull of {delta_theta_i}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#78787e"># (Frank-Wolfe or quadratic program)</span>
+</span></span><span style="display:flex;"><span>    alphas <span style="color:#ff6ac1">=</span> solve_min_norm_problem(task_updates)  <span style="color:#78787e"># returns convex weights</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#78787e"># Step 3: Apply weighted consensus update</span>
+</span></span><span style="display:flex;"><span>    optimizer<span style="color:#ff6ac1">.</span>zero_grad()
+</span></span><span style="display:flex;"><span>    <span style="color:#ff6ac1">for</span> name, p <span style="color:#ff6ac1">in</span> model<span style="color:#ff6ac1">.</span>named_parameters():
+</span></span><span style="display:flex;"><span>        <span style="color:#ff6ac1">if</span> <span style="color:#ff5c57">any</span>(name <span style="color:#ff6ac1">in</span> u <span style="color:#ff6ac1">for</span> u <span style="color:#ff6ac1">in</span> task_updates):
+</span></span><span style="display:flex;"><span>            p<span style="color:#ff6ac1">.</span>grad <span style="color:#ff6ac1">=</span> <span style="color:#ff5c57">sum</span>(alphas[i] <span style="color:#ff6ac1">*</span> task_updates[i][name] <span style="color:#ff6ac1">for</span> i <span style="color:#ff6ac1">in</span> <span style="color:#ff5c57">range</span>(T))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    optimizer<span style="color:#ff6ac1">.</span>step()
+</span></span></code></pre></div><p><strong>Pros and Cons.</strong></p>
+<ul>
+<li>Pros: First method to account for adaptive optimizers; more robust than PCGrad/CAGrad under Adam; theoretically principled momentum-aware balancing.</li>
+<li>Cons: Requires maintaining separate moment estimates per task (memory overhead); the inner optimization subproblem is more expensive than standard gradient balancing; limited large-scale industrial validation to date.</li>
+</ul>
+<hr>
+<h3 id="212-drgrad-aaai-2025" >
+<div>
+    <a href="#212-drgrad-aaai-2025">
+        ##
+    </a>
+    2.12 DRGrad (AAAI 2025)
+</div>
+</h3>
+<p><strong>Intuition.</strong> Even within a single task, different users generate gradients with varying compatibility with the primary objective. DRGrad operates at the finest recommendation-specific granularity: individual users <sup id="fnref:12"><a href="#fn:12" class="footnote-ref" role="doc-noteref">12</a></sup>. For each user, it routes gradients from auxiliary tasks only when they are likely to be cooperative with the primary task&rsquo;s objective for that specific user.</p>
+<p><strong>Math.</strong> DRGrad consists of three components:</p>
+<p><strong>Router</strong>: Estimates the compatibility of auxiliary task gradients for a given user $u$:</p>
+$$r_u^{(i)} = \sigma(W_r \mathbf{h}_u + b_r)$$<p>where $\mathbf{h}_u$ is the user representation. A high $r_u^{(i)}$ means task $i$&rsquo;s gradient is likely helpful for user $u$.</p>
+<p><strong>Updater</strong>: Computes a balanced gradient using only the routed (cooperative) gradients:</p>
+$$\mathbf{g}_u^{balanced} = \mathbf{g}_u^{primary} + \sum_{i \neq \text{primary}} r_u^{(i)} \cdot \mathbf{g}_u^{(i)}$$<p><strong>Personalized Gate Network</strong>: Learns per-user routing policies that adapt over training, allowing the system to identify which auxiliary tasks benefit which user segments.</p>
+<p><strong>Pros and Cons.</strong></p>
+<ul>
+<li>Pros: Most fine-grained method available (user-level gradient routing); directly addresses the heterogeneous user population in recommendation.</li>
+<li>Cons: Complex architecture with multiple learned components; computationally expensive; limited large-scale industrial validation compared to simpler alternatives.</li>
+</ul>
+<hr>
+<h3 id="213-meta-lattice-arxiv-2024" >
+<div>
+    <a href="#213-meta-lattice-arxiv-2024">
+        ##
+    </a>
+    2.13 Meta Lattice (arXiv 2024)
+</div>
+</h3>
+<p><strong>Full name.</strong> Lattice — Model Space Redesign for Cost-Effective Industry-Scale Ads Recommendations (Meta, 2024).</p>
+<p><strong>Intuition.</strong> Large recommendation platforms often maintain separate models for different domains (e.g., Feed, Stories, Marketplace) and different objectives (CTR, CVR, revenue). This creates infrastructure fragmentation and prevents cross-domain knowledge sharing. Meta Lattice addresses Multi-Domain, Multi-Objective (MDMO) learning by consolidating fragmented model portfolios onto a single unified foundational network, rather than patching gradient conflicts after they arise <sup id="fnref:13"><a href="#fn:13" class="footnote-ref" role="doc-noteref">13</a></sup>.</p>
+<p><strong>Approach.</strong> Lattice introduces two key components:</p>
+<ul>
+<li>
+<p><strong>Lattice Filter</strong>: Performs Pareto-optimal feature selection across domains. Rather than using all features for all domains, it identifies the feature subset that is most informative across the full portfolio of domain-objective pairs, reducing noise and redundancy.</p>
+</li>
+<li>
+<p><strong>Lattice Zipper</strong>: Mixes various attribution windows for different objectives. Different objectives (e.g., immediate click vs. 7-day conversion) observe user behavior at different time horizons. The Zipper component blends these temporal views appropriately per objective.</p>
+</li>
+</ul>
+<p>The result is a single network that serves all domains and objectives, eliminating the need for separate per-domain or per-objective models.</p>
+<p><strong>Results.</strong> Meta reports 10% revenue gain and 20% capacity saving in production deployment <sup id="fnref1:13"><a href="#fn:13" class="footnote-ref" role="doc-noteref">13</a></sup>.</p>
+<p><strong>Pros and Cons.</strong></p>
+<ul>
+<li>Pros: Structural unification of multi-domain and multi-objective learning; large-scale business impact validated at Meta production scale; addresses the broader MDMO problem, not just pairwise task gradient conflicts.</li>
+<li>Cons: Major infrastructure overhaul — not a drop-in replacement; requires multi-domain data alignment and coordinated feature engineering; organizational changes needed to maintain a unified model portfolio.</li>
+</ul>
+<hr>
+<h3 id="214-other-notable-methods" >
+<div>
+    <a href="#214-other-notable-methods">
+        ##
+    </a>
+    2.14 Other Notable Methods
+</div>
+</h3>
+<p><strong>ConicGrad</strong>: Constrains the combined gradient to lie inside an angular cone around the average gradient. Provides a softer version of MGDA&rsquo;s convex hull constraint.</p>
+<p><strong>SAM-GS (Similarity-Aware Momentum Gradient Surgery)</strong>: Extends PCGrad with momentum estimates, using gradient similarity as a continuous weight rather than a binary conflict flag. Reduces the aggressiveness of projection for near-orthogonal gradients.</p>
+<p><strong>MTGR (Meituan Generative Recommendation)</strong>: Combines multi-task gradient balancing with a generative recommendation backbone (DLRM-style), demonstrating that gradient balancing principles extend to sequence-based recommendation models.</p>
+<hr>
+<h2 id="3-comparison-table" >
+<div>
+    <a href="#3-comparison-table">
+        #
+    </a>
+    3. Comparison Table
+</div>
+</h2>
+<table>
+  <thead>
+      <tr>
+          <th>Method</th>
+          <th>Year</th>
+          <th>Granularity</th>
+          <th>Direction?</th>
+          <th>Magnitude?</th>
+          <th>Scalable?</th>
+          <th>Key Insight</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>MGDA</td>
+          <td>2018</td>
+          <td>Gradient</td>
+          <td>Yes</td>
+          <td>Partially</td>
+          <td>No</td>
+          <td>Pareto-stationary descent</td>
+      </tr>
+      <tr>
+          <td>GradNorm</td>
+          <td>2018</td>
+          <td>Loss</td>
+          <td>No</td>
+          <td>Yes</td>
+          <td>Yes</td>
+          <td>Match gradient norms to learning rates</td>
+      </tr>
+      <tr>
+          <td>PCGrad</td>
+          <td>2020</td>
+          <td>Gradient</td>
+          <td>Yes</td>
+          <td>No</td>
+          <td>No ($O(T^2)$)</td>
+          <td>Project out conflicting components</td>
+      </tr>
+      <tr>
+          <td>PLE</td>
+          <td>2020</td>
+          <td>Architecture</td>
+          <td>Yes</td>
+          <td>No</td>
+          <td>Yes</td>
+          <td>Structural separation of expert gradients</td>
+      </tr>
+      <tr>
+          <td>CAGrad</td>
+          <td>2021</td>
+          <td>Gradient</td>
+          <td>Yes</td>
+          <td>No</td>
+          <td>Moderate</td>
+          <td>Max-min fairness with proximity constraint</td>
+      </tr>
+      <tr>
+          <td>MetaBalance</td>
+          <td>2022</td>
+          <td>Per-layer gradient</td>
+          <td>Partially</td>
+          <td>Yes</td>
+          <td>Yes</td>
+          <td>Auxiliary aligns to primary per layer</td>
+      </tr>
+      <tr>
+          <td>SLGrad</td>
+          <td>2023</td>
+          <td>Per-sample gradient</td>
+          <td>Yes</td>
+          <td>No</td>
+          <td>No</td>
+          <td>Sample-level alignment to validation gradient</td>
+      </tr>
+      <tr>
+          <td>STEM-Net</td>
+          <td>2024</td>
+          <td>Embedding</td>
+          <td>Yes</td>
+          <td>No</td>
+          <td>Moderate</td>
+          <td>Stop-gradient at embedding level (AFTB)</td>
+      </tr>
+      <tr>
+          <td>MultiBalance</td>
+          <td>2024</td>
+          <td>Representation</td>
+          <td>Partially</td>
+          <td>Yes</td>
+          <td>Yes</td>
+          <td>Balance at bottleneck, single backward pass</td>
+      </tr>
+      <tr>
+          <td>GradCraft</td>
+          <td>2024</td>
+          <td>Gradient</td>
+          <td>Yes</td>
+          <td>Yes</td>
+          <td>No</td>
+          <td>Holistic two-stage balancing</td>
+      </tr>
+      <tr>
+          <td>PUB</td>
+          <td>2024</td>
+          <td>Adam update</td>
+          <td>Yes</td>
+          <td>Yes</td>
+          <td>Moderate</td>
+          <td>Balance updates, not raw gradients</td>
+      </tr>
+      <tr>
+          <td>DRGrad</td>
+          <td>2025</td>
+          <td>Per-user gradient</td>
+          <td>Yes</td>
+          <td>Partially</td>
+          <td>No</td>
+          <td>User-level gradient routing</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="4-how-to-choose" >
+<div>
+    <a href="#4-how-to-choose">
+        #
+    </a>
+    4. How to Choose
+</div>
+</h2>
+<p>Selecting the right gradient balancing method depends on your system constraints, task relationships, and available engineering resources. Here is a decision guide:</p>
+<ul>
+<li>
+<p><strong>Do you have more than ~5 tasks and need scalability?</strong></p>
+<ul>
+<li>Yes:
+<ul>
+<li><strong>Is there a clear primary task with auxiliary helpers?</strong>
+<ul>
+<li>Yes: Use <strong>MetaBalance</strong> (per-layer, primary-centric, scalable)</li>
+<li>No: Use <strong>MultiBalance</strong> (single backward pass, representation-level, near-zero overhead)</li>
+</ul>
+</li>
+<li><strong>Are you limited to loss-level changes (no gradient access)?</strong>
+<ul>
+<li>Yes: Use <strong>GradNorm</strong> (only requires per-task loss values)</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>No (small T, research or experimentation setting):
+<ul>
+<li><strong>Do you care about both direction and magnitude?</strong>
+<ul>
+<li>Yes: Use <strong>GradCraft</strong> (holistic) or <strong>PUB</strong> (if using Adam)</li>
+<li>No, direction only: Use <strong>PCGrad</strong> (simple, interpretable) or <strong>CAGrad</strong> (if you want worst-task guarantees)</li>
+<li>No, magnitude only: Use <strong>GradNorm</strong> or <strong>MetaBalance</strong></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Is the conflict rooted in the embedding layer?</strong></p>
+<ul>
+<li>Yes: Use <strong>STEM-Net</strong> (AFTB gating at embedding source)</li>
+<li>No: Proceed to gradient-level methods above</li>
+</ul>
+</li>
+<li>
+<p><strong>Do you want structural rather than optimization-time solutions?</strong></p>
+<ul>
+<li>Yes: Use <strong>PLE</strong> (architectural separation of expert pathways)</li>
+</ul>
+</li>
+<li>
+<p><strong>Do you have heterogeneous users with different task affinities?</strong></p>
+<ul>
+<li>Yes: Consider <strong>DRGrad</strong> (user-level routing) or <strong>SLGrad</strong> (sample-level reweighting)</li>
+</ul>
+</li>
+<li>
+<p><strong>Are you using Adam (not SGD)?</strong></p>
+<ul>
+<li>Yes: Strongly consider <strong>PUB</strong> — gradient balancing without accounting for Adam&rsquo;s moment estimates may be ineffective</li>
+</ul>
+</li>
+<li>
+<p><strong>Are you in a production system with strict latency/QPS constraints?</strong></p>
+<ul>
+<li>Use <strong>MultiBalance</strong> (no additional backward passes) or <strong>MetaBalance</strong> (overhead is per-layer norm computation only)</li>
+<li>Avoid <strong>PCGrad</strong>, <strong>GradCraft</strong>, <strong>SLGrad</strong>, <strong>DRGrad</strong> in latency-critical settings</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="5-conclusion" >
+<div>
+    <a href="#5-conclusion">
+        #
+    </a>
+    5. Conclusion
+</div>
+</h2>
+<p>Gradient balancing in multi-task recommendation has evolved from coarse loss-level reweighting (GradNorm, 2018) to fine-grained per-user routing (DRGrad, 2025). Each generation of methods addresses a distinct failure mode:</p>
+<ul>
+<li><strong>First generation</strong> (GradNorm): Fix magnitude imbalance by adjusting task weights dynamically.</li>
+<li><strong>Second generation</strong> (PCGrad, MGDA, CAGrad): Fix direction conflicts through geometric operations on gradient vectors.</li>
+<li><strong>Recommendation-specific</strong> (MetaBalance, SLGrad, STEM-Net): Exploit the primary/auxiliary task structure and the embedding-centric nature of recommenders.</li>
+<li><strong>Scalable industrial</strong> (PLE, MultiBalance): Prioritize production feasibility — structural solutions or single-pass approximations.</li>
+<li><strong>Holistic and adaptive</strong> (GradCraft, PUB, DRGrad): Address both magnitude and direction simultaneously, or close gaps introduced by adaptive optimizers and user heterogeneity.</li>
+</ul>
+<p>No single method dominates across all settings. The right choice depends on task count, available compute, whether a primary/auxiliary hierarchy exists, and the specific failure mode (magnitude, direction, or both). The comparison table and decision guide above should help practitioners map their constraints to an appropriate starting point.</p>
+<p>As multi-task recommendation systems grow in complexity — more tasks, more diverse user populations, tighter latency budgets — the field will likely move toward <strong>adaptive, data-driven selection</strong> of balancing strategies: methods that automatically detect the current failure mode and apply the appropriate intervention, without human-specified hyperparameters or architectural changes.</p>
+<hr>
+<h2 id="citation" >
+<div>
+    <a href="#citation">
+        #
+    </a>
+    Citation
+</div>
+</h2>
+<p>If you find this post helpful, please consider citing it as:</p>
+<div class="highlight"><pre tabindex="0" style="color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bibtex" data-lang="bibtex"><span style="display:flex;"><span><span style="color:#f3f99d">@article</span>{<span style="color:#ff5c57">wang2026mtlgradient</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#57c7ff">author</span> = <span style="color:#5af78e">&#34;Bing Wang&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#57c7ff">title</span> = <span style="color:#5af78e">&#34;Gradient Balancing in Multi-Task Recommendation: A Systematic Guide&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#57c7ff">journal</span> = <span style="color:#5af78e">&#34;bingzw.github.io&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#57c7ff">year</span> = <span style="color:#5af78e">&#34;2026&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#57c7ff">month</span> = <span style="color:#5af78e">&#34;March&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#57c7ff">url</span> = <span style="color:#5af78e">&#34;https://bingzw.github.io/posts/2026-03-08-mtl-gradient-balancing/&#34;</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>or</p>
+<div class="highlight"><pre tabindex="0" style="color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-markdown" data-lang="markdown"><span style="display:flex;"><span>Bing Wang. (2026, March). Gradient Balancing in Multi-Task Recommendation: A Systematic Guide.
+</span></span><span style="display:flex;"><span>https://bingzw.github.io/posts/2026-03-08-mtl-gradient-balancing/
+</span></span></code></pre></div><hr>
+<h2 id="references" >
+<div>
+    <a href="#references">
+        #
+    </a>
+    References
+</div>
+</h2>
+<div class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1">
+<p><a href="https://arxiv.org/abs/1711.02257">Chen, Z., Badrinarayanan, V., Lee, C.-Y., &amp; Rabinovich, A. (2018). GradNorm: Gradient Normalization for Adaptive Loss Balancing in Deep Multitask Networks. <em>ICML 2018</em>.</a>&#160;<a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:2">
+<p><a href="https://arxiv.org/abs/2001.06782">Yu, T., Kumar, S., Gupta, A., Levine, S., Hausman, K., &amp; Finn, C. (2020). Gradient Surgery for Multi-Task Learning. <em>NeurIPS 2020</em>.</a>&#160;<a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:3">
+<p><a href="https://arxiv.org/abs/1810.04650">Sener, O., &amp; Koltun, V. (2018). Multi-Task Learning as Multi-Objective Optimization. <em>NeurIPS 2018</em>.</a>&#160;<a href="#fnref:3" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:4">
+<p><a href="https://arxiv.org/abs/2110.14048">Liu, B., Liu, X., Jin, X., Stone, P., &amp; Liu, Q. (2021). Conflict-Averse Gradient Descent for Multi-task Learning. <em>NeurIPS 2021</em>.</a>&#160;<a href="#fnref:4" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:5">
+<p>He, P., et al. (2022). MetaBalance: Improving Multi-Task Recommendations via Adapting Gradient Magnitudes of Auxiliary Tasks. <em>WWW 2022</em>.&#160;<a href="#fnref:5" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a>&#160;<a href="#fnref1:5" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:6">
+<p>SLGrad (2023). Sample-Level Gradient Reweighting for Multi-Task Recommendation.&#160;<a href="#fnref:6" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:7">
+<p>Tang, J., et al. (2020). Progressive Layered Extraction (PLE): A Novel Multi-Task Learning (MTL) Model for Personalized Recommendations. <em>RecSys 2020</em>.&#160;<a href="#fnref:7" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:8">
+<p>He, F., et al. (2024). STEM: Unleashing the Power of Embeddings for Multi-Task Recommendation. <em>AAAI 2024</em>.&#160;<a href="#fnref:8" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:9">
+<p><a href="https://arxiv.org/abs/2411.11871">MultiBalance (2024). Multi-Objective Gradient Balancing in Industrial-Scale Multi-Task Recommendation System. <em>Meta AI</em>.</a>&#160;<a href="#fnref:9" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:10">
+<p>Shi, X., et al. (2024). GradCraft: Holistic Gradient Balancing for Multi-Task Recommendation. <em>KDD 2024</em>.&#160;<a href="#fnref:10" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:11">
+<p><a href="https://arxiv.org/abs/2410.05806">PUB (2024). A Parameter Update Balancing Algorithm for Multi-task Ranking Models in Recommendation Systems.</a>&#160;<a href="#fnref:11" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:12">
+<p>DRGrad (2025). Direct Routing Gradient (DRGrad): A Personalized Information Surgery for Multi-Task Learning Recommendations. <em>AAAI 2025</em>.&#160;<a href="#fnref:12" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:13">
+<p>Meta Lattice (2024). Lattice — Model Space Redesign for Cost-Effective Industry-Scale Ads Recommendations. <em>Meta AI</em>.&#160;<a href="#fnref:13" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a>&#160;<a href="#fnref1:13" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+</ol>
+</div>
+        </div>
+
+    </article>
+
+    
+    
+        
+    
+
+    
+
+    
+        
+    
+    
+    <div class="pagination post-pagination">
+        <div class="left pagination-item disabled">
+            
+        </div>
+        <div class="right pagination-item ">
+            
+                <a href="/posts/2025-06-20-cohort-opt/">User Cohort Optimization in Multi-Task Recommendation Systems</a>
+            
+        </div>
+    </div>
+
+
+
+
+
+    
+
+    
+        
+
+
+
+
+
+
+
+
+            
+
+<script>
+        function detectCurrentScheme2() {
+                const defaultTheme = "auto";
+                if (localStorage !== null && localStorage.getItem("user-color-scheme")) {
+                        return localStorage.getItem("user-color-scheme");
+                }
+                if (defaultTheme === "dark" || defaultTheme === "light") {
+                        return defaultTheme;
+                }
+                return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        }
+
+        let giscusTheme = detectCurrentScheme2();
+        let giscusAttributes = {
+                src: "https://giscus.app/client.js",
+                "data-repo": "Bingzw\/bingzw.github.io",
+                "data-repo-id": "R_kgDOMB8LQg",
+                "data-category": "Announcements",
+                "data-category-id": "DIC_kwDOMB8LQs4CfrMr",
+                "data-mapping": "pathname",
+                "data-strict": "0",
+                "data-reactions-enabled": "1",
+                "data-emit-metadata": "0",
+                "data-input-position": "bottom",
+                "data-theme": giscusTheme,
+                "data-lang": "en",
+                crossorigin: "anonymous",
+                lazyload: "false",
+                async: true,
+        };
+        let main = document.querySelector("main");
+        let giscusScript = document.createElement("script");
+        Object.entries(giscusAttributes).forEach(([key, value]) => giscusScript.setAttribute(key, value));
+        main.appendChild(giscusScript);
+</script>
+
+
+
+
+    
+
+    
+
+    
+
+        </main>
+        
+            <footer class="common-footer noselect">
+    
+    
+
+    <div class="common-footer-bottom">
+        
+
+        <div style="display: flex; align-items: center; gap:8px">
+            © 2026
+            
+        </div>
+        <div style="display:flex;align-items: center">
+            
+            
+            
+            
+            
+            
+        </div>
+        <div>
+            Powered by <a target="_blank" rel="noopener noreferrer" href="https://gohugo.io/">Hugo</a>, theme <a target="_blank" rel="noopener noreferrer" href="https://github.com/Junyi-99/hugo-theme-anubis2">Anubis2</a>.<br>
+            
+
+        </div>
+    </div>
+
+    <p class="h-card vcard">
+
+    <a href=http://localhost:65293/ class="p-name u-url url fn" rel="me"></a>
+
+    
+
+    
+</p>
+
+</footer>
+
+        
+    </div>
+</body>
+</html>

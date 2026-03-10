@@ -6,8 +6,6 @@
     <description>Bingz Learning Blog (Deep Reinforcement Learning)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <managingEditor>bingwang8878@gamil.com (Bing Wang)</managingEditor>
-    <webMaster>bingwang8878@gamil.com (Bing Wang)</webMaster>
     <lastBuildDate>Mon, 15 Jul 2024 21:40:55 -0700</lastBuildDate>
     
     <atom:link href="/tags/deep-reinforcement-learning/index.xml" rel="self" type="application/rss+xml" />
@@ -17,10 +15,10 @@
       <title>A Journey to Reinforcement Learning - Deep RL</title>
       <link>/posts/2024-07-15-rf-learning-deep/</link>
       <pubDate>Mon, 15 Jul 2024 21:40:55 -0700</pubDate>
-      <author>bingwang8878@gamil.com (Bing Wang)</author>
+      
       <guid>/posts/2024-07-15-rf-learning-deep/</guid>
       <description>&lt;p align=&#34;center&#34;&gt;
-&lt;img src=&#34;https://bingzw.github.io/rf/deeprl.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+&lt;img src=&#34;http://localhost:65293/rf/deeprl.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
 &lt;p&gt;
 &lt;p&gt;&lt;em&gt;Image cited from &lt;sup id=&#34;fnref:1&#34;&gt;&lt;a href=&#34;#fn:1&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;1&lt;/a&gt;&lt;/sup&gt;&lt;/em&gt;&lt;/p&gt;
 &lt;p&gt;This blog is a continuation of the last one: &lt;strong&gt;A Journey to Reinforcement Learning - Tabular Methods&lt;/strong&gt;. The
@@ -29,7 +27,7 @@ algorithm in model free setting.&lt;/p&gt;
 &lt;h2 id=&#34;model-free---when-the-environment-is-unknown&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#model-free---when-the-environment-is-unknown&#34;&gt;
-        
+        #
     &lt;/a&gt;
     Model Free - when the environment is unknown
 &lt;/div&gt;
@@ -37,7 +35,7 @@ algorithm in model free setting.&lt;/p&gt;
 &lt;h3 id=&#34;value-based-continuing-&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#value-based-continuing-&#34;&gt;
-        
+        ##
     &lt;/a&gt;
     Value Based (Continuing &amp;hellip;)
 &lt;/div&gt;
@@ -45,7 +43,7 @@ algorithm in model free setting.&lt;/p&gt;
 &lt;h4 id=&#34;deep-q-network-dqn&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#deep-q-network-dqn&#34;&gt;
-        
+        ###
     &lt;/a&gt;
     Deep Q Network (DQN)
 &lt;/div&gt;
@@ -58,34 +56,34 @@ Welcome to the realm of &lt;strong&gt;deep reinforcement learning&lt;/strong&gt;
 problem with &lt;strong&gt;continuous states&lt;/strong&gt; and &lt;strong&gt;discrete actions&lt;/strong&gt; (the continuous actions case will be discussed later). The $Q$ value can
 be approximated by fitting a neural network where the state is fed into the network and get output of $Q$ value at each action.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-&lt;img src=&#34;https://bingzw.github.io/rf/q_dqn.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+&lt;img src=&#34;http://localhost:65293/rf/q_dqn.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
 &lt;em&gt;Figure 1: Q learning vs DQN&lt;/em&gt;
 &lt;p&gt;
 &lt;p&gt;&lt;em&gt;Image cited from &lt;sup id=&#34;fnref:2&#34;&gt;&lt;a href=&#34;#fn:2&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;2&lt;/a&gt;&lt;/sup&gt;&lt;/em&gt;&lt;/p&gt;
 &lt;p&gt;Given the network, what&amp;rsquo;s the loss function? From the basic $Q$ learning, the $Q$ value is updated
-via $Q(s, a) \leftarrow Q(s, a) + \alpha [r + \gamma \max_{a&amp;rsquo;}Q(s&amp;rsquo;, a&amp;rsquo;) - Q(s, a)]$. This indicates that we are actually
-&amp;ldquo;learning&amp;rdquo; the target $r + \gamma \max_{a&amp;rsquo;}Q(s&amp;rsquo;, a&amp;rsquo;)$. Therefore, the loss function can be defined as
+via $Q(s, a) \leftarrow Q(s, a) + \alpha [r + \gamma \max_{a&#39;}Q(s&#39;, a&#39;) - Q(s, a)]$. This indicates that we are actually
+&amp;ldquo;learning&amp;rdquo; the target $r + \gamma \max_{a&#39;}Q(s&#39;, a&#39;)$. Therefore, the loss function can be defined as
+&lt;/p&gt;
 $$
-L(\theta, x) = \frac{1}{N}\sum_{i=1}^N[Q_{\theta}(s_i, a_i) - (r_i + \arg \max_{a&amp;rsquo;}Q_{\theta}(s&amp;rsquo;, a&amp;rsquo;))]^2 \tag{3.4}
-$$
-given a sample $x = (s_i, a_i, r_i, s&amp;rsquo;_i)$.&lt;/p&gt;
+L(\theta, x) = \frac{1}{N}\sum_{i=1}^N[Q_{\theta}(s_i, a_i) - (r_i + \arg \max_{a&#39;}Q_{\theta}(s&#39;, a&#39;))]^2 \tag{3.4}
+$$&lt;p&gt;
+given a sample $x = (s_i, a_i, r_i, s&#39;_i)$.&lt;/p&gt;
 &lt;p&gt;When applying the backpropagation on (3.4), the target value is changing since it also depends on the parameter $\theta$
 to be optimized. This differs from the typical deep learning where the label is given and fixed. Learning from a changing label
 problem may be very unstable and loss may fluctuate. To tackle this, the target $Q$ network is introduced.&lt;/p&gt;
 &lt;p&gt;The idea is to maintain two $Q$ neural nets: $Q_\theta$ and $Q_{\theta ^ *}$. The target net $Q_{\theta ^ *}$ is originally cloned from
 the net $Q_\theta$ and the (3.4) is reformatted as&lt;/p&gt;
-&lt;p&gt;$$
-L(\theta, x) = \frac{1}{N}\sum_{i=1}^N[Q_{\theta}(s_i, a_i) - (r_i + \arg \max_{a&amp;rsquo;}Q_{\theta ^ *}(s&amp;rsquo;, a&amp;rsquo;))]^2 \tag{3.5}
-$$&lt;/p&gt;
-&lt;p&gt;The parameter $\theta ^ *$ is fixed in (3.5) and only copied from $Q_\theta$ periodically after a few gradient descent runs. In
+$$
+L(\theta, x) = \frac{1}{N}\sum_{i=1}^N[Q_{\theta}(s_i, a_i) - (r_i + \arg \max_{a&#39;}Q_{\theta ^ *}(s&#39;, a&#39;))]^2 \tag{3.5}
+$$&lt;p&gt;The parameter $\theta ^ *$ is fixed in (3.5) and only copied from $Q_\theta$ periodically after a few gradient descent runs. In
 this way, the loss function is firstly optimized towards a fixed label (only $\theta$ is updated), then labels are updated (copy
 $\theta$ to $\theta ^ *$) and optimization continues.&lt;/p&gt;
 &lt;p&gt;Gathering the training samples purely from interacting with the system results in dependent samples due to the Markov property. In DQN,
-An &lt;strong&gt;experience replay&lt;/strong&gt; (ER) component introduce a &lt;em&gt;replay buffer&lt;/em&gt; that is sampling independent samples $x = (s_i, a_i, r_i, s&amp;rsquo;_i)$,
+An &lt;strong&gt;experience replay&lt;/strong&gt; (ER) component introduce a &lt;em&gt;replay buffer&lt;/em&gt; that is sampling independent samples $x = (s_i, a_i, r_i, s&#39;_i)$,
 thus also improving the training efficiency.&lt;/p&gt;
 &lt;p&gt;A general structure of DQN is&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-&lt;img src=&#34;https://bingzw.github.io/rf/dqn_flow.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
+&lt;img src=&#34;http://localhost:65293/rf/dqn_flow.png&#34; width=&#34;600&#34; height=&#34;400&#34;&gt;&lt;br&gt;
 &lt;em&gt;Figure 2: DQN flow&lt;/em&gt;
 &lt;p&gt;
 &lt;p&gt;&lt;em&gt;Image cited from &lt;sup id=&#34;fnref:3&#34;&gt;&lt;a href=&#34;#fn:3&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;3&lt;/a&gt;&lt;/sup&gt;&lt;/em&gt;&lt;/p&gt;
@@ -101,7 +99,7 @@ thus also improving the training efficiency.&lt;/p&gt;
 &lt;li&gt;apply the $\epsilon$-greedy strategy to $Q_{\theta}$ to choose the action $a$ based on $s$&lt;/li&gt;
 &lt;li&gt;take the action and interact with the environment to get reward $r$ and $s&#39;$&lt;/li&gt;
 &lt;li&gt;save the sample (s, a, r, s&amp;rsquo;) to the replay buffer&lt;/li&gt;
-&lt;li&gt;if there are enough samples in the replay buffer, sample N data points $\{(s_i, s_i, r_i, s_{i+1})\}_{i=1,\dots,N}$&lt;/li&gt;
+&lt;li&gt;if there are enough samples in the replay buffer, sample N data points $\\{(s_i, s_i, r_i, s_{i+1})\\}_{i=1,\dots,N}$&lt;/li&gt;
 &lt;li&gt;for each sample, calculate the target $y_i = r_i + \gamma \arg\max_{a} Q_{\theta ^ *}(s_{i+1}, a)$&lt;/li&gt;
 &lt;li&gt;minimize the loss function $L(\theta, x) = \frac{1}{N}\sum_{i=1}^N[y_i - Q_{\theta}(s_i, a_i)]^2$, update $Q_\theta$&lt;/li&gt;
 &lt;li&gt;Update $Q_{\theta ^ *}$ every $M$ steps&lt;/li&gt;
@@ -116,7 +114,7 @@ thus also improving the training efficiency.&lt;/p&gt;
 &lt;h4 id=&#34;advanced-dqn&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#advanced-dqn&#34;&gt;
-        
+        ###
     &lt;/a&gt;
     Advanced DQN
 &lt;/div&gt;
@@ -126,7 +124,7 @@ from issues like overestimation. Below lists the efforts to further refine the D
 &lt;h5 id=&#34;double-dqn&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#double-dqn&#34;&gt;
-        
+        ####
     &lt;/a&gt;
     Double DQN
 &lt;/div&gt;
@@ -138,7 +136,7 @@ the target network to evaluate them. This reduces overestimation bias and leads 
 &lt;h5 id=&#34;duel-dqn&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#duel-dqn&#34;&gt;
-        
+        ####
     &lt;/a&gt;
     Duel DQN
 &lt;/div&gt;
@@ -151,7 +149,7 @@ leading to improved learning efficiency.&lt;/p&gt;
 &lt;h5 id=&#34;prioritized-experience-replay&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#prioritized-experience-replay&#34;&gt;
-        
+        ####
     &lt;/a&gt;
     Prioritized Experience Replay
 &lt;/div&gt;
@@ -164,7 +162,7 @@ the learning process.&lt;/p&gt;
 &lt;h5 id=&#34;noisy-nets&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#noisy-nets&#34;&gt;
-        
+        ####
     &lt;/a&gt;
     Noisy Nets
 &lt;/div&gt;
@@ -175,7 +173,7 @@ effectively by adding noise directly to the weights. This leads to more effectiv
 &lt;h5 id=&#34;distributional-dqn&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#distributional-dqn&#34;&gt;
-        
+        ####
     &lt;/a&gt;
     Distributional DQN
 &lt;/div&gt;
@@ -184,10 +182,10 @@ effectively by adding noise directly to the weights. This leads to more effectiv
 information about the returns.&lt;/p&gt;
 &lt;p&gt;&lt;em&gt;Approach&lt;/em&gt;: Instead of estimating the expected value, estimate the distribution of the $Q$ function. This is to capture
 the uncertainty of the $Q$ function. The $Q$ function is then calculated as the expected value of the distribution.&lt;/p&gt;
-&lt;h5 id=&#34;rainbow-dqn-4&#34; &gt;
+&lt;h5 id=&#34;rainbow-dqn&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#rainbow-dqn-4&#34;&gt;
-        
+    &lt;a href=&#34;#rainbow-dqn&#34;&gt;
+        ####
     &lt;/a&gt;
     Rainbow DQN &lt;sup id=&#34;fnref:4&#34;&gt;&lt;a href=&#34;#fn:4&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;4&lt;/a&gt;&lt;/sup&gt;
 &lt;/div&gt;
@@ -198,14 +196,14 @@ them could lead to even more robust performance.&lt;/p&gt;
 Noisy Nets, Distributional Q-learning, and a few others. By combining these techniques, Rainbow DQN leverages the strengths of
 each approach to achieve superior performance in a unified model.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-&lt;img src=&#34;https://bingzw.github.io/rf/rainbow.png&#34; width=&#34;500&#34; height=&#34;100&#34;&gt;&lt;br&gt;
+&lt;img src=&#34;http://localhost:65293/rf/rainbow.png&#34; width=&#34;500&#34; height=&#34;100&#34;&gt;&lt;br&gt;
 &lt;em&gt;Figure 3: Rainbow DQN&lt;/em&gt;
 &lt;p&gt;
 &lt;p&gt;&lt;em&gt;Image cited from &lt;sup id=&#34;fnref1:4&#34;&gt;&lt;a href=&#34;#fn:4&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;4&lt;/a&gt;&lt;/sup&gt;&lt;/em&gt;&lt;/p&gt;
 &lt;h3 id=&#34;policy-based&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#policy-based&#34;&gt;
-        
+        ##
     &lt;/a&gt;
     Policy Based
 &lt;/div&gt;
@@ -218,7 +216,7 @@ allowing the agent to choose actions based on the learned distribution.&lt;/p&gt
 &lt;h4 id=&#34;policy-gradient&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#policy-gradient&#34;&gt;
-        
+        ###
     &lt;/a&gt;
     Policy Gradient
 &lt;/div&gt;
@@ -241,7 +239,7 @@ $$
 \end{aligned}
 &lt;/p&gt;
 &lt;p&gt;Let&amp;rsquo;s define $\phi(s) = \sum_{a \in A} \nabla_{\theta} \pi_{\theta}(a \mid s)Q_{\pi_{\theta}}(s, a)$ and denote the probability
-of getting state $s&amp;rsquo;$ after $k$ steps from state $s$ under the policy $\pi_{\theta}$ as $d_{\pi_{\theta}}(s \rightarrow s&amp;rsquo;, k)$, then continue
+of getting state $s&#39;$ after $k$ steps from state $s$ under the policy $\pi_{\theta}$ as $d_{\pi_{\theta}}(s \rightarrow s&#39;, k)$, then continue
 with equation (4.2) as&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
 \begin{aligned}
@@ -274,7 +272,7 @@ the $Q_{\pi_{\theta}}(s, a)$ when calculating the gradient, a simple way is to a
 &lt;h4 id=&#34;reinforce&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#reinforce&#34;&gt;
-        
+        ###
     &lt;/a&gt;
     REINFORCE
 &lt;/div&gt;
@@ -286,8 +284,8 @@ the $Q_{\pi_{\theta}}(s, a)$ when calculating the gradient, a simple way is to a
 &lt;li&gt;Initialize the state $s$&lt;/li&gt;
 &lt;li&gt;for $t$ from 1 to $T$, do:
 &lt;ul&gt;
-&lt;li&gt;sample the trajectories $\{s_1, a_1, r_1, \dots, s_T, a_T, r_T\}$ under the policy $\pi_{\theta}$&lt;/li&gt;
-&lt;li&gt;For any $t \in [1, T]$, calculate the total reward since time $t$, $\psi_t = \sum_{t&amp;rsquo;=t}^T \gamma^{t&amp;rsquo;-t}r_{t&amp;rsquo;}$&lt;/li&gt;
+&lt;li&gt;sample the trajectories $\\{s_1, a_1, r_1, \dots, s_T, a_T, r_T\\}$ under the policy $\pi_{\theta}$&lt;/li&gt;
+&lt;li&gt;For any $t \in [1, T]$, calculate the total reward since time $t$, $\psi_t = \sum_{t&#39;=t}^T \gamma^{t&#39;-t}r_{t&#39;}$&lt;/li&gt;
 &lt;li&gt;apply gradient ascent to update $\theta$, i.e. $\theta = \theta + \alpha \sum_t^T \psi_t \nabla_{\theta} \pi_{\theta}(a_t \mid s_t)$&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
@@ -300,10 +298,10 @@ the $Q_{\pi_{\theta}}(s, a)$ when calculating the gradient, a simple way is to a
 &lt;p&gt;This is a &amp;ldquo;policy version&amp;rdquo; monte carlo approach. Like the Monte Carlo algorithm, it&amp;rsquo;s a simple online algorithm but may suffer from issues like
 high variance, delayed rewards, inefficient sampling, noisy updates and non-stationary returns. To tackle these issues, more dedicated tools
 are needed.&lt;/p&gt;
-&lt;h4 id=&#34;trust-region-policy-optimization-trpo-7&#34; &gt;
+&lt;h4 id=&#34;trust-region-policy-optimization-trpo&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#trust-region-policy-optimization-trpo-7&#34;&gt;
-        
+    &lt;a href=&#34;#trust-region-policy-optimization-trpo&#34;&gt;
+        ###
     &lt;/a&gt;
     Trust Region Policy Optimization (TRPO) &lt;sup id=&#34;fnref:5&#34;&gt;&lt;a href=&#34;#fn:5&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;5&lt;/a&gt;&lt;/sup&gt;
 &lt;/div&gt;
@@ -311,7 +309,7 @@ are needed.&lt;/p&gt;
 &lt;p&gt;When using a deep neural network to fit the policy network, the policy gradient updates can be noisy with high variance. Thus resulting in
 worse policy updates due to the fluctuation parameters. Is there any way to guarantee the monotonicity of the parameter updates?&lt;/p&gt;
 &lt;p&gt;Let&amp;rsquo;s rephrase the problem as something like this: Suppose the current policy is $\pi_{\theta}$ with parameter $\theta$, we would like
-to search for a new parameter $\theta&amp;rsquo;$ such that $J(\theta&amp;rsquo;) \geq J(\theta)$.&lt;/p&gt;
+to search for a new parameter $\theta&#39;$ such that $J(\theta&#39;) \geq J(\theta)$.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
 \begin{aligned}
 J(\theta&#39;) - J(\theta) &amp;= \mathbb{E}_{s_0}[V_{\pi_{\theta&#39;}}(s_0)] - \mathbb{E}_{s_0}[V_{\pi_{\theta}}(s_0)] \\
@@ -326,7 +324,7 @@ J(\theta&#39;) - J(\theta) &amp;= \mathbb{E}_{s_0}[V_{\pi_{\theta&#39;}}(s_0)] -
 where the equation (4.5) holds because the start state $s_0$ does not depend on policy $\pi_{\theta&#39;}$, thus the expectation can be 
 rewritten under the policy $\pi_{\theta&#39;}$. In (4.6), we applied that $\nu_{t}^{\pi_{\theta}} = (1 - \gamma) \sum_{t=0}^{\infty} \gamma^{t} P_{t}^{\pi_{\theta}}$.
 &lt;p&gt;Therefore, the goal is to find a new policy such that equation (4.6) is non-negative to guarantee the monotonicity property.&lt;/p&gt;
-&lt;p&gt;However, it&amp;rsquo;s challenging to solve (4.6) directly as $\pi_{\theta&amp;rsquo;}$ are being used to update policy strategy and sampling states simultaneously. A simple trick is to apply importance sampling using
+&lt;p&gt;However, it&amp;rsquo;s challenging to solve (4.6) directly as $\pi_{\theta&#39;}$ are being used to update policy strategy and sampling states simultaneously. A simple trick is to apply importance sampling using
 the old policy assuming new policy is kind of &amp;ldquo;similar&amp;rdquo; to the old one. Thus, the objective function in TPRO is&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
 \begin{aligned}
@@ -363,11 +361,11 @@ the following formula $\theta_{k+1} = \theta_k + \sqrt{\frac{2\delta}{x^T Hx}}x$
 &lt;li&gt;initialize the policy network parameters $\theta$ and value network parameters $\omega$&lt;/li&gt;
 &lt;li&gt;for episode $e$ from 1 to $E$, do:
 &lt;ul&gt;
-&lt;li&gt;sample the trajectories $\{s_1, a_1, r_1, \dots, \}$ under the policy $\pi_{\theta}$&lt;/li&gt;
+&lt;li&gt;sample the trajectories $\\{s_1, a_1, r_1, \dots, \\}$ under the policy $\pi_{\theta}$&lt;/li&gt;
 &lt;li&gt;calculate the advantage $A(s_t, a_t)$ for each state, action pair. $A_t^{GAE} = \sum_{l=0}^{\infty} (\gamma \lambda)^l (r_{t+1} + \gamma V_{\omega}(s_{t+2}) - V_{\omega}(s_{t+1})), \lambda \in [0, 1]$&lt;/li&gt;
 &lt;li&gt;calculate the gradient $g$ of the objective function&lt;/li&gt;
 &lt;li&gt;calculate the $x = H^{-1}g$&lt;/li&gt;
-&lt;li&gt;Find $i \in \{1,2,\dots,K\}$ and update the policy network parameter $\theta_{k+1} = \theta_k + \alpha^{i}\sqrt{\frac{2\delta}{x^T Hx}}x, \alpha \in (0, 1)$&lt;/li&gt;
+&lt;li&gt;Find $i \in \\{1,2,\dots,K\\}$ and update the policy network parameter $\theta_{k+1} = \theta_k + \alpha^{i}\sqrt{\frac{2\delta}{x^T Hx}}x, \alpha \in (0, 1)$&lt;/li&gt;
 &lt;li&gt;Update the value network parameters by minimizing the square error:&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p align=&#34;center&#34;&gt;
@@ -377,10 +375,10 @@ $$ L(\omega) = \frac{1}{2} \mathbb{E}_t [G_t - V_{\omega} (s_t)]^2 $$
 &lt;li&gt;end for&lt;/li&gt;
 &lt;li&gt;return the policy $\pi_\theta$&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h4 id=&#34;proximal-policy-optimization-ppo8&#34; &gt;
+&lt;h4 id=&#34;proximal-policy-optimization-ppo&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#proximal-policy-optimization-ppo8&#34;&gt;
-        
+    &lt;a href=&#34;#proximal-policy-optimization-ppo&#34;&gt;
+        ###
     &lt;/a&gt;
     Proximal Policy Optimization (PPO)&lt;sup id=&#34;fnref:6&#34;&gt;&lt;a href=&#34;#fn:6&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;6&lt;/a&gt;&lt;/sup&gt;
 &lt;/div&gt;
@@ -390,7 +388,7 @@ objective (4.7) with the constraint (4.8).&lt;/p&gt;
 &lt;h5 id=&#34;ppo-penalty&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#ppo-penalty&#34;&gt;
-        
+        ####
     &lt;/a&gt;
     PPO-penalty
 &lt;/div&gt;
@@ -414,7 +412,7 @@ else:
 &lt;h5 id=&#34;ppo-clip&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#ppo-clip&#34;&gt;
-        
+        ####
     &lt;/a&gt;
     PPO-Clip
 &lt;/div&gt;
@@ -433,7 +431,7 @@ where $clip(x, a, b) = max(min(x, b), a)$ and $\epsilon$ is a hyper-parameter. T
 &lt;li&gt;initialize the policy network parameters $\theta$ and value network parameters $\omega$&lt;/li&gt;
 &lt;li&gt;for episode $e$ from 1 to $E$, do:
 &lt;ul&gt;
-&lt;li&gt;sample the trajectories $\{s_1, a_1, r_1, \dots, \}$ under the policy $\pi_{\theta}$&lt;/li&gt;
+&lt;li&gt;sample the trajectories $\\{s_1, a_1, r_1, \dots, \\}$ under the policy $\pi_{\theta}$&lt;/li&gt;
 &lt;li&gt;calculate the advantage $A(s_t, a_t)$ for each state, action pair. $A_t^{GAE} = \sum_{l=0}^{\infty} (\gamma \lambda)^l (r_{t+1} + \gamma V_{\omega}(s_{t+2}) - V_{\omega}(s_{t+1})), \lambda \in [0, 1]$&lt;/li&gt;
 &lt;li&gt;Compute discounted cumulative rewards:$ G_t = r_t + \gamma r_{t+1} + \gamma^2 r_{t+2} + \dots$&lt;/li&gt;
 &lt;li&gt;calculate the gradient $g$ of the objective function&lt;/li&gt;
@@ -452,7 +450,7 @@ $$ L(\omega) = \frac{1}{2} \mathbb{E}_t (G_t - V_{\omega} (s_t))^2 $$
 &lt;h3 id=&#34;hybrid&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#hybrid&#34;&gt;
-        
+        ##
     &lt;/a&gt;
     Hybrid
 &lt;/div&gt;
@@ -469,10 +467,10 @@ suffers from high variance in gradient estimation.&lt;/li&gt;
 and the policy (to directly optimize actions). Actor-Critic algorithms, like A2C, PPO, and SAC, are popular examples of
 hybrid methods, combining a critic (value function) to evaluate actions and an actor (policy) to select actions. This synergy
 improves learning efficiency, stability, and scalability to complex environments.&lt;/p&gt;
-&lt;h4 id=&#34;actor-critic-ac9&#34; &gt;
+&lt;h4 id=&#34;actor-critic-ac&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#actor-critic-ac9&#34;&gt;
-        
+    &lt;a href=&#34;#actor-critic-ac&#34;&gt;
+        ###
     &lt;/a&gt;
     Actor Critic (AC)&lt;sup id=&#34;fnref:7&#34;&gt;&lt;a href=&#34;#fn:7&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;7&lt;/a&gt;&lt;/sup&gt;
 &lt;/div&gt;
@@ -497,10 +495,11 @@ Common choices for the value function:&lt;/p&gt;
 &lt;/ul&gt;
 &lt;p&gt;The critic guides the actor by providing feedback on its actions. When updating the critic net, the loss can be defined by temporal difference, i.e.
 $L_\omega = \frac{1}{2}(r_t + \gamma V_\omega(s_{t+1}) - V_\omega(s_t))^2$. Therefore the gradient of critic loss
-is $$\nabla_\omega L_\omega = -(r_t + \gamma V_\omega(s_{t+1}) - V_\omega(s_t))\nabla_\omega V_\omega(s_t) \tag{4.14}$$ Both the actor and critic loss
+is &lt;/p&gt;
+$$\nabla_\omega L_\omega = -(r_t + \gamma V_\omega(s_{t+1}) - V_\omega(s_t))\nabla_\omega V_\omega(s_t) \tag{4.14}$$&lt;p&gt; Both the actor and critic loss
 are thus optimized by gradient descent.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-&lt;img src=&#34;https://bingzw.github.io/rf/ac.png&#34; width=&#34;300&#34; height=&#34;150&#34;&gt;&lt;br&gt;
+&lt;img src=&#34;http://localhost:65293/rf/ac.png&#34; width=&#34;300&#34; height=&#34;150&#34;&gt;&lt;br&gt;
 &lt;em&gt;Figure 4: Actor Critic&lt;/em&gt;
 &lt;p&gt;
 &lt;p&gt;&lt;em&gt;Image cited from &lt;sup id=&#34;fnref:8&#34;&gt;&lt;a href=&#34;#fn:8&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;8&lt;/a&gt;&lt;/sup&gt;&lt;/em&gt;&lt;/p&gt;
@@ -509,7 +508,7 @@ are thus optimized by gradient descent.&lt;/p&gt;
 &lt;li&gt;initialize the policy network parameters $\theta$ and value network parameters $\omega$&lt;/li&gt;
 &lt;li&gt;for episode $e$ from 1 to $E$, do:
 &lt;ul&gt;
-&lt;li&gt;sample the trajectories $\{s_1, a_1, r_1, \dots, \}$ under the policy $\pi_{\theta}$&lt;/li&gt;
+&lt;li&gt;sample the trajectories $\\{s_1, a_1, r_1, \dots, \\}$ under the policy $\pi_{\theta}$&lt;/li&gt;
 &lt;li&gt;calculate the temporal difference by $\delta_t = r_t + \gamma V_\omega(s_{t+1}) - V_\omega(s_t)$&lt;/li&gt;
 &lt;li&gt;calculate the gradient (4.13) and update the policy net parameters by $\theta$&lt;/li&gt;
 &lt;li&gt;calculate the gradient (4.14) and update the value net parameters by $\omega$&lt;/li&gt;
@@ -521,10 +520,10 @@ are thus optimized by gradient descent.&lt;/p&gt;
 &lt;p&gt;Actor-Critic serves as the foundation for many advanced RL algorithms and is widely used in solving complex decision-making problems.
 For example, PPO (Proximal Policy Optimization) is an variant that improves stability by constraining the policy update step.
 SAC (Soft Actor-Critic) extends actor-critic by incorporating entropy regularization to encourage exploration.&lt;/p&gt;
-&lt;h4 id=&#34;ddpg11&#34; &gt;
+&lt;h4 id=&#34;ddpg&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#ddpg11&#34;&gt;
-        
+    &lt;a href=&#34;#ddpg&#34;&gt;
+        ###
     &lt;/a&gt;
     DDPG&lt;sup id=&#34;fnref:9&#34;&gt;&lt;a href=&#34;#fn:9&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;9&lt;/a&gt;&lt;/sup&gt;
 &lt;/div&gt;
@@ -541,7 +540,7 @@ It combines ideas from Deterministic Policy Gradient (DPG) and Deep Q-Learning (
 &lt;p&gt;Critic: Estimates the action-value function $Q(s, a)$, which evaluates the quality of actions.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
-&lt;p&gt;Off-Policy Learning: Uses a replay buffer to store past experiences $(s, a, r, s&amp;rsquo;)$, enabling sample efficiency and breaking correlations between samples.&lt;/p&gt;
+&lt;p&gt;Off-Policy Learning: Uses a replay buffer to store past experiences $(s, a, r, s&#39;)$, enabling sample efficiency and breaking correlations between samples.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;Target Networks: Employs target networks for both the actor and critic to stabilize learning by slowly updating their parameters towards the current networks.&lt;/p&gt;
@@ -553,8 +552,8 @@ It combines ideas from Deterministic Policy Gradient (DPG) and Deep Q-Learning (
 &lt;p&gt;DDPG sudo Algorithm:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Initialize the actor network $\mu_\theta(s)$ and the critic network $Q_\phi(s, a)$ with random weights.&lt;/li&gt;
-&lt;li&gt;Create target networks $\mu_{\theta&amp;rsquo;}(s)$ and $Q_{\phi&amp;rsquo;}(s, a)$ by copying the weights of the actor and critic networks.&lt;/li&gt;
-&lt;li&gt;Initialize a replay buffer to store transitions $(s, a, r, s&amp;rsquo;)$.&lt;/li&gt;
+&lt;li&gt;Create target networks $\mu_{\theta&#39;}(s)$ and $Q_{\phi&#39;}(s, a)$ by copying the weights of the actor and critic networks.&lt;/li&gt;
+&lt;li&gt;Initialize a replay buffer to store transitions $(s, a, r, s&#39;)$.&lt;/li&gt;
 &lt;li&gt;For each episode:
 &lt;ul&gt;
 &lt;li&gt;At each step:
@@ -563,12 +562,12 @@ It combines ideas from Deterministic Policy Gradient (DPG) and Deep Q-Learning (
 &lt;li&gt;Execute the action, observe reward $r_t$ and the next state $s_{t+1}$.&lt;/li&gt;
 &lt;li&gt;Store the transition $(s_t, a_t, r_t, s_{t+1})$ in the replay buffer.&lt;/li&gt;
 &lt;li&gt;Sample a minibatch of transitions from the replay buffer.&lt;/li&gt;
-&lt;li&gt;Update the critic by minimizing the Bellman error: $\mathcal{L}(\phi) = \mathbb{E}\left[\left(Q_\phi(s, a) - \left(r + \gamma Q_{\phi&amp;rsquo;}(s&amp;rsquo;, \mu_{\theta&amp;rsquo;}(s&amp;rsquo;))\right)\right)^2\right]$&lt;/li&gt;
+&lt;li&gt;Update the critic by minimizing the Bellman error: $\mathcal{L}(\phi) = \mathbb{E}\left[\left(Q_\phi(s, a) - \left(r + \gamma Q_{\phi&#39;}(s&#39;, \mu_{\theta&#39;}(s&#39;))\right)\right)^2\right]$&lt;/li&gt;
 &lt;li&gt;Update the actor using the deterministic policy gradient: $\nabla_\theta J = \mathbb{E}\left[\nabla_\theta \mu_\theta(s) \nabla_a Q_\phi(s, a) \big|{a=\mu_\theta(s)} \right]$&lt;/li&gt;
 &lt;li&gt;Update the target networks:
 &lt;ul&gt;
-&lt;li&gt;$\phi&amp;rsquo; \leftarrow \tau \phi + (1 - \tau) \phi&#39;$&lt;/li&gt;
-&lt;li&gt;$\theta&amp;rsquo; \leftarrow \tau \theta + (1 - \tau) \theta&#39;$&lt;/li&gt;
+&lt;li&gt;$\phi&#39; \leftarrow \tau \phi + (1 - \tau) \phi&#39;$&lt;/li&gt;
+&lt;li&gt;$\theta&#39; \leftarrow \tau \theta + (1 - \tau) \theta&#39;$&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
@@ -577,10 +576,10 @@ It combines ideas from Deterministic Policy Gradient (DPG) and Deep Q-Learning (
 &lt;/li&gt;
 &lt;li&gt;Repeat until convergence.&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h4 id=&#34;sac10&#34; &gt;
+&lt;h4 id=&#34;sac&#34; &gt;
 &lt;div&gt;
-    &lt;a href=&#34;#sac10&#34;&gt;
-        
+    &lt;a href=&#34;#sac&#34;&gt;
+        ###
     &lt;/a&gt;
     SAC&lt;sup id=&#34;fnref:10&#34;&gt;&lt;a href=&#34;#fn:10&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;10&lt;/a&gt;&lt;/sup&gt;
 &lt;/div&gt;
@@ -619,7 +618,7 @@ where $\mathcal{H}(\pi(\cdot|s_t))$ is the entropy of the policy, and $\alpha$ i
 &lt;li&gt;
 &lt;p&gt;Target Networks:&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;Slowly updated target Q-networks ($Q_{\theta_1&amp;rsquo;}$ and $Q_{\theta_2&amp;rsquo;}$) improve training stability.&lt;/li&gt;
+&lt;li&gt;Slowly updated target Q-networks ($Q_{\theta_1&#39;}$ and $Q_{\theta_2&#39;}$) improve training stability.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
@@ -629,7 +628,7 @@ where $\mathcal{H}(\pi(\cdot|s_t))$ is the entropy of the policy, and $\alpha$ i
 &lt;ul&gt;
 &lt;li&gt;Policy network $\pi_\phi(a|s)$.&lt;/li&gt;
 &lt;li&gt;Two Q-value networks $Q_{\theta_1}(s, a)$ and $Q_{\theta_2}(s, a)$.&lt;/li&gt;
-&lt;li&gt;Target Q-value networks $Q_{\theta_1&amp;rsquo;}$ and $Q_{\theta_2&amp;rsquo;}$.&lt;/li&gt;
+&lt;li&gt;Target Q-value networks $Q_{\theta_1&#39;}$ and $Q_{\theta_2&#39;}$.&lt;/li&gt;
 &lt;li&gt;Replay buffer $\mathcal{D}$.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
@@ -641,10 +640,10 @@ where $\mathcal{H}(\pi(\cdot|s_t))$ is the entropy of the policy, and $\alpha$ i
 &lt;li&gt;Sample an action $a_t \sim \pi_\phi(a|s_t)$.&lt;/li&gt;
 &lt;li&gt;Execute the action, observe reward $r_t$ and next state $s_{t+1}$.&lt;/li&gt;
 &lt;li&gt;Store the transition $(s_t, a_t, r_t, s_{t+1})$ in the replay buffer.&lt;/li&gt;
-&lt;li&gt;Sample a minibatch of transitions $(s, a, r, s&amp;rsquo;)$ from the replay buffer.&lt;/li&gt;
+&lt;li&gt;Sample a minibatch of transitions $(s, a, r, s&#39;)$ from the replay buffer.&lt;/li&gt;
 &lt;li&gt;Compute the target Q-value:
-$ y = r + \gamma \left[\min_{i=1,2} Q_{\theta_i&amp;rsquo;}(s&amp;rsquo;, a&amp;rsquo;) - \alpha \log \pi_\phi(a&amp;rsquo;|s&amp;rsquo;)\right]$
-where $a&amp;rsquo; \sim \pi_\phi(\cdot|s&amp;rsquo;)$.&lt;/li&gt;
+$ y = r + \gamma \left[\min_{i=1,2} Q_{\theta_i&#39;}(s&#39;, a&#39;) - \alpha \log \pi_\phi(a&#39;|s&#39;)\right]$
+where $a&#39; \sim \pi_\phi(\cdot|s&#39;)$.&lt;/li&gt;
 &lt;li&gt;Update the Q-value networks by minimizing:&lt;/li&gt;
 &lt;/ul&gt;
  &lt;p align=&#34;center&#34;&gt;
@@ -682,20 +681,20 @@ to better stability and efficiency. Advanced algorithms like DDPG and SAC extend
 such as deterministic policies, entropy regularization, and off-policy training. Each algorithm is tailored to specific challenges,
 balancing exploration, stability, and scalability in diverse RL environments. Below shows an overview of the RL algorithms.&lt;/p&gt;
 &lt;p align=&#34;center&#34;&gt;
-&lt;img src=&#34;https://bingzw.github.io/rf/RL_algorithms.png&#34; width=&#34;800&#34; height=&#34;550&#34;&gt;&lt;br&gt;
+&lt;img src=&#34;http://localhost:65293/rf/RL_algorithms.png&#34; width=&#34;800&#34; height=&#34;550&#34;&gt;&lt;br&gt;
 &lt;em&gt;Figure 5: Taxonomy of Reinforcement Learning Algorithms&lt;/em&gt;
 &lt;p&gt;
 &lt;p&gt;&lt;em&gt;Image cited from &lt;sup id=&#34;fnref:11&#34;&gt;&lt;a href=&#34;#fn:11&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;11&lt;/a&gt;&lt;/sup&gt;&lt;/em&gt;&lt;/p&gt;
 &lt;h2 id=&#34;citation&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#citation&#34;&gt;
-        
+        #
     &lt;/a&gt;
     Citation
 &lt;/div&gt;
 &lt;/h2&gt;
 &lt;p&gt;If you find this post helpful, please consider citing it as:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bibtex&#34; data-lang=&#34;bibtex&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f3f99d&#34;&gt;@article&lt;/span&gt;{&lt;span style=&#34;color:#ff5c57&#34;&gt;wang2024rflearningdeep&lt;/span&gt;,
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bibtex&#34; data-lang=&#34;bibtex&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f3f99d&#34;&gt;@article&lt;/span&gt;{&lt;span style=&#34;color:#ff5c57&#34;&gt;wang2024rflearningdeep&lt;/span&gt;,
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;author&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;Bing Wang&amp;#34;&lt;/span&gt;,
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;title&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;A Journey to Reinforcement Learning - Deep RL&amp;#34;&lt;/span&gt;,
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;journal&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;bingzw.github.io&amp;#34;&lt;/span&gt;,
@@ -704,12 +703,12 @@ balancing exploration, stability, and scalability in diverse RL environments. Be
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#57c7ff&#34;&gt;url&lt;/span&gt; = &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#34;https://bingzw.github.io/posts/2024-07-15-rf-learning-deep/&amp;#34;&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;or&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-markdown&#34; data-lang=&#34;markdown&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Bing Wang. (2024, July). A Journey to Reinforcement Learning - Deep RL. 
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-markdown&#34; data-lang=&#34;markdown&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Bing Wang. (2024, July). A Journey to Reinforcement Learning - Deep RL. 
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;https://bingzw.github.io/posts/2024-07-15-rf-learning-deep/
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;reference&#34; &gt;
 &lt;div&gt;
     &lt;a href=&#34;#reference&#34;&gt;
-        
+        #
     &lt;/a&gt;
     Reference
 &lt;/div&gt;
