@@ -18,7 +18,7 @@
       
       <guid>/posts/2026-03-08-mtl-gradient-balancing/</guid>
       <description>&lt;p align=&#34;center&#34;&gt;
-&lt;img src=&#34;https://bingzw.github.io/mtml_balancing/MTML.png&#34; width=&#34;600&#34; height=&#34;300&#34;&gt;&lt;br&gt;
+&lt;img src=&#34;http://localhost:65293/mtml_balancing/MTML.png&#34; width=&#34;600&#34; height=&#34;300&#34;&gt;&lt;br&gt;
 &lt;p&gt;
 &lt;p&gt;Modern recommendation systems rarely optimize a single objective. A typical industrial system simultaneously optimizes click-through rate (CTR), conversion rate (CVR), dwell time, and downstream revenue signals — all through a shared model backbone. When these tasks compete rather than cooperate during training, the result is &lt;strong&gt;negative transfer&lt;/strong&gt;: the multi-task model performs worse than individually trained single-task models on one or more objectives. The root cause almost always traces back to poorly balanced gradients.&lt;/p&gt;
 &lt;p&gt;This post surveys the major gradient balancing methods developed between 2018 and 2025, grouped by contribution type. For each method we cover the core intuition, the mathematical formulation, pseudocode for implementation, and a frank assessment of its trade-offs. The goal is to give practitioners a navigable reference for deciding which technique to apply in their own systems.&lt;/p&gt;
