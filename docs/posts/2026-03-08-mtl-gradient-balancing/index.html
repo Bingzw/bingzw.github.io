@@ -454,7 +454,7 @@
             <ul class="post-tags">
                 
                     
-                    <li><a href="/tags/machine-learning/">#Machine-Learning</a></li>
+                    <li><a href="/tags/machine-learning/">#Machine Learning</a></li>
                 
                     
                     <li><a href="/tags/multi-task-learning/">#Multi-Task-Learning</a></li>
@@ -466,7 +466,7 @@
                     <li><a href="/tags/optimization/">#Optimization</a></li>
                 
                     
-                    <li><a href="/tags/deep-learning/">#Deep-Learning</a></li>
+                    <li><a href="/tags/deep-learning/">#Deep Learning</a></li>
                 
             </ul>
         
@@ -547,7 +547,7 @@
 
         <div class="content e-content">
             <p align="center">
-<img src="/mtml_balancing/MTML.png" width="600" height="400"><br>
+<img src="/mtml_balancing/MTML.png" width="600" height="300"><br>
 <p>
 <p>Modern recommendation systems rarely optimize a single objective. A typical industrial system simultaneously optimizes click-through rate (CTR), conversion rate (CVR), dwell time, and downstream revenue signals — all through a shared model backbone. When these tasks compete rather than cooperate during training, the result is <strong>negative transfer</strong>: the multi-task model performs worse than individually trained single-task models on one or more objectives. The root cause almost always traces back to poorly balanced gradients.</p>
 <p>This post surveys the major gradient balancing methods developed between 2018 and 2025, grouped by contribution type. For each method we cover the core intuition, the mathematical formulation, pseudocode for implementation, and a frank assessment of its trade-offs. The goal is to give practitioners a navigable reference for deciding which technique to apply in their own systems.</p>
@@ -638,7 +638,7 @@ $$\cos(\mathbf{g}_i, \mathbf{g}_j) = \frac{\mathbf{g}_i \cdot \mathbf{g}_j}{\|\m
     2.1 GradNorm (ICML 2018)
 </div>
 </h3>
-<p><strong>Intuition.</strong> Imagine a relay race where some runners are sprinting and others are jogging. GradNorm is the coach who watches pace and tells the sprinters to slow down, or the joggers to speed up, so the team arrives in formation. Concretely, it maintains a running estimate of each task&rsquo;s training speed and adjusts $w_i$ so that faster-learning tasks do not crowd out slower ones.</p>
+<p><strong>Intuition.</strong> Imagine a relay race where some runners are sprinting and others are jogging. GradNorm is the coach who watches pace and tells the sprinters to slow down, or the joggers to speed up, so the team arrives in formation <sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>. Concretely, it maintains a running estimate of each task&rsquo;s training speed and adjusts $w_i$ so that faster-learning tasks do not crowd out slower ones.</p>
 <p><strong>Math.</strong> At training step $t$, define the weighted gradient norm for task $i$:</p>
 $$G_W^{(i)}(t) = \|w_i(t) \nabla_W \mathcal{L}_i(t)\|_2$$<p>where $W$ denotes the parameters of the final shared layer (a proxy for the full network). The <strong>relative inverse training rate</strong> measures how fast task $i$ learns relative to the average:</p>
 $$\tilde{\mathcal{L}}_i(t) = \frac{\mathcal{L}_i(t)}{\mathcal{L}_i(0)}$$<p>The average rate is $\bar{\mathcal{L}}(t) = \frac{1}{T} \sum_i \tilde{\mathcal{L}}_i(t)$.</p>
@@ -703,7 +703,7 @@ $$\mathcal{L}_{grad}(t; \{w_i\}) = \sum_{i=1}^{T} \left| G_W^{(i)}(t) - G_W^{tar
     2.2 PCGrad / Gradient Surgery (NeurIPS 2020)
 </div>
 </h3>
-<p><strong>Intuition.</strong> Picture two hikers trying to climb different hills. If they are roped together, one pulling north while the other pulls south, they cancel each other out. PCGrad (Projecting Conflicting Gradients) cuts the rope and instead lets each hiker only keep the component of their pull that does not drag the other backward. Geometrically, if task $i$&rsquo;s gradient has a negative projection onto task $j$&rsquo;s gradient, that conflicting component is removed.</p>
+<p><strong>Intuition.</strong> Picture two hikers trying to climb different hills. If they are roped together, one pulling north while the other pulls south, they cancel each other out. PCGrad (Projecting Conflicting Gradients) cuts the rope and instead lets each hiker only keep the component of their pull that does not drag the other backward <sup id="fnref:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">2</a></sup>. Geometrically, if task $i$&rsquo;s gradient has a negative projection onto task $j$&rsquo;s gradient, that conflicting component is removed.</p>
 <p><strong>Math.</strong> For two tasks $i$ and $j$, a conflict exists when:</p>
 $$\mathbf{g}_i \cdot \mathbf{g}_j < 0$$<p>In this case, project out the component of $\mathbf{g}_i$ that lies along $\mathbf{g}_j$:</p>
 $$\mathbf{g}_i^{PC} = \mathbf{g}_i - \frac{\mathbf{g}_i \cdot \mathbf{g}_j}{\|\mathbf{g}_j\|^2} \mathbf{g}_j$$<p>The subtracted term $\frac{\mathbf{g}_i \cdot \mathbf{g}_j}{\|\mathbf{g}_j\|^2} \mathbf{g}_j$ is exactly the component of $\mathbf{g}_i$ in the direction of $\mathbf{g}_j$. When the dot product is negative, this component points anti-parallel to $\mathbf{g}_j$, so removing it prevents $\mathbf{g}_i$ from harming task $j$.</p>
@@ -748,7 +748,7 @@ $$\mathbf{g}^{final} = \sum_{i=1}^{T} \mathbf{g}_i^{PC}$$<p><strong>Pseudocode.<
     2.3 MGDA — Multiple Gradient Descent Algorithm (NeurIPS 2018)
 </div>
 </h3>
-<p><strong>Intuition.</strong> MGDA reframes multi-task learning as a <strong>multi-objective optimization</strong> (MOO) problem. Rather than combining gradients with fixed weights, it searches for a descent direction that simultaneously reduces all task losses — a Pareto-improving step. Think of it as finding the direction in gradient space that every task can agree on.</p>
+<p><strong>Intuition.</strong> MGDA reframes multi-task learning as a <strong>multi-objective optimization</strong> (MOO) problem <sup id="fnref:3"><a href="#fn:3" class="footnote-ref" role="doc-noteref">3</a></sup>. Rather than combining gradients with fixed weights, it searches for a descent direction that simultaneously reduces all task losses — a Pareto-improving step. Think of it as finding the direction in gradient space that every task can agree on.</p>
 <p><strong>Math.</strong> A point $\theta$ is <strong>Pareto-stationary</strong> if no single update direction can improve all objectives simultaneously. MGDA finds the minimum-norm point in the convex hull of task gradients:</p>
 $$\mathbf{g}^* = \sum_{i=1}^{T} \alpha_i \mathbf{g}_i, \quad \alpha_i \geq 0, \quad \sum_{i=1}^{T} \alpha_i = 1$$$$\{\alpha_i^*\} = \arg\min_{\alpha} \left\| \sum_{i=1}^{T} \alpha_i \mathbf{g}_i \right\|^2$$<p>If $\mathbf{g}^* = \mathbf{0}$, the current point is already Pareto-stationary. Otherwise, taking a step in the direction $-\mathbf{g}^*$ guarantees a reduction in every task loss (to first order).</p>
 <p>The optimization over $\{\alpha_i\}$ is a quadratic program (QP) over the simplex, solvable efficiently with the Frank-Wolfe algorithm or the dual form. The computational cost is $O(T^2 \cdot d)$ per step.</p>
@@ -766,7 +766,7 @@ $$\mathbf{g}^* = \sum_{i=1}^{T} \alpha_i \mathbf{g}_i, \quad \alpha_i \geq 0, \q
     2.4 CAGrad (NeurIPS 2021)
 </div>
 </h3>
-<p><strong>Intuition.</strong> CAGrad (Conflict-Averse Gradient Descent) unifies vanilla gradient descent and MGDA by introducing a tunable constraint. The key insight is: rather than minimizing all tasks equally (MGDA) or ignoring conflicts (plain sum), CAGrad maximizes the <em>worst-case</em> task improvement while staying close to the average gradient. This is the multi-task analogue of max-min fairness.</p>
+<p><strong>Intuition.</strong> CAGrad (Conflict-Averse Gradient Descent) unifies vanilla gradient descent and MGDA by introducing a tunable constraint. The key insight is: rather than minimizing all tasks equally (MGDA) or ignoring conflicts (plain sum), CAGrad maximizes the <em>worst-case</em> task improvement while staying close to the average gradient. This is the multi-task analogue of max-min fairness <sup id="fnref:4"><a href="#fn:4" class="footnote-ref" role="doc-noteref">4</a></sup>.</p>
 <p><strong>Math.</strong> Let the average gradient be:</p>
 $$\bar{\mathbf{g}} = \frac{1}{T} \sum_{i=1}^{T} \mathbf{g}_i$$<p>CAGrad solves:</p>
 $$\mathbf{g}^* = \arg\max_{\mathbf{g}} \min_{i \in [T]} \langle \mathbf{g}_i, \mathbf{g} \rangle \quad \text{s.t.} \quad \|\mathbf{g} - \bar{\mathbf{g}}\| \leq c \|\bar{\mathbf{g}}\|$$<p>The constraint ball of radius $c \|\bar{\mathbf{g}}\|$ centered at $\bar{\mathbf{g}}$ controls how far from the average gradient we are allowed to deviate. Two limiting cases:</p>
@@ -822,7 +822,7 @@ $$\mathcal{L}(\mathbf{g}, \lambda) = \min_i \langle \mathbf{g}_i, \mathbf{g} \ra
     2.5 MetaBalance (WWW 2022)
 </div>
 </h3>
-<p><strong>Intuition.</strong> In recommendation systems, there is often a natural hierarchy: a primary task (e.g., CTR) that we care most about, and auxiliary tasks (e.g., dwell time, likes) that provide helpful regularization. MetaBalance takes this hierarchy seriously and rescales auxiliary gradients to match the primary task&rsquo;s gradient norm — layer by layer, iteration by iteration.</p>
+<p><strong>Intuition.</strong> In recommendation systems, there is often a natural hierarchy: a primary task (e.g., CTR) that we care most about, and auxiliary tasks (e.g., dwell time, likes) that provide helpful regularization. MetaBalance takes this hierarchy seriously and rescales auxiliary gradients to match the primary task&rsquo;s gradient norm — layer by layer, iteration by iteration <sup id="fnref:5"><a href="#fn:5" class="footnote-ref" role="doc-noteref">5</a></sup>.</p>
 <p><strong>Math.</strong> For the primary task gradient $\mathbf{g}_{target}$ and auxiliary task gradient $\mathbf{g}_{aux}$, the scaled auxiliary gradient is:</p>
 $$\mathbf{g}_{aux}^{scaled} = \mathbf{g}_{aux} \cdot \frac{\|\mathbf{g}_{target}\|}{\|\mathbf{g}_{aux}\|} \cdot r$$<p>where $r \in (0, 1]$ is a rescaling ratio. Three strategies govern when to apply scaling:</p>
 <ul>
@@ -873,7 +873,7 @@ $$\mathbf{g}_{aux}^{scaled} = \mathbf{g}_{aux} \cdot \frac{\|\mathbf{g}_{target}
 </span></span><span style="display:flex;"><span>    model<span style="color:#ff6ac1">.</span>zero_grad()
 </span></span></code></pre></div><p><strong>Pros and Cons.</strong></p>
 <ul>
-<li>Pros: Fine-grained per-layer control; recommendation-specific design validated on large-scale Alibaba datasets (+8.34% NDCG@10); intuitive hyperparameter $r$.</li>
+<li>Pros: Fine-grained per-layer control; recommendation-specific design validated on large-scale Alibaba datasets (+8.34% NDCG@10 <sup id="fnref1:5"><a href="#fn:5" class="footnote-ref" role="doc-noteref">5</a></sup>); intuitive hyperparameter $r$.</li>
 <li>Cons: Requires explicit primary/auxiliary task hierarchy (not all systems have a clear primary); per-layer computation adds overhead compared to loss-level methods.</li>
 </ul>
 <hr>
@@ -885,7 +885,7 @@ $$\mathbf{g}_{aux}^{scaled} = \mathbf{g}_{aux} \cdot \frac{\|\mathbf{g}_{target}
     2.6 SLGrad (2023)
 </div>
 </h3>
-<p><strong>Intuition.</strong> Even within a single auxiliary task, different training samples contribute differently to the primary objective. Some auxiliary samples genuinely help the primary task; others introduce noise or conflict. SLGrad operates at the finest possible granularity — individual samples — assigning weights based on how well each sample&rsquo;s gradient aligns with the primary task&rsquo;s validation gradient.</p>
+<p><strong>Intuition.</strong> Even within a single auxiliary task, different training samples contribute differently to the primary objective. Some auxiliary samples genuinely help the primary task; others introduce noise or conflict. SLGrad operates at the finest possible granularity — individual samples — assigning weights based on how well each sample&rsquo;s gradient aligns with the primary task&rsquo;s validation gradient <sup id="fnref:6"><a href="#fn:6" class="footnote-ref" role="doc-noteref">6</a></sup>.</p>
 <p><strong>Math.</strong> Let $\mathbf{g}_{val}^{primary}$ be the gradient of the primary task on a held-out validation set. For each sample $s$ in the auxiliary task batch, compute the cosine similarity:</p>
 $$w_s = \cos(\mathbf{g}_s, \mathbf{g}_{val}^{primary}) = \frac{\mathbf{g}_s \cdot \mathbf{g}_{val}^{primary}}{\|\mathbf{g}_s\| \|\mathbf{g}_{val}^{primary}\|}$$<p>Samples with $w_s > 0$ push in a direction compatible with the primary objective; samples with $w_s < 0$ conflict. SLGrad reweights the auxiliary loss by $\max(0, w_s)$ or uses $w_s$ directly as a soft weight to suppress conflicting samples.</p>
 <p><strong>Pros and Cons.</strong></p>
@@ -902,7 +902,7 @@ $$w_s = \cos(\mathbf{g}_s, \mathbf{g}_{val}^{primary}) = \frac{\mathbf{g}_s \cdo
     2.7 PLE — Progressive Layered Extraction (RecSys 2020)
 </div>
 </h3>
-<p><strong>Intuition.</strong> Rather than fixing gradient conflicts after the fact, PLE prevents them architecturally. It partitions model capacity into shared experts and task-specific experts, organized in hierarchical layers. Task-specific experts receive gradients only from their own task, eliminating cross-task gradient interference at the source.</p>
+<p><strong>Intuition.</strong> Rather than fixing gradient conflicts after the fact, PLE prevents them architecturally <sup id="fnref:7"><a href="#fn:7" class="footnote-ref" role="doc-noteref">7</a></sup>. It partitions model capacity into shared experts and task-specific experts, organized in hierarchical layers. Task-specific experts receive gradients only from their own task, eliminating cross-task gradient interference at the source.</p>
 <p><strong>Math.</strong> Let $L$ be the number of extraction layers. At layer $l$:</p>
 <ul>
 <li>Shared experts $\{E_s^{(l)}\}$: receive gradients from all tasks via gating.</li>
@@ -924,7 +924,7 @@ $$\mathbf{h}_k^{(l)} = \sum_j g_{k,j}^{(l)} E_j^{(l)}(\mathbf{h}_k^{(l-1)})$$<p>
     2.8 STEM-Net (AAAI 2024)
 </div>
 </h3>
-<p><strong>Intuition.</strong> Many multi-task seesaw effects originate not in the shared tower but in the shared embedding table. If a user who is a heavy clicker but a rare purchaser updates the same embedding with conflicting signals, the embedding itself becomes a source of conflict. STEM-Net separates embeddings at the task level and uses a stop-gradient gate to prevent backward leakage between task-specific embedding paths.</p>
+<p><strong>Intuition.</strong> Many multi-task seesaw effects originate not in the shared tower but in the shared embedding table. If a user who is a heavy clicker but a rare purchaser updates the same embedding with conflicting signals, the embedding itself becomes a source of conflict. STEM-Net separates embeddings at the task level and uses a stop-gradient gate to prevent backward leakage between task-specific embedding paths <sup id="fnref:8"><a href="#fn:8" class="footnote-ref" role="doc-noteref">8</a></sup>.</p>
 <p><strong>Math.</strong> For each task $i$, STEM-Net maintains:</p>
 <ul>
 <li>A task-specific embedding table $\mathbf{E}_i$</li>
@@ -947,7 +947,7 @@ $$\mathbf{h}_i = f_i\!\left(\mathbf{E}_i(\mathbf{x}),\ \text{stop\_grad}\!\left(
     2.9 MultiBalance (Meta, 2024)
 </div>
 </h3>
-<p><strong>Intuition.</strong> GradNorm and PCGrad operate on the full parameter gradient $\mathbf{g}_i \in \mathbb{R}^d$ where $d$ can be in the billions. This is computationally expensive and often noisy. MultiBalance observes that in representation-based recommenders, all task heads attach to a shared bottleneck $\mathbf{h}$. Balancing gradients at the bottleneck — a much smaller vector — achieves most of the benefit at a fraction of the cost.</p>
+<p><strong>Intuition.</strong> GradNorm and PCGrad operate on the full parameter gradient $\mathbf{g}_i \in \mathbb{R}^d$ where $d$ can be in the billions. This is computationally expensive and often noisy. MultiBalance observes that in representation-based recommenders, all task heads attach to a shared bottleneck $\mathbf{h}$. Balancing gradients at the bottleneck — a much smaller vector — achieves most of the benefit at a fraction of the cost <sup id="fnref:9"><a href="#fn:9" class="footnote-ref" role="doc-noteref">9</a></sup>.</p>
 <p><strong>Math.</strong> Let the shared representation be $\mathbf{h} = g(\mathbf{x})$ and task $i$&rsquo;s head be $\hat{y}_i = f_i(\mathbf{h})$. The representation-level gradient for task $i$ is:</p>
 $$\mathbf{g}_i^{rep} = \frac{\partial \mathcal{L}_i}{\partial \mathbf{h}}$$<p>MultiBalance applies gradient balancing at $\mathbf{h}$ rather than at $\theta$. The balancing weights are computed using a moving average of $\|\mathbf{g}_i^{rep}\|$ for stability:</p>
 $$w_i^{rep}(t) = \frac{\bar{G}^{rep}(t)}{\text{EMA}(\|\mathbf{g}_i^{rep}\|, t)}$$<p>where $\bar{G}^{rep}(t)$ is the mean norm across tasks and EMA is an exponential moving average. The balanced representation gradient is:</p>
@@ -1000,7 +1000,7 @@ $$\mathbf{g}_{balanced}^{rep} = \sum_{i=1}^{T} w_i^{rep} \cdot \mathbf{g}_i^{rep
     2.10 GradCraft (KDD 2024)
 </div>
 </h3>
-<p><strong>Intuition.</strong> Previous methods address either magnitude (GradNorm, MetaBalance) or direction (PCGrad, MGDA) — but rarely both simultaneously. GradCraft takes a holistic two-stage approach: first equalize gradient magnitudes, then enforce that all pairs of adjusted gradients have non-negative dot products (global synergy). This combines the benefits of norm balancing and conflict resolution in a single unified procedure.</p>
+<p><strong>Intuition.</strong> Previous methods address either magnitude (GradNorm, MetaBalance) or direction (PCGrad, MGDA) — but rarely both simultaneously. GradCraft takes a holistic two-stage approach: first equalize gradient magnitudes, then enforce that all pairs of adjusted gradients have non-negative dot products (global synergy). This combines the benefits of norm balancing and conflict resolution in a single unified procedure <sup id="fnref:10"><a href="#fn:10" class="footnote-ref" role="doc-noteref">10</a></sup>.</p>
 <p><strong>Math.</strong> <strong>Stage 1 (Magnitude Balancing).</strong> Rescale each task gradient to match the maximum norm:</p>
 $$\mathbf{g}_i^{mag} = \mathbf{g}_i \cdot \frac{\max_j \|\mathbf{g}_j\|}{\|\mathbf{g}_i\|}$$<p>After this step, all $\|\mathbf{g}_i^{mag}\| = \max_j \|\mathbf{g}_j\|$ — a level playing field.</p>
 <p><strong>Stage 2 (Direction Alignment).</strong> Enforce global pairwise non-negativity: find adjusted gradients $\{\mathbf{g}_i^{final}\}$ such that:</p>
@@ -1049,7 +1049,7 @@ $$\langle \mathbf{g}_i^{final}, \mathbf{g}_j^{final} \rangle \geq 0 \quad \foral
     2.11 PUB — Parameter Update Balancing (2024)
 </div>
 </h3>
-<p><strong>Intuition.</strong> All gradient balancing methods so far operate on raw gradients $\mathbf{g}_i$. But in practice, models are trained with Adam, not vanilla SGD. Adam&rsquo;s adaptive moment estimates transform gradients before applying them: $\mathbf{g}_i^{Adam} \neq \mathbf{g}_i$. PUB makes a critical observation: <strong>gradient balancing does not equal update balancing under Adam</strong>. Two tasks with balanced gradients can still have highly imbalanced actual parameter updates once Adam applies its per-parameter learning rates. PUB closes this &ldquo;momentum gap&rdquo; by balancing the actual Adam updates, not the raw gradients.</p>
+<p><strong>Intuition.</strong> All gradient balancing methods so far operate on raw gradients $\mathbf{g}_i$. But in practice, models are trained with Adam, not vanilla SGD. Adam&rsquo;s adaptive moment estimates transform gradients before applying them: $\mathbf{g}_i^{Adam} \neq \mathbf{g}_i$. PUB makes a critical observation: <strong>gradient balancing does not equal update balancing under Adam</strong>. Two tasks with balanced gradients can still have highly imbalanced actual parameter updates once Adam applies its per-parameter learning rates. PUB closes this &ldquo;momentum gap&rdquo; by balancing the actual Adam updates, not the raw gradients <sup id="fnref:11"><a href="#fn:11" class="footnote-ref" role="doc-noteref">11</a></sup>.</p>
 <p><strong>Math.</strong> For each task $i$, compute the Adam-adjusted update:</p>
 $$\Delta\theta_i = \text{Adam}(\mathbf{g}_i, m_i, v_i) = \frac{\hat{m}_i}{\sqrt{\hat{v}_i} + \epsilon}$$<p>where $m_i, v_i$ are the first and second moment estimates for task $i$&rsquo;s gradients. PUB then finds the joint update direction:</p>
 $$\Delta\theta^* = \arg\max_{\Delta\theta} \min_{i \in [T]} \langle \Delta\theta_i, \Delta\theta \rangle \quad \text{s.t.} \quad \Delta\theta \in \text{conv}(\{\Delta\theta_i\})$$<p>This is the CAGrad/MGDA framework applied to Adam updates rather than raw gradients. The constraint that $\Delta\theta$ lies in the convex hull of task updates ensures the final step is a mixture of individually valid Adam steps.</p>
@@ -1102,7 +1102,7 @@ $$\Delta\theta^* = \arg\max_{\Delta\theta} \min_{i \in [T]} \langle \Delta\theta
     2.12 DRGrad (AAAI 2025)
 </div>
 </h3>
-<p><strong>Intuition.</strong> Even within a single task, different users generate gradients with varying compatibility with the primary objective. DRGrad operates at the finest recommendation-specific granularity: individual users. For each user, it routes gradients from auxiliary tasks only when they are likely to be cooperative with the primary task&rsquo;s objective for that specific user.</p>
+<p><strong>Intuition.</strong> Even within a single task, different users generate gradients with varying compatibility with the primary objective. DRGrad operates at the finest recommendation-specific granularity: individual users <sup id="fnref:12"><a href="#fn:12" class="footnote-ref" role="doc-noteref">12</a></sup>. For each user, it routes gradients from auxiliary tasks only when they are likely to be cooperative with the primary task&rsquo;s objective for that specific user.</p>
 <p><strong>Math.</strong> DRGrad consists of three components:</p>
 <p><strong>Router</strong>: Estimates the compatibility of auxiliary task gradients for a given user $u$:</p>
 $$r_u^{(i)} = \sigma(W_r \mathbf{h}_u + b_r)$$<p>where $\mathbf{h}_u$ is the user representation. A high $r_u^{(i)}$ means task $i$&rsquo;s gradient is likely helpful for user $u$.</p>
@@ -1123,7 +1123,7 @@ $$\mathbf{g}_u^{balanced} = \mathbf{g}_u^{primary} + \sum_{i \neq \text{primary}
 </div>
 </h3>
 <p><strong>Full name.</strong> Lattice — Model Space Redesign for Cost-Effective Industry-Scale Ads Recommendations (Meta, 2024).</p>
-<p><strong>Intuition.</strong> Large recommendation platforms often maintain separate models for different domains (e.g., Feed, Stories, Marketplace) and different objectives (CTR, CVR, revenue). This creates infrastructure fragmentation and prevents cross-domain knowledge sharing. Meta Lattice addresses Multi-Domain, Multi-Objective (MDMO) learning by consolidating fragmented model portfolios onto a single unified foundational network, rather than patching gradient conflicts after they arise.</p>
+<p><strong>Intuition.</strong> Large recommendation platforms often maintain separate models for different domains (e.g., Feed, Stories, Marketplace) and different objectives (CTR, CVR, revenue). This creates infrastructure fragmentation and prevents cross-domain knowledge sharing. Meta Lattice addresses Multi-Domain, Multi-Objective (MDMO) learning by consolidating fragmented model portfolios onto a single unified foundational network, rather than patching gradient conflicts after they arise <sup id="fnref:13"><a href="#fn:13" class="footnote-ref" role="doc-noteref">13</a></sup>.</p>
 <p><strong>Approach.</strong> Lattice introduces two key components:</p>
 <ul>
 <li>
@@ -1134,7 +1134,7 @@ $$\mathbf{g}_u^{balanced} = \mathbf{g}_u^{primary} + \sum_{i \neq \text{primary}
 </li>
 </ul>
 <p>The result is a single network that serves all domains and objectives, eliminating the need for separate per-domain or per-objective models.</p>
-<p><strong>Results.</strong> Meta reports 10% revenue gain and 20% capacity saving in production deployment.</p>
+<p><strong>Results.</strong> Meta reports 10% revenue gain and 20% capacity saving in production deployment <sup id="fnref1:13"><a href="#fn:13" class="footnote-ref" role="doc-noteref">13</a></sup>.</p>
 <p><strong>Pros and Cons.</strong></p>
 <ul>
 <li>Pros: Structural unification of multi-domain and multi-objective learning; large-scale business impact validated at Meta production scale; addresses the broader MDMO problem, not just pairwise task gradient conflicts.</li>
@@ -1408,19 +1408,50 @@ $$\mathbf{g}_u^{balanced} = \mathbf{g}_u^{primary} + \sum_{i \neq \text{primary}
     References
 </div>
 </h2>
+<div class="footnotes" role="doc-endnotes">
+<hr>
 <ol>
-<li>Chen, Z., Badrinarayanan, V., Lee, C.-Y., &amp; Rabinovich, A. (2018). GradNorm: Gradient Normalization for Adaptive Loss Balancing in Deep Multitask Networks. <em>ICML 2018</em>.</li>
-<li>Yu, T., Kumar, S., Gupta, A., Levine, S., Hausman, K., &amp; Finn, C. (2020). Gradient Surgery for Multi-Task Learning. <em>NeurIPS 2020</em>.</li>
-<li>Sener, O., &amp; Koltun, V. (2018). Multi-Task Learning as Multi-Objective Optimization. <em>NeurIPS 2018</em>.</li>
-<li>Liu, B., Liu, X., Jin, X., Stone, P., &amp; Liu, Q. (2021). Conflict-Averse Gradient Descent for Multi-task Learning. <em>NeurIPS 2021</em>.</li>
-<li>He, P., et al. (2022). MetaBalance: Improving Multi-Task Recommendations via Adapting Gradient Magnitudes of Auxiliary Tasks. <em>WWW 2022</em>.</li>
-<li>Tang, J., et al. (2020). Progressive Layered Extraction (PLE): A Novel Multi-Task Learning (MTL) Model for Personalized Recommendations. <em>RecSys 2020</em>.</li>
-<li>He, F., et al. (2024). STEM: Unleashing the Power of Embeddings for Multi-Task Recommendation. <em>AAAI 2024</em>.</li>
-<li>MultiBalance (2024). Multi-Objective Gradient Balancing in Industrial-Scale Multi-Task Recommendation System. <em>Meta AI, arXiv 2411.11871</em>.</li>
-<li>Shi, X., et al. (2024). GradCraft: Holistic Gradient Balancing for Multi-Task Recommendation. <em>KDD 2024</em>.</li>
-<li>PUB (2024). A Parameter Update Balancing Algorithm for Multi-task Ranking Models in Recommendation Systems. <em>arXiv 2410.05806</em>.</li>
-<li>DRGrad (2025). Direct Routing Gradient (DRGrad): A Personalized Information Surgery for Multi-Task Learning Recommendations. <em>AAAI 2025</em>.</li>
+<li id="fn:1">
+<p><a href="https://arxiv.org/abs/1711.02257">Chen, Z., Badrinarayanan, V., Lee, C.-Y., &amp; Rabinovich, A. (2018). GradNorm: Gradient Normalization for Adaptive Loss Balancing in Deep Multitask Networks. <em>ICML 2018</em>.</a>&#160;<a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:2">
+<p><a href="https://arxiv.org/abs/2001.06782">Yu, T., Kumar, S., Gupta, A., Levine, S., Hausman, K., &amp; Finn, C. (2020). Gradient Surgery for Multi-Task Learning. <em>NeurIPS 2020</em>.</a>&#160;<a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:3">
+<p><a href="https://arxiv.org/abs/1810.04650">Sener, O., &amp; Koltun, V. (2018). Multi-Task Learning as Multi-Objective Optimization. <em>NeurIPS 2018</em>.</a>&#160;<a href="#fnref:3" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:4">
+<p><a href="https://arxiv.org/abs/2110.14048">Liu, B., Liu, X., Jin, X., Stone, P., &amp; Liu, Q. (2021). Conflict-Averse Gradient Descent for Multi-task Learning. <em>NeurIPS 2021</em>.</a>&#160;<a href="#fnref:4" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:5">
+<p>He, P., et al. (2022). MetaBalance: Improving Multi-Task Recommendations via Adapting Gradient Magnitudes of Auxiliary Tasks. <em>WWW 2022</em>.&#160;<a href="#fnref:5" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a>&#160;<a href="#fnref1:5" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:6">
+<p>SLGrad (2023). Sample-Level Gradient Reweighting for Multi-Task Recommendation.&#160;<a href="#fnref:6" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:7">
+<p>Tang, J., et al. (2020). Progressive Layered Extraction (PLE): A Novel Multi-Task Learning (MTL) Model for Personalized Recommendations. <em>RecSys 2020</em>.&#160;<a href="#fnref:7" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:8">
+<p>He, F., et al. (2024). STEM: Unleashing the Power of Embeddings for Multi-Task Recommendation. <em>AAAI 2024</em>.&#160;<a href="#fnref:8" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:9">
+<p><a href="https://arxiv.org/abs/2411.11871">MultiBalance (2024). Multi-Objective Gradient Balancing in Industrial-Scale Multi-Task Recommendation System. <em>Meta AI</em>.</a>&#160;<a href="#fnref:9" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:10">
+<p>Shi, X., et al. (2024). GradCraft: Holistic Gradient Balancing for Multi-Task Recommendation. <em>KDD 2024</em>.&#160;<a href="#fnref:10" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:11">
+<p><a href="https://arxiv.org/abs/2410.05806">PUB (2024). A Parameter Update Balancing Algorithm for Multi-task Ranking Models in Recommendation Systems.</a>&#160;<a href="#fnref:11" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:12">
+<p>DRGrad (2025). Direct Routing Gradient (DRGrad): A Personalized Information Surgery for Multi-Task Learning Recommendations. <em>AAAI 2025</em>.&#160;<a href="#fnref:12" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:13">
+<p>Meta Lattice (2024). Lattice — Model Space Redesign for Cost-Effective Industry-Scale Ads Recommendations. <em>Meta AI</em>.&#160;<a href="#fnref:13" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a>&#160;<a href="#fnref1:13" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
 </ol>
+</div>
         </div>
 
     </article>
