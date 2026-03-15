@@ -72,18 +72,18 @@ This directly causes negative transfer: progress on task $i$ undoes progress on 
 $$G_W^{(i)}(t) = \|w_i(t) \nabla_W \mathcal{L}_i(t)\|_2$$
 
 
-where $W$ denotes the parameters of the final shared layer (a proxy for the full network). The **relative inverse training rate** measures how fast task $i$ learns relative to the average:
+where $W$ denotes the parameters of the final shared layer (a proxy for the full network). The **inverse training rate** for task $i$ is the normalized loss (higher = slower learning):
 
 
 $$\tilde{\mathcal{L}}_i(t) = \frac{\mathcal{L}_i(t)}{\mathcal{L}_i(0)}$$
 
 
-The average rate is $\bar{\mathcal{L}}(t) = \frac{1}{T} \sum_i \tilde{\mathcal{L}}_i(t)$.
+The average inverse training rate is $\bar{\mathcal{L}}(t) = \frac{1}{T} \sum_i \tilde{\mathcal{L}}_i(t)$. The **relative inverse training rate** of task $i$ is then $r_i(t) = \tilde{\mathcal{L}}_i(t) / \bar{\mathcal{L}}(t)$ — a value above 1 means task $i$ is learning slower than average.
 
 The target gradient norm for task $i$ is:
 
 
-$$G_W^{target}(t) = \bar{G}_W(t) \cdot \left[\frac{\tilde{\mathcal{L}}_i(t)}{\bar{\mathcal{L}}(t)}\right]^\alpha$$
+$$G_W^{target}(t) = \bar{G}_W(t) \cdot \left[r_i(t)\right]^\alpha = \bar{G}_W(t) \cdot \left[\frac{\tilde{\mathcal{L}}_i(t)}{\bar{\mathcal{L}}(t)}\right]^\alpha$$
 
 
 where $\bar{G}_W(t) = \frac{1}{T} \sum_i G_W^{(i)}(t)$ is the mean gradient norm. The hyperparameter $\alpha \geq 0$ controls how aggressively slow learners are prioritized:
@@ -593,59 +593,69 @@ def multibalance_step(model, task_losses, optimizer,
 
 **Intuition.** Previous methods address either magnitude (GradNorm, MetaBalance) or direction (PCGrad, MGDA) — but rarely both simultaneously. GradCraft takes a holistic two-stage approach: first equalize gradient magnitudes, then enforce that all pairs of adjusted gradients have non-negative dot products (global synergy). This combines the benefits of norm balancing and conflict resolution in a single unified procedure [^10].
 
-**Math.** **Stage 1 (Magnitude Balancing).** Rescale each task gradient to match the maximum norm:
+**Math.** **Stage 1 (Magnitude Balancing).** Rescale each task gradient using a soft blend controlled by $\tau \in [0,1]$:
 
 
-$$\mathbf{g}_i^{mag} = \mathbf{g}_i \cdot \frac{\max_j \|\mathbf{g}_j\|}{\|\mathbf{g}_i\|}$$
+$$\mathbf{g}_i^{mag} = \tau \cdot \frac{\max_j \|\mathbf{g}_j\|}{\|\mathbf{g}_i\|} \mathbf{g}_i + (1-\tau) \mathbf{g}_i = \left(\tau \cdot \frac{\max_j \|\mathbf{g}_j\|}{\|\mathbf{g}_i\|} + (1-\tau)\right) \mathbf{g}_i$$
 
 
-After this step, all $\|\mathbf{g}_i^{mag}\| = \max_j \|\mathbf{g}_j\|$ — a level playing field.
+When $\tau=1$ this is full norm alignment; $\tau=0$ leaves gradients unchanged. The soft blend prevents magnitude differences from spanning multiple orders of magnitude while preserving task specificity.
 
-**Stage 2 (Direction Alignment).** Enforce global pairwise non-negativity: find adjusted gradients $\{\mathbf{g}_i^{final}\}$ such that:
+**Stage 2 (Direction Alignment).** For each task $i$, let $\mathcal{C}_i = \{j \neq i : \langle \mathbf{g}_i^{mag}, \mathbf{g}_j^{mag} \rangle < 0\}$ be the set of conflicting tasks. If $\mathcal{C}_i$ is non-empty, stack the conflicting gradients into matrix $\mathbf{G}_i \in \mathbb{R}^{|\mathcal{C}_i| \times d}$ and solve the linear system:
 
+$$\mathbf{G}_i \mathbf{G}_i^\top \mathbf{w} = -\mathbf{G}_i (\mathbf{g}_i^{mag})^\top + \mathbf{z}$$
 
-$$\langle \mathbf{g}_i^{final}, \mathbf{g}_j^{final} \rangle \geq 0 \quad \forall i, j$$
+where $\mathbf{z}_k = \varepsilon \|\mathbf{g}_i^{mag}\| \|\mathbf{g}_{j_k}^{mag}\|$ targets a small positive similarity margin ($\varepsilon \geq 0$). The deconflicted gradient is:
 
+$$\mathbf{g}_i^{final} = \mathbf{g}_i^{mag} + \mathbf{w}^\top \mathbf{G}_i$$
 
-Unlike PCGrad which handles this pairwise (and can create inconsistencies), GradCraft solves a global optimization problem to find the smallest adjustments to $\{\mathbf{g}_i^{mag}\}$ that achieve universal non-negativity. This is a more expensive but more internally consistent operation.
+This solves all conflicts for task $i$ simultaneously in a single linear system (unlike PCGrad which projects pairwise and can create inconsistencies).
 
 **Pseudocode.**
 
 ```python
 # GradCraft
-def gradcraft(gradients):
+def gradcraft(gradients, tau=0.5, eps=0.0):
     T = len(gradients)
 
-    # Stage 1: Magnitude balancing
+    # Stage 1: Magnitude balancing (soft blend with parameter tau)
     norms = [g.norm() for g in gradients]
     max_norm = max(norms)
-    g_mag = [g * (max_norm / n) for g, n in zip(gradients, norms)]
+    g_mag = [g * (tau * max_norm / n + (1 - tau))
+             for g, n in zip(gradients, norms)]
 
-    # Stage 2: Direction alignment
-    # Iteratively project conflicting pairs until all pairs are synergistic
-    g_final = [g.clone() for g in g_mag]
-    converged = False
-    while not converged:
-        converged = True
-        for i in range(T):
-            for j in range(i + 1, T):
-                dot = torch.dot(g_final[i], g_final[j])
-                if dot < 0:
-                    converged = False
-                    # Project both toward each other to resolve conflict
-                    norm_j_sq = g_final[j].norm() ** 2
-                    norm_i_sq = g_final[i].norm() ** 2
-                    g_i_new = g_final[i] - (dot / norm_j_sq) * g_final[j]
-                    g_j_new = g_final[j] - (dot / norm_i_sq) * g_final[i]
-                    g_final[i] = g_i_new
-                    g_final[j] = g_j_new
+    # Stage 2: Global direction deconfliction (per-task linear system solve)
+    g_final = []
+    for i in range(T):
+        # Identify conflicting tasks for task i
+        conflict_idx = [j for j in range(T)
+                        if j != i and torch.dot(g_mag[i], g_mag[j]) < 0]
 
-    return sum(g_final)
+        if not conflict_idx:
+            g_final.append(g_mag[i].clone())
+            continue
+
+        # Stack conflicting gradients: G_i shape [C, D]
+        G_i = torch.stack([g_mag[j] for j in conflict_idx])
+
+        # Target similarity margin: z_k = eps * ||g_i|| * ||g_j_k||
+        z = torch.tensor([eps * g_mag[i].norm() * g_mag[j].norm()
+                          for j in conflict_idx])
+
+        # Solve: G_i G_i^T w = -G_i g_mag[i] + z
+        A = G_i @ G_i.t()           # [C, C]
+        b = -(G_i @ g_mag[i]) + z   # [C]
+        w = torch.linalg.solve(A, b) # [C]
+
+        # Deconflicted gradient: g_final_i = g_mag_i + w^T G_i
+        g_final.append(g_mag[i] + w @ G_i)
+
+    return sum(g_final) / T
 ```
 
 **Pros and Cons.**
-- Pros: Addresses both magnitude and direction; global synergy constraint is stronger than pairwise PCGrad; peer-reviewed and published at KDD 2024.
-- Cons: Iterative Stage 2 is computationally expensive; convergence not always guaranteed in the iterative approach; $O(T^2)$ loop in Stage 2.
+- Pros: Addresses both magnitude and direction; global synergy constraint is stronger than pairwise PCGrad; linear system per task is deterministic and well-defined; peer-reviewed and published at KDD 2024.
+- Cons: Stage 2 requires solving $T$ independent linear systems, each up to $O(T) \times O(T)$, making overall cost $O(T^3)$ in the worst case; $\tau$ and $\varepsilon$ are additional hyperparameters; matrix $\mathbf{G}_i \mathbf{G}_i^\top$ may be ill-conditioned if conflicting gradients are nearly parallel.
 
 ---
 
@@ -659,13 +669,21 @@ def gradcraft(gradients):
 $$\Delta\theta_i = \text{Adam}(\mathbf{g}_i, m_i, v_i) = \frac{\hat{m}_i}{\sqrt{\hat{v}_i} + \epsilon}$$
 
 
-where $m_i, v_i$ are the first and second moment estimates for task $i$'s gradients. PUB then finds the joint update direction:
+where $\hat{m}_i, \hat{v}_i$ are the bias-corrected first and second moment estimates. Let $D \in \mathbb{R}^{d \times T}$ be the matrix whose columns are the task updates $\Delta\theta_i$. PUB defines the utility of a joint update $\Delta\theta = D\alpha$ for task $i$ as:
 
 
-$$\Delta\theta^* = \arg\max_{\Delta\theta} \min_{i \in [T]} \langle \Delta\theta_i, \Delta\theta \rangle \quad \text{s.t.} \quad \Delta\theta \in \text{conv}(\{\Delta\theta_i\})$$
+$$u_i(\alpha) = \Delta\theta_i^\top D\alpha$$
 
 
-This is the CAGrad/MGDA framework applied to Adam updates rather than raw gradients. The constraint that $\Delta\theta$ lies in the convex hull of task updates ensures the final step is a mixture of individually valid Adam steps.
+and maximizes the **log-sum utility** (geometric mean of task utilities):
+
+
+$$\max_{\alpha > 0} \sum_{i=1}^{T} \log u_i(\alpha)$$
+
+
+The first-order optimality condition gives $D^\top D\, \alpha = \mathbf{1}/\alpha$ (element-wise reciprocal), which PUB solves via a **sequential convex optimization** procedure: at each inner iteration $\tau$ the concave log terms are linearized, yielding a tractable convex subproblem solved with CVXPY.
+
+This is fundamentally different from MGDA/CAGrad (which use max-min or min-norm objectives): PUB maximizes the *geometric mean* of task utilities, which is both smoother and more aligned with multiplicative balance under Adam's adaptive scaling.
 
 **Pseudocode.**
 
@@ -716,23 +734,35 @@ def pub_update(model, task_losses, optimizer):
 
 **Intuition.** Even within a single task, different users generate gradients with varying compatibility with the primary objective. DRGrad operates at the finest recommendation-specific granularity: individual users [^12]. For each user, it routes gradients from auxiliary tasks only when they are likely to be cooperative with the primary task's objective for that specific user.
 
-**Math.** DRGrad consists of three components:
+**Math.** DRGrad uses a split model where each task $k$ has a private sub-network (operating on task-specific representation $\mathbf{v}_k$) and a shared sub-network (operating on shared representation $\mathbf{v}_s$). Let $\mathbf{g}_k'$ and $\mathbf{g}_k''$ denote the gradients flowing through the private and shared paths of task $k$, respectively.
 
-**Router**: Estimates the compatibility of auxiliary task gradients for a given user $u$:
-
-
-$$r_u^{(i)} = \sigma(W_r \mathbf{h}_u + b_r)$$
+**Router**: Computes cosine similarities and norm ratios between gradient pairs to determine routing weights:
 
 
-where $\mathbf{h}_u$ is the user representation. A high $r_u^{(i)}$ means task $i$'s gradient is likely helpful for user $u$.
+$$\xi_1 = \frac{\mathbf{g}_1' \cdot \mathbf{g}_2}{\|\mathbf{g}_1'\|\,\|\mathbf{g}_2\|}, \quad \lambda_1 = \left[\text{clip}\!\left(\frac{\|\mathbf{g}_1'\|}{\|\mathbf{g}_2\|}, 0, 1\right)\right]^\gamma$$
 
-**Updater**: Computes a balanced gradient using only the routed (cooperative) gradients:
-
-
-$$\mathbf{g}_u^{balanced} = \mathbf{g}_u^{primary} + \sum_{i \neq \text{primary}} r_u^{(i)} \cdot \mathbf{g}_u^{(i)}$$
+$$\xi_2 = \frac{\mathbf{g}_1' \cdot \mathbf{g}_1''}{\|\mathbf{g}_1'\|\,\|\mathbf{g}_1''\|}, \quad \lambda_2 = \left[\text{clip}\!\left(\frac{\|\mathbf{g}_1'\|}{\|\mathbf{g}_1''\|}, 0, 1\right)\right]^\gamma$$
 
 
-**Personalized Gate Network**: Learns per-user routing policies that adapt over training, allowing the system to identify which auxiliary tasks benefit which user segments.
+The routed gradient components are then:
+
+$$\mathbf{g}_{R,1}' = (1 - \mathbf{1}[\xi_1{<}0]\cdot\xi_1)\,\lambda_1\,\mathbf{g}_1'' + \mathbf{1}[\xi_2{\geq}0]\,\lambda_2\,\mathbf{g}_2$$
+
+$$\mathbf{g}_{R,1}'' = -\mathbf{1}[\xi_1\cdot\xi_2{<}0]\cdot\xi_1\xi_2\,\mathbf{g}_1''$$
+
+**Updater**: Accumulates gradient norms over training steps and uses softmax blending to weight the private vs. shared task outputs:
+
+$$\sigma'(t) = \sigma'(t{-}1) + \|\mathbf{g}_1' + \mathbf{g}_{R,1}'\|, \quad \sigma''(t) = \sigma''(t{-}1) + \|\mathbf{g}_1'' + \mathbf{g}_{R,1}''\|$$
+
+$$\mu_1'(t) = \frac{e^{\sigma'(t)}}{e^{\sigma'(t)} + e^{\sigma''(t)}}, \quad \mu_1''(t) = \frac{e^{\sigma''(t)}}{e^{\sigma'(t)} + e^{\sigma''(t)}}$$
+
+$$T_1 = \mu_1' \cdot T_1'(\mathbf{v}_1) + \mu_1'' \cdot T_1''(\mathbf{v}_s)$$
+
+**Personalized Gate Network**: Modulates the shared representation input using personalized features (user/item IDs) via an element-wise gating:
+
+$$\mathbf{v}_s \leftarrow 2\,\mathbf{v}_s \odot \sigma(\mathbf{v}_{PPNet} \cdot \omega_{PPNet})$$
+
+This gate suppresses shared-representation dimensions that are unhelpful for the current user, providing personalized gradient routing without increasing task count or model depth.
 
 **Pros and Cons.**
 - Pros: Most fine-grained method available (user-level gradient routing); directly addresses the heterogeneous user population in recommendation.

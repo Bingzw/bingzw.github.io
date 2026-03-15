@@ -454,7 +454,7 @@
             <ul class="post-tags">
                 
                     
-                    <li><a href="/tags/machine-learning/">#Machine-Learning</a></li>
+                    <li><a href="/tags/machine-learning/">#Machine Learning</a></li>
                 
                     
                     <li><a href="/tags/multi-task-learning/">#Multi-Task-Learning</a></li>
@@ -640,10 +640,10 @@ $$\cos(\mathbf{g}_i, \mathbf{g}_j) = \frac{\mathbf{g}_i \cdot \mathbf{g}_j}{\|\m
 </h3>
 <p><strong>Intuition.</strong> Imagine a relay race where some runners are sprinting and others are jogging. GradNorm is the coach who watches pace and tells the sprinters to slow down, or the joggers to speed up, so the team arrives in formation <sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>. Concretely, it maintains a running estimate of each task&rsquo;s training speed and adjusts $w_i$ so that faster-learning tasks do not crowd out slower ones.</p>
 <p><strong>Math.</strong> At training step $t$, define the weighted gradient norm for task $i$:</p>
-$$G_W^{(i)}(t) = \|w_i(t) \nabla_W \mathcal{L}_i(t)\|_2$$<p>where $W$ denotes the parameters of the final shared layer (a proxy for the full network). The <strong>relative inverse training rate</strong> measures how fast task $i$ learns relative to the average:</p>
-$$\tilde{\mathcal{L}}_i(t) = \frac{\mathcal{L}_i(t)}{\mathcal{L}_i(0)}$$<p>The average rate is $\bar{\mathcal{L}}(t) = \frac{1}{T} \sum_i \tilde{\mathcal{L}}_i(t)$.</p>
+$$G_W^{(i)}(t) = \|w_i(t) \nabla_W \mathcal{L}_i(t)\|_2$$<p>where $W$ denotes the parameters of the final shared layer (a proxy for the full network). The <strong>inverse training rate</strong> for task $i$ is the normalized loss (higher = slower learning):</p>
+$$\tilde{\mathcal{L}}_i(t) = \frac{\mathcal{L}_i(t)}{\mathcal{L}_i(0)}$$<p>The average inverse training rate is $\bar{\mathcal{L}}(t) = \frac{1}{T} \sum_i \tilde{\mathcal{L}}_i(t)$. The <strong>relative inverse training rate</strong> of task $i$ is then $r_i(t) = \tilde{\mathcal{L}}_i(t) / \bar{\mathcal{L}}(t)$ — a value above 1 means task $i$ is learning slower than average.</p>
 <p>The target gradient norm for task $i$ is:</p>
-$$G_W^{target}(t) = \bar{G}_W(t) \cdot \left[\frac{\tilde{\mathcal{L}}_i(t)}{\bar{\mathcal{L}}(t)}\right]^\alpha$$<p>where $\bar{G}_W(t) = \frac{1}{T} \sum_i G_W^{(i)}(t)$ is the mean gradient norm. The hyperparameter $\alpha \geq 0$ controls how aggressively slow learners are prioritized:</p>
+$$G_W^{target}(t) = \bar{G}_W(t) \cdot \left[r_i(t)\right]^\alpha = \bar{G}_W(t) \cdot \left[\frac{\tilde{\mathcal{L}}_i(t)}{\bar{\mathcal{L}}(t)}\right]^\alpha$$<p>where $\bar{G}_W(t) = \frac{1}{T} \sum_i G_W^{(i)}(t)$ is the mean gradient norm. The hyperparameter $\alpha \geq 0$ controls how aggressively slow learners are prioritized:</p>
 <ul>
 <li>$\alpha = 0$: all tasks receive equal gradient norm (full equalization).</li>
 <li>$\alpha \to \infty$: tasks that are falling behind receive disproportionately large boosts.</li>
@@ -1062,44 +1062,53 @@ $$\lambda_{k+1} = \Pi_{\Delta^M}\!\left(\lambda_k - \beta_k\, V_{k+1}^\top \bigl
 </div>
 </h3>
 <p><strong>Intuition.</strong> Previous methods address either magnitude (GradNorm, MetaBalance) or direction (PCGrad, MGDA) — but rarely both simultaneously. GradCraft takes a holistic two-stage approach: first equalize gradient magnitudes, then enforce that all pairs of adjusted gradients have non-negative dot products (global synergy). This combines the benefits of norm balancing and conflict resolution in a single unified procedure <sup id="fnref:10"><a href="#fn:10" class="footnote-ref" role="doc-noteref">10</a></sup>.</p>
-<p><strong>Math.</strong> <strong>Stage 1 (Magnitude Balancing).</strong> Rescale each task gradient to match the maximum norm:</p>
-$$\mathbf{g}_i^{mag} = \mathbf{g}_i \cdot \frac{\max_j \|\mathbf{g}_j\|}{\|\mathbf{g}_i\|}$$<p>After this step, all $\|\mathbf{g}_i^{mag}\| = \max_j \|\mathbf{g}_j\|$ — a level playing field.</p>
-<p><strong>Stage 2 (Direction Alignment).</strong> Enforce global pairwise non-negativity: find adjusted gradients $\{\mathbf{g}_i^{final}\}$ such that:</p>
-$$\langle \mathbf{g}_i^{final}, \mathbf{g}_j^{final} \rangle \geq 0 \quad \forall i, j$$<p>Unlike PCGrad which handles this pairwise (and can create inconsistencies), GradCraft solves a global optimization problem to find the smallest adjustments to $\{\mathbf{g}_i^{mag}\}$ that achieve universal non-negativity. This is a more expensive but more internally consistent operation.</p>
+<p><strong>Math.</strong> <strong>Stage 1 (Magnitude Balancing).</strong> Rescale each task gradient using a soft blend controlled by $\tau \in [0,1]$:</p>
+$$\mathbf{g}_i^{mag} = \tau \cdot \frac{\max_j \|\mathbf{g}_j\|}{\|\mathbf{g}_i\|} \mathbf{g}_i + (1-\tau) \mathbf{g}_i = \left(\tau \cdot \frac{\max_j \|\mathbf{g}_j\|}{\|\mathbf{g}_i\|} + (1-\tau)\right) \mathbf{g}_i$$<p>When $\tau=1$ this is full norm alignment; $\tau=0$ leaves gradients unchanged. The soft blend prevents magnitude differences from spanning multiple orders of magnitude while preserving task specificity.</p>
+<p><strong>Stage 2 (Direction Alignment).</strong> For each task $i$, let $\mathcal{C}_i = \{j \neq i : \langle \mathbf{g}_i^{mag}, \mathbf{g}_j^{mag} \rangle < 0\}$ be the set of conflicting tasks. If $\mathcal{C}_i$ is non-empty, stack the conflicting gradients into matrix $\mathbf{G}_i \in \mathbb{R}^{|\mathcal{C}_i| \times d}$ and solve the linear system:</p>
+$$\mathbf{G}_i \mathbf{G}_i^\top \mathbf{w} = -\mathbf{G}_i (\mathbf{g}_i^{mag})^\top + \mathbf{z}$$<p>where $\mathbf{z}_k = \varepsilon \|\mathbf{g}_i^{mag}\| \|\mathbf{g}_{j_k}^{mag}\|$ targets a small positive similarity margin ($\varepsilon \geq 0$). The deconflicted gradient is:</p>
+$$\mathbf{g}_i^{final} = \mathbf{g}_i^{mag} + \mathbf{w}^\top \mathbf{G}_i$$<p>This solves all conflicts for task $i$ simultaneously in a single linear system (unlike PCGrad which projects pairwise and can create inconsistencies).</p>
 <p><strong>Pseudocode.</strong></p>
 <div class="highlight"><pre tabindex="0" style="color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#78787e"># GradCraft</span>
-</span></span><span style="display:flex;"><span><span style="color:#ff6ac1">def</span> <span style="color:#57c7ff">gradcraft</span>(gradients):
+</span></span><span style="display:flex;"><span><span style="color:#ff6ac1">def</span> <span style="color:#57c7ff">gradcraft</span>(gradients, tau<span style="color:#ff6ac1">=</span><span style="color:#ff9f43">0.5</span>, eps<span style="color:#ff6ac1">=</span><span style="color:#ff9f43">0.0</span>):
 </span></span><span style="display:flex;"><span>    T <span style="color:#ff6ac1">=</span> <span style="color:#ff5c57">len</span>(gradients)
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#78787e"># Stage 1: Magnitude balancing</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#78787e"># Stage 1: Magnitude balancing (soft blend with parameter tau)</span>
 </span></span><span style="display:flex;"><span>    norms <span style="color:#ff6ac1">=</span> [g<span style="color:#ff6ac1">.</span>norm() <span style="color:#ff6ac1">for</span> g <span style="color:#ff6ac1">in</span> gradients]
 </span></span><span style="display:flex;"><span>    max_norm <span style="color:#ff6ac1">=</span> <span style="color:#ff5c57">max</span>(norms)
-</span></span><span style="display:flex;"><span>    g_mag <span style="color:#ff6ac1">=</span> [g <span style="color:#ff6ac1">*</span> (max_norm <span style="color:#ff6ac1">/</span> n) <span style="color:#ff6ac1">for</span> g, n <span style="color:#ff6ac1">in</span> <span style="color:#ff5c57">zip</span>(gradients, norms)]
+</span></span><span style="display:flex;"><span>    g_mag <span style="color:#ff6ac1">=</span> [g <span style="color:#ff6ac1">*</span> (tau <span style="color:#ff6ac1">*</span> max_norm <span style="color:#ff6ac1">/</span> n <span style="color:#ff6ac1">+</span> (<span style="color:#ff9f43">1</span> <span style="color:#ff6ac1">-</span> tau))
+</span></span><span style="display:flex;"><span>             <span style="color:#ff6ac1">for</span> g, n <span style="color:#ff6ac1">in</span> <span style="color:#ff5c57">zip</span>(gradients, norms)]
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#78787e"># Stage 2: Direction alignment</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#78787e"># Iteratively project conflicting pairs until all pairs are synergistic</span>
-</span></span><span style="display:flex;"><span>    g_final <span style="color:#ff6ac1">=</span> [g<span style="color:#ff6ac1">.</span>clone() <span style="color:#ff6ac1">for</span> g <span style="color:#ff6ac1">in</span> g_mag]
-</span></span><span style="display:flex;"><span>    converged <span style="color:#ff6ac1">=</span> <span style="color:#ff6ac1">False</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#ff6ac1">while</span> <span style="color:#ff6ac1">not</span> converged:
-</span></span><span style="display:flex;"><span>        converged <span style="color:#ff6ac1">=</span> <span style="color:#ff6ac1">True</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#ff6ac1">for</span> i <span style="color:#ff6ac1">in</span> <span style="color:#ff5c57">range</span>(T):
-</span></span><span style="display:flex;"><span>            <span style="color:#ff6ac1">for</span> j <span style="color:#ff6ac1">in</span> <span style="color:#ff5c57">range</span>(i <span style="color:#ff6ac1">+</span> <span style="color:#ff9f43">1</span>, T):
-</span></span><span style="display:flex;"><span>                dot <span style="color:#ff6ac1">=</span> torch<span style="color:#ff6ac1">.</span>dot(g_final[i], g_final[j])
-</span></span><span style="display:flex;"><span>                <span style="color:#ff6ac1">if</span> dot <span style="color:#ff6ac1">&lt;</span> <span style="color:#ff9f43">0</span>:
-</span></span><span style="display:flex;"><span>                    converged <span style="color:#ff6ac1">=</span> <span style="color:#ff6ac1">False</span>
-</span></span><span style="display:flex;"><span>                    <span style="color:#78787e"># Project both toward each other to resolve conflict</span>
-</span></span><span style="display:flex;"><span>                    norm_j_sq <span style="color:#ff6ac1">=</span> g_final[j]<span style="color:#ff6ac1">.</span>norm() <span style="color:#ff6ac1">**</span> <span style="color:#ff9f43">2</span>
-</span></span><span style="display:flex;"><span>                    norm_i_sq <span style="color:#ff6ac1">=</span> g_final[i]<span style="color:#ff6ac1">.</span>norm() <span style="color:#ff6ac1">**</span> <span style="color:#ff9f43">2</span>
-</span></span><span style="display:flex;"><span>                    g_i_new <span style="color:#ff6ac1">=</span> g_final[i] <span style="color:#ff6ac1">-</span> (dot <span style="color:#ff6ac1">/</span> norm_j_sq) <span style="color:#ff6ac1">*</span> g_final[j]
-</span></span><span style="display:flex;"><span>                    g_j_new <span style="color:#ff6ac1">=</span> g_final[j] <span style="color:#ff6ac1">-</span> (dot <span style="color:#ff6ac1">/</span> norm_i_sq) <span style="color:#ff6ac1">*</span> g_final[i]
-</span></span><span style="display:flex;"><span>                    g_final[i] <span style="color:#ff6ac1">=</span> g_i_new
-</span></span><span style="display:flex;"><span>                    g_final[j] <span style="color:#ff6ac1">=</span> g_j_new
+</span></span><span style="display:flex;"><span>    <span style="color:#78787e"># Stage 2: Global direction deconfliction (per-task linear system solve)</span>
+</span></span><span style="display:flex;"><span>    g_final <span style="color:#ff6ac1">=</span> []
+</span></span><span style="display:flex;"><span>    <span style="color:#ff6ac1">for</span> i <span style="color:#ff6ac1">in</span> <span style="color:#ff5c57">range</span>(T):
+</span></span><span style="display:flex;"><span>        <span style="color:#78787e"># Identify conflicting tasks for task i</span>
+</span></span><span style="display:flex;"><span>        conflict_idx <span style="color:#ff6ac1">=</span> [j <span style="color:#ff6ac1">for</span> j <span style="color:#ff6ac1">in</span> <span style="color:#ff5c57">range</span>(T)
+</span></span><span style="display:flex;"><span>                        <span style="color:#ff6ac1">if</span> j <span style="color:#ff6ac1">!=</span> i <span style="color:#ff6ac1">and</span> torch<span style="color:#ff6ac1">.</span>dot(g_mag[i], g_mag[j]) <span style="color:#ff6ac1">&lt;</span> <span style="color:#ff9f43">0</span>]
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#ff6ac1">return</span> <span style="color:#ff5c57">sum</span>(g_final)
+</span></span><span style="display:flex;"><span>        <span style="color:#ff6ac1">if</span> <span style="color:#ff6ac1">not</span> conflict_idx:
+</span></span><span style="display:flex;"><span>            g_final<span style="color:#ff6ac1">.</span>append(g_mag[i]<span style="color:#ff6ac1">.</span>clone())
+</span></span><span style="display:flex;"><span>            <span style="color:#ff6ac1">continue</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#78787e"># Stack conflicting gradients: G_i shape [C, D]</span>
+</span></span><span style="display:flex;"><span>        G_i <span style="color:#ff6ac1">=</span> torch<span style="color:#ff6ac1">.</span>stack([g_mag[j] <span style="color:#ff6ac1">for</span> j <span style="color:#ff6ac1">in</span> conflict_idx])
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#78787e"># Target similarity margin: z_k = eps * ||g_i|| * ||g_j_k||</span>
+</span></span><span style="display:flex;"><span>        z <span style="color:#ff6ac1">=</span> torch<span style="color:#ff6ac1">.</span>tensor([eps <span style="color:#ff6ac1">*</span> g_mag[i]<span style="color:#ff6ac1">.</span>norm() <span style="color:#ff6ac1">*</span> g_mag[j]<span style="color:#ff6ac1">.</span>norm()
+</span></span><span style="display:flex;"><span>                          <span style="color:#ff6ac1">for</span> j <span style="color:#ff6ac1">in</span> conflict_idx])
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#78787e"># Solve: G_i G_i^T w = -G_i g_mag[i] + z</span>
+</span></span><span style="display:flex;"><span>        A <span style="color:#ff6ac1">=</span> G_i <span style="color:#ff6ac1">@</span> G_i<span style="color:#ff6ac1">.</span>t()           <span style="color:#78787e"># [C, C]</span>
+</span></span><span style="display:flex;"><span>        b <span style="color:#ff6ac1">=</span> <span style="color:#ff6ac1">-</span>(G_i <span style="color:#ff6ac1">@</span> g_mag[i]) <span style="color:#ff6ac1">+</span> z   <span style="color:#78787e"># [C]</span>
+</span></span><span style="display:flex;"><span>        w <span style="color:#ff6ac1">=</span> torch<span style="color:#ff6ac1">.</span>linalg<span style="color:#ff6ac1">.</span>solve(A, b) <span style="color:#78787e"># [C]</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#78787e"># Deconflicted gradient: g_final_i = g_mag_i + w^T G_i</span>
+</span></span><span style="display:flex;"><span>        g_final<span style="color:#ff6ac1">.</span>append(g_mag[i] <span style="color:#ff6ac1">+</span> w <span style="color:#ff6ac1">@</span> G_i)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ff6ac1">return</span> <span style="color:#ff5c57">sum</span>(g_final) <span style="color:#ff6ac1">/</span> T
 </span></span></code></pre></div><p><strong>Pros and Cons.</strong></p>
 <ul>
-<li>Pros: Addresses both magnitude and direction; global synergy constraint is stronger than pairwise PCGrad; peer-reviewed and published at KDD 2024.</li>
-<li>Cons: Iterative Stage 2 is computationally expensive; convergence not always guaranteed in the iterative approach; $O(T^2)$ loop in Stage 2.</li>
+<li>Pros: Addresses both magnitude and direction; global synergy constraint is stronger than pairwise PCGrad; linear system per task is deterministic and well-defined; peer-reviewed and published at KDD 2024.</li>
+<li>Cons: Stage 2 requires solving $T$ independent linear systems, each up to $O(T) \times O(T)$, making overall cost $O(T^3)$ in the worst case; $\tau$ and $\varepsilon$ are additional hyperparameters; matrix $\mathbf{G}_i \mathbf{G}_i^\top$ may be ill-conditioned if conflicting gradients are nearly parallel.</li>
 </ul>
 <hr>
 <h3 id="211-pub--parameter-update-balancing-2024" >
@@ -1112,8 +1121,10 @@ $$\langle \mathbf{g}_i^{final}, \mathbf{g}_j^{final} \rangle \geq 0 \quad \foral
 </h3>
 <p><strong>Intuition.</strong> All gradient balancing methods so far operate on raw gradients $\mathbf{g}_i$. But in practice, models are trained with Adam, not vanilla SGD. Adam&rsquo;s adaptive moment estimates transform gradients before applying them: $\mathbf{g}_i^{Adam} \neq \mathbf{g}_i$. PUB makes a critical observation: <strong>gradient balancing does not equal update balancing under Adam</strong>. Two tasks with balanced gradients can still have highly imbalanced actual parameter updates once Adam applies its per-parameter learning rates. PUB closes this &ldquo;momentum gap&rdquo; by balancing the actual Adam updates, not the raw gradients <sup id="fnref:11"><a href="#fn:11" class="footnote-ref" role="doc-noteref">11</a></sup>.</p>
 <p><strong>Math.</strong> For each task $i$, compute the Adam-adjusted update:</p>
-$$\Delta\theta_i = \text{Adam}(\mathbf{g}_i, m_i, v_i) = \frac{\hat{m}_i}{\sqrt{\hat{v}_i} + \epsilon}$$<p>where $m_i, v_i$ are the first and second moment estimates for task $i$&rsquo;s gradients. PUB then finds the joint update direction:</p>
-$$\Delta\theta^* = \arg\max_{\Delta\theta} \min_{i \in [T]} \langle \Delta\theta_i, \Delta\theta \rangle \quad \text{s.t.} \quad \Delta\theta \in \text{conv}(\{\Delta\theta_i\})$$<p>This is the CAGrad/MGDA framework applied to Adam updates rather than raw gradients. The constraint that $\Delta\theta$ lies in the convex hull of task updates ensures the final step is a mixture of individually valid Adam steps.</p>
+$$\Delta\theta_i = \text{Adam}(\mathbf{g}_i, m_i, v_i) = \frac{\hat{m}_i}{\sqrt{\hat{v}_i} + \epsilon}$$<p>where $\hat{m}_i, \hat{v}_i$ are the bias-corrected first and second moment estimates. Let $D \in \mathbb{R}^{d \times T}$ be the matrix whose columns are the task updates $\Delta\theta_i$. PUB defines the utility of a joint update $\Delta\theta = D\alpha$ for task $i$ as:</p>
+$$u_i(\alpha) = \Delta\theta_i^\top D\alpha$$<p>and maximizes the <strong>log-sum utility</strong> (geometric mean of task utilities):</p>
+$$\max_{\alpha > 0} \sum_{i=1}^{T} \log u_i(\alpha)$$<p>The first-order optimality condition gives $D^\top D\, \alpha = \mathbf{1}/\alpha$ (element-wise reciprocal), which PUB solves via a <strong>sequential convex optimization</strong> procedure: at each inner iteration $\tau$ the concave log terms are linearized, yielding a tractable convex subproblem solved with CVXPY.</p>
+<p>This is fundamentally different from MGDA/CAGrad (which use max-min or min-norm objectives): PUB maximizes the <em>geometric mean</em> of task utilities, which is both smoother and more aligned with multiplicative balance under Adam&rsquo;s adaptive scaling.</p>
 <p><strong>Pseudocode.</strong></p>
 <div class="highlight"><pre tabindex="0" style="color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#78787e"># PUB: Parameter Update Balancing (closes the momentum gap)</span>
 </span></span><span style="display:flex;"><span><span style="color:#ff6ac1">def</span> <span style="color:#57c7ff">pub_update</span>(model, task_losses, optimizer):
@@ -1164,11 +1175,12 @@ $$\Delta\theta^* = \arg\max_{\Delta\theta} \min_{i \in [T]} \langle \Delta\theta
 </div>
 </h3>
 <p><strong>Intuition.</strong> Even within a single task, different users generate gradients with varying compatibility with the primary objective. DRGrad operates at the finest recommendation-specific granularity: individual users <sup id="fnref:12"><a href="#fn:12" class="footnote-ref" role="doc-noteref">12</a></sup>. For each user, it routes gradients from auxiliary tasks only when they are likely to be cooperative with the primary task&rsquo;s objective for that specific user.</p>
-<p><strong>Math.</strong> DRGrad consists of three components:</p>
-<p><strong>Router</strong>: Estimates the compatibility of auxiliary task gradients for a given user $u$:</p>
-$$r_u^{(i)} = \sigma(W_r \mathbf{h}_u + b_r)$$<p>where $\mathbf{h}_u$ is the user representation. A high $r_u^{(i)}$ means task $i$&rsquo;s gradient is likely helpful for user $u$.</p>
-<p><strong>Updater</strong>: Computes a balanced gradient using only the routed (cooperative) gradients:</p>
-$$\mathbf{g}_u^{balanced} = \mathbf{g}_u^{primary} + \sum_{i \neq \text{primary}} r_u^{(i)} \cdot \mathbf{g}_u^{(i)}$$<p><strong>Personalized Gate Network</strong>: Learns per-user routing policies that adapt over training, allowing the system to identify which auxiliary tasks benefit which user segments.</p>
+<p><strong>Math.</strong> DRGrad uses a split model where each task $k$ has a private sub-network (operating on task-specific representation $\mathbf{v}_k$) and a shared sub-network (operating on shared representation $\mathbf{v}_s$). Let $\mathbf{g}_k'$ and $\mathbf{g}_k''$ denote the gradients flowing through the private and shared paths of task $k$, respectively.</p>
+<p><strong>Router</strong>: Computes cosine similarities and norm ratios between gradient pairs to determine routing weights:</p>
+$$\xi_1 = \frac{\mathbf{g}_1' \cdot \mathbf{g}_2}{\|\mathbf{g}_1'\|\,\|\mathbf{g}_2\|}, \quad \lambda_1 = \left[\text{clip}\!\left(\frac{\|\mathbf{g}_1'\|}{\|\mathbf{g}_2\|}, 0, 1\right)\right]^\gamma$$$$\xi_2 = \frac{\mathbf{g}_1' \cdot \mathbf{g}_1''}{\|\mathbf{g}_1'\|\,\|\mathbf{g}_1''\|}, \quad \lambda_2 = \left[\text{clip}\!\left(\frac{\|\mathbf{g}_1'\|}{\|\mathbf{g}_1''\|}, 0, 1\right)\right]^\gamma$$<p>The routed gradient components are then:</p>
+$$\mathbf{g}_{R,1}' = (1 - \mathbf{1}[\xi_1{<}0]\cdot\xi_1)\,\lambda_1\,\mathbf{g}_1'' + \mathbf{1}[\xi_2{\geq}0]\,\lambda_2\,\mathbf{g}_2$$$$\mathbf{g}_{R,1}'' = -\mathbf{1}[\xi_1\cdot\xi_2{<}0]\cdot\xi_1\xi_2\,\mathbf{g}_1''$$<p><strong>Updater</strong>: Accumulates gradient norms over training steps and uses softmax blending to weight the private vs. shared task outputs:</p>
+$$\sigma'(t) = \sigma'(t{-}1) + \|\mathbf{g}_1' + \mathbf{g}_{R,1}'\|, \quad \sigma''(t) = \sigma''(t{-}1) + \|\mathbf{g}_1'' + \mathbf{g}_{R,1}''\|$$$$\mu_1'(t) = \frac{e^{\sigma'(t)}}{e^{\sigma'(t)} + e^{\sigma''(t)}}, \quad \mu_1''(t) = \frac{e^{\sigma''(t)}}{e^{\sigma'(t)} + e^{\sigma''(t)}}$$$$T_1 = \mu_1' \cdot T_1'(\mathbf{v}_1) + \mu_1'' \cdot T_1''(\mathbf{v}_s)$$<p><strong>Personalized Gate Network</strong>: Modulates the shared representation input using personalized features (user/item IDs) via an element-wise gating:</p>
+$$\mathbf{v}_s \leftarrow 2\,\mathbf{v}_s \odot \sigma(\mathbf{v}_{PPNet} \cdot \omega_{PPNet})$$<p>This gate suppresses shared-representation dimensions that are unhelpful for the current user, providing personalized gradient routing without increasing task count or model depth.</p>
 <p><strong>Pros and Cons.</strong></p>
 <ul>
 <li>Pros: Most fine-grained method available (user-level gradient routing); directly addresses the heterogeneous user population in recommendation.</li>
